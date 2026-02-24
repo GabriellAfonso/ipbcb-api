@@ -14,8 +14,7 @@ hinos_completos.json
 __pycache__
 server/db.sqlite3
 media
-**/migrations/*
-!**/migrations/__init__.py
+
 
 # Backup files # 
 *.bak 
