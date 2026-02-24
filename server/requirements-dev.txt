@@ -9,3 +9,4 @@ dependency-injector==4.48.3
 pydantic==2.12.5
 pytest==9.0.2
 pytest-django==4.11.1
+dotenv==0.9.9

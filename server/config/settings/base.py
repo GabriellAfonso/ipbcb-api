@@ -2,8 +2,11 @@
 
 Keep environment-specific values in dev.py/prod.py.
 """
-
 from __future__ import annotations
+import dotenv
+
+dotenv.load_dotenv()
+
 
 import os
 from datetime import timedelta
