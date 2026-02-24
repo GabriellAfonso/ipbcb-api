@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.auth.models import User
 from apps.persistence.models.songs import Category, Song, Played
 from apps.persistence.models.profile import Profile
 from apps.persistence.models.schedule import ScheduleType, MemberScheduleConfig, MonthlySchedule

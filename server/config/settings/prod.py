@@ -8,8 +8,6 @@ from .base import *  # noqa: F403
 
 
 DEBUG = False
-FORCE_SCRIPT_NAME = "/ipbcb"
-print(FORCE_SCRIPT_NAME)
 
 
 def _require_csv_env(name: str) -> list[str]:
