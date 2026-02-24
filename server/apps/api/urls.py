@@ -1,5 +1,5 @@
 from django.urls import path
-
+from apps.api.views.gambiarra import upload_photos
 from rest_framework_simplejwt.views import TokenRefreshView
 from apps.api.views.admin_pages import RegisterSundays, Unauthorized, RegisterSundayPlaysAPI
 from apps.api.views.auth import LoginAPI, RegisterAPI
@@ -22,6 +22,10 @@ from apps.api.views.songs import (
 app_name = "apps.api"
 
 urlpatterns = [
+    path("gallery/upload/", upload_photos, name="upload_photos"),
+
+
+
     path("unauthorized", Unauthorized.as_view(), name="unauthorized"),
     path("register-sundays", RegisterSundays.as_view(), name="register_sundays"),
 

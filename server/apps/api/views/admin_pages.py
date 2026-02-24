@@ -109,7 +109,7 @@ class RegisterSundayPlaysAPI(APIView):
     """
 
     def post(self, request):
-        user = getattr(request, "user", None)
+        user = request.user
         if not user or not getattr(user, "is_authenticated", False):
             return Response({"detail": "Authentication required."}, status=401)
 

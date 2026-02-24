@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "apps.persistence",
     "apps.api",
-    # "main",
 
 ]
 
@@ -79,6 +78,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Database
 DATABASES = {

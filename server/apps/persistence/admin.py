@@ -4,6 +4,8 @@ from apps.persistence.models.profile import Profile
 from apps.persistence.models.schedule import ScheduleType, MemberScheduleConfig, MonthlySchedule
 from apps.persistence.models.hymnal import Hymn
 from apps.persistence.models.member import Member
+from apps.persistence.models.gallery import Album, Photo
+
 admin.site.register(Category)
 admin.site.register(Song)
 admin.site.register(Played)
@@ -15,3 +17,5 @@ admin.site.register(MemberScheduleConfig)
 admin.site.register(MonthlySchedule)
 
 admin.site.register(Hymn)
+admin.site.register(Album)
+admin.site.register(Photo)

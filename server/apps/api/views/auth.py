@@ -5,7 +5,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from dependency_injector.wiring import inject, Provide
-from pydantic import ValidationError
+from pydantic import ValidationError  # noqa
 from apps.api.auth.jwt import get_tokens_for_user
 from apps.persistence.models.profile import User
 from core.application.dtos.auth_dtos import LoginDTO

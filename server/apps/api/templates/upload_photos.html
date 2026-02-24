@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload de Fotos</title>
+</head>
+<body>
+
+<h2>Upload de fotos</h2>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div>
+        <label>Álbum</label>
+        <select name="album" required>
+            <option value="">Selecione</option>
+            {% for album in albums %}
+                <option value="{{ album.id }}">{{ album.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label>Imagens</label>
+        <input type="file" name="images" multiple required>
+    </div>
+
+    <button type="submit">Enviar</button>
+</form>
+
+</body>
+</html>

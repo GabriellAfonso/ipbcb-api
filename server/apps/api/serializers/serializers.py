@@ -106,8 +106,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ["name", "active", "is_member", "photo_url"]
-        read_only_fields = ["active", "is_member", "photo_url"]
+        fields = ["name", "active", "is_admin", "is_member", "photo_url"]
+        read_only_fields = ["active", "is_admin", "is_member", "photo_url"]
 
     def get_photo_url(self, obj):
         request = self.context.get("request")
