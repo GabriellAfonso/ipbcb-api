@@ -8,7 +8,7 @@ from .base import *  # noqa: F403
 
 
 DEBUG = False
-FORCE_SCRIPT_NAME = "/api"
+FORCE_SCRIPT_NAME = "/ipbcb"
 print(FORCE_SCRIPT_NAME)
 
 
