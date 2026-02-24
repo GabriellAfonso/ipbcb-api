@@ -8,7 +8,8 @@ from .base import *  # noqa: F403
 
 
 DEBUG = False
-# FORCE_SCRIPT_NAME = "/api"
+FORCE_SCRIPT_NAME = "/api"
+print(FORCE_SCRIPT_NAME)
 
 
 def _require_csv_env(name: str) -> list[str]:
@@ -23,8 +24,8 @@ ALLOWED_HOSTS = _require_csv_env("DJANGO_ALLOWED_HOSTS")
 CSRF_TRUSTED_ORIGINS = _require_csv_env("DJANGO_CSRF_TRUSTED_ORIGINS")
 
 # When served under /api
-CSRF_COOKIE_PATH = "/api/"
-SESSION_COOKIE_PATH = "/api/"
+CSRF_COOKIE_PATH = "/ipbcb/"
+SESSION_COOKIE_PATH = "/ipbcb/"
 
 # Produção (recomendado)
 CSRF_COOKIE_SECURE = True
