@@ -7,14 +7,15 @@ from rest_framework.views import APIView
 from apps.persistence.models.profile import Profile
 
 from apps.api.serializers.serializers import ProfilePhotoSerializer, ProfileSerializer
-from .utils import _not_modified_or_response
+from apps.api.views.utils import _not_modified_or_response
 
 
 class ProfilePhotoAPIView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
-    def post(self, request):
+    @staticmethod
+    def post(request):
         """
         Cria ou substitui a foto de perfil do usuário autenticado
         """
@@ -37,7 +38,8 @@ class ProfilePhotoAPIView(APIView):
             status=status.HTTP_200_OK,
         )
 
-    def delete(self, request):
+    @staticmethod
+    def delete(request):
         """
         Remove a foto de perfil
         """
@@ -57,7 +59,8 @@ class ProfilePhotoAPIView(APIView):
 class MeProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get_object(self, request):
+    @staticmethod
+    def get_object(request):
         profile, _ = Profile.objects.get_or_create(user=request.user)
         return profile
 

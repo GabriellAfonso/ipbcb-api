@@ -1,10 +1,10 @@
 from django.urls import path
 from apps.api.views.gambiarra import upload_photos
 from rest_framework_simplejwt.views import TokenRefreshView
-from apps.api.views.admin_pages import RegisterSundays, Unauthorized, RegisterSundayPlaysAPI
 from apps.api.views.auth import LoginAPI, RegisterAPI
 from apps.api.views.hymnal import hymnalAPI
 from apps.api.views.profile import MeProfileAPIView, ProfilePhotoAPIView
+from apps.api.views.register_sunday_plays import RegisterSundayPlaysAPI
 from apps.api.views.schedule import (
     CurrentMonthlyScheduleAPI,
     MonthlySchedulePreviewAPI,
@@ -24,10 +24,6 @@ app_name = "apps.api"
 urlpatterns = [
     path("gallery/upload/", upload_photos, name="upload_photos"),
 
-
-
-    path("unauthorized", Unauthorized.as_view(), name="unauthorized"),
-    path("register-sundays", RegisterSundays.as_view(), name="register_sundays"),
 
     # 🎵 MÚSICAS
     path("api/songs/", AllSongsAPI.as_view(), name="all_songs"),

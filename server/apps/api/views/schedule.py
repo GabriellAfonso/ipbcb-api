@@ -11,6 +11,7 @@ from core.application.services.monthly_scheduler import (
 )
 
 from .utils import _not_modified_or_response
+from ..permissions import IsMemberUser
 
 
 def _group_monthly_schedule_qs(schedules):
@@ -32,7 +33,10 @@ def _group_monthly_schedule_qs(schedules):
 
 
 class CurrentMonthlyScheduleAPI(APIView):
-    def get(self, request):
+    permission_classes = [IsMemberUser]
+
+    @staticmethod
+    def get(request):
         today = date.today()
 
         schedules = (
