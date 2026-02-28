@@ -11,7 +11,7 @@ from apps.persistence.models.profile import User
 
 models = [
     Category, Song, Played, Profile, ScheduleType,
-    MemberScheduleConfig, MonthlySchedule, Hymn,
+    MemberScheduleConfig, Hymn,
     Album, Photo, Member, MemberStatus, Role, Ministry
 ]
 
@@ -23,3 +23,13 @@ class MyUserAdmin(BaseUserAdmin):
 
     list_display = ('username', 'is_staff')
     fieldsets = BaseUserAdmin.fieldsets
+
+@admin.register(MonthlySchedule)
+class MonthlyScheduleAdmin(admin.ModelAdmin):
+    readonly_fields = ("created_at",)
+    fields = (
+        "date",
+        "schedule_type",
+        "member",
+        "created_at",
+    )

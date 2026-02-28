@@ -4,6 +4,7 @@ from apps.api.views.gambiarra import upload_photos
 from rest_framework_simplejwt.views import TokenRefreshView
 from apps.api.views.auth import LoginAPI, RegisterAPI
 from apps.api.views.hymnal import hymnalAPI
+from apps.api.views.members import MemberListAPIView
 from apps.api.views.profile import MeProfileAPIView, ProfilePhotoAPIView
 from apps.api.views.register_sunday_plays import RegisterSundayPlaysAPI
 from apps.api.views.schedule import (
@@ -39,9 +40,7 @@ urlpatterns = [
 
     # region 🗓️ ESCALA (novo fluxo)
     path("api/schedule/current/", CurrentMonthlyScheduleAPI.as_view(), name="schedule_current"),
-    path("api/schedule/preview/", MonthlySchedulePreviewAPI.as_view(), name="schedule_preview"),
-    path("api/schedule/save/", MonthlyScheduleSaveAPI.as_view(), name="schedule_save"),
-    path("api/generate-schedule/", MonthlySchedulePreviewAPI.as_view(), name="generate_schedule"),
+
     # endregion
 
     # region 🔑 AUTH & PROFILE
@@ -55,5 +54,10 @@ urlpatterns = [
 
     # region ✅ ADMIN
     path("api/played/register/", RegisterSundayPlaysAPI.as_view(), name="register_sunday_plays"),
+    path("api/members/", MemberListAPIView.as_view(), name="members_list"),
+
+    path("api/schedule/save/", MonthlyScheduleSaveAPI.as_view(), name="schedule_save"),
+    path("api/schedule/generate/", MonthlySchedulePreviewAPI.as_view(), name="generate_schedule"),
+
     # endregion
 ]

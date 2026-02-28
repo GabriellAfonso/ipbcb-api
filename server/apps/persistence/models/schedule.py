@@ -1,6 +1,6 @@
 from django.db import models
 from apps.persistence.models.member import Member
-
+from django.utils import timezone
 
 class ScheduleType(models.Model):
     name = models.CharField(max_length=100)
@@ -8,7 +8,7 @@ class ScheduleType(models.Model):
     time = models.TimeField()
 
     def __str__(self):
-        return self.name
+        return f'{self.name} - {self.id}'
 
 
 class MemberScheduleConfig(models.Model):
@@ -31,6 +31,7 @@ class MonthlySchedule(models.Model):
     date = models.DateField()
     schedule_type = models.ForeignKey(ScheduleType, on_delete=models.CASCADE)
     member = models.ForeignKey(Member, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta:
         unique_together = ("schedule_type", "date")

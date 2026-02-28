@@ -1,8 +1,8 @@
 import random
 import calendar
 from collections import defaultdict
-from datetime import date, datetime
-
+from django.utils import timezone
+from datetime import date, datetime, timedelta
 from django.db import transaction
 
 from apps.persistence.models.schedule import (
@@ -155,32 +155,37 @@ def generate_monthly_schedule_preview(
     suggested.sort(key=lambda x: (x["schedule_type"]["name"], x["date"]))
     return {"year": year, "month": month, "items": suggested}
 
-
 def save_monthly_schedule(year: int, month: int, items: list[dict]) -> None:
-    """
-    Persists a chosen schedule into DB for (year, month).
-    Expected item shape (minimal):
-      { "date": "YYYY-MM-DD", "schedule_type_id": int, "member_id": int }
-    """
     with transaction.atomic():
-        MonthlySchedule.objects.filter(year=year, month=month).delete()
+        # Busca o registro mais antigo para validar o tempo de criação
+        existing_first = MonthlySchedule.objects.filter(year=year, month=month).order_by("created_at").first()
+
+        if existing_first:
+            # Verifica se já passaram 30 minutos desde a criação
+            if timezone.now() > existing_first.created_at + timedelta(minutes=30):
+                raise ValueError(
+                    f"A escala de {month:02d}/{year} foi criada há mais de 30 minutos. "
+                    "Por segurança, não é mais possível sobrescrevê-la."
+                )
+            
+            # Remove os registros existentes para a nova escrita
+            MonthlySchedule.objects.filter(year=year, month=month).delete()
 
         to_create = []
         for it in items:
             d = date.fromisoformat(it["date"])
-            schedule_type_id = int(it["schedule_type_id"])
-            member_id = int(it["member_id"])
-
+            
             to_create.append(
                 MonthlySchedule(
                     date=d,
-                    schedule_type_id=schedule_type_id,
-                    member_id=member_id,
+                    year=d.year,
+                    month=d.month,
+                    schedule_type_id=int(it["schedule_type_id"]),
+                    member_id=int(it["member_id"]),
                 )
             )
 
-        MonthlySchedule.objects.bulk_create(to_create, ignore_conflicts=False)
-
+        MonthlySchedule.objects.bulk_create(to_create)
 
 # Backward-compatible name (now returns preview, does NOT write to DB)
 def generate_monthly_schedule():

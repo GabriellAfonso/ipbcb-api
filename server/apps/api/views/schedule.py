@@ -10,8 +10,8 @@ from core.application.services.monthly_scheduler import (
     save_monthly_schedule,
 )
 
-from .utils import _not_modified_or_response
-from ..permissions import IsMemberUser
+from apps.api.views.utils import _not_modified_or_response
+from apps.api.permissions import IsMemberUser
 
 
 def _group_monthly_schedule_qs(schedules):
@@ -90,7 +90,6 @@ class MonthlySchedulePreviewAPI(APIView):
         )
         return Response(preview, status=200)
 
-
 class MonthlyScheduleSaveAPI(APIView):
     """
     POST body example:
@@ -105,27 +104,41 @@ class MonthlyScheduleSaveAPI(APIView):
     """
 
     def post(self, request):
-        year = int(request.data["year"])
-        month = int(request.data["month"])
-        items = request.data.get("items", []) or []
+        try:
+            year = int(request.data["year"])
+            month = int(request.data["month"])
+            items = request.data.get("items", []) or []
 
-        normalized = []
-        for it in items:
-            # aceita tanto o formato "flat" quanto o que vem do preview
-            if "schedule_type_id" in it and "member_id" in it:
-                normalized.append(it)
-                continue
+            normalized = []
+            for it in items:
+                if "schedule_type_id" in it and "member_id" in it:
+                    normalized.append(it)
+                    continue
+                try:
+                    normalized.append(
+                        {
+                            "date": it["date"],
+                            "schedule_type_id": it["schedule_type"]["id"],
+                            "member_id": it["member"]["id"],
+                        }
+                    )
+                except Exception:
+                    continue
 
-            try:
-                normalized.append(
-                    {
-                        "date": it["date"],
-                        "schedule_type_id": it["schedule_type"]["id"],
-                        "member_id": it["member"]["id"],
-                    }
-                )
-            except Exception:
-                continue
+            # DEBUG TEMPORÁRIO — remove depois que resolver
+            print("=== SAVE DEBUG ===")
+            print(f"year={year}, month={month}")
+            for item in normalized:
+                print(item)
+            print("==================")
 
-        save_monthly_schedule(year=year, month=month, items=normalized)
-        return Response({"ok": True}, status=200)
+            save_monthly_schedule(year=year, month=month, items=normalized)
+            return Response({"ok": True}, status=200)
+        
+        except ValueError as e:
+            # Captura erros de validação específicos (como o de sobrescrever escala recente)
+            return Response({"error": str(e)}, status=400)
+        
+        except Exception as e:
+            # Captura outros erros genéricos
+            return Response({"error": "Erro interno ao salvar escala: " + str(e)}, status=500)
