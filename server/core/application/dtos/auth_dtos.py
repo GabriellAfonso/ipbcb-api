@@ -10,6 +10,10 @@ class RegisterDTO(StrictBaseModel):
     first_name: str = Field(..., min_length=1, max_length=50)
     last_name: str = Field(..., min_length=1, max_length=50)
 
+    @field_validator("username")
+    @classmethod
+    def normalize_username(cls, v: str) -> str:
+        return v.strip().lower()
 
 class LoginDTO(StrictBaseModel):
     username: str = Field(..., min_length=1, max_length=150)
