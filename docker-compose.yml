@@ -1,0 +1,37 @@
+services:
+  ipbcb_server:
+    container_name: ipbcb-server-dev
+    build:
+      context: .
+    image: ipbcb-server:dev
+    command: >
+      sh -c "
+        python manage.py collectstatic --noinput &&
+        python manage.py migrate --noinput &&
+        uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --reload --log-level debug
+      "
+    env_file:
+      - ./.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./server:/server
+    depends_on:
+      ipbcb_db:
+        condition: service_healthy
+
+  ipbcb_db:
+    container_name: ipbcb-db-dev
+    image: postgres:16-alpine
+    env_file:
+      - ./.env
+    volumes:
+      - ipbcb_postgres_data_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  ipbcb_postgres_data_dev:
