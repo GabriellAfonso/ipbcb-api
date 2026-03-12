@@ -24,6 +24,12 @@ class RegisterSerializer(serializers.Serializer[RegisterData]):
             "required": _("Este campo é obrigatório."),
         },
     )
+
+    def validate_username(self, value: str) -> str:
+        normalized = value.strip().lower()
+        if User.objects.filter(username=normalized).exists():
+            raise serializers.ValidationError(_("Este nome de usuário já está em uso."))
+        return value
     first_name = serializers.CharField(
         max_length=30,
         error_messages={
