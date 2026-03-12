@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from apps.accounts.permissions import IsAdminUser
 from apps.songs.models.song import Played, Song
 
-
+# TODO Resolver essa gambiarra
 class RegisterSundayPlaysAPI(APIView):
     permission_classes = [IsAdminUser]
 

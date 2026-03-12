@@ -77,7 +77,6 @@ def generate_monthly_schedule_preview(
 
         allowed_member_by_id = {cfg.member_id: cfg.member for cfg in configs}
 
-        # pool ponderado por weight (múltiplas entradas do mesmo membro)
         weighted_members = []
         for cfg in configs:
             weighted_members.extend([cfg.member] * max(int(cfg.weight), 1))
@@ -85,7 +84,6 @@ def generate_monthly_schedule_preview(
         random.shuffle(weighted_members)
 
         for d in dates:
-            # 1) Apply fixed first (if valid for this schedule_type)
             fixed_member_id = fixed.get((schedule_type.id, d))
             if fixed_member_id:
                 member = allowed_member_by_id.get(fixed_member_id)
@@ -106,20 +104,15 @@ def generate_monthly_schedule_preview(
                     }
                     suggested.append(data)
                     continue
-                # fixed inválido -> cai na geração normal
 
-            # 2) Normal generation: pick someone from pool (avoid overusing)
-            # remove members already used in month if possible (soft rule)
             candidates = [
                 m for m in weighted_members if m.id not in used_member_ids]
             if not candidates:
                 candidates = list(weighted_members)
 
             if not candidates:
-                # nada pra escolher
                 continue
 
-            # prefer members never used this month; else pick least used
             unused = [m for m in candidates if usage_count[m.id] == 0]
             if unused:
                 member = random.choice(unused)
@@ -132,7 +125,6 @@ def generate_monthly_schedule_preview(
             usage_count[member.id] += 1
             used_member_ids.add(member.id)
 
-            # tenta remover UMA ocorrência do membro do pool (pra espalhar)
             try:
                 weighted_members.remove(member)
             except ValueError:
@@ -157,24 +149,21 @@ def generate_monthly_schedule_preview(
 
 def save_monthly_schedule(year: int, month: int, items: list[dict]) -> None:
     with transaction.atomic():
-        # Busca o registro mais antigo para validar o tempo de criação
         existing_first = MonthlySchedule.objects.filter(year=year, month=month).order_by("created_at").first()
 
         if existing_first:
-            # Verifica se já passaram 30 minutos desde a criação
             if timezone.now() > existing_first.created_at + timedelta(minutes=30):
                 raise ValueError(
                     f"A escala de {month:02d}/{year} foi criada há mais de 30 minutos. "
                     "Por segurança, não é mais possível sobrescrevê-la."
                 )
-            
-            # Remove os registros existentes para a nova escrita
+
             MonthlySchedule.objects.filter(year=year, month=month).delete()
 
         to_create = []
         for it in items:
             d = date.fromisoformat(it["date"])
-            
+
             to_create.append(
                 MonthlySchedule(
                     date=d,
