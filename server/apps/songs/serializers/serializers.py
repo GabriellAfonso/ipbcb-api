@@ -23,10 +23,10 @@ class PlayedSerializer(serializers.ModelSerializer):
 class ChordChartSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChordChart
-        fields = ["id", "content", "tone", "instrument", "updated_at"]
+        fields = ["id", "song_id", "content", "tone", "instrument", "updated_at"]
 
 
 class LyricsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lyrics
-        fields = ["id", "content", "updated_at"]
+        fields = ["id", "song_id", "content", "updated_at"]
