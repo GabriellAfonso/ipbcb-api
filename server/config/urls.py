@@ -4,12 +4,12 @@ from django.conf.urls.static import static
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('apps.accounts.urls')),
-    path('', include('apps.songs.urls')),
-    path('', include('apps.schedule.urls')),
-    path('', include('apps.members.urls')),
-    path('', include('apps.gallery.urls')),
+    path('ipbcb/admin/', admin.site.urls),
+    path('ipbcb/', include('apps.accounts.urls')),
+    path('ipbcb/', include('apps.songs.urls')),
+    path('ipbcb/', include('apps.schedule.urls')),
+    path('ipbcb/', include('apps.members.urls')),
+    path('ipbcb/', include('apps.gallery.urls')),
 ]
 
 if settings.DEBUG:
