@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from .base import *  # noqa: F403
+from config.settings.base import *  # noqa: F403
 
 FORCE_SCRIPT_NAME = '/ipbcb'
 USE_X_FORWARDED_HOST = True
