@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 
-from apps.api.serializers.register_serializer import RegisterSerializer
+from apps.accounts.serializers.serializers import RegisterSerializer
 
 
 class RegisterSerializerUnitTest(SimpleTestCase):

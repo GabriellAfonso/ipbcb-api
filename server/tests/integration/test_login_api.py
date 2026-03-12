@@ -2,7 +2,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from django.urls import reverse
 
-from apps.persistence.models.profile import User
+from apps.accounts.models.user import User
 
 
 class LoginAPIIntegrationTest(TestCase):
