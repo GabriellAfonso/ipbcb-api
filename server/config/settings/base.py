@@ -33,7 +33,7 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", default="")
 
 DEBUG = env_bool("DJANGO_DEBUG", False)
 
-AUTH_USER_MODEL = "persistence.User"
+AUTH_USER_MODEL = "accounts.User"
 
 ALLOWED_HOSTS: list[str] = []
 
@@ -48,8 +48,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "apps.persistence",
-    "apps.api",
+    "apps.accounts",
+    "apps.songs",
+    "apps.schedule",
+    "apps.members",
+    "apps.gallery",
 
 ]
 
