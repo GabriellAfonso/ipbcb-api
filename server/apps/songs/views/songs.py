@@ -7,9 +7,12 @@ from django.utils.timezone import now
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.songs.models.chord_chart import ChordChart
+from apps.songs.models.lyrics import Lyrics
 from apps.songs.models.song import Played, Song
-from apps.songs.serializers.serializers import PlayedSerializer
+from apps.songs.serializers.serializers import PlayedSerializer, ChordChartSerializer, LyricsSerializer
 from core.http.utils import _not_modified_or_response
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 
 def _parse_fixed_param(value: str) -> dict[int, int]:
@@ -165,3 +168,17 @@ class AllSongsAPI(APIView):
             for row in qs
         ]
         return _not_modified_or_response(request, data, tag="all-songs")
+
+
+class ChordChartListView(ListAPIView):
+    serializer_class = ChordChartSerializer
+
+    def get_queryset(self):
+        return ChordChart.objects.filter(song_id=self.kwargs["song_id"]).select_related("song")
+
+
+class LyricsDetailView(RetrieveAPIView):
+    serializer_class = LyricsSerializer
+
+    def get_object(self):
+        return Lyrics.objects.select_related("song").get(song_id=self.kwargs["song_id"])

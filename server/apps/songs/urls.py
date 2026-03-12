@@ -1,6 +1,7 @@
 from django.urls import path
 
 from apps.songs.views.hymnal import hymnalAPI
+
 from apps.songs.views.register_plays import RegisterSundayPlaysAPI
 from apps.songs.views.songs import (
     AllSongsAPI,
@@ -8,6 +9,8 @@ from apps.songs.views.songs import (
     SuggestedSongsAPI,
     TopSongsAPI,
     TopTonesAPI,
+    ChordChartListView,
+    LyricsDetailView,
 )
 
 urlpatterns = [
@@ -18,4 +21,6 @@ urlpatterns = [
     path("api/suggested-songs/", SuggestedSongsAPI.as_view(), name="suggested_songs"),
     path("api/hymnal/", hymnalAPI.as_view(), name="hymnal"),
     path("api/played/register/", RegisterSundayPlaysAPI.as_view(), name="register_sunday_plays"),
+    path("api/songs/<int:song_id>/chord-charts/", ChordChartListView.as_view(), name="chord_charts"),
+    path("api/songs/<int:song_id>/lyrics/", LyricsDetailView.as_view(), name="lyrics"),
 ]
