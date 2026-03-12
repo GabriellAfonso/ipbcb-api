@@ -42,7 +42,7 @@ API REST do sistema de gerenciamento da **Igreja Presbiteriana de Castelo Branco
 ```bash
 
 git clone https://github.com/GabriellAfonso/ipb_castelo_branco-SERVER.git
-cd ipbcb-backend
+cd ipb_castelo_branco-SERVER
 
 # Renomeie o arquivo .env.example para .env 
 cp .env.example .env
