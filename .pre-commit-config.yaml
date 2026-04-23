@@ -10,14 +10,14 @@ repos:
     rev: 1.8.3
     hooks:
       - id: bandit
-        args: [-c, ../pyproject.toml]
+        args: [-c, pyproject.toml]
         additional_dependencies: ["bandit[toml]"]
 
   - repo: local
     hooks:
       - id: mypy
         name: mypy
-        entry: bash -c 'cd server && python -m mypy .'
+        entry: bash -c 'cd server && /workspace/backend/wsl_venv/bin/python -m mypy .'
         language: system
         types: [python]
         pass_filenames: false

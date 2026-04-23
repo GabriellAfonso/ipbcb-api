@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -14,7 +15,7 @@ class ProfilePhotoAPIView(APIView):
     parser_classes = [MultiPartParser, FormParser]
 
     @staticmethod
-    def post(request):
+    def post(request: Request) -> Response:
         """
         Cria ou substitui a foto de perfil do usuário autenticado
         """
@@ -22,8 +23,7 @@ class ProfilePhotoAPIView(APIView):
 
         profile, _ = Profile.objects.get_or_create(user=user)
 
-        serializer = ProfilePhotoSerializer(
-            profile, data=request.data, partial=True)
+        serializer = ProfilePhotoSerializer(profile, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
@@ -38,12 +38,12 @@ class ProfilePhotoAPIView(APIView):
         )
 
     @staticmethod
-    def delete(request):
+    def delete(request: Request) -> Response:
         """
         Remove a foto de perfil
         """
         try:
-            profile = request.user.profile
+            profile = request.user.profile  # type: ignore[union-attr]
         except Profile.DoesNotExist:
             return Response({"detail": "Perfil não encontrado."}, status=404)
 
@@ -59,17 +59,17 @@ class MeProfileAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     @staticmethod
-    def get_object(request):
+    def get_object(request: Request) -> Profile:
         profile, _ = Profile.objects.get_or_create(user=request.user)
         return profile
 
-    def get(self, request):
+    def get(self, request: Request) -> Response:
         profile = self.get_object(request)
         serializer = ProfileSerializer(profile, context={"request": request})
         data = serializer.data
         return _not_modified_or_response(request, data, tag="PROFILE")
 
-    def patch(self, request):
+    def patch(self, request: Request) -> Response:
         profile = self.get_object(request)
         serializer = ProfileSerializer(
             profile,

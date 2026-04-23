@@ -1,10 +1,13 @@
 from collections import defaultdict
 from datetime import date
+from typing import Any
 
+from django.db.models import QuerySet
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from features.accounts.permissions import IsMemberUser, IsAdminUser
+from features.accounts.permissions import IsAdminUser
 from features.schedule.models.schedule import MonthlySchedule
 from features.core.application.services.monthly_scheduler import (
     generate_monthly_schedule_preview,
@@ -13,8 +16,8 @@ from features.core.application.services.monthly_scheduler import (
 from features.core.http.utils import _not_modified_or_response
 
 
-def _group_monthly_schedule_qs(schedules):
-    grouped = defaultdict(lambda: {"time": None, "items": []})
+def _group_monthly_schedule_qs(schedules: QuerySet[MonthlySchedule]) -> dict[str, Any]:
+    grouped: dict[str, Any] = defaultdict(lambda: {"time": None, "items": []})
 
     for s in schedules:
         key = s.schedule_type.name
@@ -32,9 +35,8 @@ def _group_monthly_schedule_qs(schedules):
 
 
 class CurrentMonthlyScheduleAPI(APIView):
-
     @staticmethod
-    def get(request):
+    def get(request: Request) -> Response:
         today = date.today()
 
         schedules = (
@@ -65,14 +67,15 @@ class MonthlySchedulePreviewAPI(APIView):
 
     If year/month omitted -> defaults to next month.
     """
+
     permission_classes = [IsAdminUser]
 
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         year = request.data.get("year")
         month = request.data.get("month")
         fixed_list = request.data.get("fixed", []) or []
 
-        fixed_map = {}
+        fixed_map: dict[tuple[int, date], int] = {}
         for f in fixed_list:
             try:
                 schedule_type_id = int(f["schedule_type_id"])
@@ -105,13 +108,13 @@ class MonthlyScheduleSaveAPI(APIView):
 
     permission_classes = [IsAdminUser]
 
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         try:
             year = int(request.data["year"])
             month = int(request.data["month"])
             items = request.data.get("items", []) or []
 
-            normalized = []
+            normalized: list[dict[str, Any]] = []
             for it in items:
                 if "schedule_type_id" in it and "member_id" in it:
                     normalized.append(it)

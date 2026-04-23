@@ -1,4 +1,7 @@
-from django.http import HttpResponse
+from typing import IO
+
+from django.db.models import QuerySet
+from django.http import HttpRequest, HttpResponse
 from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, redirect
 from PIL import Image
@@ -8,7 +11,7 @@ from features.gallery.models.gallery import Album, Photo
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 
 
-def _is_valid_image(f) -> bool:
+def _is_valid_image(f: IO[bytes]) -> bool:
     try:
         img = Image.open(f)
         img.verify()
@@ -18,12 +21,13 @@ def _is_valid_image(f) -> bool:
         return False
 
 
-def _build_upload_html(request, albums, errors: list[str] | None = None) -> str:
+def _build_upload_html(
+    request: HttpRequest,
+    albums: QuerySet[Album],
+    errors: list[str] | None = None,
+) -> str:
     csrf_token = get_token(request)
-    options = "".join(
-        f'<option value="{album.pk}">{album.name}</option>'
-        for album in albums
-    )
+    options = "".join(f'<option value="{album.pk}">{album.name}</option>' for album in albums)
     errors_html = "".join(f'<p style="color:red">{e}</p>' for e in (errors or []))
     return f"""
     <html>
@@ -40,7 +44,7 @@ def _build_upload_html(request, albums, errors: list[str] | None = None) -> str:
     """
 
 
-def upload_photos(request):
+def upload_photos(request: HttpRequest) -> HttpResponse:
     albums = Album.objects.all()
 
     if request.method == "POST":
@@ -56,13 +60,13 @@ def upload_photos(request):
         errors: list[str] = []
 
         for f in files:
-            if f.size > MAX_FILE_SIZE:
-                errors.append(f"{f.name}: arquivo muito grande (máx. 10 MB).")
+            if f.size is not None and f.size > MAX_FILE_SIZE:
+                errors.append(f"{f.name or f}: arquivo muito grande (máx. 10 MB).")
                 continue
             if not _is_valid_image(f):
-                errors.append(f"{f.name}: formato inválido. Use JPEG, PNG, WEBP ou GIF.")
+                errors.append(f"{f.name or f}: formato inválido. Use JPEG, PNG, WEBP ou GIF.")
                 continue
-            Photo.objects.create(album=album, image=f, name=f.name)
+            Photo.objects.create(album=album, image=f, name=f.name or "")
 
         if errors:
             return HttpResponse(_build_upload_html(request, albums, errors))

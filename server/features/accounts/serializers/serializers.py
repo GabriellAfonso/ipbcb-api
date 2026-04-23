@@ -2,6 +2,7 @@ from typing import Any, TypedDict
 
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
+from rest_framework.request import Request
 
 from features.accounts.models.profile import Profile
 from features.accounts.models.user import User
@@ -30,6 +31,7 @@ class RegisterSerializer(serializers.Serializer[RegisterData]):
         if User.objects.filter(username=normalized).exists():
             raise serializers.ValidationError(_("Este nome de usuário já está em uso."))
         return value
+
     first_name = serializers.CharField(
         max_length=30,
         error_messages={
@@ -67,9 +69,7 @@ class RegisterSerializer(serializers.Serializer[RegisterData]):
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
         if data.get("password") != data.get("password_confirm"):
-            raise serializers.ValidationError({
-                "password_confirm": [_("As senhas não coincidem.")]
-            })
+            raise serializers.ValidationError({"password_confirm": [_("As senhas não coincidem.")]})
         return data
 
     def create_dto(self) -> RegisterDTO:
@@ -81,32 +81,32 @@ class RegisterSerializer(serializers.Serializer[RegisterData]):
         )
 
 
-class LoginSerializer(serializers.Serializer):
+class LoginSerializer(serializers.Serializer[Any]):
     username = serializers.CharField(max_length=150)
     password = serializers.CharField(write_only=True)
 
 
-class GoogleLoginSerializer(serializers.Serializer):
+class GoogleLoginSerializer(serializers.Serializer[Any]):
     id_token = serializers.CharField()
 
 
-class TokenSerializer(serializers.Serializer):
+class TokenSerializer(serializers.Serializer[Any]):
     access = serializers.CharField(read_only=True)
     refresh = serializers.CharField(read_only=True)
 
 
-class ProfilePhotoSerializer(serializers.ModelSerializer):
+class ProfilePhotoSerializer(serializers.ModelSerializer[Profile]):
     class Meta:
         model = Profile
         fields = ["photo"]
 
-    def update(self, instance, validated_data):
+    def update(self, instance: Profile, validated_data: Any) -> Profile:
         if instance.photo and "photo" in validated_data:
             instance.photo.delete(save=False)
         return super().update(instance, validated_data)
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer[Profile]):
     photo_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -114,8 +114,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ["name", "active", "is_admin", "is_member", "photo_url"]
         read_only_fields = ["active", "is_admin", "is_member", "photo_url"]
 
-    def get_photo_url(self, obj):
-        request = self.context.get("request")
+    def get_photo_url(self, obj: Profile) -> str | None:
+        request: Request | None = self.context.get("request")
         if obj.photo and request:
             return request.build_absolute_uri(obj.photo.url)
         return None

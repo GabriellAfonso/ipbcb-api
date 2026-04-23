@@ -1,18 +1,24 @@
 import random
 from collections import defaultdict
 from datetime import timedelta
+from typing import Any
 
 from django.db.models import Count
 from django.utils.timezone import now
+from rest_framework.generics import ListAPIView
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from features.songs.models.chord_chart import ChordChart
 from features.songs.models.lyrics import Lyrics
 from features.songs.models.song import Played, Song
-from features.songs.serializers.serializers import PlayedSerializer, ChordChartSerializer, LyricsSerializer
+from features.songs.serializers.serializers import (
+    PlayedSerializer,
+    ChordChartSerializer,
+    LyricsSerializer,
+)
 from features.core.http.utils import _not_modified_or_response
-from rest_framework.generics import ListAPIView, RetrieveAPIView
 
 
 def _parse_fixed_param(value: str) -> dict[int, int]:
@@ -45,13 +51,12 @@ def _parse_fixed_param(value: str) -> dict[int, int]:
 
 class SongsBySundayAPI(APIView):
     serializer_class = PlayedSerializer
-    def get(self, request):
-        qs = (
-            Played.objects.select_related("song").order_by("-date", "position")
-        )
+
+    def get(self, request: Request) -> Response:
+        qs = Played.objects.select_related("song").order_by("-date", "position")
 
         data = PlayedSerializer(qs, many=True).data
-        grouped = defaultdict(list)
+        grouped: dict[str, list[Any]] = defaultdict(list)
 
         for item in data:
             grouped[item["date"]].append(
@@ -63,13 +68,12 @@ class SongsBySundayAPI(APIView):
                 }
             )
 
-        result = [{"date": day, "songs": songs}
-                  for day, songs in grouped.items()]
+        result = [{"date": day, "songs": songs} for day, songs in grouped.items()]
         return _not_modified_or_response(request, result)
 
 
 class TopSongsAPI(APIView):
-    def get(self, request):
+    def get(self, request: Request) -> Response:
         qs = (
             Played.objects.values("song__title")
             .annotate(play_count=Count("song"))
@@ -80,26 +84,24 @@ class TopSongsAPI(APIView):
 
 
 class TopTonesAPI(APIView):
-    def get(self, request):
+    def get(self, request: Request) -> Response:
         qs = (
-            Played.objects.values("tone")
-            .annotate(tone_count=Count("tone"))
-            .order_by("-tone_count")
+            Played.objects.values("tone").annotate(tone_count=Count("tone")).order_by("-tone_count")
         )
         result = list(qs)
         return _not_modified_or_response(request, result)
 
 
 class SuggestedSongsAPI(APIView):
-    def get(self, request):
+    def get(self, request: Request) -> Response:
         fixed_param = request.query_params.get("fixed", "")
         fixed_by_position = _parse_fixed_param(fixed_param)
         suggested = self.get_suggested_songs(fixed_by_position)
         return Response(suggested)
 
-    def get_suggested_songs(self, fixed_by_position: dict[int, int] | None = None):
+    def get_suggested_songs(self, fixed_by_position: dict[int, int] | None = None) -> list[Any]:
         three_months_ago = now() - timedelta(days=90)
-        suggested = []
+        suggested: list[Any] = []
         used_song_ids: set[int] = set()
 
         fixed_by_position = fixed_by_position or {}
@@ -110,10 +112,7 @@ class SuggestedSongsAPI(APIView):
 
         if fixed_by_position:
             fixed_ids = list(set(fixed_by_position.values()))
-            fixed_playeds = (
-                Played.objects.select_related("song")
-                .filter(id__in=fixed_ids)
-            )
+            fixed_playeds = Played.objects.select_related("song").filter(id__in=fixed_ids)
             fixed_by_id = {p.id: p for p in fixed_playeds}
 
             for position, played_id in fixed_by_position.items():
@@ -121,7 +120,8 @@ class SuggestedSongsAPI(APIView):
                 if not played_obj:
                     continue
 
-                used_song_ids.add(played_obj.song_id)
+                if played_obj.song_id is not None:
+                    used_song_ids.add(played_obj.song_id)
 
                 data = PlayedSerializer(played_obj).data
                 data["position"] = position
@@ -140,7 +140,8 @@ class SuggestedSongsAPI(APIView):
 
             if qs.exists():
                 chosen = random.choice(list(qs))
-                used_song_ids.add(chosen.song_id)
+                if chosen.song_id is not None:
+                    used_song_ids.add(chosen.song_id)
 
                 data = PlayedSerializer(chosen).data
                 data["position"] = position
@@ -151,7 +152,7 @@ class SuggestedSongsAPI(APIView):
 
 
 class AllSongsAPI(APIView):
-    def get(self, request):
+    def get(self, request: Request) -> Response:
         qs = (
             Song.objects.select_related("category")
             .order_by("title", "artist")
@@ -170,10 +171,11 @@ class AllSongsAPI(APIView):
         return _not_modified_or_response(request, data, tag="all-songs")
 
 
-class ChordChartListView(ListAPIView):
+class ChordChartListView(ListAPIView[ChordChart]):
     serializer_class = ChordChartSerializer
     queryset = ChordChart.objects.select_related("song").all()
 
-class LyricsListView(ListAPIView):
+
+class LyricsListView(ListAPIView[Lyrics]):
     serializer_class = LyricsSerializer
     queryset = Lyrics.objects.select_related("song").all()

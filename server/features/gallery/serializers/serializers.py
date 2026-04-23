@@ -1,9 +1,10 @@
 from rest_framework import serializers
+from rest_framework.request import Request
 
 from features.gallery.models.gallery import Photo
 
 
-class PhotoListSerializer(serializers.ModelSerializer):
+class PhotoListSerializer(serializers.ModelSerializer[Photo]):
     image_url = serializers.SerializerMethodField()
     album_id = serializers.IntegerField(source="album.id")
     album_name = serializers.CharField(source="album.name")
@@ -21,8 +22,8 @@ class PhotoListSerializer(serializers.ModelSerializer):
             "uploaded_at",
         ]
 
-    def get_image_url(self, obj):
-        request = self.context.get("request")
+    def get_image_url(self, obj: Photo) -> str | None:
+        request: Request | None = self.context.get("request")
         if obj.image and request:
             return request.build_absolute_uri(obj.image.url)
         return None

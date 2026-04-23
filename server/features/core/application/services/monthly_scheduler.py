@@ -1,9 +1,11 @@
 import random
 import calendar
 from collections import defaultdict
-from django.utils import timezone
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
+from typing import Any
+
 from django.db import transaction
+from django.utils import timezone
 
 from features.schedule.models.schedule import (
     ScheduleType,
@@ -38,7 +40,7 @@ def generate_monthly_schedule_preview(
     year: int | None = None,
     month: int | None = None,
     fixed: dict[tuple[int, date], int] | None = None,
-) -> dict:
+) -> dict[str, Any]:
     """
     Generates a schedule preview (does NOT write to DB).
 
@@ -51,7 +53,7 @@ def generate_monthly_schedule_preview(
 
     fixed = fixed or {}
 
-    suggested: list[dict] = []
+    suggested: list[dict[str, Any]] = []
     used_member_ids: set[int] = set()
 
     # uso global no mês (por membro, atravessando todos os tipos)
@@ -91,7 +93,7 @@ def generate_monthly_schedule_preview(
                     usage_count[member.id] += 1
                     used_member_ids.add(member.id)
 
-                    data = {
+                    data: dict[str, Any] = {
                         "date": d.isoformat(),
                         "day": d.day,
                         "schedule_type": {
@@ -105,8 +107,7 @@ def generate_monthly_schedule_preview(
                     suggested.append(data)
                     continue
 
-            candidates = [
-                m for m in weighted_members if m.id not in used_member_ids]
+            candidates = [m for m in weighted_members if m.id not in used_member_ids]
             if not candidates:
                 candidates = list(weighted_members)
 
@@ -118,8 +119,7 @@ def generate_monthly_schedule_preview(
                 member = random.choice(unused)
             else:
                 min_usage = min(usage_count[m.id] for m in candidates)
-                least_used = [
-                    m for m in candidates if usage_count[m.id] == min_usage]
+                least_used = [m for m in candidates if usage_count[m.id] == min_usage]
                 member = random.choice(least_used)
 
             usage_count[member.id] += 1
@@ -147,9 +147,12 @@ def generate_monthly_schedule_preview(
     suggested.sort(key=lambda x: (x["schedule_type"]["name"], x["date"]))
     return {"year": year, "month": month, "items": suggested}
 
-def save_monthly_schedule(year: int, month: int, items: list[dict]) -> None:
+
+def save_monthly_schedule(year: int, month: int, items: list[dict[str, Any]]) -> None:
     with transaction.atomic():
-        existing_first = MonthlySchedule.objects.filter(year=year, month=month).order_by("created_at").first()
+        existing_first = (
+            MonthlySchedule.objects.filter(year=year, month=month).order_by("created_at").first()
+        )
 
         if existing_first:
             if timezone.now() > existing_first.created_at + timedelta(minutes=30):
@@ -176,6 +179,7 @@ def save_monthly_schedule(year: int, month: int, items: list[dict]) -> None:
 
         MonthlySchedule.objects.bulk_create(to_create)
 
+
 # Backward-compatible name (now returns preview, does NOT write to DB)
-def generate_monthly_schedule():
+def generate_monthly_schedule() -> dict[str, Any]:
     return generate_monthly_schedule_preview()

@@ -1,27 +1,29 @@
 import os
+from typing import Any
+
 from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
+
 from features.accounts.models.user import User
 from features.accounts.models.profile import Profile
 
 
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
+def create_user_profile(sender: type[User], instance: User, created: bool, **kwargs: Any) -> None:
     if created:
         Profile.objects.create(
-            user=instance,
-            name=f"{instance.first_name} {instance.last_name}".strip().title()
+            user=instance, name=f"{instance.first_name} {instance.last_name}".strip().title()
         )
 
 
 @receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    if hasattr(instance, 'profile'):
+def save_user_profile(sender: type[User], instance: User, **kwargs: Any) -> None:
+    if hasattr(instance, "profile"):
         instance.profile.save()
 
 
 @receiver(pre_save, sender=Profile)
-def delete_old_photo_on_change(sender, instance, **kwargs):
+def delete_old_photo_on_change(sender: type[Profile], instance: Profile, **kwargs: Any) -> None:
     if not instance.pk:
         return
 
@@ -37,6 +39,6 @@ def delete_old_photo_on_change(sender, instance, **kwargs):
 
 
 @receiver(post_delete, sender=Profile)
-def delete_photo_on_profile_delete(sender, instance, **kwargs):
+def delete_photo_on_profile_delete(sender: type[Profile], instance: Profile, **kwargs: Any) -> None:
     if instance.photo and os.path.isfile(instance.photo.path):
         os.remove(instance.photo.path)

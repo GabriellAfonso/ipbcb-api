@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.db import models
 from django.utils import timezone
 
@@ -9,8 +11,8 @@ class ScheduleType(models.Model):
     weekday = models.PositiveSmallIntegerField()
     time = models.TimeField()
 
-    def __str__(self):
-        return f'{self.name} - {self.id}'
+    def __str__(self) -> str:
+        return f"{self.name} - {self.id}"
 
 
 class MemberScheduleConfig(models.Model):
@@ -22,7 +24,7 @@ class MemberScheduleConfig(models.Model):
     class Meta:
         unique_together = ("member", "schedule_type")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.member.name} - {self.schedule_type.name}"
 
 
@@ -38,11 +40,11 @@ class MonthlySchedule(models.Model):
     class Meta:
         unique_together = ("schedule_type", "date")
 
-    def save(self, *args, **kwargs):
+    def save(self, *args: Any, **kwargs: Any) -> None:
         if self.date:
             self.year = self.date.year
             self.month = self.date.month
         super().save(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.member.name} - {self.date.strftime('%d/%m/%Y')} - {self.schedule_type.name}"

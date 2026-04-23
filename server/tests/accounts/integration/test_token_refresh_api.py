@@ -7,7 +7,7 @@ REFRESH_URL = "/api/auth/refresh/"
 
 
 @pytest.mark.django_db
-def test_refresh_valid_token_returns_200():
+def test_refresh_valid_token_returns_200() -> None:
     user = make_user(username="refreshuser", password="testpass123")
     refresh = str(RefreshToken.for_user(user))
     client = APIClient()
@@ -17,14 +17,14 @@ def test_refresh_valid_token_returns_200():
 
 
 @pytest.mark.django_db
-def test_refresh_invalid_token_returns_401():
+def test_refresh_invalid_token_returns_401() -> None:
     client = APIClient()
     response = client.post(REFRESH_URL, {"refresh": "this.is.not.valid"}, format="json")
     assert response.status_code == 401
 
 
 @pytest.mark.django_db
-def test_refresh_rotates_token():
+def test_refresh_rotates_token() -> None:
     user = make_user(username="rotateuser", password="testpass123")
     refresh = str(RefreshToken.for_user(user))
     client = APIClient()
@@ -36,7 +36,7 @@ def test_refresh_rotates_token():
 
 
 @pytest.mark.django_db
-def test_refresh_blacklisted_token_returns_401():
+def test_refresh_blacklisted_token_returns_401() -> None:
     user = make_user(username="blacklistuser", password="testpass123")
     refresh = str(RefreshToken.for_user(user))
     client = APIClient()

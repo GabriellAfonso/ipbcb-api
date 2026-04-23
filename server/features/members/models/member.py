@@ -4,7 +4,7 @@ from django.db import models
 class MemberStatus(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     class Meta:
@@ -14,14 +14,14 @@ class MemberStatus(models.Model):
 class Role(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
 class Ministry(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
     class Meta:
@@ -30,8 +30,8 @@ class Ministry(models.Model):
 
 class Member(models.Model):
     GENDER_CHOICES = [
-        ('M', 'Male'),
-        ('F', 'Female'),
+        ("M", "Male"),
+        ("F", "Female"),
     ]
 
     name = models.CharField(max_length=255)
@@ -46,5 +46,5 @@ class Member(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name

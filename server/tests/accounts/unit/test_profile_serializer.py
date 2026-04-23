@@ -4,7 +4,7 @@ from features.accounts.serializers.serializers import ProfileSerializer
 from tests.conftest import make_user
 
 
-def test_photo_url_returns_absolute_uri():
+def test_photo_url_returns_absolute_uri() -> None:
     profile = Mock()
     profile.photo = Mock()
     profile.photo.url = "/ipbcb/media/profiles/user/photo.jpg"
@@ -21,7 +21,7 @@ def test_photo_url_returns_absolute_uri():
     request.build_absolute_uri.assert_called_once_with(profile.photo.url)
 
 
-def test_photo_url_returns_none_when_no_photo():
+def test_photo_url_returns_none_when_no_photo() -> None:
     profile = Mock()
     profile.photo = None
 
@@ -32,7 +32,7 @@ def test_photo_url_returns_none_when_no_photo():
 
 
 @pytest.mark.django_db
-def test_read_only_fields_not_writable():
+def test_read_only_fields_not_writable() -> None:
     user = make_user(username="rotest", password="testpass123")
     profile = user.profile
 
@@ -49,7 +49,7 @@ def test_read_only_fields_not_writable():
 
 
 @pytest.mark.django_db
-def test_name_is_writable():
+def test_name_is_writable() -> None:
     user = make_user(username="nametest", password="testpass123")
     profile = user.profile
 

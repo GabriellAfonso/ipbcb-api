@@ -14,10 +14,10 @@ class ChordChart(models.Model):
     class Meta:
         unique_together = ("song", "tone", "instrument")
 
-    def __str__(self):
+    def __str__(self) -> str:
         parts = [self.song.title]
         if self.tone:
             parts.append(self.tone)
         if self.instrument:
             parts.append(self.instrument)
-        return f'Chord Chart — {" | ".join(parts)}'
+        return f"Chord Chart — {' | '.join(parts)}"

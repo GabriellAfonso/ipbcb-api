@@ -1,5 +1,6 @@
 import io
 import tempfile
+from typing import IO
 
 import pytest
 from django.test import override_settings
@@ -12,7 +13,7 @@ PROFILE_URL = "/api/me/profile/"
 PHOTO_URL = "/api/me/profile/photo/"
 
 
-def _create_image_file(filename="photo.jpg", fmt="JPEG"):
+def _create_image_file(filename: str = "photo.jpg", fmt: str = "JPEG") -> IO[bytes]:
     buf = io.BytesIO()
     Image.new("RGB", (10, 10), color="red").save(buf, format=fmt)
     buf.seek(0)
@@ -26,7 +27,7 @@ def _create_image_file(filename="photo.jpg", fmt="JPEG"):
 
 
 @pytest.mark.django_db
-def test_get_profile_returns_200():
+def test_get_profile_returns_200() -> None:
     user = make_user(username="profileuser", password="testpass123")
     client = make_auth_client(user)
     response = client.get(PROFILE_URL)
@@ -35,14 +36,14 @@ def test_get_profile_returns_200():
 
 
 @pytest.mark.django_db
-def test_get_profile_unauthenticated_returns_401():
+def test_get_profile_unauthenticated_returns_401() -> None:
     client = APIClient()
     response = client.get(PROFILE_URL)
     assert response.status_code == 401
 
 
 @pytest.mark.django_db
-def test_get_profile_returns_etag_header():
+def test_get_profile_returns_etag_header() -> None:
     user = make_user(username="etaguser", password="testpass123")
     client = make_auth_client(user)
     response = client.get(PROFILE_URL)
@@ -51,7 +52,7 @@ def test_get_profile_returns_etag_header():
 
 
 @pytest.mark.django_db
-def test_get_profile_returns_304_on_etag_match():
+def test_get_profile_returns_304_on_etag_match() -> None:
     user = make_user(username="etagcache", password="testpass123")
     client = make_auth_client(user)
 
@@ -69,7 +70,7 @@ def test_get_profile_returns_304_on_etag_match():
 
 
 @pytest.mark.django_db
-def test_patch_profile_updates_name():
+def test_patch_profile_updates_name() -> None:
     user = make_user(username="patchuser", password="testpass123")
     client = make_auth_client(user)
     response = client.patch(PROFILE_URL, {"name": "Updated Name"}, format="json")
@@ -80,7 +81,7 @@ def test_patch_profile_updates_name():
 
 
 @pytest.mark.django_db
-def test_patch_profile_cannot_update_is_admin():
+def test_patch_profile_cannot_update_is_admin() -> None:
     user = make_user(username="noadmin", password="testpass123")
     client = make_auth_client(user)
     response = client.patch(PROFILE_URL, {"is_admin": True}, format="json")
@@ -95,7 +96,7 @@ def test_patch_profile_cannot_update_is_admin():
 
 
 @pytest.mark.django_db
-def test_upload_photo_returns_200():
+def test_upload_photo_returns_200() -> None:
     with override_settings(MEDIA_ROOT=tempfile.mkdtemp()):
         user = make_user(username="photouser", password="testpass123")
         client = make_auth_client(user)
@@ -105,19 +106,23 @@ def test_upload_photo_returns_200():
 
 
 @pytest.mark.django_db
-def test_upload_photo_replaces_old_photo():
+def test_upload_photo_replaces_old_photo() -> None:
     with override_settings(MEDIA_ROOT=tempfile.mkdtemp()):
         user = make_user(username="replaceuser", password="testpass123")
         client = make_auth_client(user)
 
         # First upload
-        res1 = client.post(PHOTO_URL, {"photo": _create_image_file("first.jpg")}, format="multipart")
+        res1 = client.post(
+            PHOTO_URL, {"photo": _create_image_file("first.jpg")}, format="multipart"
+        )
         assert res1.status_code == 200
         user.profile.refresh_from_db()
         assert user.profile.photo
 
         # Second upload — should replace without error; profile must still have a photo
-        res2 = client.post(PHOTO_URL, {"photo": _create_image_file("second.jpg")}, format="multipart")
+        res2 = client.post(
+            PHOTO_URL, {"photo": _create_image_file("second.jpg")}, format="multipart"
+        )
         assert res2.status_code == 200
         user.profile.refresh_from_db()
         assert user.profile.photo  # photo still set after replacement
@@ -129,7 +134,7 @@ def test_upload_photo_replaces_old_photo():
 
 
 @pytest.mark.django_db
-def test_delete_photo_returns_204():
+def test_delete_photo_returns_204() -> None:
     with override_settings(MEDIA_ROOT=tempfile.mkdtemp()):
         user = make_user(username="delphoto", password="testpass123")
         client = make_auth_client(user)
@@ -146,7 +151,7 @@ def test_delete_photo_returns_204():
 
 
 @pytest.mark.django_db
-def test_delete_photo_when_no_photo_returns_204():
+def test_delete_photo_when_no_photo_returns_204() -> None:
     # Profile exists but has no photo: DELETE still returns 204 (no error)
     user = make_user(username="nophoto", password="testpass123")
     client = make_auth_client(user)

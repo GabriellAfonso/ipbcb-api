@@ -9,6 +9,6 @@ admin.site.register(Profile)
 
 
 @admin.register(User)
-class MyUserAdmin(BaseUserAdmin):
-    list_display = ('username', 'is_staff')
+class MyUserAdmin(BaseUserAdmin):  # type: ignore[type-arg]
+    list_display = ("username", "is_staff")
     fieldsets = BaseUserAdmin.fieldsets

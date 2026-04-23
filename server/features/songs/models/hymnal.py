@@ -6,5 +6,5 @@ class Hymn(models.Model):
     title = models.CharField(max_length=200)
     lyrics = models.JSONField()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.number} - {self.title}"

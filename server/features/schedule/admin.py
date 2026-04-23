@@ -6,7 +6,7 @@ admin.site.register([ScheduleType, MemberScheduleConfig])
 
 
 @admin.register(MonthlySchedule)
-class MonthlyScheduleAdmin(admin.ModelAdmin):
+class MonthlyScheduleAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     readonly_fields = ("created_at",)
     fields = (
         "date",
