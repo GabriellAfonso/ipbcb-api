@@ -116,11 +116,11 @@ def generate_monthly_schedule_preview(
 
             unused = [m for m in candidates if usage_count[m.id] == 0]
             if unused:
-                member = random.choice(unused)
+                member = random.choice(unused)  # nosec B311
             else:
                 min_usage = min(usage_count[m.id] for m in candidates)
                 least_used = [m for m in candidates if usage_count[m.id] == min_usage]
-                member = random.choice(least_used)
+                member = random.choice(least_used)  # nosec B311
 
             usage_count[member.id] += 1
             used_member_ids.add(member.id)

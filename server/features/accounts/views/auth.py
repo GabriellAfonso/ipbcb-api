@@ -20,11 +20,14 @@ from config.dependencies import Container
 from features.core.application.dtos.auth_dtos import LoginDTO
 from features.core.domain.interfaces.repositories.user_repository import UserRepository
 
+import logging
 import requests as http_requests
 from django.core.files.base import ContentFile
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 
 
 class RegisterAPI(APIView):
@@ -130,8 +133,8 @@ class GoogleLoginAPI(APIView):
                         ext = photo_url.split("?")[0].split(".")[-1] or "jpg"
                         filename = f"google_{user.username}.{ext}"
                         profile.photo.save(filename, ContentFile(img_response.content), save=True)
-            except Exception:
-                pass
+            except (OSError, ValueError, http_requests.RequestException) as exc:
+                logger.warning("Failed to save Google profile photo: %s", exc)
 
         token_dto = get_tokens_for_user(user)
         return Response(token_dto.model_dump(), status=status.HTTP_200_OK)

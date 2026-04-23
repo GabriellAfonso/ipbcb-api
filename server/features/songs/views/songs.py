@@ -139,7 +139,7 @@ class SuggestedSongsAPI(APIView):
             )
 
             if qs.exists():
-                chosen = random.choice(list(qs))
+                chosen = random.choice(list(qs))  # nosec B311
                 if chosen.song_id is not None:
                     used_song_ids.add(chosen.song_id)
 

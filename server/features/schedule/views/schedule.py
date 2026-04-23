@@ -81,7 +81,7 @@ class MonthlySchedulePreviewAPI(APIView):
                 schedule_type_id = int(f["schedule_type_id"])
                 d = date.fromisoformat(f["date"])
                 member_id = int(f["member_id"])
-            except Exception:
+            except (KeyError, ValueError, TypeError):
                 continue
             fixed_map[(schedule_type_id, d)] = member_id
 
@@ -127,7 +127,7 @@ class MonthlyScheduleSaveAPI(APIView):
                             "member_id": it["member"]["id"],
                         }
                     )
-                except Exception:
+                except (KeyError, TypeError):
                     continue
 
             save_monthly_schedule(year=year, month=month, items=normalized)
