@@ -16,7 +16,7 @@ from features.accounts.serializers.serializers import (
     RegisterSerializer,
     TokenSerializer,
 )
-from config.dependencies import Container
+from config.di import Container
 from features.core.application.dtos.auth_dtos import LoginDTO
 from features.core.domain.interfaces.repositories.user_repository import UserRepository
 

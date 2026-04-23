@@ -7,7 +7,7 @@ class AccountsConfig(AppConfig):
     def ready(self) -> None:
         import features.accounts.signals  # noqa: F401
 
-        from config.dependencies import Container
+        from config.di import Container
 
         container = Container()
         container.init_resources()
