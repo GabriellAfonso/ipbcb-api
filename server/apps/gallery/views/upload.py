@@ -1,20 +1,36 @@
 from django.http import HttpResponse
-from django.shortcuts import redirect
-from django.views.decorators.http import require_http_methods
+from django.middleware.csrf import get_token
+from django.shortcuts import get_object_or_404, redirect
+from PIL import Image
 
 from apps.gallery.models.gallery import Album, Photo
 
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 
-# TODO: gambiarra temporaria — substituir por uma APIView dedicada de upload
-def _build_upload_html(albums):
+
+def _is_valid_image(f) -> bool:
+    try:
+        img = Image.open(f)
+        img.verify()
+        f.seek(0)
+        return True
+    except Exception:
+        return False
+
+
+def _build_upload_html(request, albums, errors: list[str] | None = None) -> str:
+    csrf_token = get_token(request)
     options = "".join(
         f'<option value="{album.pk}">{album.name}</option>'
         for album in albums
     )
+    errors_html = "".join(f'<p style="color:red">{e}</p>' for e in (errors or []))
     return f"""
     <html>
     <body>
+        {errors_html}
         <form method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">
             <select name="album">{options}</select>
             <input type="file" name="images" multiple accept="image/*">
             <button type="submit">Upload</button>
@@ -24,7 +40,6 @@ def _build_upload_html(albums):
     """
 
 
-@require_http_methods(["GET", "POST"])
 def upload_photos(request):
     albums = Album.objects.all()
 
@@ -32,16 +47,26 @@ def upload_photos(request):
         album_id = request.POST.get("album")
         files = request.FILES.getlist("images")
 
-        if album_id and files:
-            album = Album.objects.get(pk=album_id)
+        if not album_id or not files:
+            return HttpResponse(
+                _build_upload_html(request, albums, ["Selecione um álbum e ao menos uma imagem."])
+            )
 
-            for f in files:
-                Photo.objects.create(
-                    album=album,
-                    image=f,
-                    name=f.name
-                )
+        album = get_object_or_404(Album, pk=album_id)
+        errors: list[str] = []
 
-            return redirect("upload_photos")
+        for f in files:
+            if f.size > MAX_FILE_SIZE:
+                errors.append(f"{f.name}: arquivo muito grande (máx. 10 MB).")
+                continue
+            if not _is_valid_image(f):
+                errors.append(f"{f.name}: formato inválido. Use JPEG, PNG, WEBP ou GIF.")
+                continue
+            Photo.objects.create(album=album, image=f, name=f.name)
 
-    return HttpResponse(_build_upload_html(albums))
+        if errors:
+            return HttpResponse(_build_upload_html(request, albums, errors))
+
+        return redirect("admin:gallery_album_changelist")
+
+    return HttpResponse(_build_upload_html(request, albums))
