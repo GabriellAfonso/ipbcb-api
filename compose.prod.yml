@@ -1,0 +1,54 @@
+services:
+  ipbcb_server:
+    container_name: ipbcb-server-prod
+    build:
+      context: .
+    image: ipbcb-server:prod
+    command:
+    - sh
+    - -c
+    - |
+      python manage.py migrate --noinput &&
+      python manage.py collectstatic --noinput &&
+      gunicorn config.asgi:application \
+        -k uvicorn.workers.UvicornWorker \
+        --bind 0.0.0.0:8000 \
+        --workers 4 \
+        --timeout 60 \
+        --access-logfile - \
+        --error-logfile - \
+        --capture-output
+    env_file:
+      - ./.env
+    volumes:
+      - ./server/static/:/server/static/
+      - ./server/media:/server/media/
+    depends_on:
+      ipbcb_db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - proxy-network
+
+  ipbcb_db:
+    container_name: ipbcb-db-prod
+    image: postgres:16-alpine
+    env_file:
+      - ./.env
+    volumes:
+      - ipbcb_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - proxy-network
+
+volumes:
+  ipbcb_postgres_data:
+
+networks:
+  proxy-network:
+    external: true
