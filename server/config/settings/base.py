@@ -49,11 +49,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "apps.accounts",
-    "apps.songs",
-    "apps.schedule",
-    "apps.members",
-    "apps.gallery",
+    "features.accounts",
+    "features.songs",
+    "features.schedule",
+    "features.members",
+    "features.gallery",
 
 ]
 

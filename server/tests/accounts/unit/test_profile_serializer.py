@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock
-from apps.accounts.serializers.serializers import ProfileSerializer
+from features.accounts.serializers.serializers import ProfileSerializer
 from tests.conftest import make_user
 
 

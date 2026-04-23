@@ -1,6 +1,6 @@
 import pytest
-from apps.accounts.auth.jwt import get_tokens_for_user
-from core.application.dtos.auth_dtos import TokenDTO
+from features.accounts.auth.jwt import get_tokens_for_user
+from features.core.application.dtos.auth_dtos import TokenDTO
 from tests.conftest import make_user
 
 

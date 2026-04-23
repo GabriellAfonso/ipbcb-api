@@ -7,7 +7,7 @@ from tests.conftest import make_user
 User = get_user_model()
 
 GOOGLE_URL = "/api/auth/google/"
-MOCK_PATH = "apps.accounts.views.auth.id_token.verify_oauth2_token"
+MOCK_PATH = "features.accounts.views.auth.id_token.verify_oauth2_token"
 
 
 def _google_payload(email="user@example.com", given_name="Test", family_name="User", picture=None):

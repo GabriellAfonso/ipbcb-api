@@ -1,12 +1,12 @@
 from dependency_injector import containers, providers
 
-from apps.accounts.repositories.user_repository import DjangoUserRepository
+from features.accounts.repositories.user_repository import DjangoUserRepository
 
 
 class Container(containers.DeclarativeContainer):
 
     wiring_config = containers.WiringConfiguration(
-        packages=["apps.accounts"]
+        packages=["features.accounts"]
     )
 
     user_repository = providers.Factory(DjangoUserRepository)
