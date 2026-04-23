@@ -9,3 +9,8 @@ djangorestframework-stubs==3.16.8
 # ─── Testing ────────────────────────────────────────────────────────────────
 pytest==9.0.2
 pytest-django==4.11.1
+
+# ─── Linting & Git Hooks ────────────────────────────────────────────────────
+pre-commit==3.7.0
+ruff==0.11.6
+bandit==1.8.3
