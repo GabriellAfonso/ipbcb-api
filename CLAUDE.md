@@ -249,6 +249,12 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///db.sqlite3")  # default
 - Prefira `factory_boy` a fixtures JSON.
 - Teste services de forma isolada — mocke repositories quando necessário.
 - Mínimo: **caminho feliz + 1 caso de erro** por caso de uso.
+- **Como rodar:** Verifique se existe `wsl_venv/` ou `.venv/` na raiz do projeto e ative antes de rodar qualquer comando Python:
+  ```bash
+  # wsl_venv tem prioridade; se não existir, tente .venv
+  source wsl_venv/bin/activate 2>/dev/null || source .venv/bin/activate
+  cd server && python -m pytest tests/ -v
+  ```
 
 ---
 
