@@ -100,10 +100,10 @@ project_root/
 │           ├── test_services.py
 │           ├── test_views.py
 │           └── test_models.py
-├── shared/                     # código reutilizável entre features
-│   ├── exceptions.py           # exceções base do domínio
-│   ├── permissions.py
-│   └── utils/
+├── features/core/              # código reutilizável entre features
+│   ├── domain/                 # exceções base, interfaces, contratos
+│   ├── application/            # DTOs, serviços compartilhados
+│   └── http/                   # utilitários HTTP (ETag, etc.)
 ├── static/
 ├── media/
 └── docs/
@@ -111,7 +111,7 @@ project_root/
 
 ### 4.2 Regras da Arquitetura Feature-Based
 
-- **Features não importam umas das outras diretamente.** Se precisar de algo de outra feature, use `shared/` ou um evento/signal.
+- **Features não importam umas das outras diretamente.** Se precisar de algo de outra feature, use `features/core/` ou um evento/signal.
 - **Cada feature é uma Django app** registrada no `INSTALLED_APPS` como `features.<nome>`.
 - Não crie uma feature só porque um model existe — crie quando há um **domínio de negócio** coeso.
 - Quando uma feature crescer demais, divida em sub-features; nunca misture responsabilidades.
@@ -176,7 +176,7 @@ Camadas externas conhecem as internas; camadas internas **nunca** conhecem as ex
 - **Services** não importam `request`, `HttpResponse` ou qualquer objeto HTTP.
 - **Repositories** são a única camada que importa models Django e faz queries ORM.
 - **Models** não importam services nem repositories — são entidades puras.
-- Erros de domínio sobem como **exceções de domínio** (definidas em `shared/exceptions.py`), não como `Http404` ou `ValidationError` do DRF dentro do service.
+- Erros de domínio sobem como **exceções de domínio** (definidas em `features/core/domain/exceptions.py`), não como `Http404` ou `ValidationError` do DRF dentro do service.
 
 Exemplo de fluxo correto:
 ```python
