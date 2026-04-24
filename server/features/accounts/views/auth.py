@@ -18,7 +18,7 @@ from features.accounts.serializers.serializers import (
 )
 from config.di import Container
 from features.core.application.dtos.auth_dtos import LoginDTO
-from features.core.domain.interfaces.repositories.user_repository import UserRepository
+from features.accounts.repositories.interfaces import UserRepository
 
 import logging
 import requests as http_requests
