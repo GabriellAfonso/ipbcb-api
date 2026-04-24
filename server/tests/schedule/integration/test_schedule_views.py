@@ -11,7 +11,7 @@ from features.schedule.models.schedule import (
     MonthlySchedule,
     ScheduleType,
 )
-from tests.conftest import make_admin_client, make_member_client
+from tests.conftest import make_admin_client, make_member_client, make_user, make_auth_client
 
 
 # --- Helpers ---
@@ -42,16 +42,33 @@ def make_config(
 
 
 @pytest.mark.django_db
+class TestCurrentMonthlyScheduleAPIPermissions:
+    ENDPOINT = "/api/schedule/current/"
+
+    def test_unauthenticated_returns_401(self) -> None:
+        resp = APIClient().get(self.ENDPOINT)
+        assert resp.status_code == 401
+
+    def test_non_member_returns_403(self) -> None:
+        user = make_user(username="nonmember")
+        client = make_auth_client(user)
+        resp = client.get(self.ENDPOINT)
+        assert resp.status_code == 403
+
+    def test_member_returns_200(self) -> None:
+        client, _ = make_member_client()
+        resp = client.get(self.ENDPOINT)
+        assert resp.status_code == 200
+
+
+@pytest.mark.django_db
 class TestCurrentMonthlyScheduleAPI:
     ENDPOINT = "/api/schedule/current/"
 
-    def test_unauthenticated_allowed(self) -> None:
-        resp = APIClient().get(self.ENDPOINT)
-        assert resp.status_code == 200
-
     def test_returns_year_and_month(self) -> None:
         today = date.today()
-        resp = APIClient().get(self.ENDPOINT)
+        client, _ = make_member_client()
+        resp = client.get(self.ENDPOINT)
 
         assert resp.data["year"] == today.year
         assert resp.data["month"] == today.month
@@ -62,7 +79,8 @@ class TestCurrentMonthlyScheduleAPI:
         m = make_member("Alice")
         MonthlySchedule.objects.create(date=today, schedule_type=st, member=m)
 
-        resp = APIClient().get(self.ENDPOINT)
+        client, _ = make_member_client()
+        resp = client.get(self.ENDPOINT)
 
         assert "Culto" in resp.data["schedule"]
         items = resp.data["schedule"]["Culto"]["items"]
@@ -70,13 +88,15 @@ class TestCurrentMonthlyScheduleAPI:
         assert items[0]["member"]["name"] == "Alice"
 
     def test_etag_304(self) -> None:
-        resp1 = APIClient().get(self.ENDPOINT)
+        client, _ = make_member_client()
+        resp1 = client.get(self.ENDPOINT)
         etag = resp1["ETag"]
-        resp2 = APIClient().get(self.ENDPOINT, HTTP_IF_NONE_MATCH=etag)
+        resp2 = client.get(self.ENDPOINT, HTTP_IF_NONE_MATCH=etag)
         assert resp2.status_code == 304
 
     def test_empty_schedule(self) -> None:
-        resp = APIClient().get(self.ENDPOINT)
+        client, _ = make_member_client()
+        resp = client.get(self.ENDPOINT)
         assert resp.data["schedule"] == {}
 
 
