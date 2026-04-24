@@ -3,8 +3,6 @@ from typing import Any
 from django.db import models
 from django.utils import timezone
 
-from features.members.models.member import Member
-
 
 class ScheduleType(models.Model):
     name = models.CharField(max_length=100)
@@ -16,7 +14,7 @@ class ScheduleType(models.Model):
 
 
 class MemberScheduleConfig(models.Model):
-    member = models.ForeignKey(Member, on_delete=models.CASCADE)
+    member = models.ForeignKey("members.Member", on_delete=models.CASCADE)
     schedule_type = models.ForeignKey(ScheduleType, on_delete=models.CASCADE)
     available = models.BooleanField(default=True)
     weight = models.PositiveIntegerField(default=1)
@@ -34,7 +32,7 @@ class MonthlySchedule(models.Model):
 
     date = models.DateField()
     schedule_type = models.ForeignKey(ScheduleType, on_delete=models.CASCADE)
-    member = models.ForeignKey(Member, on_delete=models.PROTECT)
+    member = models.ForeignKey("members.Member", on_delete=models.PROTECT)
     created_at = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta:
