@@ -18,6 +18,7 @@ from core.domain.exceptions import (
     ConflictError,
     DomainError,
     NotFoundError,
+    PermissionDeniedError,
     ValidationError,
 )
 
@@ -28,6 +29,7 @@ _DOMAIN_STATUS_MAP: dict[type[DomainError], int] = {
     ValidationError: status.HTTP_400_BAD_REQUEST,
     ConflictError: status.HTTP_409_CONFLICT,
     AuthenticationError: status.HTTP_401_UNAUTHORIZED,
+    PermissionDeniedError: status.HTTP_403_FORBIDDEN,
 }
 
 

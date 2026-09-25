@@ -41,6 +41,18 @@ class AuthenticationError(DomainError):
     error_code: str = "AUTHENTICATION_FAILED"
 
 
+class PermissionDeniedError(DomainError):
+    """Raised when an authenticated caller lacks the permission an operation requires.
+
+    Same ``error_code`` DRF's own ``PermissionDenied`` produces, so clients see one code for
+    a denial whether it came from a permission class or from a service.
+
+    >>> raise PermissionDeniedError("Leaders only: 'members'")
+    """
+
+    error_code: str = "PERMISSION_DENIED"
+
+
 class BibleVersionNotFound(NotFoundError):
     """Raised when a requested Bible version does not exist."""
 
@@ -196,3 +208,39 @@ class ScheduleOverwriteError(ValidationError):
         )
         self.month = month
         self.year = year
+
+
+class MediaAccessDeniedError(PermissionDeniedError):
+    """Raised when the caller is not in the audience of the requested media folder.
+
+    >>> raise MediaAccessDeniedError("members")
+    """
+
+    def __init__(self, folder: str) -> None:
+        super().__init__(f"Sem permissão para acessar a pasta de mídia: '{folder}'")
+        self.folder = folder
+
+
+class MediaNotFoundError(NotFoundError):
+    """Base of every media 404. All subclasses share one message on purpose: a rejected path,
+    an unruled folder and a missing file must produce identical responses, so a caller probing
+    paths cannot tell them apart. The subclass exists for the decision log and for tests.
+
+    >>> raise MediaFileNotFoundError("gallery/retiro/IMG_0042.jpg")
+    """
+
+    def __init__(self, requested_path: str) -> None:
+        super().__init__(f"Arquivo não encontrado: {requested_path!r}")
+        self.requested_path = requested_path
+
+
+class MediaPathRejectedError(MediaNotFoundError):
+    """Raised when a requested media path fails validation (traversal, encoding, separators)."""
+
+
+class MediaFolderNotRuledError(MediaNotFoundError):
+    """Raised when the first path segment has no access rule — default deny."""
+
+
+class MediaFileNotFoundError(MediaNotFoundError):
+    """Raised when an allowed path names no regular file inside MEDIA_ROOT."""

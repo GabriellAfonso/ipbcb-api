@@ -18,7 +18,12 @@ from core.domain.exceptions import (
     ConflictError,
     DomainError,
     InvalidCredentialsError,
+    MediaAccessDeniedError,
+    MediaFileNotFoundError,
+    MediaFolderNotRuledError,
+    MediaPathRejectedError,
     NotFoundError,
+    PermissionDeniedError,
     SongsNotFoundError,
     ValidationError,
 )
@@ -209,9 +214,49 @@ class TestErrorCodeAttributes:
             (ValidationError, "VALIDATION_ERROR"),
             (ConflictError, "CONFLICT"),
             (AuthenticationError, "AUTHENTICATION_FAILED"),
+            (PermissionDeniedError, "PERMISSION_DENIED"),
         ],
     )
     def test_base_exceptions_have_error_codes(
         self, exc_cls: type[DomainError], expected_code: str
     ) -> None:
         assert exc_cls.error_code == expected_code
+
+
+# ---------------------------------------------------------------------------
+# Permission denied and media exceptions (feature 009)
+# ---------------------------------------------------------------------------
+
+
+class TestPermissionDeniedMapping:
+    def test_permission_denied_maps_to_403(self) -> None:
+        response = custom_exception_handler(PermissionDeniedError("nope"), _context())
+        _assert_canonical(response, "PERMISSION_DENIED", 403)
+
+    def test_media_access_denied_maps_to_403(self) -> None:
+        response = custom_exception_handler(MediaAccessDeniedError("members"), _context())
+        _assert_canonical(response, "PERMISSION_DENIED", 403)
+
+
+class TestMediaNotFoundIndistinguishable:
+    """Rejected path, unruled folder and missing file must look the same to the caller,
+    so probing cannot tell a malformed path from a real miss."""
+
+    @pytest.mark.parametrize(
+        "exc_cls", [MediaPathRejectedError, MediaFolderNotRuledError, MediaFileNotFoundError]
+    )
+    def test_maps_to_404_not_found(self, exc_cls: type[NotFoundError]) -> None:
+        response = custom_exception_handler(exc_cls("gallery/x.jpg"), _context())
+        _assert_canonical(response, "NOT_FOUND", 404)
+
+    def test_bodies_are_identical_for_the_same_path(self) -> None:
+        bodies = [
+            custom_exception_handler(exc_cls("gallery/x.jpg"), _context()).data
+            for exc_cls in (
+                MediaPathRejectedError,
+                MediaFolderNotRuledError,
+                MediaFileNotFoundError,
+            )
+        ]
+        assert bodies[0] == bodies[1] == bodies[2]
+        assert "gallery/x.jpg" in bodies[0]["detail"]
