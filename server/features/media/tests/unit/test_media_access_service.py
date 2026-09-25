@@ -19,6 +19,7 @@ PROFILE_FILE = "profiles/ana.paula/6f1c2d.png"
 MEMBER = MediaViewer(is_member=True, is_leader=False)
 NON_MEMBER = MediaViewer(is_member=False, is_leader=False)
 BOTH = MediaViewer(is_member=True, is_leader=True)
+NON_MEMBER_OWNER = MediaViewer(is_member=False, is_leader=False, own_profile_folder="ana.paula")
 
 
 def _service(repository: FakeMediaFileRepository) -> MediaAccessService:
@@ -127,3 +128,22 @@ def test_unruled_decision_does_not_log_the_folder(caplog: pytest.LogCaptureFixtu
     [record] = _decision_records(caplog)
     assert getattr(record, "outcome") == "unruled"
     assert getattr(record, "folder") is None
+
+
+class TestProfileOwner:
+    def test_non_member_owner_gets_own_photo(self) -> None:
+        service = _service(FakeMediaFileRepository({PROFILE_FILE: b"x"}))
+        assert service.authorize(PROFILE_FILE, NON_MEMBER_OWNER).relative_path == PROFILE_FILE
+
+    def test_non_member_owner_denied_on_another_users_photo(self) -> None:
+        other_photo = "profiles/joao/6f1c2d.png"
+        repository = FakeMediaFileRepository({other_photo: b"x"})
+        with pytest.raises(MediaAccessDeniedError):
+            _service(repository).authorize(other_photo, NON_MEMBER_OWNER)
+        assert repository.located == []
+
+    def test_non_member_owner_still_denied_on_gallery(self) -> None:
+        with pytest.raises(MediaAccessDeniedError):
+            _service(FakeMediaFileRepository({GALLERY_FILE: b"x"})).authorize(
+                GALLERY_FILE, NON_MEMBER_OWNER
+            )

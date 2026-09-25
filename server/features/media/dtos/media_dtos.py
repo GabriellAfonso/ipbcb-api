@@ -7,13 +7,15 @@ class MediaViewer(StrictBaseModel):
     """What the media access service knows about the caller.
 
     Built by the view from the project's permission classes, so the service never sees the
-    HTTP request.
+    HTTP request. ``own_profile_folder`` is the caller's folder under ``profiles/``, so the
+    owner can read their own photo without being a member.
 
-    >>> MediaViewer(is_member=True, is_leader=False)
+    >>> MediaViewer(is_member=True, is_leader=False, own_profile_folder="ana.paula")
     """
 
     is_member: bool
     is_leader: bool
+    own_profile_folder: str | None = None
 
 
 class MediaFile(StrictBaseModel):

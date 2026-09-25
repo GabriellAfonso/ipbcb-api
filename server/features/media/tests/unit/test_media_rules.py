@@ -7,6 +7,7 @@ from features.media.domain.media_rules import (
     audience_for_folder,
     content_type_for,
     first_segment,
+    is_own_profile_file,
     validate_media_path,
 )
 
@@ -89,3 +90,21 @@ class TestValidateMediaPathRejects:
     def test_rejected(self, path: str) -> None:
         with pytest.raises(MediaPathRejectedError):
             validate_media_path(path)
+
+
+class TestIsOwnProfileFile:
+    def test_file_in_own_folder_is_owned(self) -> None:
+        assert is_own_profile_file("profiles/ana.paula/6f1c2d.png", "ana.paula") is True
+
+    @pytest.mark.parametrize(
+        "path,own_folder",
+        [
+            ("profiles/joao/6f1c2d.png", "ana.paula"),  # another user's folder
+            ("profiles/ana.paula", "ana.paula"),  # the folder itself, not a file
+            ("gallery/ana.paula/x.jpg", "ana.paula"),  # same name, other root folder
+            ("members/ana.paula/x.jpg", "ana.paula"),  # never unlocks leader-only files
+            ("profiles/ana.paula/6f1c2d.png", None),  # caller without a folder
+        ],
+    )
+    def test_anything_else_is_not_owned(self, path: str, own_folder: str | None) -> None:
+        assert is_own_profile_file(path, own_folder) is False

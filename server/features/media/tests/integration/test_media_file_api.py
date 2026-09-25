@@ -105,6 +105,20 @@ class TestMemberAccess:
         assert response.data["error_code"] == "PERMISSION_DENIED"
         assert "X-Accel-Redirect" not in response
 
+    def test_non_member_gets_own_profile_photo(self, write_media: WriteMedia) -> None:
+        write_media(PROFILE_FILE)
+        client = make_auth_client(make_user(username="ana.paula"))
+        response = client.get(media_url(PROFILE_FILE))
+        _assert_accel_redirect(response, PROFILE_FILE, "image/png")
+
+    def test_non_member_with_legacy_username_gets_own_photo(self, write_media: WriteMedia) -> None:
+        # Legacy usernames store the photo under the user id (profile_photo_path).
+        owner = make_user(username="Ana Paula")
+        own_photo = f"profiles/{owner.pk}/6f1c2d0e9a8b.png"
+        write_media(own_photo)
+        response = make_auth_client(owner).get(media_url(own_photo))
+        _assert_accel_redirect(response, own_photo, "image/png")
+
     def test_missing_file_gets_404(self, media_root: Path) -> None:
         client, _ = make_member_client()
         response = client.get(media_url("gallery/retiro-2025/missing.jpg"))

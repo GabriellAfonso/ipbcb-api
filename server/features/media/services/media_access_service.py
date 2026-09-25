@@ -14,6 +14,7 @@ from features.media.domain.media_rules import (
     audience_for_folder,
     content_type_for,
     first_segment,
+    is_own_profile_file,
     validate_media_path,
 )
 from features.media.dtos.media_dtos import MediaFile, MediaViewer
@@ -74,7 +75,7 @@ class MediaAccessService:
         audience = audience_for_folder(folder)
         if audience is None:
             raise MediaFolderNotRuledError(path)
-        if not _viewer_in_audience(viewer, audience):
+        if not _viewer_may_read(path, viewer, audience):
             raise MediaAccessDeniedError(folder)
         return self._located_file(path)
 
@@ -93,6 +94,13 @@ class MediaAccessService:
         is_trusted_folder = outcome is not MediaAccessOutcome.REJECTED and folder in FOLDER_RULES
         logged_folder = folder if is_trusted_folder else None
         logger.info("media_access", extra={"folder": logged_folder, "outcome": outcome.value})
+
+
+def _viewer_may_read(path: str, viewer: MediaViewer, audience: MediaAudience) -> bool:
+    # Owner exception (spec FR-005a): a logged-in non-member still sees their own photo.
+    if is_own_profile_file(path, viewer.own_profile_folder):
+        return True
+    return _viewer_in_audience(viewer, audience)
 
 
 def _viewer_in_audience(viewer: MediaViewer, audience: MediaAudience) -> bool:

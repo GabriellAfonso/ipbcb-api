@@ -10,6 +10,7 @@ from django.http import FileResponse, HttpResponse, HttpResponseBase
 
 from config.di import Container
 from core.http.permissions import IsAdminUser, IsMemberUser
+from features.accounts.validators import profile_photo_folder
 from features.media.dtos.media_dtos import MediaFile, MediaViewer
 from features.media.services.media_access_service import MediaAccessService
 
@@ -41,6 +42,7 @@ class MediaFileAPIView(APIView):
         return MediaViewer(
             is_member=IsMemberUser().has_permission(request, self),
             is_leader=IsAdminUser().has_permission(request, self),
+            own_profile_folder=profile_photo_folder(request.user.username, str(request.user.pk)),
         )
 
     def _file_response(

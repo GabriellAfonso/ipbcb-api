@@ -90,7 +90,11 @@ shared caches.
    the same as scenario 1 — any member may see any profile photo.
 3. **Given** a logged-in user whose profile is **not** a member, **When** they request either
    file, **Then** the response is `403`.
-4. **Given** a logged-in member, **When** they request `gallery/retiro-2025/missing.jpg`, which
+4. **Given** a logged-in user who is **not** a member and owns the photo at
+   `profiles/<their folder>/…`, **When** they request it, **Then** the outcome is the same as
+   scenario 1 — the owner always sees their own profile photo. Another user's photo still
+   gets `403`.
+5. **Given** a logged-in member, **When** they request `gallery/retiro-2025/missing.jpg`, which
    does not exist, **Then** the response is `404`.
 
 ---
@@ -257,10 +261,15 @@ anonymous caller.
   | First segment | Who may read         | Source of truth         |
   |---------------|----------------------|-------------------------|
   | `gallery`     | members              | `Profile.is_member`     |
-  | `profiles`    | members (any profile)| `Profile.is_member`     |
+  | `profiles`    | members (any profile), or the photo's owner | `Profile.is_member`; owner by folder |
   | `members`     | church leaders       | `Profile.is_admin`      |
   | anything else | nobody               | —                       |
 
+- **FR-005a**: The owner exception applies to `profiles/` only. A caller owns
+  `profiles/<folder>/<file>` when `<folder>` equals their own profile photo folder, computed
+  by the same function that stores the photo (`features.accounts.validators.profile_photo_folder`:
+  the username, or the user id for legacy usernames). Without this, a logged-in non-member
+  gets `403` on their own photo.
 - **FR-006**: A path whose first segment has no rule, or that has no folder at all, MUST get
   `404` for every user, leaders included (default deny).
 - **FR-007**: An authenticated user lacking the permission a rule requires MUST get `403`,
@@ -342,8 +351,8 @@ anonymous caller.
 - **Media access decision**: the outcome for one request — allowed (with the validated path
   to stream), forbidden, not found, or rejected — plus the folder it was judged under. It is
   what gets logged; the full path is not.
-- **Profile** (existing): `is_member` and `is_admin` are the only user attributes the rules
-  read.
+- **Profile** (existing): `is_member` and `is_admin` are the only profile attributes the rules
+  read; the owner exception (FR-005a) also reads the user's username and id.
 
 ---
 

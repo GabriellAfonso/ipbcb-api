@@ -22,7 +22,8 @@ Manages user identity, authentication, and profile. Single entry point for who t
   comes from the decoded image format and `{random}` is a `uuid4().hex`). Falls back to
   `profiles/{user_id}/` for legacy usernames that predate the charset rule. `photo_url`
   (`/ipbcb/media/profiles/...`) is readable only by members, through the authenticated media
-  access check (`specs/009-protected-media-access/`); any member can read any profile photo.
+  access check (`specs/009-protected-media-access/`); any member can read any profile photo,
+  and the owner can always read their own, member or not.
   The random name is defence in depth, not collision avoidance: if an nginx edit ever
   re-published the media directory, a deterministic name would again let anyone fetch any
   member's photo from a URL built out of their username.

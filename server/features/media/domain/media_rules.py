@@ -62,6 +62,21 @@ def audience_for_folder(folder: str) -> MediaAudience | None:
     return FOLDER_RULES.get(folder)
 
 
+def is_own_profile_file(path: str, own_profile_folder: str | None) -> bool:
+    """Answer whether ``path`` is a file inside the caller's own ``profiles/`` folder.
+
+    Expects a path already accepted by ``validate_media_path``. A bare folder
+    (``profiles/ana.paula``) is not a file, so it never counts as owned.
+
+    >>> is_own_profile_file("profiles/ana.paula/6f1c2d.png", "ana.paula")
+    True
+    """
+    if own_profile_folder is None:
+        return False
+    segments = path.split("/")
+    return len(segments) >= 3 and segments[0] == "profiles" and segments[1] == own_profile_folder
+
+
 def first_segment(path: str) -> str:
     """>>> first_segment("gallery/retiro/x.jpg")
     'gallery'
