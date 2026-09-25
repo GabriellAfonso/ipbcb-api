@@ -65,6 +65,11 @@ List photos from a specific album.
 
 `image_url` is an absolute URI built from the request. Returns `null` if image is missing or request is unavailable.
 
+The file behind `image_url` is readable only by members: `/ipbcb/media/gallery/...` goes
+through the authenticated media access check (`specs/009-protected-media-access/`), which
+requires the same `Profile.is_member` as the endpoints listing it. Holding the URL is not
+enough — the request must carry the member's JWT.
+
 ---
 
 ## Admin Upload

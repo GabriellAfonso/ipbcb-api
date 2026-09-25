@@ -180,6 +180,9 @@ REST_FRAMEWORK = {
         # (~200 devices syncing up to 3x/hour), not for one person. See
         # specs/006-hymnal-view-history/research.md R-02.
         "hymnal_ingest": "600/hour",
+        # Its own scope so loading images never spends the API quota. Every image shown is a
+        # request (revalidation under no-cache), 304 or not. specs/009-protected-media-access.
+        "media": "3000/hour",
     },
     # The app runs behind nginx, which sets X-Forwarded-For. Without this, DRF trusts a
     # client-supplied XFF header as the throttle key and every rate limit can be bypassed
@@ -243,6 +246,10 @@ STATIC_ROOT = BASE_DIR / "static"
 
 MEDIA_URL = "/ipbcb/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+# nginx-internal location the media view hands files to via X-Accel-Redirect. Not a client
+# URL: nginx marks it `internal`, so only a backend response can reach it.
+# See specs/009-protected-media-access/contracts/media-endpoint.md.
+PROTECTED_MEDIA_LOCATION = "/ipbcb/protected-media/"
 
 
 # Logging

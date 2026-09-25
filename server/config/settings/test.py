@@ -32,6 +32,8 @@ REST_FRAMEWORK = {
         # Views that declare throttle_classes explicitly (hymnal ingest) keep throttling
         # even when DEFAULT_THROTTLE_CLASSES is empty, so the scope must exist here.
         "hymnal_ingest": "99999/min",
+        # Same for the media view, which declares ScopedRateThrottle itself.
+        "media": "99999/min",
     },
 }
 

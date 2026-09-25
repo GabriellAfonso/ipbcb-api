@@ -20,11 +20,12 @@ Manages user identity, authentication, and profile. Single entry point for who t
 - `name`: string, max 100, blank allowed (auto-filled from first_name + last_name on creation)
 - `photo`: ImageField, nullable (stored at `profiles/{username}/{random}.{ext}`, where `ext`
   comes from the decoded image format and `{random}` is a `uuid4().hex`). Falls back to
-  `profiles/{user_id}/` for legacy usernames that predate the charset rule. The random name
-  is access control, not collision avoidance: nginx serves MEDIA_ROOT from disk with no
-  permission check, so a deterministic name let anyone fetch any member's photo from a URL
-  built out of their username. Authenticated delivery is the real fix — see
-  `TODO/specify_protected_media.md`.
+  `profiles/{user_id}/` for legacy usernames that predate the charset rule. `photo_url`
+  (`/ipbcb/media/profiles/...`) is readable only by members, through the authenticated media
+  access check (`specs/009-protected-media-access/`); any member can read any profile photo.
+  The random name is defence in depth, not collision avoidance: if an nginx edit ever
+  re-published the media directory, a deterministic name would again let anyone fetch any
+  member's photo from a URL built out of their username.
 - `is_member`: bool, default false
 - `is_admin`: bool, default false
 

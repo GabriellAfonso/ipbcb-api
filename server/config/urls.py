@@ -23,8 +23,10 @@ urlpatterns = [
     path("", include("features.members.urls")),
     path("", include("features.gallery.urls")),
     path("", include("features.bible.urls")),
+    path("", include("features.media.urls")),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # No static(MEDIA_URL) here, even in dev: media goes through the access check in
+    # features.media in every mode (specs/009-protected-media-access).

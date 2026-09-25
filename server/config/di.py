@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from dependency_injector import containers, providers
+from django.conf import settings
 
 from features.accounts.repositories.profile_repository import ProfileRepositoryImpl
 from features.accounts.repositories.user_repository import UserRepositoryImpl
@@ -12,6 +15,8 @@ from features.bible.repositories import BibleRepositoryImpl
 from features.bible.services import BibleService
 from features.gallery.repositories.gallery_repository import GalleryRepositoryImpl
 from features.gallery.services.gallery_service import GalleryService
+from features.media.repositories.filesystem_media_repository import FileSystemMediaRepository
+from features.media.services.media_access_service import MediaAccessService
 from features.members.repositories.member_repository import MemberRepositoryImpl
 from features.members.services.member_service import MemberService
 from features.songs.repositories.hymnal_history_repository import HymnalHistoryRepositoryImpl
@@ -27,6 +32,12 @@ from features.schedule.services.schedule_service import ScheduleService
 from features.songs.services.song_service import SongService
 
 
+def _media_root() -> Path:
+    """Read at every provision, not at import, so ``override_settings(MEDIA_ROOT=...)``
+    reaches the repository in tests."""
+    return Path(settings.MEDIA_ROOT)
+
+
 class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         modules=[
@@ -35,6 +46,7 @@ class Container(containers.DeclarativeContainer):
             "features.bible.views",
             "features.gallery.views.gallery",
             "features.gallery.views.upload",
+            "features.media.views.media_file",
             "features.songs.views.hymnal",
             "features.songs.views.hymnal_history",
             "features.songs.views.register_plays",
@@ -93,3 +105,8 @@ class Container(containers.DeclarativeContainer):
 
     schedule_repository = providers.Factory(ScheduleRepositoryImpl)
     schedule_service = providers.Factory(ScheduleService, repository=schedule_repository)
+
+    media_file_repository = providers.Factory(
+        FileSystemMediaRepository, root=providers.Callable(_media_root)
+    )
+    media_access_service = providers.Factory(MediaAccessService, repository=media_file_repository)

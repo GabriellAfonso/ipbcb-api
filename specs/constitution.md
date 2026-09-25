@@ -68,7 +68,9 @@ Rules that no domain can break. These apply globally across the entire system.
   já está em uso." for a taken name, which confirms an account exists. Kept deliberately:
   the alternative is a generic failure that leaves a non-technical member unable to tell
   why registration failed. What made the leak worth having — deriving a member's photo URL
-  from their username — is closed by randomised media filenames, and password guessing is
+  from their username — is closed by authenticated media delivery (only members can read
+  `profiles/`, see Media below) and, as defence in depth, by randomised media filenames;
+  password guessing is
   bounded by django-axes (5 attempts, 30 min lockout) plus the 10/min register throttle.
   Do not re-raise. Revisit only if registration becomes invite-only, which would remove the
   oracle as a side effect of a change worth making on its own terms.
@@ -79,6 +81,20 @@ Rules that no domain can break. These apply globally across the entire system.
 - Any settings module that reassigns `SECRET_KEY` must also reassign
   `SIMPLE_JWT["SIGNING_KEY"]`. The dict is built once when `base.py` is imported and
   does not follow a later reassignment — the mismatch is silent.
+
+### Media
+- Every file under `MEDIA_ROOT` is served only through the authenticated access check in
+  `features/media` (`/ipbcb/media/<path>`). Access is decided by the first path segment, with
+  **default deny**: a folder without a rule is unreadable by everyone, leaders included, so a
+  new upload location fails closed until a rule and a spec change are written for it.
+- The path is validated, never normalized: any empty, `.` or `..` segment, backslash, `%` or
+  control character is rejected, and the file must resolve inside `MEDIA_ROOT`. The checked
+  string is the served string.
+- nginx serves the bytes only through the `internal` `location /ipbcb/protected-media/`,
+  reached by the backend's `X-Accel-Redirect`. There is no public `location /ipbcb/media/`
+  with an `alias`: re-adding one silently re-publishes every file. The nginx config lives in
+  the `nginx-deploy` repository, so this is its only record inside this project. Full design
+  in `specs/009-protected-media-access/`.
 
 ### Client IP
 - Resolve it through `ipware` with `proxy_order="right-most"` — never by reading
@@ -95,6 +111,15 @@ Rules that no domain can break. These apply globally across the entire system.
   Authorization header, so an undeclared `/api/me/profile/` response would be handed to the
   next caller of that URL. Public data stays undeclared, so a cache in front is free to
   store it.
+- **Media exception:** media responses declare `Cache-Control: private, no-cache` and **no**
+  `Vary: Authorization`. `private` keeps them out of shared caches; `no-cache` lets the phone
+  keep the image on disk but revalidate on every use, so each view still passes the access
+  check and a revoked membership takes effect on the next request. `no-store` would force a
+  full re-download of every image on every view. The validators (`ETag`, `Last-Modified`) and
+  the `304` come from nginx serving the redirected file; the backend sets none on the redirect
+  response, where they would describe the empty body. The nginx internal location must not
+  add its own `Cache-Control` or `Expires`. Reasoning in
+  `specs/009-protected-media-access/plan.md`, Complexity Tracking.
 
 ## Code Standards
 - All code in English (variables, functions, classes, files, comments, commits)
