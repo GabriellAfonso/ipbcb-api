@@ -40,7 +40,8 @@ env.bak/
 *.pot
 server/db.sqlite3
 server/static/
-media/
+# Anchored: uploaded files only. A bare "media/" also hid the features/media package.
+server/media/
 
 # ─── Dumps de banco ───────────────────────────────────────────────────────────
 # Backups de produção contêm dados pessoais de membros. Nunca versionar.
