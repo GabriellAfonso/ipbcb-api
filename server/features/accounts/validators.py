@@ -35,6 +35,19 @@ def is_valid_username(value: str) -> bool:
     return bool(USERNAME_PATTERN.match(value))
 
 
+def profile_photo_folder(username: str, user_id: str) -> str:
+    """Folder under ``profiles/`` that holds this user's photo.
+
+    Falls back to the user id when the username predates the username rules: those rows
+    exist, and their usernames may hold path separators or "..". Shared by the upload path
+    and the media owner check, so both always agree on which folder is the user's.
+
+    >>> profile_photo_folder("ana.paula", "3f2b...")
+    'ana.paula'
+    """
+    return username if is_valid_username(username) else user_id
+
+
 def validate_username(value: str) -> None:
     """Raise Django's ``ValidationError`` when the username breaks the rule.
 

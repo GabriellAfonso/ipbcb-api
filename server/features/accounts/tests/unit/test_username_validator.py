@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 
 from features.accounts.validators import (
     is_valid_username,
+    profile_photo_folder,
     sanitize_username,
     validate_username,
 )
@@ -78,3 +79,12 @@ class TestSanitizeUsername:
     def test_transliterates_accents_instead_of_dropping_them(self) -> None:
         """'joão' must become 'joao', not 'joo'."""
         assert sanitize_username("joão") == "joao"
+
+
+class TestProfilePhotoFolder:
+    def test_valid_username_is_the_folder(self) -> None:
+        assert profile_photo_folder("ana.paula", "3f2b") == "ana.paula"
+
+    @pytest.mark.parametrize("legacy_username", ["Ana Paula", "../admin", "a/b"])
+    def test_legacy_username_falls_back_to_user_id(self, legacy_username: str) -> None:
+        assert profile_photo_folder(legacy_username, "3f2b") == "3f2b"
