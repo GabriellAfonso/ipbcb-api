@@ -3,6 +3,18 @@ from rest_framework.request import Request
 from rest_framework.views import APIView
 
 
+def _profile_of(request: Request) -> object | None:
+    """The caller's Profile, or None when the row does not exist.
+
+    ``request.user.profile`` raises ``RelatedObjectDoesNotExist`` for a user without a row.
+    That exception subclasses ``AttributeError``, so ``getattr`` with a default absorbs it —
+    but only if the lookup happens inside ``getattr``, not as its first argument.
+
+    >>> getattr(_profile_of(request), "is_member", False)
+    """
+    return getattr(request.user, "profile", None)
+
+
 class IsMemberUser(permissions.BasePermission):
     """
     Permite acesso apenas a usuários que possuem um perfil com is_member = True.
@@ -14,7 +26,7 @@ class IsMemberUser(permissions.BasePermission):
         return bool(
             request.user
             and request.user.is_authenticated
-            and getattr(request.user.profile, "is_member", False)
+            and getattr(_profile_of(request), "is_member", False)
         )
 
 
@@ -29,5 +41,5 @@ class IsAdminUser(permissions.BasePermission):
         return bool(
             request.user
             and request.user.is_authenticated
-            and getattr(request.user.profile, "is_admin", False)
+            and getattr(_profile_of(request), "is_admin", False)
         )
