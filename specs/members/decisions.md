@@ -82,3 +82,29 @@ Objetivo da feature: tela no app Android para a liderança ver e editar os dados
 - Logs JSON (feature 002) nunca levam dado de membro — só `member_id`.
 - Atualizar `constitution.md`: a premissa "sem dados sensíveis" não vale mais para este
   domínio. O schema OpenAPI público continua aceito (não expõe dados).
+
+---
+
+## 8. Endpoints
+
+Todos exigem `IsAuthenticated` + líder (`is_admin`). Prefixo `/admin/` porque
+`/api/members/` já existe e atende membros comuns (só id e nome).
+
+| Método | Rota | O que faz |
+|---|---|---|
+| GET | `/api/admin/members/` | lista completa (id, nome, foto, status, `is_active`); sem paginação nem busca — o app baixa tudo e filtra no celular |
+| POST | `/api/admin/members/` | cria membro |
+| GET | `/api/admin/members/{id}/` | ficha completa |
+| PATCH | `/api/admin/members/{id}/` | edita campos; grava histórico |
+| DELETE | `/api/admin/members/{id}/` | apaga membro, histórico e foto |
+| PUT | `/api/admin/members/{id}/photo/` | envia/troca foto; histórico "foto alterada" |
+| DELETE | `/api/admin/members/{id}/photo/` | remove foto; histórico |
+| GET | `/api/admin/members/{id}/history/` | histórico de edições |
+| GET | `/api/admin/members/options/` | status, cargos e ministérios para os seletores |
+
+- **Decidido:** ministérios (vários por membro) viram uma única linha no histórico,
+  ex.: `ministries: "A, B" → "A, C"`.
+
+- **Decidido:** proteção contra exclusão acidental fica **só no app**: diálogo avisando
+  que histórico e foto também são apagados, e o líder digita o nome do membro para
+  confirmar. Backend não muda (sem lixeira/soft delete).
