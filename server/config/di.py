@@ -17,7 +17,15 @@ from features.gallery.repositories.gallery_repository import GalleryRepositoryIm
 from features.gallery.services.gallery_service import GalleryService
 from features.media.repositories.filesystem_media_repository import FileSystemMediaRepository
 from features.media.services.media_access_service import MediaAccessService
+from features.members.repositories.member_change_log_repository import (
+    MemberChangeLogRepositoryImpl,
+)
+from features.members.repositories.member_photo_storage import DefaultStorageMemberPhotoStorage
 from features.members.repositories.member_repository import MemberRepositoryImpl
+from features.members.repositories.member_roster_repository import MemberRosterRepositoryImpl
+from features.members.services.member_change_log_service import MemberChangeLogService
+from features.members.services.member_photo_service import MemberPhotoService
+from features.members.services.member_roster_service import MemberRosterService
 from features.members.services.member_service import MemberService
 from features.songs.repositories.hymnal_history_repository import HymnalHistoryRepositoryImpl
 from features.songs.repositories.hymnal_repository import HymnalRepositoryImpl
@@ -53,6 +61,9 @@ class Container(containers.DeclarativeContainer):
             "features.songs.views.songs",
             "features.members.views.birthdays",
             "features.members.views.members",
+            "features.members.views.admin_members",
+            "features.members.views.admin_member_photo",
+            "features.members.views.admin_member_history",
             "features.schedule.views.schedule",
         ]
     )
@@ -102,6 +113,28 @@ class Container(containers.DeclarativeContainer):
 
     member_repository = providers.Factory(MemberRepositoryImpl)
     member_service = providers.Factory(MemberService, repository=member_repository)
+
+    member_roster_repository = providers.Factory(MemberRosterRepositoryImpl)
+    member_change_log_repository = providers.Factory(MemberChangeLogRepositoryImpl)
+    member_photo_storage = providers.Factory(DefaultStorageMemberPhotoStorage)
+    member_roster_service = providers.Factory(
+        MemberRosterService,
+        roster_repository=member_roster_repository,
+        change_log_repository=member_change_log_repository,
+        photo_storage=member_photo_storage,
+        clock=clock,
+    )
+    member_photo_service = providers.Factory(
+        MemberPhotoService,
+        roster_repository=member_roster_repository,
+        change_log_repository=member_change_log_repository,
+        photo_storage=member_photo_storage,
+    )
+    member_change_log_service = providers.Factory(
+        MemberChangeLogService,
+        change_log_repository=member_change_log_repository,
+        roster_repository=member_roster_repository,
+    )
 
     schedule_repository = providers.Factory(ScheduleRepositoryImpl)
     schedule_service = providers.Factory(ScheduleService, repository=schedule_repository)

@@ -111,6 +111,17 @@ class ProfileNotFoundError(NotFoundError):
         return {"user_id": self.user_id}
 
 
+class MemberNotFoundError(NotFoundError):
+    """No member with this id. Carries only the id: member data never goes into errors."""
+
+    def __init__(self, member_id: int) -> None:
+        super().__init__(f"Membro não encontrado: id={member_id}.")
+        self.member_id = member_id
+
+    def extra_context(self) -> dict[str, object]:
+        return {"member_id": self.member_id}
+
+
 class ChordChartNotFoundError(NotFoundError):
     def __init__(self, pk: int) -> None:
         super().__init__(f"Chord chart not found: id={pk}")

@@ -45,7 +45,13 @@ class Member(models.Model):
     ministries = models.ManyToManyField(Ministry, blank=True)
 
     baptism_date = models.DateField(null=True, blank=True)
+    # Means "valid profile", not "attends church". Only valid profiles appear in the
+    # regular member list and birthdays; leaders see every record (specs/members/spec.md).
     is_active = models.BooleanField(default=True)
+    # Leader-only (the media rule for members/ allows leaders alone, spec 009) and separate
+    # from Profile.photo. Written through MemberPhotoStorage under a random name, never
+    # through FieldFile.save, so the row update stays inside the history transaction.
+    photo = models.ImageField(upload_to="members/", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
