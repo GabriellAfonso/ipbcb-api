@@ -63,7 +63,16 @@ Rules that no domain can break. These apply globally across the entire system.
 - No hardcoded credentials, secrets, or keys — environment variables only
 - `DEBUG = False` in production — never expose tracebacks
 - No password complexity validators — user chooses any password
-- OpenAPI schema is intentionally public — accepted risk for internal church app
+- OpenAPI schema is intentionally public — accepted risk for internal church app. It
+  describes shapes, not data, so it stays accepted even though the members domain below
+  holds sensitive data.
+- **Sensitive data: the members domain.** The premise that this system holds no sensitive
+  data does not hold for `features/members`: the roll ties a named person to religious
+  affiliation, which is sensitive personal data under LGPD art. 11. There, serializers list
+  their fields explicitly (never `"__all__"`), structured logs carry `member_id` and never
+  member fields, leader-only responses are private per Caching below, and member photos are
+  readable only by leaders (Media below). Other domains keep the original premise until they
+  store something comparable. Full rules in `specs/members/spec.md`.
 - **Accepted risk:** `POST /api/auth/register/` is public and answers "Este nome de usuário
   já está em uso." for a taken name, which confirms an account exists. Kept deliberately:
   the alternative is a generic failure that leaves a non-technical member unable to tell
