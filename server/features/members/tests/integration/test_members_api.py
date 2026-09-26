@@ -69,3 +69,12 @@ class TestMemberListAPIView:
 
         assert resp.status_code == 200
         assert resp.data["members"] == []
+
+    def test_exactly_id_and_name_even_with_a_leader_only_photo(self) -> None:
+        # Regression for feature 010: the leader-only photo must not leak into this list.
+        Member.objects.create(name="Bob", is_active=True, photo="members/abc.jpg")
+        client, _ = make_member_client()
+
+        resp = client.get(ENDPOINT)
+
+        assert set(resp.data["members"][0]) == {"id", "name"}

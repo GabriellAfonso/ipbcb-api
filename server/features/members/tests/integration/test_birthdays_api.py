@@ -34,6 +34,15 @@ class TestMemberBirthdaysAPIView:
         assert birthdays[1]["birth_month"] == 7
         assert birthdays[1]["birth_day"] == 23
 
+    def test_fields_unchanged_with_a_leader_only_photo(self) -> None:
+        # Regression for feature 010: the leader-only photo must not leak into birthdays.
+        Member.objects.create(name="Alice", birth_date=date(1990, 7, 5), photo="members/a.jpg")
+        client, _ = make_member_client()
+
+        resp = client.get(ENDPOINT, {"month": 7})
+
+        assert set(resp.data["birthdays"][0]) == {"name", "gender", "birth_month", "birth_day"}
+
     def test_single_month_returns_birth_month_field(self) -> None:
         Member.objects.create(name="Alice", birth_date=date(1990, 7, 5), is_active=True)
         client, _ = make_member_client()

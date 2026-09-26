@@ -22,6 +22,7 @@ from core.domain.exceptions import (
     MediaFileNotFoundError,
     MediaFolderNotRuledError,
     MediaPathRejectedError,
+    MemberNotFoundError,
     NotFoundError,
     PermissionDeniedError,
     SongsNotFoundError,
@@ -98,6 +99,13 @@ class TestDomainExceptions:
         response = custom_exception_handler(exc, _context())
         data = _assert_canonical(response, "NOT_FOUND", 404)
         assert data["missing_song_ids"] == [5, 12]
+
+    def test_member_not_found_carries_the_id(self) -> None:
+        exc = MemberNotFoundError(7)
+        response = custom_exception_handler(exc, _context())
+        data = _assert_canonical(response, "NOT_FOUND", 404)
+        assert "7" in data["detail"]
+        assert data["member_id"] == 7
 
 
 # ---------------------------------------------------------------------------
