@@ -21,7 +21,9 @@ def _record(**overrides: object) -> MemberRecordDTO:
         "name": "Ana Souza",
         "first_name": "Ana",
         "last_name": "Souza",
-        "birth_date": date(1990, 4, 2),
+        "birth_day": 2,
+        "birth_month": 4,
+        "birth_year": 1990,
         "gender": "F",
         "status": None,
         "role": None,
@@ -45,6 +47,8 @@ class TestRenderHistoryValue:
             (date(2005, 6, 12), "2005-06-12"),
             (True, "true"),
             (False, "false"),
+            (12, "12"),
+            (1990, "1990"),
             (ANA, "Ana"),
             ([], None),
             ([RECEPCAO, LOUVOR, ACAO], "Ação social, Louvor, Recepção"),
@@ -60,13 +64,28 @@ class TestDiffMemberRecords:
 
     def test_one_change_per_differing_field(self) -> None:
         before = _record()
-        after = _record(status=ANA, birth_date=date(1991, 1, 1))
+        after = _record(status=ANA, birth_year=1991)
 
         changes = diff_member_records(before, after)
 
         assert changes == [
-            MemberFieldChange(field="birth_date", old_value="1990-04-02", new_value="1991-01-01"),
+            MemberFieldChange(field="birth_year", old_value="1990", new_value="1991"),
             MemberFieldChange(field="status", old_value=None, new_value="Ana"),
+        ]
+
+    def test_birth_day_and_month_are_separate_entries(self) -> None:
+        changes = diff_member_records(_record(), _record(birth_day=5, birth_month=8))
+
+        assert changes == [
+            MemberFieldChange(field="birth_day", old_value="2", new_value="5"),
+            MemberFieldChange(field="birth_month", old_value="4", new_value="8"),
+        ]
+
+    def test_clearing_the_year_records_none(self) -> None:
+        changes = diff_member_records(_record(), _record(birth_year=None))
+
+        assert changes == [
+            MemberFieldChange(field="birth_year", old_value="1990", new_value=None),
         ]
 
     def test_ministries_change_is_one_entry_with_full_lists(self) -> None:

@@ -1,8 +1,8 @@
 """Leader roll endpoints: list, detail, options, create, edit, delete
-(specs/010-members-management/contracts/admin-members-api.md)."""
+(specs/010-members-management/contracts/admin-members-api.md; birth date parts:
+specs/011-split-birth-date/contracts/admin-members-api.md)."""
 
 import logging
-from datetime import date
 
 import pytest
 from rest_framework.test import APIClient
@@ -25,7 +25,9 @@ RECORD_FIELDS = {
     "name",
     "first_name",
     "last_name",
-    "birth_date",
+    "birth_day",
+    "birth_month",
+    "birth_year",
     "gender",
     "status",
     "role",
@@ -110,7 +112,12 @@ class TestList:
 class TestDetail:
     def test_full_record(self) -> None:
         member = Member.objects.create(
-            name="Ana", gender="F", birth_date=date(1990, 4, 2), photo="members/abc.jpg"
+            name="Ana",
+            gender="F",
+            birth_day=2,
+            birth_month=4,
+            birth_year=1990,
+            photo="members/abc.jpg",
         )
         member.ministries.set([Ministry.objects.create(name="Louvor")])
         client, _ = make_admin_client()
@@ -119,7 +126,8 @@ class TestDetail:
 
         assert response.status_code == 200
         assert set(response.data) == RECORD_FIELDS
-        assert response.data["birth_date"] == "1990-04-02"
+        assert (response.data["birth_day"], response.data["birth_month"]) == (2, 4)
+        assert response.data["birth_year"] == 1990
         assert response.data["ministries"][0]["name"] == "Louvor"
         assert response.data["photo_url"] == "http://testserver/ipbcb/media/members/abc.jpg"
         assert response["Cache-Control"] == "private, no-store"
@@ -189,7 +197,8 @@ class TestCreate:
             {"name": "Ana", "status_id": "abc"},
             {"name": "Ana", "status_id": 999},
             {"name": "Ana", "ministry_ids": [999]},
-            {"name": "Ana", "birth_date": "2999-01-01"},
+            {"name": "Ana", "birth_year": 2999},
+            {"name": "Ana", "birth_date": "1990-01-01"},
             {"name": "Ana", "photo": "members/x.jpg"},
             {"name": "Ana", "id": 5},
             {"name": "Ana", "created_at": "2020-01-01T00:00:00Z"},
@@ -218,23 +227,25 @@ class TestCreate:
 class TestPatch:
     def test_partial_update_and_history(self) -> None:
         status = MemberStatus.objects.create(name="Comungante")
-        member = Member.objects.create(name="Ana", gender="F", birth_date=date(1990, 4, 2))
+        member = Member.objects.create(
+            name="Ana", gender="F", birth_day=2, birth_month=4, birth_year=1990
+        )
         client, _ = make_admin_client()
 
         response = client.patch(
             detail_url(member.pk),
-            {"status_id": status.pk, "birth_date": "1991-01-01"},
+            {"status_id": status.pk, "birth_year": 1991},
             format="json",
         )
 
         assert response.status_code == 200
         assert response.data["gender"] == "F"
-        assert response.data["birth_date"] == "1991-01-01"
+        assert response.data["birth_year"] == 1991
         rows = MemberChangeLog.objects.filter(member=member).values_list(
             "field", "old_value", "new_value"
         )
         assert set(rows) == {
-            ("birth_date", "1990-04-02", "1991-01-01"),
+            ("birth_year", "1990", "1991"),
             ("status", None, "Comungante"),
         }
 
@@ -252,7 +263,7 @@ class TestPatch:
         [{"name": None}, {"name": ""}, {"baptism_date": "1980-01-01"}, {"role_id": 999}],
     )
     def test_rejected_edit_changes_nothing(self, body: dict[str, object]) -> None:
-        member = Member.objects.create(name="Ana", birth_date=date(1990, 4, 2))
+        member = Member.objects.create(name="Ana", birth_day=2, birth_month=4, birth_year=1990)
         client, _ = make_admin_client()
 
         response = client.patch(detail_url(member.pk), body, format="json")
@@ -268,7 +279,7 @@ class TestPatch:
         assert client.patch(detail_url(999), {"gender": "M"}, format="json").status_code == 404
 
     def test_invalid_profile_leaves_regular_lists_but_stays_for_leaders(self) -> None:
-        member = Member.objects.create(name="Ana", birth_date=date(1990, 7, 5))
+        member = Member.objects.create(name="Ana", birth_day=5, birth_month=7, birth_year=1990)
         leader_client, _ = make_admin_client()
         member_client, _ = make_member_client()
 
@@ -288,14 +299,16 @@ class TestLogHygiene:
         client, _ = make_admin_client()
 
         member_id = client.post(
-            LIST_URL, {"name": "Maria Sigilo", "birth_date": "1987-03-14"}, format="json"
+            LIST_URL,
+            {"name": "Maria Sigilo", "birth_day": 14, "birth_month": 3, "birth_year": 1987},
+            format="json",
         ).data["id"]
         client.patch(detail_url(member_id), {"last_name": "Reservada"}, format="json")
         client.delete(detail_url(member_id))
 
         logged = " ".join(str(record.__dict__) for record in caplog.records)
         assert "member_created" in logged and "member_deleted" in logged
-        for secret in ("Maria", "Sigilo", "Reservada", "1987-03-14"):
+        for secret in ("Maria", "Sigilo", "Reservada", "1987"):
             assert secret not in logged
 
 
@@ -312,3 +325,108 @@ class TestDelete:
         assert not Member.objects.exists()
         assert not MemberChangeLog.objects.exists()
         assert client.delete(detail_url(member.pk)).status_code == 404
+
+
+@pytest.mark.django_db
+class TestBirthDateParts:
+    """Spec 011, US1: the leader stores exactly the parts that are known."""
+
+    @pytest.mark.parametrize(
+        "parts",
+        [
+            {"birth_day": 12, "birth_month": 3, "birth_year": 1990},
+            {"birth_day": 12, "birth_month": 3, "birth_year": None},
+            {"birth_day": None, "birth_month": None, "birth_year": 1950},
+            {"birth_day": None, "birth_month": None, "birth_year": None},
+        ],
+    )
+    def test_create_returns_the_parts_sent(self, parts: dict[str, int | None]) -> None:
+        client, _ = make_admin_client()
+
+        response = client.post(LIST_URL, {"name": "Ana", **parts}, format="json")
+
+        assert response.status_code == 201
+        assert {key: response.data[key] for key in parts} == parts
+
+    def test_clearing_the_year_keeps_day_and_month(self) -> None:
+        member = Member.objects.create(name="Ana", birth_day=12, birth_month=3, birth_year=1990)
+        client, _ = make_admin_client()
+
+        response = client.patch(detail_url(member.pk), {"birth_year": None}, format="json")
+
+        assert response.status_code == 200
+        assert (response.data["birth_day"], response.data["birth_month"]) == (12, 3)
+        assert response.data["birth_year"] is None
+
+    def test_adding_day_and_month_to_a_year(self) -> None:
+        member = Member.objects.create(name="Ana", birth_year=1950)
+        client, _ = make_admin_client()
+
+        response = client.patch(
+            detail_url(member.pk), {"birth_day": 5, "birth_month": 8}, format="json"
+        )
+
+        assert response.status_code == 200
+        parts = (response.data["birth_day"], response.data["birth_month"])
+        assert parts + (response.data["birth_year"],) == (5, 8, 1950)
+
+    def test_old_birth_date_key_is_refused_by_name(self) -> None:
+        client, _ = make_admin_client()
+
+        response = client.post(LIST_URL, {"name": "Ana", "birth_date": "1990-01-01"}, format="json")
+
+        assert response.status_code == 400
+        assert response.data["error_code"] == "VALIDATION_ERROR"
+        assert "birth_date" in str(response.data["field_errors"])
+
+
+BIRTH_REJECTIONS = [
+    ({"birth_day": 12}, "birth_day=12, birth_month=None"),
+    ({"birth_day": 31, "birth_month": 4}, "31/04"),
+    ({"birth_day": 29, "birth_month": 2, "birth_year": 1990}, "29/02/1990"),
+    ({"birth_year": 2999}, "birth_year=2999"),
+    ({"birth_year": 1990, "baptism_date": "1989-05-01"}, "1989-05-01"),
+    ({"birth_day": 0, "birth_month": 3}, "birth_day=0"),
+    ({"birth_day": 1, "birth_month": 13}, "birth_month=13"),
+]
+
+
+@pytest.mark.django_db
+class TestBirthDateRejections:
+    """Spec 011, US2: each invalid combination is refused naming the value, nothing stored."""
+
+    @pytest.mark.parametrize(("parts", "offending"), BIRTH_REJECTIONS)
+    def test_create_rejected_naming_the_value(
+        self, parts: dict[str, object], offending: str
+    ) -> None:
+        client, _ = make_admin_client()
+
+        response = client.post(LIST_URL, {"name": "Ana", **parts}, format="json")
+
+        assert response.status_code == 400
+        assert response.data["error_code"] == "VALIDATION_ERROR"
+        assert offending in response.data["detail"]
+        assert not Member.objects.exists()
+
+    @pytest.mark.parametrize(("parts", "offending"), BIRTH_REJECTIONS)
+    def test_patch_rejected_and_record_unchanged(
+        self, parts: dict[str, object], offending: str
+    ) -> None:
+        member = Member.objects.create(name="Ana")
+        client, _ = make_admin_client()
+
+        response = client.patch(detail_url(member.pk), parts, format="json")
+
+        assert response.status_code == 400
+        assert offending in response.data["detail"]
+        member.refresh_from_db()
+        assert (member.birth_day, member.birth_month, member.birth_year) == (None, None, None)
+        assert not MemberChangeLog.objects.exists()
+
+    def test_non_integer_part_is_a_validation_error(self) -> None:
+        client, _ = make_admin_client()
+
+        response = client.post(LIST_URL, {"name": "Ana", "birth_day": "abc"}, format="json")
+
+        assert response.status_code == 400
+        assert response.data["error_code"] == "VALIDATION_ERROR"

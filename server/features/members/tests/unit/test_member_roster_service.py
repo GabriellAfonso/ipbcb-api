@@ -112,7 +112,8 @@ class TestCreate:
             (MemberCreateDTO(name="Ana", status_id=77), "status_id=77"),
             (MemberCreateDTO(name="Ana", role_id=78), "role_id=78"),
             (MemberCreateDTO(name="Ana", ministry_ids=[2, 80, 81]), r"\[80, 81\]"),
-            (MemberCreateDTO(name="Ana", birth_date=date(2027, 1, 1)), "2027-01-01"),
+            (MemberCreateDTO(name="Ana", birth_year=2027), "birth_year=2027"),
+            (MemberCreateDTO(name="Ana", birth_day=12), "birth_day=12, birth_month=None"),
         ],
     )
     def test_invalid_input_stores_nothing(
@@ -138,14 +139,12 @@ class TestCreate:
 @pytest.mark.django_db
 class TestUpdate:
     def test_one_entry_per_changed_field(self, h: Harness) -> None:
-        member = h.roster.add("Ana", birth_date=date(1990, 4, 2))
+        member = h.roster.add("Ana", birth_day=2, birth_month=4, birth_year=1990)
 
-        h.service.update_member(
-            member.id, MemberPatchDTO(status_id=1, birth_date=date(1991, 1, 1)), EDITOR
-        )
+        h.service.update_member(member.id, MemberPatchDTO(status_id=1, birth_year=1991), EDITOR)
 
         assert h.change_log.changes == [
-            MemberFieldChange(field="birth_date", old_value="1990-04-02", new_value="1991-01-01"),
+            MemberFieldChange(field="birth_year", old_value="1990", new_value="1991"),
             MemberFieldChange(field="status", old_value=None, new_value="Comungante"),
         ]
 
@@ -181,13 +180,35 @@ class TestUpdate:
 
         assert record.status == COMUNGANTE
 
-    def test_baptism_checked_against_stored_birth_date(self, h: Harness) -> None:
-        member = h.roster.add("Ana", birth_date=date(2000, 1, 1))
+    def test_baptism_checked_against_stored_birth_year(self, h: Harness) -> None:
+        member = h.roster.add("Ana", birth_year=2000)
 
-        with pytest.raises(ValidationError, match="1999-01-01"):
+        with pytest.raises(ValidationError, match="1999-05-01"):
             h.service.update_member(
-                member.id, MemberPatchDTO(baptism_date=date(1999, 1, 1)), EDITOR
+                member.id, MemberPatchDTO(baptism_date=date(1999, 5, 1)), EDITOR
             )
+        assert h.change_log.calls == []
+
+    @pytest.mark.parametrize(
+        ("stored", "patch", "message"),
+        [
+            ({"birth_day": 1, "birth_month": 4}, MemberPatchDTO(birth_day=31), "31/04"),
+            (
+                {"birth_day": 12, "birth_month": 3},
+                MemberPatchDTO(birth_month=None),
+                "birth_day=12, birth_month=None",
+            ),
+            ({"birth_day": 29, "birth_month": 2}, MemberPatchDTO(birth_year=1990), "29/02/1990"),
+        ],
+    )
+    def test_birth_parts_checked_merged_with_stored(
+        self, h: Harness, stored: dict[str, int], patch: MemberPatchDTO, message: str
+    ) -> None:
+        # Spec 011 FR-006: parts not sent come from the stored record before validating.
+        member = h.roster.add("Ana", **stored)
+
+        with pytest.raises(ValidationError, match=message):
+            h.service.update_member(member.id, patch, EDITOR)
         assert h.change_log.calls == []
 
     def test_blank_name_rejected(self, h: Harness) -> None:

@@ -1,6 +1,5 @@
 from collections.abc import Callable
 from contextlib import AbstractContextManager
-from datetime import date
 
 import pytest
 
@@ -49,7 +48,9 @@ class TestGetRecord:
         self, repo: MemberRosterRepositoryImpl, django_assert_num_queries: AssertNumQueries
     ) -> None:
         role = Role.objects.create(name="Diácono")
-        member = Member.objects.create(name="Ana", role=role, birth_date=date(1990, 4, 2))
+        member = Member.objects.create(
+            name="Ana", role=role, birth_day=2, birth_month=4, birth_year=1990
+        )
         member.ministries.set(
             [Ministry.objects.create(name="Recepção"), Ministry.objects.create(name="Louvor")]
         )
@@ -61,7 +62,7 @@ class TestGetRecord:
         assert [m.name for m in record.ministries] == ["Louvor", "Recepção"]
         assert record.role == NamedRefDTO(id=role.pk, name="Diácono")
         assert record.status is None
-        assert record.birth_date == date(1990, 4, 2)
+        assert (record.birth_day, record.birth_month, record.birth_year) == (2, 4, 1990)
 
     def test_unknown_id_returns_none(self, repo: MemberRosterRepositoryImpl) -> None:
         assert repo.get_record(999) is None

@@ -1,43 +1,48 @@
-"""Seed fake members with birthdays spread across all 12 months for local testing."""
+"""Seed fake members with birthdays spread across all 12 months for local testing.
 
-from datetime import date
+Each entry is (name, gender, day, month, year); any birth part may be None.
+"""
 
 from django.core.management.base import BaseCommand
 
 from features.members.models.member import Member
 
 
-FAKE_MEMBERS = [
-    ("Ana Silva", "F", date(1995, 1, 8)),
-    ("Bruno Costa", "M", date(1988, 1, 22)),
-    ("Carla Souza", "F", date(1990, 2, 14)),
-    ("Daniel Oliveira", "M", date(1985, 2, 28)),
-    ("Elena Pereira", "F", date(1992, 3, 5)),
-    ("Felipe Santos", "M", date(1987, 3, 19)),
-    ("Gabriela Lima", "F", date(1993, 4, 2)),
-    ("Hugo Almeida", "M", date(1991, 4, 17)),
-    ("Isabela Rocha", "F", date(1989, 5, 10)),
-    ("Joao Ferreira", "M", date(1994, 5, 25)),
-    ("Karen Barbosa", "F", date(1986, 6, 7)),
-    ("Lucas Ribeiro", "M", date(1996, 6, 21)),
-    ("Marina Cardoso", "F", date(1990, 7, 3)),
-    ("Nicolas Araujo", "M", date(1988, 7, 16)),
-    ("Olivia Gomes", "F", date(1993, 7, 30)),
-    ("Pedro Martins", "M", date(1985, 8, 11)),
-    ("Raquel Dias", "F", date(1992, 8, 24)),
-    ("Samuel Nunes", "M", date(1987, 9, 1)),
-    ("Tatiana Campos", "F", date(1991, 9, 18)),
-    ("Vinicius Moreira", "M", date(1994, 10, 6)),
-    ("Wanda Teixeira", "F", date(1989, 10, 20)),
-    ("Xavier Mendes", "M", date(1996, 11, 9)),
-    ("Yasmin Castro", "F", date(1986, 11, 27)),
-    ("Zeca Pinto", "M", date(1990, 12, 4)),
-    ("Amanda Correia", "F", date(1988, 12, 25)),
-    ("Roberto Lopes", None, date(1993, 3, 12)),
-    ("Fernanda Nascimento", "F", date(1991, 7, 7)),
-    ("Gustavo Ramos", "M", date(1985, 1, 31)),
-    ("Juliana Vieira", "F", date(1992, 6, 15)),
-    ("Marcos Azevedo", "M", date(1987, 12, 18)),
+FAKE_MEMBERS: list[tuple[str, str | None, int | None, int | None, int | None]] = [
+    ("Ana Silva", "F", 8, 1, 1995),
+    ("Bruno Costa", "M", 22, 1, 1988),
+    ("Carla Souza", "F", 14, 2, 1990),
+    ("Daniel Oliveira", "M", 28, 2, 1985),
+    ("Elena Pereira", "F", 5, 3, 1992),
+    ("Felipe Santos", "M", 19, 3, 1987),
+    ("Gabriela Lima", "F", 2, 4, 1993),
+    ("Hugo Almeida", "M", 17, 4, 1991),
+    ("Isabela Rocha", "F", 10, 5, 1989),
+    ("Joao Ferreira", "M", 25, 5, 1994),
+    ("Karen Barbosa", "F", 7, 6, 1986),
+    ("Lucas Ribeiro", "M", 21, 6, 1996),
+    ("Marina Cardoso", "F", 3, 7, 1990),
+    ("Nicolas Araujo", "M", 16, 7, 1988),
+    ("Olivia Gomes", "F", 30, 7, 1993),
+    ("Pedro Martins", "M", 11, 8, 1985),
+    ("Raquel Dias", "F", 24, 8, 1992),
+    ("Samuel Nunes", "M", 1, 9, 1987),
+    ("Tatiana Campos", "F", 18, 9, 1991),
+    ("Vinicius Moreira", "M", 6, 10, 1994),
+    ("Wanda Teixeira", "F", 20, 10, 1989),
+    ("Xavier Mendes", "M", 9, 11, 1996),
+    ("Yasmin Castro", "F", 27, 11, 1986),
+    ("Zeca Pinto", "M", 4, 12, 1990),
+    ("Amanda Correia", "F", 25, 12, 1988),
+    ("Roberto Lopes", None, 12, 3, 1993),
+    ("Fernanda Nascimento", "F", 7, 7, 1991),
+    ("Gustavo Ramos", "M", 31, 1, 1985),
+    ("Juliana Vieira", "F", 15, 6, 1992),
+    ("Marcos Azevedo", "M", 18, 12, 1987),
+    # Partly known dates (spec 011): only the first of these shows up in birthdays.
+    ("Helena Duarte", "F", 14, 8, None),
+    ("Otavio Prado", "M", None, None, 1950),
+    ("Sonia Reis", "F", None, None, None),
 ]
 
 
@@ -54,18 +59,20 @@ class Command(BaseCommand):
     def handle(self, *args, **options):  # type: ignore[no-untyped-def]
         if options["clear"]:
             deleted, _ = Member.objects.filter(
-                name__in=[name for name, _, _ in FAKE_MEMBERS]
+                name__in=[entry[0] for entry in FAKE_MEMBERS]
             ).delete()
             self.stdout.write(f"Removed {deleted} seeded members.")
             return
 
         created = 0
-        for name, gender, birth_date in FAKE_MEMBERS:
+        for name, gender, day, month, year in FAKE_MEMBERS:
             _, was_created = Member.objects.get_or_create(
                 name=name,
                 defaults={
                     "gender": gender,
-                    "birth_date": birth_date,
+                    "birth_day": day,
+                    "birth_month": month,
+                    "birth_year": year,
                     "is_active": True,
                 },
             )

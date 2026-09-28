@@ -43,7 +43,9 @@ class MemberRecordSerializer(_PhotoUrlMixin):
     name = serializers.CharField()
     first_name = serializers.CharField()
     last_name = serializers.CharField()
-    birth_date = serializers.DateField(allow_null=True)
+    birth_day = serializers.IntegerField(allow_null=True)
+    birth_month = serializers.IntegerField(allow_null=True)
+    birth_year = serializers.IntegerField(allow_null=True)
     gender = serializers.CharField(allow_null=True)
     status = NamedRefSerializer(allow_null=True)
     role = NamedRefSerializer(allow_null=True)
@@ -79,7 +81,11 @@ class MemberPatchSerializer(serializers.Serializer[Any]):
     name = serializers.CharField(max_length=255, required=False)
     first_name = serializers.CharField(max_length=255, required=False, allow_blank=True)
     last_name = serializers.CharField(max_length=255, required=False, allow_blank=True)
-    birth_date = serializers.DateField(required=False, allow_null=True)
+    # No min/max here: ranges are checked in domain/member_dates.py, whose messages carry
+    # the offending value (DRF's default range messages do not).
+    birth_day = serializers.IntegerField(required=False, allow_null=True)
+    birth_month = serializers.IntegerField(required=False, allow_null=True)
+    birth_year = serializers.IntegerField(required=False, allow_null=True)
     gender = serializers.ChoiceField(choices=["M", "F"], required=False, allow_null=True)
     status_id = serializers.IntegerField(required=False, allow_null=True)
     role_id = serializers.IntegerField(required=False, allow_null=True)

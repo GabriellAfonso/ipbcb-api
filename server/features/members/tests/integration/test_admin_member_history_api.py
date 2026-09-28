@@ -5,6 +5,7 @@ from rest_framework.test import APIClient
 
 from conftest import make_admin_client, make_member_client
 from features.members.models.member import Member, Ministry
+from features.members.models.member_change_log import MemberChangeLog
 
 
 def history_url(member_id: int) -> str:
@@ -77,3 +78,34 @@ class TestHistory:
         assert first["Cache-Control"] == "private, no-store"
         assert "Authorization" in first["Vary"]
         assert second.status_code == 304
+
+
+@pytest.mark.django_db
+class TestBirthPartsHistory:
+    """Spec 011, US5: one row per changed part; rows written before the split stay."""
+
+    def test_year_change_is_one_row(self) -> None:
+        member = Member.objects.create(name="Ana", birth_day=2, birth_month=4, birth_year=1990)
+        client, _ = make_admin_client()
+
+        client.patch(f"/api/admin/members/{member.pk}/", {"birth_year": 1991}, format="json")
+
+        rows = client.get(history_url(member.pk)).data["history"]
+        assert [(r["field"], r["old_value"], r["new_value"]) for r in rows] == [
+            ("birth_year", "1990", "1991")
+        ]
+
+    def test_old_birth_date_rows_are_returned_unchanged(self) -> None:
+        member = Member.objects.create(name="Ana")
+        MemberChangeLog.objects.create(
+            member=member, field="birth_date", old_value="1990-04-02", new_value="1991-01-01"
+        )
+        client, _ = make_admin_client()
+
+        (row,) = client.get(history_url(member.pk)).data["history"]
+
+        assert (row["field"], row["old_value"], row["new_value"]) == (
+            "birth_date",
+            "1990-04-02",
+            "1991-01-01",
+        )

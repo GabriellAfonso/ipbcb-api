@@ -1,5 +1,3 @@
-from datetime import date
-
 import pytest
 from rest_framework.test import APIClient
 
@@ -15,9 +13,15 @@ class TestMemberBirthdaysAPIView:
     # --- Single month (backward compatibility) ---
 
     def test_single_month_returns_birthdays(self) -> None:
-        Member.objects.create(name="Alice", birth_date=date(1990, 7, 5), gender="F", is_active=True)
-        Member.objects.create(name="Bob", birth_date=date(1985, 7, 23), gender="M", is_active=True)
-        Member.objects.create(name="Carol", birth_date=date(1992, 8, 10), is_active=True)
+        Member.objects.create(
+            name="Alice", birth_day=5, birth_month=7, birth_year=1990, gender="F", is_active=True
+        )
+        Member.objects.create(
+            name="Bob", birth_day=23, birth_month=7, birth_year=1985, gender="M", is_active=True
+        )
+        Member.objects.create(
+            name="Carol", birth_day=10, birth_month=8, birth_year=1992, is_active=True
+        )
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": 7})
@@ -36,7 +40,9 @@ class TestMemberBirthdaysAPIView:
 
     def test_fields_unchanged_with_a_leader_only_photo(self) -> None:
         # Regression for feature 010: the leader-only photo must not leak into birthdays.
-        Member.objects.create(name="Alice", birth_date=date(1990, 7, 5), photo="members/a.jpg")
+        Member.objects.create(
+            name="Alice", birth_day=5, birth_month=7, birth_year=1990, photo="members/a.jpg"
+        )
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": 7})
@@ -44,7 +50,9 @@ class TestMemberBirthdaysAPIView:
         assert set(resp.data["birthdays"][0]) == {"name", "gender", "birth_month", "birth_day"}
 
     def test_single_month_returns_birth_month_field(self) -> None:
-        Member.objects.create(name="Alice", birth_date=date(1990, 7, 5), is_active=True)
+        Member.objects.create(
+            name="Alice", birth_day=5, birth_month=7, birth_year=1990, is_active=True
+        )
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": 7})
@@ -53,7 +61,9 @@ class TestMemberBirthdaysAPIView:
         assert resp.data["birthdays"][0]["birth_month"] == 7
 
     def test_empty_month_returns_empty_list(self) -> None:
-        Member.objects.create(name="Alice", birth_date=date(1990, 7, 5), is_active=True)
+        Member.objects.create(
+            name="Alice", birth_day=5, birth_month=7, birth_year=1990, is_active=True
+        )
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": 2})
@@ -63,7 +73,12 @@ class TestMemberBirthdaysAPIView:
 
     def test_null_gender_returned_as_null(self) -> None:
         Member.objects.create(
-            name="NoGender", birth_date=date(1990, 7, 5), gender=None, is_active=True
+            name="NoGender",
+            birth_day=5,
+            birth_month=7,
+            birth_year=1990,
+            gender=None,
+            is_active=True,
         )
         client, _ = make_member_client()
 
@@ -72,9 +87,11 @@ class TestMemberBirthdaysAPIView:
         assert resp.status_code == 200
         assert resp.data["birthdays"][0]["gender"] is None
 
-    def test_excludes_null_birth_date(self) -> None:
-        Member.objects.create(name="Alice", birth_date=date(1990, 7, 5), is_active=True)
-        Member.objects.create(name="NoBirthday", birth_date=None, is_active=True)
+    def test_excludes_member_without_birth_parts(self) -> None:
+        Member.objects.create(
+            name="Alice", birth_day=5, birth_month=7, birth_year=1990, is_active=True
+        )
+        Member.objects.create(name="NoBirthday", is_active=True)
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": 7})
@@ -84,8 +101,12 @@ class TestMemberBirthdaysAPIView:
         assert "NoBirthday" not in names
 
     def test_excludes_inactive_members(self) -> None:
-        Member.objects.create(name="Active", birth_date=date(1990, 7, 5), is_active=True)
-        Member.objects.create(name="Inactive", birth_date=date(1990, 7, 10), is_active=False)
+        Member.objects.create(
+            name="Active", birth_day=5, birth_month=7, birth_year=1990, is_active=True
+        )
+        Member.objects.create(
+            name="Inactive", birth_day=10, birth_month=7, birth_year=1990, is_active=False
+        )
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": 7})
@@ -95,9 +116,15 @@ class TestMemberBirthdaysAPIView:
         assert "Inactive" not in names
 
     def test_single_month_orders_by_day_ascending(self) -> None:
-        Member.objects.create(name="Late", birth_date=date(1990, 3, 28), is_active=True)
-        Member.objects.create(name="Early", birth_date=date(1995, 3, 3), is_active=True)
-        Member.objects.create(name="Mid", birth_date=date(1988, 3, 15), is_active=True)
+        Member.objects.create(
+            name="Late", birth_day=28, birth_month=3, birth_year=1990, is_active=True
+        )
+        Member.objects.create(
+            name="Early", birth_day=3, birth_month=3, birth_year=1995, is_active=True
+        )
+        Member.objects.create(
+            name="Mid", birth_day=15, birth_month=3, birth_year=1988, is_active=True
+        )
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": 3})
@@ -106,7 +133,9 @@ class TestMemberBirthdaysAPIView:
         assert days == [3, 15, 28]
 
     def test_leading_zero_month_accepted(self) -> None:
-        Member.objects.create(name="Alice", birth_date=date(1990, 7, 5), is_active=True)
+        Member.objects.create(
+            name="Alice", birth_day=5, birth_month=7, birth_year=1990, is_active=True
+        )
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": "07"})
@@ -117,10 +146,18 @@ class TestMemberBirthdaysAPIView:
     # --- Month range ---
 
     def test_range_returns_birthdays_across_months(self) -> None:
-        Member.objects.create(name="Jan", birth_date=date(1990, 1, 15), is_active=True)
-        Member.objects.create(name="Mar", birth_date=date(1985, 3, 10), is_active=True)
-        Member.objects.create(name="Jun", birth_date=date(1992, 6, 20), is_active=True)
-        Member.objects.create(name="Jul", birth_date=date(1988, 7, 5), is_active=True)
+        Member.objects.create(
+            name="Jan", birth_day=15, birth_month=1, birth_year=1990, is_active=True
+        )
+        Member.objects.create(
+            name="Mar", birth_day=10, birth_month=3, birth_year=1985, is_active=True
+        )
+        Member.objects.create(
+            name="Jun", birth_day=20, birth_month=6, birth_year=1992, is_active=True
+        )
+        Member.objects.create(
+            name="Jul", birth_day=5, birth_month=7, birth_year=1988, is_active=True
+        )
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": "1-6"})
@@ -135,10 +172,18 @@ class TestMemberBirthdaysAPIView:
         assert "Jul" not in names
 
     def test_range_orders_by_month_then_day(self) -> None:
-        Member.objects.create(name="Mar10", birth_date=date(1990, 3, 10), is_active=True)
-        Member.objects.create(name="Jan20", birth_date=date(1985, 1, 20), is_active=True)
-        Member.objects.create(name="Jan5", birth_date=date(1992, 1, 5), is_active=True)
-        Member.objects.create(name="Mar1", birth_date=date(1988, 3, 1), is_active=True)
+        Member.objects.create(
+            name="Mar10", birth_day=10, birth_month=3, birth_year=1990, is_active=True
+        )
+        Member.objects.create(
+            name="Jan20", birth_day=20, birth_month=1, birth_year=1985, is_active=True
+        )
+        Member.objects.create(
+            name="Jan5", birth_day=5, birth_month=1, birth_year=1992, is_active=True
+        )
+        Member.objects.create(
+            name="Mar1", birth_day=1, birth_month=3, birth_year=1988, is_active=True
+        )
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": "1-6"})
@@ -148,8 +193,12 @@ class TestMemberBirthdaysAPIView:
         assert result == [(1, 5), (1, 20), (3, 1), (3, 10)]
 
     def test_range_full_year_returns_all(self) -> None:
-        Member.objects.create(name="Jan", birth_date=date(1990, 1, 1), is_active=True)
-        Member.objects.create(name="Dec", birth_date=date(1990, 12, 31), is_active=True)
+        Member.objects.create(
+            name="Jan", birth_day=1, birth_month=1, birth_year=1990, is_active=True
+        )
+        Member.objects.create(
+            name="Dec", birth_day=31, birth_month=12, birth_year=1990, is_active=True
+        )
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": "1-12"})
@@ -158,8 +207,12 @@ class TestMemberBirthdaysAPIView:
         assert len(resp.data["birthdays"]) == 2
 
     def test_range_excludes_members_outside_range(self) -> None:
-        Member.objects.create(name="InRange", birth_date=date(1990, 3, 15), is_active=True)
-        Member.objects.create(name="OutRange", birth_date=date(1990, 7, 10), is_active=True)
+        Member.objects.create(
+            name="InRange", birth_day=15, birth_month=3, birth_year=1990, is_active=True
+        )
+        Member.objects.create(
+            name="OutRange", birth_day=10, birth_month=7, birth_year=1990, is_active=True
+        )
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": "1-6"})
@@ -169,8 +222,12 @@ class TestMemberBirthdaysAPIView:
         assert "OutRange" not in names
 
     def test_range_same_month_equals_single(self) -> None:
-        Member.objects.create(name="Alice", birth_date=date(1990, 7, 5), is_active=True)
-        Member.objects.create(name="Bob", birth_date=date(1985, 7, 23), is_active=True)
+        Member.objects.create(
+            name="Alice", birth_day=5, birth_month=7, birth_year=1990, is_active=True
+        )
+        Member.objects.create(
+            name="Bob", birth_day=23, birth_month=7, birth_year=1985, is_active=True
+        )
         client, _ = make_member_client()
 
         resp_single = client.get(ENDPOINT, {"month": "7"})
@@ -181,7 +238,9 @@ class TestMemberBirthdaysAPIView:
         assert resp_single.data["birthdays"] == resp_range.data["birthdays"]
 
     def test_range_empty_returns_empty_list(self) -> None:
-        Member.objects.create(name="Alice", birth_date=date(1990, 7, 5), is_active=True)
+        Member.objects.create(
+            name="Alice", birth_day=5, birth_month=7, birth_year=1990, is_active=True
+        )
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": "1-3"})
@@ -190,7 +249,9 @@ class TestMemberBirthdaysAPIView:
         assert resp.data["birthdays"] == []
 
     def test_range_with_leading_zeros(self) -> None:
-        Member.objects.create(name="Alice", birth_date=date(1990, 1, 5), is_active=True)
+        Member.objects.create(
+            name="Alice", birth_day=5, birth_month=1, birth_year=1990, is_active=True
+        )
         client, _ = make_member_client()
 
         resp = client.get(ENDPOINT, {"month": "01-06"})
@@ -272,3 +333,35 @@ class TestMemberBirthdaysAPIView:
         resp = client.get(ENDPOINT, {"month": 7})
 
         assert resp.status_code == 403
+
+
+@pytest.mark.django_db
+class TestBirthdaysFromBirthParts:
+    """Spec 011, US3: only members with day and month appear; the shape is unchanged."""
+
+    def test_only_members_with_day_and_month_appear(self) -> None:
+        Member.objects.create(name="Full", birth_day=5, birth_month=7, birth_year=1990)
+        Member.objects.create(name="NoYear", birth_day=9, birth_month=7)
+        Member.objects.create(name="YearOnly", birth_year=1950)
+        Member.objects.create(name="Nothing")
+        client, _ = make_member_client()
+
+        resp = client.get(ENDPOINT, {"month": "1-12"})
+
+        assert [b["name"] for b in resp.data["birthdays"]] == ["Full", "NoYear"]
+
+    def test_leap_day_shown_as_29(self) -> None:
+        Member.objects.create(name="Leap", birth_day=29, birth_month=2)
+        client, _ = make_member_client()
+
+        resp = client.get(ENDPOINT, {"month": 2})
+
+        assert resp.data["birthdays"][0]["birth_day"] == 29
+
+    def test_item_shape_unchanged(self) -> None:
+        Member.objects.create(name="Ana", gender="F", birth_day=5, birth_month=7)
+        client, _ = make_member_client()
+
+        resp = client.get(ENDPOINT, {"month": 7})
+
+        assert set(resp.data["birthdays"][0]) == {"name", "gender", "birth_month", "birth_day"}

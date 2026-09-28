@@ -10,14 +10,16 @@ from typing import Final
 
 from features.members.dtos import MemberFieldChange, MemberRecordDTO, NamedRefDTO
 
-HistoryValue = str | bool | date | NamedRefDTO | list[NamedRefDTO] | None
+HistoryValue = str | bool | int | date | NamedRefDTO | list[NamedRefDTO] | None
 
 # MemberRecordDTO attribute names; also the "field" stored in each history entry.
 HISTORY_FIELDS: Final = (
     "name",
     "first_name",
     "last_name",
-    "birth_date",
+    "birth_day",
+    "birth_month",
+    "birth_year",
     "gender",
     "status",
     "role",
@@ -39,6 +41,8 @@ def render_history_value(value: HistoryValue) -> str | None:
     """
     if isinstance(value, bool):
         return "true" if value else "false"
+    if isinstance(value, int):
+        return str(value)
     if isinstance(value, date):
         return value.isoformat()
     if isinstance(value, NamedRefDTO):

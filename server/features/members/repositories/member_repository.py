@@ -1,5 +1,3 @@
-from django.db.models.functions import ExtractDay, ExtractMonth
-
 from features.members.dtos import BirthdayDTO, MemberDTO
 from features.members.models.member import Member
 
@@ -22,18 +20,21 @@ class MemberRepositoryImpl:
         >>> repo.list_birthdays_by_month_range(1, 6)
         [BirthdayDTO(name='Alice', gender='F', birth_month=1, birth_day=5), ...]
         """
+        # birth_day set implies birth_month set (member_birth_day_month_together constraint),
+        # so year-only and empty members drop out with one null check.
         qs = (
             Member.objects.filter(
-                birth_date__month__gte=start_month,
-                birth_date__month__lte=end_month,
                 is_active=True,
+                birth_day__isnull=False,
+                birth_month__gte=start_month,
+                birth_month__lte=end_month,
             )
-            .exclude(birth_date__isnull=True)
-            .annotate(month=ExtractMonth("birth_date"), day=ExtractDay("birth_date"))
-            .order_by("month", "day")
-            .values_list("name", "gender", "month", "day")
+            .order_by("birth_month", "birth_day")
+            .values_list("name", "gender", "birth_month", "birth_day")
         )
+        # The query already excludes empty parts; the check only narrows the types for mypy.
         return [
             BirthdayDTO(name=name, gender=gender, birth_month=month, birth_day=day)
             for name, gender, month, day in qs
+            if month is not None and day is not None
         ]

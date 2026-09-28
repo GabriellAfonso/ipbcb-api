@@ -7,7 +7,7 @@ from django.db import transaction
 from core.domain.exceptions import MemberNotFoundError, ValidationError
 from core.time.clock import Clock
 from features.members.domain.member_changes import CREATED_FIELD, diff_member_records
-from features.members.domain.member_dates import validate_member_dates
+from features.members.domain.member_dates import BirthDateParts, validate_member_date_parts
 from features.members.dtos import (
     MemberCreateDTO,
     MemberFieldChange,
@@ -77,7 +77,8 @@ class MemberRosterService:
         12
         """
         self._check_references(dto.status_id, dto.role_id, dto.ministry_ids)
-        validate_member_dates(dto.birth_date, dto.baptism_date, self._today())
+        birth = BirthDateParts(dto.birth_day, dto.birth_month, dto.birth_year)
+        validate_member_date_parts(birth, dto.baptism_date, self._today())
         created = MemberFieldChange(field=CREATED_FIELD, old_value=None, new_value=None)
         with transaction.atomic():
             member_id = self._roster.create(dto)
@@ -126,9 +127,8 @@ class MemberRosterService:
             dto.role_id if "role_id" in sent else None,
             dto.ministry_ids if "ministry_ids" in sent else None,
         )
-        birth_date = dto.birth_date if "birth_date" in sent else before.birth_date
         baptism_date = dto.baptism_date if "baptism_date" in sent else before.baptism_date
-        validate_member_dates(birth_date, baptism_date, self._today())
+        validate_member_date_parts(_merged_birth(dto, before), baptism_date, self._today())
 
     def _check_references(
         self, status_id: int | None, role_id: int | None, ministry_ids: list[int] | None
@@ -148,3 +148,17 @@ class MemberRosterService:
 
     def _today(self) -> date:
         return self._clock.now().date()
+
+
+def _merged_birth(dto: MemberPatchDTO, before: MemberRecordDTO) -> BirthDateParts:
+    """The birth parts as they would be after the patch: each part sent wins, else stored.
+
+    >>> _merged_birth(MemberPatchDTO(birth_day=31), stored_with_month_4)
+    BirthDateParts(day=31, month=4, year=None)
+    """
+    sent = dto.model_fields_set
+    parts = [
+        getattr(dto if name in sent else before, name)
+        for name in ("birth_day", "birth_month", "birth_year")
+    ]
+    return BirthDateParts(*parts)

@@ -42,7 +42,9 @@ class MemberRecordDTO(BaseModel):
     name: str
     first_name: str
     last_name: str
-    birth_date: date | None
+    birth_day: int | None
+    birth_month: int | None
+    birth_year: int | None
     gender: str | None
     status: NamedRefDTO | None
     role: NamedRefDTO | None
@@ -57,7 +59,9 @@ class MemberCreateDTO(StrictBaseModel):
     name: str
     first_name: str = ""
     last_name: str = ""
-    birth_date: date | None = None
+    birth_day: int | None = None
+    birth_month: int | None = None
+    birth_year: int | None = None
     gender: Gender | None = None
     status_id: int | None = None
     role_id: int | None = None
@@ -73,7 +77,9 @@ class MemberPatchDTO(StrictBaseModel):
     name: str | None = None
     first_name: str | None = None
     last_name: str | None = None
-    birth_date: date | None = None
+    birth_day: int | None = None
+    birth_month: int | None = None
+    birth_year: int | None = None
     gender: Gender | None = None
     status_id: int | None = None
     role_id: int | None = None
