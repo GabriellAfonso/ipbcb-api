@@ -30,6 +30,11 @@ Objetivo da feature: tela no app Android para a liderança ver e editar os dados
 
 - **Decidido:** `status` (FK para `MemberStatus`) indica se o membro é comungante ou não.
   Já existe no model, sem uso no código hoje. Nenhum campo novo para isso.
+- **Decidido:** os status seguem o Manual Presbiteriano: `Comungante`, `Não comungante`,
+  `Ausente`, `Visitante`. Substituem `Ativo`/`Inativo`/`Visitante`: "Ativo" confundia com
+  `is_active` (perfil válido). "Ausente" no lugar de "Rol separado", que pouca gente entende.
+- Descartados por agora: `Congregado` e `Catecúmeno`. Também não há campo dizendo quais
+  status contam como membro.
 
 ---
 

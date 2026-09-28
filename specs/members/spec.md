@@ -17,6 +17,14 @@ Leader management was added by `specs/010-members-management/`.
 - `name`: string, max 50, unique
 - Says whether a member is communicant or not (and similar roll states). This is the only
   place that answer lives — there is no separate "communicant" field.
+- The roll uses exactly these statuses, named after the IPB *Manual Presbiteriano* (names are
+  user-facing, so they stay in Portuguese):
+  - `Comungante` — professing member, takes communion.
+  - `Não comungante` — member not yet professing (baptized child of believers).
+  - `Ausente` — member kept apart from the active roll for absence (the Manual's "rol
+    separado"; the plain word is used because the official one is unclear to most users).
+  - `Visitante` — attends occasionally, not a member.
+- Code never branches on these names; they are data rows edited in the Django admin.
 
 ### Role
 - `name`: string, max 100, unique — the member's office in the church
