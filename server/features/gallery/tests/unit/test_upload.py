@@ -1,86 +1,91 @@
+"""The Django admin upload page goes through the same service as ``POST /api/photos/``
+(specs/013-gallery-write-api FR-019a)."""
+
 import io
+import re
+from pathlib import Path
+from unittest.mock import PropertyMock, patch
 
 import pytest
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.test import Client
 from PIL import Image
 
-from features.gallery.models.gallery import Album, Photo
 from core.files.image_validation import MAX_IMAGE_BYTES
-
+from features.accounts.models.user import User
+from features.gallery.models.gallery import Album, Photo
+from features.gallery.tests.support import stored_name
 
 UPLOAD_URL = "/admin/gallery/album/upload/"
 
 
-def _make_image_file(
-    name: str = "test.jpg",
-    fmt: str = "JPEG",
-    size: tuple[int, int] = (10, 10),
-) -> io.BytesIO:
+def _make_image_file(name: str = "test.jpg", fmt: str = "JPEG") -> io.BytesIO:
     buf = io.BytesIO()
-    Image.new("RGB", size).save(buf, format=fmt)
+    Image.new("RGB", (10, 10)).save(buf, format=fmt)
     buf.seek(0)
     buf.name = name
     return buf
 
 
 @pytest.mark.django_db
+@pytest.mark.usefixtures("media_root")
 class TestUploadPhotosView:
     @pytest.fixture(autouse=True)
     def _setup(self) -> None:
         self.client = Client()
-        self.client.login(username="admin", password="admin")
+        self.user = User.objects.create_superuser(username="admin_upload", password="adminpass123")
+        self.client.force_login(self.user)
         self.album = Album.objects.create(name="Upload Test")
 
-    def _login_admin(self) -> None:
-        from features.accounts.models.user import User
+    def test_get_returns_html_form_with_album_paths(self) -> None:
+        Album.objects.create(name="2026", parent=self.album)
 
-        user = User.objects.create_superuser(username="admin_upload", password="adminpass123")
-        self.client.force_login(user)
-
-    def test_get_returns_html_form(self) -> None:
-        self._login_admin()
         response = self.client.get(UPLOAD_URL)
+
         assert response.status_code == 200
         assert b"<form" in response.content
+        assert "Upload Test / 2026".encode() in response.content
 
-    def test_post_valid_upload_creates_photo(self) -> None:
-        self._login_admin()
-        img = _make_image_file()
-
+    def test_post_valid_upload_stores_like_the_api(self) -> None:
         response = self.client.post(
-            UPLOAD_URL,
-            {"album": self.album.pk, "images": img},
+            UPLOAD_URL, {"album": self.album.pk, "images": _make_image_file()}
         )
 
         assert response.status_code == 302
-        assert Photo.objects.filter(album=self.album).count() == 1
+        photo = Photo.objects.get(album=self.album)
+        assert re.fullmatch(
+            rf"gallery/{self.album.pk}/[0-9a-f]{{32}}\.jpg", stored_name(photo.image)
+        )
+        assert stored_name(photo.thumbnail).startswith(f"gallery/thumbs/{self.album.pk}/")
+        assert (photo.uploaded_by_id, photo.position, photo.name) == (self.user.pk, 0, "test.jpg")
+
+    def test_first_upload_gives_the_album_its_cover(self, media_root: Path) -> None:
+        self.client.post(UPLOAD_URL, {"album": self.album.pk, "images": _make_image_file()})
+
+        self.album.refresh_from_db()
+        assert stored_name(self.album.cover_image).startswith(f"gallery/covers/{self.album.pk}/")
+        assert (media_root / stored_name(self.album.cover_image)).exists()
 
     def test_post_without_album_returns_error(self) -> None:
-        self._login_admin()
-        img = _make_image_file()
-
-        response = self.client.post(UPLOAD_URL, {"images": img})
+        response = self.client.post(UPLOAD_URL, {"images": _make_image_file()})
 
         assert response.status_code == 200
         assert b"Selecione" in response.content
 
     def test_post_without_files_returns_error(self) -> None:
-        self._login_admin()
-
         response = self.client.post(UPLOAD_URL, {"album": self.album.pk})
 
         assert response.status_code == 200
         assert b"Selecione" in response.content
 
+    def test_unknown_album(self) -> None:
+        response = self.client.post(UPLOAD_URL, {"album": 9999, "images": _make_image_file()})
+
+        assert "Álbum não encontrado".encode() in response.content
+
     def test_post_oversized_file_returns_error(self) -> None:
-        from unittest.mock import PropertyMock, patch
-
-        self._login_admin()
-        img = _make_image_file()
-        from django.core.files.uploadedfile import InMemoryUploadedFile
-
         oversized = InMemoryUploadedFile(
-            file=img,
+            file=_make_image_file(),
             field_name="images",
             name="big.jpg",
             content_type="image/jpeg",
@@ -91,25 +96,22 @@ class TestUploadPhotosView:
         with patch.object(
             type(oversized), "size", new_callable=PropertyMock, return_value=MAX_IMAGE_BYTES + 1
         ):
-            response = self.client.post(
-                UPLOAD_URL,
-                {"album": self.album.pk, "images": oversized},
-            )
+            response = self.client.post(UPLOAD_URL, {"album": self.album.pk, "images": oversized})
 
         assert response.status_code == 200
+        assert b"big.jpg: " in response.content
         assert b"muito grande" in response.content
         assert Photo.objects.count() == 0
 
-    def test_post_invalid_image_returns_error(self) -> None:
-        self._login_admin()
-        buf = io.BytesIO(b"not-an-image")
-        buf.name = "bad.jpg"
+    def test_partial_upload_keeps_the_valid_file_and_lists_the_bad_one(self) -> None:
+        bad = io.BytesIO(b"not-an-image")
+        bad.name = "bad.jpg"
 
         response = self.client.post(
-            UPLOAD_URL,
-            {"album": self.album.pk, "images": buf},
+            UPLOAD_URL, {"album": self.album.pk, "images": [_make_image_file("ok.jpg"), bad]}
         )
 
         assert response.status_code == 200
+        assert b"bad.jpg: " in response.content
         assert b"formato" in response.content.lower()
-        assert Photo.objects.count() == 0
+        assert Photo.objects.count() == 1

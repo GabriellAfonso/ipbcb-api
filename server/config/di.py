@@ -15,7 +15,12 @@ from core.repositories.access_repository import RoleGrantRepositoryImpl
 from core.time.clock import SystemClock
 from features.bible.repositories import BibleRepositoryImpl
 from features.bible.services import BibleService
+from features.gallery.imaging.pillow_image_processor import PillowImageProcessor
+from features.gallery.repositories.album_repository import AlbumRepositoryImpl
+from features.gallery.repositories.gallery_file_storage import DefaultStorageGalleryFileStorage
 from features.gallery.repositories.gallery_repository import GalleryRepositoryImpl
+from features.gallery.services.album_cover_service import AlbumCoverService
+from features.gallery.services.album_service import AlbumService
 from features.gallery.services.gallery_service import GalleryService
 from features.media.repositories.filesystem_media_repository import FileSystemMediaRepository
 from features.media.services.media_access_service import MediaAccessService
@@ -55,6 +60,10 @@ class Container(containers.DeclarativeContainer):
             "features.accounts.views.auth",
             "features.accounts.views.profile",
             "features.bible.views",
+            "features.gallery.admin",
+            "features.gallery.management.commands.generate_photo_thumbnails",
+            "features.gallery.views.albums",
+            "features.gallery.views.album_cover",
             "features.gallery.views.gallery",
             "features.gallery.views.upload",
             "features.media.views.media_file",
@@ -91,7 +100,26 @@ class Container(containers.DeclarativeContainer):
     bible_service = providers.Factory(BibleService, bible_repository=bible_repository)
 
     gallery_repository = providers.Factory(GalleryRepositoryImpl)
-    gallery_service = providers.Factory(GalleryService, repository=gallery_repository)
+    album_repository = providers.Factory(AlbumRepositoryImpl)
+    gallery_file_storage = providers.Factory(DefaultStorageGalleryFileStorage)
+    image_processor = providers.Singleton(PillowImageProcessor)
+    album_service = providers.Factory(
+        AlbumService, album_repository=album_repository, file_storage=gallery_file_storage
+    )
+    album_cover_service = providers.Factory(
+        AlbumCoverService,
+        album_repository=album_repository,
+        file_storage=gallery_file_storage,
+        image_processor=image_processor,
+    )
+    gallery_service = providers.Factory(
+        GalleryService,
+        repository=gallery_repository,
+        album_repository=album_repository,
+        file_storage=gallery_file_storage,
+        image_processor=image_processor,
+        cover_service=album_cover_service,
+    )
 
     clock = providers.Singleton(SystemClock)
 

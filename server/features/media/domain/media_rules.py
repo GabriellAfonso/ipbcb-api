@@ -38,8 +38,9 @@ FOLDER_RULES: Mapping[str, MediaAudience] = MappingProxyType(
 )
 
 # Explicit on purpose: nginx keeps an upstream Content-Type, and without one it would guess
-# from the extension. Gallery uploads keep their original filename, so an image/HTML
-# polyglot named "x.html" would otherwise be served as text/html on our origin.
+# from the extension. Gallery photos uploaded before feature 013 keep their original filename,
+# so an image/HTML polyglot named "x.html" would otherwise be served as text/html on our origin.
+# Later uploads are stored as "{uuid}.{ext}" with the extension of the decoded format.
 _CONTENT_TYPES: Mapping[str, str] = MappingProxyType(
     {
         "jpg": "image/jpeg",

@@ -1,7 +1,17 @@
-import pytest
+import re
 from unittest.mock import Mock
 
-from features.gallery.models.gallery import Album, Photo, photo_upload_path
+import pytest
+
+from features.gallery.models.gallery import (
+    Album,
+    Photo,
+    cover_upload_path,
+    photo_upload_path,
+    thumbnail_upload_path,
+)
+
+_HEX = "[0-9a-f]{32}"
 
 
 @pytest.mark.django_db
@@ -19,21 +29,18 @@ class TestPhotoStr:
         assert str(photo) == "foto1.jpg"
 
 
-class TestPhotoUploadPath:
-    def test_generates_path_with_slugified_album(self) -> None:
-        instance = Mock()
-        instance.album.name = "Culto Especial"
-        result = photo_upload_path(instance, "photo.jpg")
-        assert result == "gallery/culto-especial/photo.jpg"
+class TestUploadPaths:
+    """Fallbacks for files saved straight through a field; the album name never appears, so a
+    rename never leaves a folder named after the old name."""
 
-    def test_handles_accented_album_name(self) -> None:
-        instance = Mock()
-        instance.album.name = "Celebração de Páscoa"
-        result = photo_upload_path(instance, "img.png")
-        assert result == "gallery/celebracao-de-pascoa/img.png"
+    def test_photo_path_uses_the_album_id_and_a_random_name(self) -> None:
+        instance = Mock(album_id=7)
+        assert re.fullmatch(rf"gallery/7/{_HEX}\.png", photo_upload_path(instance, "My Photo.PNG"))
 
-    def test_preserves_filename(self) -> None:
-        instance = Mock()
-        instance.album.name = "Test"
-        result = photo_upload_path(instance, "my photo (1).jpg")
-        assert result == "gallery/test/my photo (1).jpg"
+    def test_thumbnail_path(self) -> None:
+        instance = Mock(album_id=7)
+        assert re.fullmatch(rf"gallery/thumbs/7/{_HEX}\.jpg", thumbnail_upload_path(instance, "x"))
+
+    def test_cover_path(self) -> None:
+        instance = Mock(pk=9)
+        assert re.fullmatch(rf"gallery/covers/9/{_HEX}\.jpg", cover_upload_path(instance, "x"))

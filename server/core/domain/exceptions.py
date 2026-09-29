@@ -255,3 +255,135 @@ class MediaFolderNotRuledError(MediaNotFoundError):
 
 class MediaFileNotFoundError(MediaNotFoundError):
     """Raised when an allowed path names no regular file inside MEDIA_ROOT."""
+
+
+class AlbumNotFoundError(NotFoundError):
+    """No gallery album with this id, in the route or referenced from a body.
+
+    >>> raise AlbumNotFoundError(7)
+    """
+
+    def __init__(self, album_id: int) -> None:
+        super().__init__(f"Album not found: id={album_id}")
+        self.album_id = album_id
+
+    def extra_context(self) -> dict[str, object]:
+        return {"album_id": self.album_id}
+
+
+class PhotoNotFoundError(NotFoundError):
+    """No gallery photo with this id.
+
+    >>> raise PhotoNotFoundError(12)
+    """
+
+    def __init__(self, photo_id: int) -> None:
+        super().__init__(f"Photo not found: id={photo_id}")
+        self.photo_id = photo_id
+
+    def extra_context(self) -> dict[str, object]:
+        return {"photo_id": self.photo_id}
+
+
+class AlbumCycleError(ValidationError):
+    """Moving an album under itself or one of its descendants.
+
+    ``chain`` runs from the requested parent up to the album being moved. Portuguese because a
+    normal move in the app reaches it (specs/013-gallery-write-api FR-006).
+
+    >>> raise AlbumCycleError(3, 9, [9, 5, 3])
+    """
+
+    def __init__(self, album_id: int, parent_id: int, chain: list[int]) -> None:
+        super().__init__(
+            f"Não é possível mover o álbum {album_id} para dentro do álbum {parent_id}: "
+            f"{parent_id} está dentro de {album_id}."
+        )
+        self.album_id = album_id
+        self.parent_id = parent_id
+        self.chain = chain
+
+    def extra_context(self) -> dict[str, object]:
+        return {"album_id": self.album_id, "parent_id": self.parent_id, "chain": self.chain}
+
+
+class DuplicateAlbumNameError(ValidationError):
+    """An album with this name already exists under the same parent (roots included).
+
+    `400`, not `409`: the spec treats it as invalid input (specs/013-gallery-write-api FR-005).
+
+    >>> raise DuplicateAlbumNameError("Retiros", None)
+    """
+
+    def __init__(self, name: str, parent_id: int | None) -> None:
+        super().__init__(f"Já existe um álbum chamado '{name}' neste local.")
+        self.name = name
+        self.parent_id = parent_id
+
+    def extra_context(self) -> dict[str, object]:
+        return {"name": self.name, "parent_id": self.parent_id}
+
+
+class OrderMismatchError(ValidationError):
+    """A full-order request does not list every current sibling exactly once.
+
+    English: only a client bug reaches it, never a normal action in the app.
+
+    >>> raise OrderMismatchError(missing=[4], unexpected=[8], repeated=[])
+    """
+
+    def __init__(self, missing: list[int], unexpected: list[int], repeated: list[int]) -> None:
+        super().__init__(
+            "Order must list every sibling exactly once: "
+            f"missing {missing}, unexpected {unexpected}, repeated {repeated}."
+        )
+        self.missing = missing
+        self.unexpected = unexpected
+        self.repeated = repeated
+
+    def extra_context(self) -> dict[str, object]:
+        return {"missing": self.missing, "unexpected": self.unexpected, "repeated": self.repeated}
+
+
+class NoPhotoAcceptedError(ValidationError):
+    """Every file of an upload was rejected. The canonical 400 carries the per-file reasons in
+    ``rejected`` (specs/013-gallery-write-api, clarification Q1).
+
+    >>> raise NoPhotoAcceptedError([{"filename": "a.txt", "reason": "Formato inválido"}])
+    """
+
+    def __init__(self, rejected: list[dict[str, str]]) -> None:
+        super().__init__("Nenhuma imagem foi aceita.")
+        self.rejected = rejected
+
+    def extra_context(self) -> dict[str, object]:
+        return {"rejected": self.rejected}
+
+
+class ImageProcessingError(ValidationError):
+    """A file that passed format validation could not be turned into a thumbnail or cover.
+
+    >>> raise ImageProcessingError("IMG_0042.jpg")
+    """
+
+    def __init__(self, filename: str) -> None:
+        super().__init__(f"Não foi possível processar a imagem '{filename}'. Envie outro arquivo.")
+        self.filename = filename
+
+
+class ImageTooLargeError(ValidationError):
+    """An image over the pixel limit, refused before it is decoded for a derivative.
+
+    A 10 MB file can still decode to hundreds of MB of pixels (clarification Q3).
+
+    >>> raise ImageTooLargeError(9000, 8000, 50_000_000)
+    """
+
+    def __init__(self, width: int, height: int, max_pixels: int) -> None:
+        super().__init__(
+            f"Imagem grande demais: {width}x{height} pixels. "
+            f"O máximo é {max_pixels // 1_000_000} megapixels."
+        )
+        self.width = width
+        self.height = height
+        self.max_pixels = max_pixels
