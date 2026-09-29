@@ -8,7 +8,14 @@ from pytest_django.fixtures import SettingsWrapper
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import AccessToken
 
-from conftest import make_admin_client, make_auth_client, make_member_client, make_user
+from conftest import (
+    make_admin_client,
+    make_auth_client,
+    make_member_client,
+    make_role_client,
+    make_user,
+)
+from core.domain.access import Role
 from features.media.tests.integration.conftest import GALLERY_BYTES, GALLERY_FILE, media_url
 
 WriteMedia = Callable[..., Path]
@@ -157,14 +164,16 @@ def test_unicode_filename_is_percent_encoded_in_redirect(write_media: WriteMedia
 
 
 # ---------------------------------------------------------------------------
-# US3 — leader-only photos reserved before they exist
+# US3 — member photos: only with `view` on `members` (spec 012)
 # ---------------------------------------------------------------------------
 
 MEMBERS_FILE = "members/ana/photo.jpg"
 
 
 @pytest.mark.django_db
-class TestLeaderFolder:
+class TestMembersFolder:
+    """``members/`` needs ``view`` on the ``members`` scope (specs/012 FR-017)."""
+
     def test_plain_member_gets_403(self, write_media: WriteMedia) -> None:
         write_media(MEMBERS_FILE)
         client, _ = make_member_client()
@@ -174,12 +183,30 @@ class TestLeaderFolder:
         client, _ = make_member_client()
         assert client.get(media_url("members/ana/nope.jpg")).status_code == 403
 
-    def test_leader_who_is_not_a_member_gets_redirect(self, write_media: WriteMedia) -> None:
+    @pytest.mark.parametrize("role", [Role.ADMIN, Role.LEADER])
+    def test_role_with_members_view_gets_redirect_without_membership(
+        self, write_media: WriteMedia, role: Role
+    ) -> None:
         write_media(MEMBERS_FILE)
-        client, _ = make_admin_client()
+        client, _ = make_role_client(role)
         response = client.get(media_url(MEMBERS_FILE))
         assert response.status_code == 200
         assert response["X-Accel-Redirect"] == f"/ipbcb/protected-media/{MEMBERS_FILE}"
+
+    def test_media_role_gets_403_even_as_member(self, write_media: WriteMedia) -> None:
+        write_media(MEMBERS_FILE)
+        client, user = make_role_client(Role.MEDIA)
+        user.profile.is_member = True
+        user.profile.save()
+        assert client.get(media_url(MEMBERS_FILE)).status_code == 403
+
+    def test_superuser_without_role_gets_403(self, write_media: WriteMedia) -> None:
+        write_media(MEMBERS_FILE)
+        client, user = make_role_client()
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+        assert client.get(media_url(MEMBERS_FILE)).status_code == 403
 
 
 # ---------------------------------------------------------------------------
@@ -192,7 +219,7 @@ class TestDefaultDeny:
     @pytest.mark.parametrize(
         "relative_path", ["reports/2026.pdf", "logo.png", "gallery-old/x.jpg", "Gallery/x.jpg"]
     )
-    def test_unruled_path_is_404_even_for_leader_and_member(
+    def test_unruled_path_is_404_even_for_admin_and_member(
         self, write_media: WriteMedia, relative_path: str
     ) -> None:
         write_media(relative_path)

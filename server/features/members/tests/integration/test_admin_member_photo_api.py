@@ -9,7 +9,8 @@ from pathlib import Path
 import pytest
 from rest_framework.test import APIClient
 
-from conftest import make_admin_client, make_member_client
+from conftest import make_admin_client, make_member_client, make_role_client
+from core.domain.access import Role as PanelRole
 from features.members.models.member import Member
 from features.members.models.member_change_log import MemberChangeLog
 from features.members.tests.images import fake_image_upload, image_upload
@@ -177,3 +178,34 @@ class TestRemove:
 
         assert response.status_code == 204
         assert _stored_files(media_root) == []
+
+
+@pytest.mark.django_db
+class TestPanelRoles:
+    """Leader replaces a photo but cannot remove it (specs/012-feature-role-permissions)."""
+
+    def test_leader_replaces_photo(
+        self, media_root: Path, django_capture_on_commit_callbacks: CaptureOnCommit
+    ) -> None:
+        member = Member.objects.create(name="Ana")
+        client, _ = make_role_client(PanelRole.LEADER)
+        with django_capture_on_commit_callbacks(execute=True):
+            response = client.put(
+                photo_url(member.pk), {"photo": image_upload()}, format="multipart"
+            )
+        assert response.status_code == 200
+        assert len(_stored_files(media_root)) == 1
+
+    def test_leader_cannot_remove_photo(
+        self, media_root: Path, django_capture_on_commit_callbacks: CaptureOnCommit
+    ) -> None:
+        member = Member.objects.create(name="Ana")
+        admin, _ = make_admin_client()
+        with django_capture_on_commit_callbacks(execute=True):
+            _put(admin, member.pk, image_upload())
+        client, _ = make_role_client(PanelRole.LEADER)
+
+        response = client.delete(photo_url(member.pk))
+
+        assert response.status_code == 403
+        assert len(_stored_files(media_root)) == 1

@@ -5,7 +5,8 @@ from zoneinfo import ZoneInfo
 import pytest
 from rest_framework.test import APIClient
 
-from conftest import make_admin_client, make_auth_client, make_user
+from conftest import make_admin_client, make_auth_client, make_role_client, make_user
+from core.domain.access import Role
 from features.songs.models.hymnal import Hymn
 from core.models import ChurchService
 from features.songs.models.hymnal_history import (
@@ -311,3 +312,31 @@ class TestDeletingAWindowKeepsHistory:
         client.delete(f"{WINDOWS_URL}{created.data['id']}/")
 
         assert HymnalViewEvent.objects.count() == 1
+
+
+@pytest.mark.django_db
+class TestPanelRoles:
+    """Configuration writes are owner-only by override; reads are "view"
+    (specs/012-feature-role-permissions, Endpoint Classification)."""
+
+    def test_leader_cannot_change_settings(self) -> None:
+        client, _ = make_role_client(Role.LEADER)
+        resp = client.patch(SETTINGS_URL, {"min_seconds_to_count": 45}, format="json")
+        assert resp.status_code == 403
+
+    def test_admin_changes_settings(self) -> None:
+        client, _ = make_role_client(Role.ADMIN)
+        resp = client.patch(SETTINGS_URL, {"min_seconds_to_count": 45}, format="json")
+        assert resp.status_code == 200
+        assert resp.data["min_seconds_to_count"] == 45
+
+    @pytest.mark.parametrize("role", [Role.LEADER, Role.MEDIA])
+    def test_panel_roles_read_windows(self, role: Role) -> None:
+        client, _ = make_role_client(role)
+        assert client.get(WINDOWS_URL).status_code == 200
+
+    def test_leader_cannot_create_window(self) -> None:
+        client, _ = make_role_client(Role.LEADER)
+        resp = client.post(WINDOWS_URL, _window_payload(), format="json")
+        assert resp.status_code == 403
+        assert not ChurchService.objects.exists()

@@ -11,7 +11,14 @@ from features.schedule.models.schedule import (
     MemberScheduleConfig,
     MonthlySchedule,
 )
-from conftest import make_admin_client, make_member_client, make_user, make_auth_client
+from conftest import (
+    make_admin_client,
+    make_auth_client,
+    make_member_client,
+    make_role_client,
+    make_user,
+)
+from core.domain.access import Role
 
 
 # --- Helpers ---
@@ -251,6 +258,23 @@ class TestMonthlyScheduleSaveAPI:
         assert resp.status_code == 200
         assert resp.data["ok"] is True
         assert MonthlySchedule.objects.filter(year=2026, month=5).count() == 2
+
+    def test_leader_saves_schedule(self) -> None:
+        # specs/012-feature-role-permissions US2: Liderança holds "manage" on schedule.
+        st = make_schedule_type()
+        m = make_member("Alice")
+        client, _ = make_role_client(Role.LEADER)
+        items = [{"date": "2026-05-03", "schedule_type_id": st.id, "member_id": m.id}]
+
+        resp = client.post(self.ENDPOINT, {"year": 2026, "month": 5, "items": items}, format="json")
+
+        assert resp.status_code == 200
+        assert MonthlySchedule.objects.filter(year=2026, month=5).count() == 1
+
+    def test_media_cannot_save_schedule(self) -> None:
+        client, _ = make_role_client(Role.MEDIA)
+        resp = client.post(self.ENDPOINT, {"year": 2026, "month": 5}, format="json")
+        assert resp.status_code == 403
 
     def test_saves_with_nested_format(self) -> None:
         st = make_schedule_type()

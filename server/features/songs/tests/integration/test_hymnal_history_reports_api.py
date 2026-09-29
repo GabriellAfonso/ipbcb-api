@@ -5,7 +5,8 @@ from zoneinfo import ZoneInfo
 import pytest
 from rest_framework.test import APIClient
 
-from conftest import make_admin_client, make_auth_client, make_user
+from conftest import make_admin_client, make_auth_client, make_role_client, make_user
+from core.domain.access import Role
 from features.songs.models.hymnal import Hymn
 from core.models import ChurchService
 from features.songs.models.hymnal_history import HymnalViewEvent
@@ -265,3 +266,14 @@ class TestTopHymns:
     def test_empty_history_returns_an_empty_list(self) -> None:
         resp = self.client.get(TOP_HYMNS_URL)
         assert resp.data["hymns"] == []
+
+
+@pytest.mark.django_db
+class TestPanelRoles:
+    """The hymnal report is readable by every panel role (specs/012-feature-role-permissions)."""
+
+    @pytest.mark.parametrize("role", [Role.ADMIN, Role.LEADER, Role.MEDIA])
+    @pytest.mark.parametrize("url", [OCCURRENCES_URL, TOP_HYMNS_URL])
+    def test_role_reads_report(self, role: Role, url: str) -> None:
+        client, _ = make_role_client(role)
+        assert client.get(url).status_code == 200

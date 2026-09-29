@@ -7,7 +7,14 @@ import logging
 import pytest
 from rest_framework.test import APIClient
 
-from conftest import make_admin_client, make_auth_client, make_member_client, make_user
+from conftest import (
+    make_admin_client,
+    make_auth_client,
+    make_member_client,
+    make_role_client,
+    make_user,
+)
+from core.domain.access import Role as PanelRole
 from features.members.models.member import Member, MemberStatus, Ministry, Role
 from features.members.models.member_change_log import MemberChangeLog
 
@@ -430,3 +437,38 @@ class TestBirthDateRejections:
 
         assert response.status_code == 400
         assert response.data["error_code"] == "VALIDATION_ERROR"
+
+
+@pytest.mark.django_db
+class TestPanelRoles:
+    """Access by role (specs/012-feature-role-permissions US2, US3)."""
+
+    def test_leader_changes_roll_status(self) -> None:
+        member = Member.objects.create(name="Ana")
+        status = MemberStatus.objects.create(name="Ausente")
+        client, _ = make_role_client(PanelRole.LEADER)
+
+        response = client.patch(detail_url(member.pk), {"status_id": status.pk}, format="json")
+
+        assert response.status_code == 200
+        member.refresh_from_db()
+        assert member.status == status
+
+    def test_leader_cannot_delete_member(self) -> None:
+        member = Member.objects.create(name="Ana")
+        client, _ = make_role_client(PanelRole.LEADER)
+
+        response = client.delete(detail_url(member.pk))
+
+        assert response.status_code == 403
+        assert Member.objects.filter(pk=member.pk).exists()
+
+    @pytest.mark.parametrize("url", [LIST_URL, "/api/admin/members/1/"])
+    def test_media_sees_nothing_of_the_roll(self, url: str) -> None:
+        Member.objects.create(pk=1, name="Maria Sigilo")
+        client, _ = make_role_client(PanelRole.MEDIA)
+
+        response = client.get(url)
+
+        assert response.status_code == 403
+        assert "Maria" not in response.content.decode()

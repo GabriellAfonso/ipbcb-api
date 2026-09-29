@@ -1,7 +1,8 @@
 import pytest
 from rest_framework.test import APIClient
 
-from conftest import make_admin_client, make_user, make_auth_client
+from conftest import make_admin_client, make_auth_client, make_role_client, make_user
+from core.domain.access import Role
 from features.songs.models import Song, ChordChart, Lyrics
 
 
@@ -264,3 +265,37 @@ class TestLyricsDetailView:
         client = make_auth_client(user)
         resp = client.patch(f"/api/lyrics/{lyrics.pk}/", {"content": "X"}, format="json")
         assert resp.status_code == 403
+
+
+@pytest.mark.django_db
+class TestPanelRoles:
+    """Liderança holds "manage" on songs; public reads stay public (specs/012)."""
+
+    def test_leader_creates_and_edits_chord_chart(self, song: Song) -> None:
+        leader, _ = make_role_client(Role.LEADER)
+        created = leader.post(
+            "/api/chord-charts/",
+            {"song_id": song.pk, "content": "Am", "tone": "Am", "instrument": "Violão"},
+            format="json",
+        )
+        assert created.status_code == 201
+        edited = leader.patch(
+            f"/api/chord-charts/{created.data['id']}/", {"content": "G"}, format="json"
+        )
+        assert edited.status_code == 200
+
+    def test_leader_creates_and_edits_lyrics(self, song: Song) -> None:
+        leader, _ = make_role_client(Role.LEADER)
+        created = leader.post("/api/lyrics/", {"song_id": song.pk, "content": "A"}, format="json")
+        assert created.status_code == 201
+        edited = leader.patch(f"/api/lyrics/{created.data['id']}/", {"content": "B"}, format="json")
+        assert edited.status_code == 200
+
+    def test_media_cannot_create(self, song: Song) -> None:
+        media, _ = make_role_client(Role.MEDIA)
+        resp = media.post("/api/lyrics/", {"song_id": song.pk, "content": "A"}, format="json")
+        assert resp.status_code == 403
+
+    @pytest.mark.parametrize("url", ["/api/chord-charts/", "/api/lyrics/"])
+    def test_reads_stay_public(self, client: APIClient, url: str) -> None:
+        assert client.get(url).status_code == 200

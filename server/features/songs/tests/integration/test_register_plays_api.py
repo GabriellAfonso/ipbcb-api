@@ -2,7 +2,8 @@ import pytest
 from rest_framework.test import APIClient
 
 from features.songs.models import Song
-from conftest import make_admin_client, make_auth_client, make_user
+from conftest import make_admin_client, make_auth_client, make_role_client, make_user
+from core.domain.access import Role
 
 
 URL = "/api/played/register/"
@@ -109,3 +110,23 @@ class TestRegisterSundayPlaysSuccess:
         from features.songs.models import Played
 
         assert Played.objects.filter(date="2026-03-15").count() == 2
+
+
+@pytest.mark.django_db
+class TestRegisterSundayPlaysRoles:
+    """Liderança registers plays (specs/012-feature-role-permissions US2)."""
+
+    def test_leader_registers(self) -> None:
+        songs = _make_songs(1)
+        client, _ = make_role_client(Role.LEADER)
+        resp = client.post(
+            URL,
+            {"date": "2026-03-15", "plays": [{"song_id": songs[0].id, "position": 1, "tone": "G"}]},
+            format="json",
+        )
+        assert resp.status_code == 201
+
+    def test_media_refused(self) -> None:
+        client, _ = make_role_client(Role.MEDIA)
+        resp = client.post(URL, {"date": "2026-03-15", "plays": []}, format="json")
+        assert resp.status_code == 403
