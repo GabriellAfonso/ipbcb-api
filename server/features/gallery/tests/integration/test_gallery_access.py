@@ -22,6 +22,7 @@ READS = [
     "/api/photos/",
     "/api/albums/",
     "/api/albums/{album}/photos/",
+    "/api/gallery/changes/",
 ]
 
 WRITES = [
@@ -33,6 +34,11 @@ WRITES = [
     ("POST", "/api/photos/"),
     ("PATCH", f"/api/photos/{MISSING}/"),
     ("PUT", f"/api/albums/{MISSING}/photos/order/"),
+    # specs/014-gallery-trash-sync: DELETE at the default owner, restore at an owner override.
+    ("DELETE", f"/api/albums/{MISSING}/"),
+    ("DELETE", f"/api/photos/{MISSING}/"),
+    ("POST", f"/api/gallery/trash/albums/{MISSING}/restore/"),
+    ("POST", f"/api/gallery/trash/photos/{MISSING}/restore/"),
 ]
 
 
@@ -99,3 +105,18 @@ class TestWrites:
     @pytest.mark.parametrize(("method", "url"), WRITES)
     def test_anonymous_is_401(self, method: str, url: str) -> None:
         assert _send(_anonymous(), method, url) == 401
+
+
+@pytest.mark.django_db
+class TestTrashList:
+    """GET with an ``owner`` override (spec 014 FR-013): the three roles, never a plain member."""
+
+    @pytest.mark.parametrize("caller", list(ROLE_CALLERS))
+    def test_every_role_reads_the_trash(self, caller: str) -> None:
+        assert ROLE_CALLERS[caller]().get("/api/gallery/trash/").status_code == 200
+
+    def test_member_without_role_may_not(self) -> None:
+        assert _member().get("/api/gallery/trash/").status_code == 403
+
+    def test_anonymous_is_401(self) -> None:
+        assert _anonymous().get("/api/gallery/trash/").status_code == 401

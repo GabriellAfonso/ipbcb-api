@@ -64,6 +64,20 @@ ENDPOINTS: list[tuple[str, str, str, Level]] = [
         "reports.hymnal_history",
         Level.OWNER,
     ),
+    # gallery (specs 013 and 014)
+    ("POST", "/api/albums/", "gallery", Level.MANAGE),
+    ("PATCH", f"/api/albums/{MISSING_ID}/", "gallery", Level.MANAGE),
+    ("DELETE", f"/api/albums/{MISSING_ID}/", "gallery", Level.OWNER),
+    ("PUT", "/api/albums/order/", "gallery", Level.MANAGE),
+    ("PUT", f"/api/albums/{MISSING_ID}/cover/", "gallery", Level.MANAGE),
+    ("DELETE", f"/api/albums/{MISSING_ID}/cover/", "gallery", Level.OWNER),
+    ("POST", "/api/photos/", "gallery", Level.MANAGE),
+    ("PATCH", f"/api/photos/{MISSING_ID}/", "gallery", Level.MANAGE),
+    ("DELETE", f"/api/photos/{MISSING_ID}/", "gallery", Level.OWNER),
+    ("PUT", f"/api/albums/{MISSING_ID}/photos/order/", "gallery", Level.MANAGE),
+    ("GET", "/api/gallery/trash/", "gallery", Level.OWNER),
+    ("POST", f"/api/gallery/trash/albums/{MISSING_ID}/restore/", "gallery", Level.OWNER),
+    ("POST", f"/api/gallery/trash/photos/{MISSING_ID}/restore/", "gallery", Level.OWNER),
 ]
 
 _ALL_SCOPES = [
@@ -153,7 +167,8 @@ def test_anonymous_is_401(row: tuple[str, str, str, Level]) -> None:
 
 @pytest.mark.django_db
 def test_leader_gets_403_on_every_delete() -> None:
-    deletes = [row for row in ENDPOINTS if row[0] == "DELETE"]
+    # Outside `gallery`, where Liderança holds owner since feature 013 (spec 012 SC-002).
+    deletes = [row for row in ENDPOINTS if row[0] == "DELETE" and row[2] != "gallery"]
     assert deletes, "the classification lists DELETE endpoints"
     client, _ = make_role_client(Role.LEADER)
     for method, url, _, _ in deletes:
