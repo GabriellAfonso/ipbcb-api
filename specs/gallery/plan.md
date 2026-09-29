@@ -39,5 +39,16 @@
   90 days, independent of the purge.
 - **Purge** per batch, one transaction each, files deleted on commit; scheduled by host cron.
 
+- **Member tags**: `PhotoTag` in the gallery with a string FK to `"members.Member"` (`CASCADE`
+  both sides). Names on photos come through that relation in one prefetch; the picker and the
+  existence check read the roll through a `MemberDirectory` port that `features/members`
+  implements. Writes lock the live photo rows, diff in pure `domain/tag_rules.py`, bump only
+  changed photos. The AND filter is one join with `COUNT(DISTINCT)`.
+- **Renames and deletions of tagged members** reach the feed through gallery signal handlers on
+  `"members.Member"` (lazy sender, no import), the one hook the API and the Django admin share.
+- **Gallery exceptions** live in `core/domain/gallery_exceptions.py`, re-exported by
+  `core/domain/exceptions.py`.
+
 Full reasoning: `specs/013-gallery-write-api/plan.md` (D-1 … D-12),
-`specs/014-gallery-trash-sync/plan.md` (D-1 … D-16) and their `research.md`.
+`specs/014-gallery-trash-sync/plan.md` (D-1 … D-16),
+`specs/015-gallery-member-tags/plan.md` (D-1 … D-13) and their `research.md`.

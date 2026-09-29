@@ -10,7 +10,8 @@ person). Every rule marked *(data protection)* below exists because of that.
 Roll management was added by `specs/010-members-management/`. Birth date split into day,
 month and year by `specs/011-split-birth-date/`. Access by role and scope level (instead of
 `Profile.is_admin`) by `specs/012-feature-role-permissions/`: Admin is `owner` (everything,
-delete included), Liderança `manage` (everything except delete), Mídia has no access.
+delete included), Liderança `manage` (everything except delete), Mídia has no access — except
+member names through the gallery tag picker (`specs/015-gallery-member-tags/`).
 
 ---
 
@@ -55,6 +56,19 @@ Statuses, roles and ministries are managed in the Django admin only.
   stated in a model comment. Only valid profiles appear in the regular member list
   and in birthdays.
 - `created_at`: datetime, set on creation
+- Linked from outside this domain (`specs/015-gallery-member-tags/`), with no field here:
+  - **Profile link**: at most one `accounts.Profile` points at a member (`member.profile`), set
+    in the Django admin only. Deleting the member unlinks the profile and keeps it.
+  - **Gallery tags**: a member can be tagged in any number of gallery photos
+    (`gallery.PhotoTag`, no reverse accessor here). Deleting the member removes its tags.
+    Renaming or deleting a tagged member makes its live photos count as changed in the gallery
+    change feed, whatever the path (management API or Django admin): the gallery listens to
+    `Member` `pre_save` / `pre_delete` by model name. This does not break rule 3 below, which is
+    about the history (a signal cannot know the editor); the gallery needs no editor.
+  - **Tag picker**: `GET api/gallery/taggable-members/` returns every member's `id` and `name`
+    (active or not) to `manage` on `gallery` — the one exception by which the Mídia role reads
+    anything of the roll, and only names (`specs/012-feature-role-permissions/`, User Story 3).
+    Tags show the same `{id, name}` to every member, inactive members included.
 - `photo`: image, nullable. Stored at `members/{uuid4().hex}.{ext}`, `ext` from the
   decoded image format. No member name or id in the path. Independent of `Profile.photo`:
   never shared, copied or reused between the two. Readable only with `view` on `members`
@@ -160,7 +174,9 @@ responses are private: `Cache-Control: private, no-store`, `Vary: Authorization`
     write logs one line (`member_created`, `member_updated`, `member_deleted`,
     `member_photo_replaced`, `member_photo_removed`) with `member_id`, `editor_id` and a
     `changed_fields` count.
-11. **Known limitation — Django admin.** `Member` is still registered in the Django admin,
+11. **Known limitation — Django admin.** `Member` is still registered in the Django admin
+    (`MemberAdmin`, `search_fields = ["name"]`, which the profile form's member autocomplete
+    needs),
     which bypasses the service: an edit there writes no history, skips the calendar, future
     and baptism-before-birth checks (only the database constraints apply), and a delete there
     leaves the photo file on disk (in the `members/` folder, readable with `view` on `members`). The management endpoints are the

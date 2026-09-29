@@ -7,6 +7,7 @@ the items below are follow-up features.
 
 - [x] Deleting albums and photos, with a trash, restore, file purge and deleted-id sync for the
   app — feature 014 (`specs/014-gallery-trash-sync/`)
-- [ ] Tagging members in photos (`Profile.member`) — feature 015
+- [x] Tagging members in photos (`Profile.member`) — feature 015
+  (`specs/015-gallery-member-tags/`)
 - [ ] Optional: a command that only lists `gallery/` files no row references (orphans left by
   admin deletions before 014), without deleting them — not planned

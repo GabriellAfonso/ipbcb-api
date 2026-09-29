@@ -4,11 +4,13 @@ Photo gallery organized in a tree of albums. Members browse it through the API; 
 Liderança and Admin roles build it — albums, photos, covers and order — through the API from the
 app's management panel. Deleting sends items to a 30-day trash from which they can be restored;
 a daily purge then removes them with their files. A change feed lets the app sync only what
-changed, deletions included. The Django admin keeps an upload page and album editing, going
-through the same services, and cannot delete.
+changed, deletions included. Managers tag the members who appear in a photo; every member sees
+the tags and can filter photos by the people in them. The Django admin keeps an upload page and
+album editing, going through the same services, and cannot delete.
 
 Write API introduced by `specs/013-gallery-write-api/`; trash, purge and change feed by
-`specs/014-gallery-trash-sync/` (design, research and contracts there).
+`specs/014-gallery-trash-sync/`; member tags by `specs/015-gallery-member-tags/` (design,
+research and contracts there).
 
 ---
 
@@ -20,6 +22,10 @@ Write API introduced by `specs/013-gallery-write-api/`; trash, purge and change 
   default level: `manage` for `POST`/`PUT`/`PATCH`, `owner` for `DELETE`.
 - **Trash** (`GET /api/gallery/trash/`) and **restore** (`POST …/restore/`) require `owner` on
   `gallery`, declared as overrides above the method default.
+- **Tag picker** (`GET /api/gallery/taggable-members/`) requires `manage` on `gallery`, declared
+  as an override above `view`. It is the one place the Mídia role reads member data — names only
+  (`specs/012-feature-role-permissions/`, User Story 3). The tagged-member list and the
+  `member_id` filter are member reads.
 - Admin, Liderança and Mídia all hold `owner` on `gallery` (raised from `manage` for Liderança
   and Mídia by `core/migrations/0006_gallery_owner_for_leader_media.py`).
 - A caller without the permission gets `403` before existence is checked.
@@ -82,6 +88,29 @@ Write API introduced by `specs/013-gallery-write-api/`; trash, purge and change 
 - Photos uploaded before feature 013 keep their old path, `gallery/{slugify(album.name)}/{filename}`.
 - Photos uploaded before feature 013 have no thumbnail until the
   `generate_photo_thumbnails` command runs; they have no `uploaded_by`.
+
+### PhotoTag
+
+A member who appears in a photo.
+
+| Field      | Type                  | Constraints                                               |
+|------------|-----------------------|-----------------------------------------------------------|
+| id         | int (PK, auto)        |                                                           |
+| photo      | FK -> Photo           | CASCADE, related_name="tags"                              |
+| member     | FK -> members.Member  | CASCADE, no reverse accessor on `Member`                  |
+| tagged_by  | FK -> User, null      | SET_NULL; auditing only, never serialized                 |
+| tagged_at  | DateTimeField         | auditing only, never serialized                           |
+
+- Unique per `(photo, member)`.
+- Only member records can be tagged; `Member.is_active` plays no part (inactive members are
+  offered, tagged and shown).
+- A tag follows its photo: kept and invisible while the photo is in the trash, back on restore,
+  removed by the purge. Deleting a member removes its tags.
+- Written only through the two tag endpoints; the Django admin shows tags read-only on the photo
+  page and does not register `PhotoTag`.
+- Member names reach the gallery through this relation; the picker reads the roll through the
+  `MemberDirectory` port that `features/members` implements (wired in `config/di.py`), so neither
+  feature imports the other.
 
 ### GalleryDeletionBatch
 
@@ -167,13 +196,18 @@ What the change feed reports as deleted. Survives the purge.
 | POST   | `/api/gallery/trash/albums/{id}/restore/` | owner (override) | restore an album's batch     |
 | POST   | `/api/gallery/trash/photos/{id}/restore/` | owner (override) | restore a photo deleted alone |
 | GET    | `/api/gallery/changes/?since=`     | member     | change feed                               |
+| PUT    | `/api/photos/{id}/members/`        | manage     | replace the tags of one photo             |
+| POST   | `/api/photos/members/`             | manage     | add/remove tags on up to 200 photos       |
+| GET    | `/api/gallery/taggable-members/`   | manage (override) | tag picker: every member, id and name |
+| GET    | `/api/gallery/tagged-members/`     | member     | members tagged in a live photo, with count |
 
 A nonexistent album or photo — in the route or referenced by `parent_id` / `album_id` in the
 body — is `404` on every endpoint. A trashed item counts as nonexistent everywhere except the
 trash endpoints, and so does anything placed under a trashed album. In an order request a
 trashed id is reported in `unexpected`. Full request and response bodies:
 `specs/013-gallery-write-api/contracts/gallery-api.md` and
-`specs/014-gallery-trash-sync/contracts/gallery-trash-api.md`.
+`specs/014-gallery-trash-sync/contracts/gallery-trash-api.md` and
+`specs/015-gallery-member-tags/contracts/gallery-tags-api.md`.
 
 ### GET /api/albums/
 
@@ -211,6 +245,12 @@ when there was no own cover; the file is removed after the change commits.
 
 `200` with the photos **directly** in the album (never those of sub-albums), by `position` then
 `id`. `404` if the album does not exist; `200 []` for an existing empty album.
+
+### Member filter (both photo lists)
+
+`?member_id=1&member_id=2`: only the live photos tagged with **every** listed member (AND), in
+the list's usual order; repeated values count once. A value that matches no member gives `[]`; a
+value that is not an integer is `400` naming it. Without the parameter the lists are unchanged.
 
 ### POST /api/photos/
 
@@ -269,13 +309,16 @@ Body `{"ids": [...]}`. `204`. Same exact-set rule and `400` body as album order.
   "thumbnail_url": "http://host/ipbcb/media/gallery/thumbs/7/c4d0….jpg",
   "date_taken": "2026-03-14",
   "uploaded_at": "2026-03-15T10:00:00Z",
-  "position": 0
+  "position": 0,
+  "members": [{"id": 12, "name": "Maria Souza"}]
 }
 ```
 
 `image_url`, `thumbnail_url` and `cover_url` are absolute URIs built from the request, `null`
 when there is no file or no request. Every field returned before feature 013 is still returned;
-`thumbnail_url` was added by 013 and `position` (last field) by 014.
+`thumbnail_url` was added by 013, `position` by 014 and `members` (last field) by 015. `members`
+lists the photo's tags as `{id, name}` — the only member data the gallery returns — ordered by
+name then id, `[]` when untagged.
 
 The files behind these URLs are readable only by members: `/ipbcb/media/gallery/...` goes
 through the authenticated media access check (`specs/009-protected-media-access/`), which
@@ -335,6 +378,33 @@ lists), `deleted_album_ids`, `deleted_photo_ids`, a new opaque `cursor` and
   and `full_sync_required: true`; the app then reconciles against the two list endpoints.
 - Every delete writes one mark per trashed row (kind, id, date), kept 90 days whether or not the
   row was purged; a restore removes the marks of what it brings back.
+- A photo also counts as changed when its tags change (a tag write that changes nothing on it
+  does not), and when a member tagged in it is renamed or deleted — through the members API or
+  the Django admin. The last two reach the gallery through signal handlers on `Member`
+  (`features/gallery/signals.py`, connected by the model's name, no import); only live photos are
+  bumped, since a restore bumps a trashed one anyway.
+
+## Tags
+
+- `PUT /api/photos/{id}/members/` — body `{"member_ids": [...]}` replaces the photo's tags with
+  exactly that set (`[]` clears); `200` with the Photo resource.
+- `POST /api/photos/members/` — body `{"photo_ids": [...], "add_member_ids": [...],
+  "remove_member_ids": [...]}` adds and removes only the listed pairs and keeps every other tag;
+  `200` with the Photo resources in the order of `photo_ids`. At most **200** photos
+  (`TAG_BULK_PHOTO_LIMIT`); `photo_ids` must not be empty, and at least one member list must not
+  be; an id in both member lists is refused. These `400`s come before any database read.
+- Both writes are atomic, under a lock of the live photo rows. Repeated ids count once. Any
+  unknown or trashed photo, or unknown member, fails the whole request with one `404` listing
+  every offending id (`missing_photo_ids`, `missing_member_ids`; trashed photos count as
+  missing, as everywhere outside the trash). Only photos whose tags changed get a new
+  `updated_at`.
+- Each write that changed a tag logs one line, `gallery_tags_changed`, with `photo_ids`, `added`
+  and `removed` (photo id → member ids) and `actor_id` — ids only.
+- `GET /api/gallery/taggable-members/` — every member record, active or not, `[{id, name}]`
+  ordered by name then id.
+- `GET /api/gallery/tagged-members/` — every member tagged in at least one live photo,
+  `[{id, name, photo_count}]` (live photos only) ordered by name then id.
+- Both lists answer with `Cache-Control: private, no-store`, `Vary: Authorization` and an ETag.
 
 ---
 
@@ -351,9 +421,14 @@ lists), `deleted_album_ids`, `deleted_photo_ids`, a new opaque `cursor` and
 | no trash entry for the restored item   | 404    | `NOT_FOUND`        | `kind`, `id`                      |
 | restore under a trashed parent         | 400    | `VALIDATION_ERROR` | `kind`, `id`, `trashed_parent_id` |
 | restore onto a name a live sibling has | 400    | `VALIDATION_ERROR` | `album_id`, `name`, `conflicting_album_id` |
+| tag write names a missing photo/member | 404    | `NOT_FOUND`        | `missing_photo_ids`, `missing_member_ids` |
+| bulk tag write over 200 photos         | 400    | `VALIDATION_ERROR` | `photo_count`, `limit`            |
+| member id in both bulk lists           | 400    | `VALIDATION_ERROR` | `member_ids`                      |
+| empty bulk tag write                   | 400    | `VALIDATION_ERROR` |                                   |
+| `member_id` filter not an integer      | 400    | `VALIDATION_ERROR` |                                   |
 
 User-facing messages (duplicate name, cycle, image rejections, no image accepted, restore
-refusals) are in
+refusals, tag refusals) are in
 Portuguese; the order-mismatch and not-found messages address client developers and are in
 English.
 
@@ -376,7 +451,8 @@ goes through it too, so a new or moved album is placed last among its siblings.
 
 Registered read-mostly: photos cannot be added from it (they arrive only through the upload
 page, so every photo has a thumbnail); `image`, `thumbnail`, `uploaded_by` and `position` are
-read-only.
+read-only. The page lists the photo's tagged members read-only; tags are changed only through
+the API, so the feed and the log see every change.
 
 ### Upload page
 

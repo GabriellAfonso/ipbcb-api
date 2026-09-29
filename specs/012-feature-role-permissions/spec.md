@@ -100,6 +100,8 @@ declare a lower level than the default.
   and MEDIA from `manage` to `owner` on this scope (data migration
   `core/0006_gallery_owner_for_leader_media.py`), so the three roles can remove album covers and,
   in feature 014, delete albums and photos. This is the one scope where LEADER deletes.
+  Feature 015 adds the tag picker here (`manage`), through which MEDIA reads the **names** of
+  members — the one deliberate exception to "MEDIA sees nothing of the roll" (User Story 3).
 
 ## Endpoint Classification
 
@@ -165,8 +167,9 @@ the app reads the settings and syncs events before anyone logs in.
 
 ### gallery
 
-Added by features 013 (`specs/013-gallery-write-api/`) and 014
-(`specs/014-gallery-trash-sync/`). Admin, Liderança and Mídia all hold `owner` here.
+Added by features 013 (`specs/013-gallery-write-api/`), 014
+(`specs/014-gallery-trash-sync/`) and 015 (`specs/015-gallery-member-tags/`). Admin, Liderança
+and Mídia all hold `owner` here.
 
 | Method | Endpoint                                     | Scope     | Level  | Why                          |
 |--------|----------------------------------------------|-----------|--------|------------------------------|
@@ -183,10 +186,14 @@ Added by features 013 (`specs/013-gallery-write-api/`) and 014
 | GET    | `api/gallery/trash/`                         | `gallery` | owner  | override — shows who deleted and uploaded, and trashed files |
 | POST   | `api/gallery/trash/albums/{id}/restore/`     | `gallery` | owner  | override — undoes a delete   |
 | POST   | `api/gallery/trash/photos/{id}/restore/`     | `gallery` | owner  | override — undoes a delete   |
+| PUT    | `api/photos/{id}/members/`                   | `gallery` | manage | default — replace a photo's tags |
+| POST   | `api/photos/members/`                        | `gallery` | manage | default — bulk tag changes   |
+| GET    | `api/gallery/taggable-members/`              | `gallery` | manage | override — names of every member for the tag picker; the Mídia exception of User Story 3 |
 
-The gallery reads (`GET api/albums/`, `GET api/photos/`, `GET api/albums/{id}/photos/`) and the
-change feed (`GET api/gallery/changes/`) are member endpoints (`is_member`), outside this
-classification.
+The gallery reads (`GET api/albums/`, `GET api/photos/`, `GET api/albums/{id}/photos/`, with or
+without the `member_id` filter), the change feed (`GET api/gallery/changes/`) and the
+tagged-member list (`GET api/gallery/tagged-members/`) are member endpoints (`is_member`), outside
+this classification.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -244,7 +251,8 @@ reads and writes succeed, every `DELETE` and every configuration write is refuse
 
 ### User Story 3 - Media team is kept away from the roll (Priority: P2)
 
-A person on the media team reaches the panel but sees nothing of the membership roll.
+A person on the media team reaches the panel but sees nothing of the membership roll, except
+the members' names in the gallery tag picker (scenario 5, feature 015).
 
 **Why this priority**: Separation between areas is the second motivation, and the roll is the
 only sensitive data in the system.
@@ -261,6 +269,11 @@ only sensitive data in the system.
    the answer is `403`.
 4. **Given** a media user, **When** they read the hymnal occurrences or ranking, **Then** it
    succeeds.
+5. **Given** a media user, **When** they read the gallery tag picker
+   (`GET api/gallery/taggable-members/`, feature 015), **Then** it succeeds and returns each
+   member's `id` and `name` and nothing else. This is the one deliberate exception to this story:
+   the media team needs names to tag photos. Every other member endpoint and every `members/`
+   file stays refused (scenarios 1–2).
 
 ---
 
@@ -453,7 +466,7 @@ Decided with the requester; recorded, not to be re-raised.
 - **SC-002**: 0 delete operations succeed for a user holding only the Leader role, across every
   classified endpoint outside scope `gallery`.
 - **SC-003**: A user holding only the Media role gets 0 records from the membership roll and 0
-  member photos.
+  member photos; the tag picker (feature 015) gives them names and ids only, no other field.
 - **SC-004**: For every combination of role (Admin, Leader, Media, none) × scope × method in the
   classification, the outcome matches the matrix — each combination covered by an automated
   check.

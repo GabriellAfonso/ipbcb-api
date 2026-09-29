@@ -28,6 +28,14 @@ Manages user identity, authentication, and profile. Single entry point for who t
   re-published the media directory, a deterministic name would again let anyone fetch any
   member's photo from a URL built out of their username.
 - `is_member`: bool, default false
+- `member`: OneToOne -> `members.Member`, nullable, `SET_NULL`, `related_name="profile"`. Links
+  the account to its record on the church roll, so the app can offer "photos of me" (gallery tag
+  filter, `specs/015-gallery-member-tags/`). Unique: a member has at most one profile. Set and
+  changed **only in the Django admin**, whose profile form searches members by name
+  (autocomplete); linking a member that already has a profile is a form error and nothing is
+  saved. No endpoint creates, changes or removes it, and nothing links automatically. Deleting
+  the member leaves the profile unlinked. Independent of `is_member`: neither sets, clears or
+  checks the other.
 - Roles (Admin, Liderança, Mídia) are **not** on the profile: they are the account's Django
   groups, assigned in the Django admin only. What each role can manage is in
   `specs/012-feature-role-permissions/`. The old `is_admin` flag was converted into the Admin
@@ -108,15 +116,17 @@ All under `/ipbcb/accounts/`.
 
 ### GET `api/me/profile/`
 - **Authenticated**
-- Returns: name, is_member, photo_url, `roles` (`[{id, name}]`) and `permissions` (every
-  scope as a key, level `view`/`manage`/`owner` or `null`). Shape in
-  `specs/012-feature-role-permissions/contracts/profile-api.md`
+- Returns: name, is_member, photo_url, `roles` (`[{id, name}]`), `permissions` (every
+  scope as a key, level `view`/`manage`/`owner` or `null`) and `member_id` (the linked member's
+  id, or `null`). Shape in `specs/012-feature-role-permissions/contracts/profile-api.md`;
+  `member_id` added by `specs/015-gallery-member-tags/`
 - Supports ETag (`If-None-Match` -> 304)
 - Auto-creates Profile if missing (get_or_create)
 
 ### PATCH `api/me/profile/`
 - **Authenticated**
-- Updatable: `name` only (is_member, photo_url, roles, permissions are read-only)
+- Updatable: `name` only (is_member, photo_url, roles, permissions, member_id are read-only;
+  a `member_id` sent is ignored)
 - Returns: updated profile (200)
 
 ### POST `api/me/profile/photo/`
