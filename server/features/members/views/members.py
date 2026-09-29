@@ -6,12 +6,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.di import Container
-from core.http.permissions import IsMemberUser
+from core.domain.access import Scope
+from core.http.permissions import IsMemberUser, scope_permission
 from features.members.services.member_service import MemberService
 
 
 class MemberListAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsMemberUser]
+    # The schedule screen lists members to roster, and a Liderança or Admin managing the
+    # schedule is not necessarily flagged as a member (specs/012-feature-role-permissions FR-031).
+    permission_classes = [IsAuthenticated, IsMemberUser | scope_permission(Scope.SCHEDULE)]
 
     @inject
     def get(
