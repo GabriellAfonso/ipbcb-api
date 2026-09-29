@@ -26,6 +26,18 @@
   pick permissions per method in `get_permissions()`.
 - **DRF APIView** (no ViewSets); **no pagination**; **`select_related("album")`** on photo
   queries.
-- **Django admin** keeps the upload page and album editing, both through the services.
+- **Django admin** keeps the upload page and album editing, both through the services, and
+  offers no delete.
+- **Soft delete** by `deleted_at` + a `GalleryDeletionBatch` per delete action; live-only default
+  managers, `all_objects` for the trash code; live-only unique constraints; `Photo.album`
+  `PROTECT` so only the purge deletes rows.
+- **Media trash check**: `features/media` declares a `TrashedMediaLookup` port, the gallery
+  implements it (one `UNION` query over partial indexes), `config/di.py` wires it — no import
+  between features.
+- **Change feed**: `updated_at` set through an injected `Clock`, derived changes bumped exactly
+  by diffing resolved covers; opaque timestamp cursor with a 90 s overlap; deletion marks kept
+  90 days, independent of the purge.
+- **Purge** per batch, one transaction each, files deleted on commit; scheduled by host cron.
 
-Full reasoning: `specs/013-gallery-write-api/plan.md` (D-1 … D-12) and `research.md`.
+Full reasoning: `specs/013-gallery-write-api/plan.md` (D-1 … D-12),
+`specs/014-gallery-trash-sync/plan.md` (D-1 … D-16) and their `research.md`.

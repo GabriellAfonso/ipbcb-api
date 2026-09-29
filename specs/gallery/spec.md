@@ -2,18 +2,24 @@
 
 Photo gallery organized in a tree of albums. Members browse it through the API; the Mídia,
 Liderança and Admin roles build it — albums, photos, covers and order — through the API from the
-app's management panel. The Django admin keeps an upload page and album editing, going through
-the same services.
+app's management panel. Deleting sends items to a 30-day trash from which they can be restored;
+a daily purge then removes them with their files. A change feed lets the app sync only what
+changed, deletions included. The Django admin keeps an upload page and album editing, going
+through the same services, and cannot delete.
 
-Write API introduced by `specs/013-gallery-write-api/` (design, research and contracts there).
+Write API introduced by `specs/013-gallery-write-api/`; trash, purge and change feed by
+`specs/014-gallery-trash-sync/` (design, research and contracts there).
 
 ---
 
 ## Permissions
 
-- **Reads** (`GET`) require membership: `IsMemberUser` (`Profile.is_member`).
+- **Reads** (`GET`) of the gallery itself and the change feed require membership: `IsMemberUser`
+  (`Profile.is_member`).
 - **Writes** require scope `gallery` (`specs/012-feature-role-permissions/`) at the method's
-  default level: `manage` for `POST`/`PUT`/`PATCH`, `owner` for `DELETE`. No endpoint overrides it.
+  default level: `manage` for `POST`/`PUT`/`PATCH`, `owner` for `DELETE`.
+- **Trash** (`GET /api/gallery/trash/`) and **restore** (`POST …/restore/`) require `owner` on
+  `gallery`, declared as overrides above the method default.
 - Admin, Liderança and Mídia all hold `owner` on `gallery` (raised from `manage` for Liderança
   and Mídia by `core/migrations/0006_gallery_owner_for_leader_media.py`).
 - A caller without the permission gets `403` before existence is checked.
@@ -33,22 +39,28 @@ Write API introduced by `specs/013-gallery-write-api/` (design, research and con
 | event_date  | DateField            | null                                                        |
 | position    | PositiveIntegerField | order among siblings                                        |
 | cover_image | ImageField           | blank; `gallery/covers/{album_id}/{uuid}.jpg`               |
+| deleted_at  | DateTimeField, null  | set ⇔ in the trash                                          |
+| deletion_batch | FK -> GalleryDeletionBatch, null | PROTECT; set and cleared with `deleted_at`   |
+| updated_at  | DateTimeField        | indexed; set by every change, derived ones included (feed)  |
 
-- Uniqueness: two conditional unique constraints, `(parent, name)` when `parent` is set and
-  `(name)` when it is not. A plain `(parent, name)` constraint would let roots repeat a name,
-  since SQL `NULL`s are distinct.
+- Uniqueness among **live** albums only: two conditional unique constraints, `(parent, name)`
+  when `parent` is set and `(name)` when it is not, both with `deleted_at IS NULL`. A plain
+  `(parent, name)` constraint would let roots repeat a name, since SQL `NULL`s are distinct; a
+  trashed album never holds its name.
+- The default manager (`Album.objects`) returns live albums only; `Album.all_objects` returns
+  every row and is used only by the trash, restore, purge and media-lookup code.
 - The tree has no depth limit and never contains a cycle: an album cannot be moved under itself
   or any of its descendants.
 - An album may hold photos and sub-albums at the same time.
-- Deleting an album that has sub-albums is refused (`PROTECT`). Deletion as a feature belongs to
-  feature 014.
+- Rows are only ever deleted by the purge, which deletes descendants before their parents
+  (`PROTECT`).
 
 ### Photo
 
 | Field       | Type                  | Constraints                                               |
 |-------------|-----------------------|-----------------------------------------------------------|
 | id          | int (PK, auto)        |                                                           |
-| album       | FK -> Album           | CASCADE, related_name="photos"                            |
+| album       | FK -> Album           | PROTECT, related_name="photos"                            |
 | name        | CharField(100)        | original filename, cut keeping the extension              |
 | description | TextField             | blank                                                     |
 | image       | ImageField            | `gallery/{album_id}/{uuid}.{ext}`                         |
@@ -57,13 +69,41 @@ Write API introduced by `specs/013-gallery-write-api/` (design, research and con
 | uploaded_at | DateTimeField         | auto_now_add                                              |
 | uploaded_by | FK -> User, null      | SET_NULL; auditing only, never serialized                 |
 | position    | PositiveIntegerField  | order within the album                                    |
+| deleted_at  | DateTimeField, null   | set ⇔ in the trash                                        |
+| deletion_batch | FK -> GalleryDeletionBatch, null | PROTECT                                     |
+| updated_at  | DateTimeField         | indexed; set by every change, derived ones included       |
 
+- `album` is `PROTECT` so an album row can never take photo rows with it: only the purge deletes
+  rows, always with their files.
+- Default manager live-only, `Photo.all_objects` for everything, as for albums.
 - `ext` comes from the decoded image format, never from the filename.
 - Paths carry the album id only to spread files. Renaming or moving an album or a photo never
   moves a file; a moved photo keeps its files under the old album's folder.
 - Photos uploaded before feature 013 keep their old path, `gallery/{slugify(album.name)}/{filename}`.
 - Photos uploaded before feature 013 have no thumbnail until the
   `generate_photo_thumbnails` command runs; they have no `uploaded_by`.
+
+### GalleryDeletionBatch
+
+Everything one delete action sent to the trash.
+
+| Field      | Type                 | Constraints                                          |
+|------------|----------------------|------------------------------------------------------|
+| id         | UUID (PK)            |                                                      |
+| root_kind  | `album` / `photo`    | the kind of item the delete was made on              |
+| root_id    | PositiveIntegerField | its id (no FK); unique with `root_kind`              |
+| deleted_at | DateTimeField        | indexed                                              |
+| deleted_by | FK -> User, null     | SET_NULL                                             |
+
+### GalleryDeletionMark
+
+What the change feed reports as deleted. Survives the purge.
+
+| Field      | Type                 | Constraints                                  |
+|------------|----------------------|----------------------------------------------|
+| kind       | `album` / `photo`    | unique with `object_id`                      |
+| object_id  | PositiveIntegerField | no FK                                        |
+| deleted_at | DateTimeField        | indexed                                      |
 
 ---
 
@@ -93,14 +133,15 @@ Write API introduced by `specs/013-gallery-write-api/` (design, research and con
 ## Album Cover
 
 - **Own cover**: an image stored on the album, independent of any photo.
-- **Automatic**: when photos are uploaded into an album that, at that moment, has no photos and
-  no own cover, the first accepted photo becomes its cover (a resized copy — moving the photo
+- **Automatic**: when photos are uploaded into an album that, at that moment, has no live photos
+  and no own cover, the first accepted photo becomes its cover (a resized copy — moving the photo
   later does not affect it).
 - **Manual**: `PUT …/cover/` replaces it with any image; `DELETE …/cover/` removes it and
   nothing regenerates one.
 - **Resolved cover** (read time, never stored): the album's own cover, otherwise the own cover of
-  the first descendant that has one, in tree order. `cover_source_album_id` names the album it
-  comes from. No cover anywhere below: both `cover_url` and `cover_source_album_id` are `null`.
+  the first live descendant that has one, in tree order; a trashed album is never a source.
+  `cover_source_album_id` names the album it comes from. No cover anywhere below: both
+  `cover_url` and `cover_source_album_id` are `null`.
 - Existing albums start without a cover.
 
 ---
@@ -120,14 +161,23 @@ Write API introduced by `specs/013-gallery-write-api/` (design, research and con
 | PATCH  | `/api/photos/{id}/`                | manage     | edit metadata, move to another album      |
 | GET    | `/api/albums/{id}/photos/`         | member     | photos directly in one album              |
 | PUT    | `/api/albums/{id}/photos/order/`   | manage     | full order of the photos of one album     |
+| DELETE | `/api/albums/{id}/`                | owner      | send the album and its subtree to trash   |
+| DELETE | `/api/photos/{id}/`                | owner      | send the photo to the trash               |
+| GET    | `/api/gallery/trash/`              | owner (override) | one entry per deletion batch        |
+| POST   | `/api/gallery/trash/albums/{id}/restore/` | owner (override) | restore an album's batch     |
+| POST   | `/api/gallery/trash/photos/{id}/restore/` | owner (override) | restore a photo deleted alone |
+| GET    | `/api/gallery/changes/?since=`     | member     | change feed                               |
 
 A nonexistent album or photo — in the route or referenced by `parent_id` / `album_id` in the
-body — is `404` on every endpoint. Full request and response bodies:
-`specs/013-gallery-write-api/contracts/gallery-api.md`.
+body — is `404` on every endpoint. A trashed item counts as nonexistent everywhere except the
+trash endpoints, and so does anything placed under a trashed album. In an order request a
+trashed id is reported in `unexpected`. Full request and response bodies:
+`specs/013-gallery-write-api/contracts/gallery-api.md` and
+`specs/014-gallery-trash-sync/contracts/gallery-trash-api.md`.
 
 ### GET /api/albums/
 
-`200` with an array of Album resources, every album including empty ones, in tree order.
+`200` with an array of Album resources, every live album including empty ones, in tree order.
 
 ### POST /api/albums/
 
@@ -155,7 +205,7 @@ when there was no own cover; the file is removed after the change commits.
 
 ### GET /api/photos/
 
-`200` with every photo, ordered by the tree order of its album, then `position`, then `id`.
+`200` with every live photo, ordered by the tree order of its album, then `position`, then `id`.
 
 ### GET /api/albums/{album_id}/photos/
 
@@ -201,7 +251,8 @@ Body `{"ids": [...]}`. `204`. Same exact-set rule and `400` body as album order.
   "description": "",
   "event_date": "2026-03-14",
   "cover_url": "http://host/ipbcb/media/gallery/covers/9/3f2a….jpg",
-  "cover_source_album_id": 9
+  "cover_source_album_id": 9,
+  "position": 3
 }
 ```
 
@@ -217,19 +268,73 @@ Body `{"ids": [...]}`. `204`. Same exact-set rule and `400` body as album order.
   "image_url": "http://host/ipbcb/media/gallery/7/9b1e….jpg",
   "thumbnail_url": "http://host/ipbcb/media/gallery/thumbs/7/c4d0….jpg",
   "date_taken": "2026-03-14",
-  "uploaded_at": "2026-03-15T10:00:00Z"
+  "uploaded_at": "2026-03-15T10:00:00Z",
+  "position": 0
 }
 ```
 
 `image_url`, `thumbnail_url` and `cover_url` are absolute URIs built from the request, `null`
 when there is no file or no request. Every field returned before feature 013 is still returned;
-`thumbnail_url` was added.
+`thumbnail_url` was added by 013 and `position` (last field) by 014.
 
 The files behind these URLs are readable only by members: `/ipbcb/media/gallery/...` goes
 through the authenticated media access check (`specs/009-protected-media-access/`), which
 requires the same `Profile.is_member` as the endpoints listing them. Holding the URL is not
 enough — the request must carry the member's JWT. Covers and thumbnails live under `gallery/`
 too, so the same rule covers them.
+
+**Files of trashed items**: the original and thumbnail of a trashed photo (a photo trashed with
+its album included) and the cover of a trashed album answer `404` to a member without `owner`
+on `gallery`, from the moment of the delete, and stay readable to a user with `owner`. One
+indexed lookup from the stored name to its row decides it; old paths
+(`gallery/{slug}/{filename}`) are covered. A file that no row references keeps the plain member
+rule. After the purge the file no longer exists.
+
+---
+
+## Trash
+
+- `DELETE` sets `deleted_at`, the deletion batch and the actor; nothing leaves the database or
+  the disk. Deleting an album trashes, in the same batch, its live descendants and every live
+  photo in them; items already in the trash keep their own batch. Deleting a trashed or unknown
+  item is `404`.
+- `GET /api/gallery/trash/` lists one entry per batch, most recent first: `kind`, `id`, `name`,
+  `deleted_at`, `deleted_by` and `uploaded_by` (display names or `null`), `purge_on`
+  (`deleted_at` + 30 days), `sub_album_count`, `photo_count` and `thumbnail_url`. Items that went
+  with an album entry are not listed on their own.
+- Restore brings back exactly the batch of the entry, at the stored positions (ties by id), and
+  nothing that was trashed under another batch. Only the entry's root can be restored: a live,
+  purged or cascaded item is `404`. It is refused with `400` when the parent (or the photo's
+  album) is in the trash, and, for an album, when a live sibling holds its name. The owner
+  restores the parent, or renames the sibling, first; nothing is ever moved or renamed
+  automatically.
+- There is no manual permanent deletion; the purge is the only one.
+
+## Purge
+
+`python manage.py purge_gallery_trash`, run daily by a host cron on the production server
+(`30 3 * * * docker exec ipbcb-server-prod python manage.py purge_gallery_trash`; this is its
+record in this repository). It deletes, batch by batch in its own transaction, every batch
+deleted more than 30 days ago: photos, then albums deepest first, then the batch row; the files
+(`image`, `thumbnail`, `cover_image`) are removed after the commit, and a missing file is not an
+error. A failing batch is skipped, reported and retried on the next run. Removing a row never
+removes its deletion mark; the same run drops marks older than 90 days. Idempotent; exit code 0.
+
+## Change Feed
+
+`GET /api/gallery/changes/?since=<cursor>` returns `albums`, `photos` (the same resources as the
+lists), `deleted_album_ids`, `deleted_photo_ids`, a new opaque `cursor` and
+`full_sync_required`.
+
+- Without `since`: every live item, empty deleted lists.
+- With a cursor: items whose resource changed since 90 s before the cursor (the overlap that
+  keeps a late commit from being missed; items may come twice), and ids deleted since then and
+  not restored. "Changed" includes derived fields: every photo of a renamed album, every album
+  whose resolved cover changed, every item whose `position` changed.
+- A cursor older than 90 days, unreadable, from the future or of an unknown version: empty lists
+  and `full_sync_required: true`; the app then reconciles against the two list endpoints.
+- Every delete writes one mark per trashed row (kind, id, date), kept 90 days whether or not the
+  row was purged; a restore removes the marks of what it brings back.
 
 ---
 
@@ -243,14 +348,23 @@ too, so the same rule covers them.
 | order does not match the siblings      | 400    | `VALIDATION_ERROR` | `missing`, `unexpected`, `repeated` |
 | every uploaded file rejected           | 400    | `VALIDATION_ERROR` | `rejected`                        |
 | invalid cover image                    | 400    | `VALIDATION_ERROR` |                                   |
+| no trash entry for the restored item   | 404    | `NOT_FOUND`        | `kind`, `id`                      |
+| restore under a trashed parent         | 400    | `VALIDATION_ERROR` | `kind`, `id`, `trashed_parent_id` |
+| restore onto a name a live sibling has | 400    | `VALIDATION_ERROR` | `album_id`, `name`, `conflicting_album_id` |
 
-User-facing messages (duplicate name, cycle, image rejections, no image accepted) are in
+User-facing messages (duplicate name, cycle, image rejections, no image accepted, restore
+refusals) are in
 Portuguese; the order-mismatch and not-found messages address client developers and are in
 English.
 
 ---
 
 ## Admin
+
+Neither admin can delete an album or a photo (no delete button, no bulk action): deleting
+happens in the app, where it is recorded, restorable and reported to devices. Trashed albums
+and photos do not appear anywhere in the admin, including the album choices of the forms and
+of the upload page.
 
 ### Album admin
 
@@ -285,7 +399,9 @@ Accessible at `/admin/gallery/album/upload/` (protected by Django admin login).
 
 ---
 
-## Management Command
+## Management Commands
+
+`python manage.py purge_gallery_trash` — see Purge.
 
 `python manage.py generate_photo_thumbnails` — fills the thumbnail of every photo that has none.
 Idempotent: a second run changes nothing. A photo whose original is missing or unreadable is

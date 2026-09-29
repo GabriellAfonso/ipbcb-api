@@ -16,6 +16,11 @@ bytes." (full request, including the decided behaviour and required tests, in th
 > role (Admin, Liderança, Mídia) with a level on a scope. The tables that named the old flag are
 > updated; the narrative is kept as the record of this feature.
 
+> **`gallery/` amended by `specs/014-gallery-trash-sync/`.** Files of trashed gallery items
+> (a trashed photo's original and thumbnail, a trashed album's cover) answer `404` to members
+> and stay readable with `owner` on `gallery`, decided by one indexed database lookup. FR-005,
+> FR-009, the orphan-files edge case and the "No database lookup" assumption are updated.
+
 ## Overview
 
 Every file under `MEDIA_ROOT` is public today. nginx serves `location /ipbcb/media/` with an
@@ -228,7 +233,9 @@ anonymous caller.
   rule; when allowed, nginx answers `304` with no body.
 - **Revalidation after the file was deleted**: `404`, same as a first request.
 - **Orphan files** (a file under an allowed folder whose database record was deleted): still
-  served to that folder's audience. Accepted — access is by folder, not by record.
+  served to that folder's audience. Accepted — access is by folder, not by record. Under
+  `gallery/`, a file whose record is **trashed** is not an orphan and is hidden from members
+  (spec 014); a file with no record at all keeps this rule.
 
 ---
 
@@ -265,7 +272,7 @@ anonymous caller.
 
   | First segment | Who may read         | Source of truth         |
   |---------------|----------------------|-------------------------|
-  | `gallery`     | members              | `Profile.is_member`     |
+  | `gallery`     | members; files of trashed items only with `owner` on `gallery` (spec 014) | `Profile.is_member`; trash state of the file's row |
   | `profiles`    | members (any profile), or the photo's owner | `Profile.is_member`; owner by folder |
   | `members`     | `view` on `members` (Admin, Liderança) | role groups (spec 012) |
   | anything else | nobody               | —                       |
@@ -284,7 +291,11 @@ anonymous caller.
   for `members/`. No new permission class — the leader check already exists and is what the members
   feature will reuse for its endpoints.
 - **FR-009**: Access MUST NOT depend on any database record linking the file to a gallery
-  photo, profile or member. Folder and user are the only inputs.
+  photo, profile or member. Folder and user are the only inputs. **Exception, `gallery/` only
+  (spec 014):** one indexed lookup tells whether the file belongs to a trashed photo or album;
+  such a file is `404` to a caller without `owner` on `gallery`. The lookup runs after the
+  folder rule and the permission check and before the existence check, and is skipped for a
+  caller who is both a member and an owner.
 
 **Delivery**
 
@@ -404,7 +415,8 @@ anonymous caller.
 - **Session authentication** (enabled for the Django admin) is accepted by the check like on
   every other DRF view; the app uses JWT only.
 - **No database lookup**: an orphan file under an allowed folder stays readable by that
-  folder's audience. Accepted trade-off, decided in the request.
+  folder's audience. Accepted trade-off, decided in the request. Holds for every folder except
+  `gallery/`, where spec 014 adds one lookup for trashed items.
 - **Gallery filenames stay as uploaded.** With the access check in place, guessability of
   `gallery/` names no longer exposes anything to non-members; renaming is out of scope.
 

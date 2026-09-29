@@ -163,6 +163,31 @@ Liderança or Admin who is not flagged as a member can still build the schedule.
 `GET api/hymnal-history/settings/` and `POST api/hymnal-history/events/` stay public, as today:
 the app reads the settings and syncs events before anyone logs in.
 
+### gallery
+
+Added by features 013 (`specs/013-gallery-write-api/`) and 014
+(`specs/014-gallery-trash-sync/`). Admin, Liderança and Mídia all hold `owner` here.
+
+| Method | Endpoint                                     | Scope     | Level  | Why                          |
+|--------|----------------------------------------------|-----------|--------|------------------------------|
+| POST   | `api/albums/`                                | `gallery` | manage | default                      |
+| PATCH  | `api/albums/{id}/`                           | `gallery` | manage | default                      |
+| DELETE | `api/albums/{id}/`                           | `gallery` | owner  | default — to the trash       |
+| PUT    | `api/albums/order/`                          | `gallery` | manage | default                      |
+| PUT    | `api/albums/{id}/cover/`                     | `gallery` | manage | default                      |
+| DELETE | `api/albums/{id}/cover/`                     | `gallery` | owner  | default                      |
+| POST   | `api/photos/`                                | `gallery` | manage | default                      |
+| PATCH  | `api/photos/{id}/`                           | `gallery` | manage | default                      |
+| DELETE | `api/photos/{id}/`                           | `gallery` | owner  | default — to the trash       |
+| PUT    | `api/albums/{id}/photos/order/`              | `gallery` | manage | default                      |
+| GET    | `api/gallery/trash/`                         | `gallery` | owner  | override — shows who deleted and uploaded, and trashed files |
+| POST   | `api/gallery/trash/albums/{id}/restore/`     | `gallery` | owner  | override — undoes a delete   |
+| POST   | `api/gallery/trash/photos/{id}/restore/`     | `gallery` | owner  | override — undoes a delete   |
+
+The gallery reads (`GET api/albums/`, `GET api/photos/`, `GET api/albums/{id}/photos/`) and the
+change feed (`GET api/gallery/changes/`) are member endpoints (`is_member`), outside this
+classification.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Administrator keeps full control (Priority: P1)
