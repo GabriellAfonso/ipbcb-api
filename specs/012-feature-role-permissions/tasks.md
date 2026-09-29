@@ -153,6 +153,7 @@ superuser without role; compare with the contract table.
 - [X] T036 Run `python manage.py makemigrations --check --dry-run`, then quickstart §1 (`pytest`, `mypy .`, `ruff check .`) — all green
 - [ ] T037 Run quickstart §3 against a restored production dump: admins before = Admin members after, Leader 7 and Media 4 permissions, no `is_admin` column, second `migrate` a no-op. Record the date and result in the top docstrings of `core/migrations/0005_seed_panel_roles.py` and `accounts/migrations/0003_is_admin_to_admin_role.py`
 - [ ] T038 Run quickstart §4 (manual walk-through on the dev server) and re-read spec.md, plan.md and the specs touched by T002 against the code; fix any drift in the same commit as the code it describes
+- [X] T039 Found after implementation (spec FR-031): `GET api/members/` accepts a member **or** `view` on `schedule`, so a non-member Liderança/Admin can load the list the schedule screen rosters from; `server/features/members/views/members.py` uses `IsMemberUser | scope_permission(Scope.SCHEDULE)`; tests in `server/features/members/tests/integration/test_members_api.py` (Leader/Admin non-member 200 with active members only, Mídia non-member 403, Mídia member 200)
 
 ---
 

@@ -128,6 +128,11 @@ Every endpoint that required `is_admin` before this feature, by scope and requir
 `GET api/schedule/current/` stays a member endpoint (`is_member`) and is not part of this
 classification.
 
+`GET api/members/` (the member list) is a member endpoint that the schedule screen also
+needs, to pick whom to roster. It accepts a member **or** `view` on `schedule` (FR-031), so a
+Liderança or Admin who is not flagged as a member can still build the schedule. Mídia, without
+`schedule`, still needs membership.
+
 ### songs
 
 | Method | Endpoint                     | Scope   | Level  | Why                                      |
@@ -324,7 +329,7 @@ reflects it.
 - **FR-011**: Membership (`is_member`) MUST NOT grant any role or level, and holding a role MUST
   NOT require membership.
 - **FR-012**: Member-facing endpoints and the member permission MUST keep their current
-  behaviour.
+  behaviour, except the member list (FR-031).
 
 **Endpoints**
 
@@ -380,6 +385,9 @@ reflects it.
   may do (e.g. member deletion requires `owner`, so only Admin).
 - **FR-030**: The Django superuser flag MUST NOT grant any role or level; a user's levels come
   from their roles alone.
+- **FR-031**: `GET api/members/` MUST accept a member or a caller with `view` on
+  `schedule`. Found after implementation: the schedule screen loads this list, and roles do
+  not require membership, so a non-member Liderança got 403 there.
 
 ### Accepted Risks
 

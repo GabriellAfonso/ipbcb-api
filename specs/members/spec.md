@@ -89,7 +89,10 @@ Management DTOs (`NamedRefDTO`, `MemberSummaryDTO`, `MemberRecordDTO`, `MemberCr
 ## Endpoints
 
 ### GET `api/members/`
-- `IsAuthenticated` + `IsMemberUser`
+- `IsAuthenticated` + (`IsMemberUser` **or** `view` on scope `schedule`). The second branch is
+  for the schedule screen: it lists members to roster, and a role holder who manages the
+  schedule (Admin, Liderança) is not necessarily flagged as a member. Mídia, without
+  `schedule`, still needs membership (`specs/012-feature-role-permissions/`, FR-031).
 - Returns `{"members": [{"id", "name"}]}`, valid profiles only (`is_active=True`), ordered by
   name
 
