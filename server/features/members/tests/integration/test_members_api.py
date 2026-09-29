@@ -2,7 +2,8 @@ import pytest
 from rest_framework.test import APIClient
 
 from features.members.models.member import Member
-from conftest import make_auth_client, make_member_client, make_user
+from conftest import make_auth_client, make_member_client, make_role_client, make_user
+from core.domain.access import Role
 
 
 ENDPOINT = "/api/members/"
@@ -19,6 +20,28 @@ class TestMemberListAPIView:
         client = make_auth_client(user)
         resp = client.get(ENDPOINT)
         assert resp.status_code == 403
+
+    @pytest.mark.parametrize("role", [Role.LEADER, Role.ADMIN])
+    def test_schedule_role_without_membership_returns_active_members(self, role: Role) -> None:
+        # specs/012-feature-role-permissions FR-031: the schedule screen loads this list.
+        Member.objects.create(name="Active", is_active=True)
+        Member.objects.create(name="Inactive", is_active=False)
+        client, _ = make_role_client(role)
+
+        resp = client.get(ENDPOINT)
+
+        assert resp.status_code == 200
+        assert [m["name"] for m in resp.data["members"]] == ["Active"]
+
+    def test_media_role_without_membership_returns_403(self) -> None:
+        client, _ = make_role_client(Role.MEDIA)
+        assert client.get(ENDPOINT).status_code == 403
+
+    def test_media_role_with_membership_returns_200(self) -> None:
+        client, user = make_role_client(Role.MEDIA)
+        user.profile.is_member = True
+        user.profile.save()
+        assert client.get(ENDPOINT).status_code == 200
 
     def test_member_returns_200(self) -> None:
         Member.objects.create(name="Alice", is_active=True)
