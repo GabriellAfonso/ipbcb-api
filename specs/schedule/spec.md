@@ -118,7 +118,7 @@ The current month's rota, grouped by service.
 
 Generate a rota preview. **Writes nothing.**
 
-- **Auth**: `IsAdminUser`
+- **Auth**: `IsAuthenticated` + `scope_permission(Scope.SCHEDULE)` — `manage` by method (POST), although it persists nothing (Admin, Liderança; `specs/012-feature-role-permissions/`)
 - **Request**:
   ```json
   {
@@ -138,7 +138,7 @@ Generate a rota preview. **Writes nothing.**
 
 Persist a rota, replacing the whole month.
 
-- **Auth**: `IsAdminUser`
+- **Auth**: `IsAuthenticated` + `scope_permission(Scope.SCHEDULE)` — `manage` (Admin, Liderança). Accepted risk: Liderança can overwrite a whole month; the guard against changing past months still applies
 - **Request**: `{ year, month, items: [...] }`
 - **Accepts two item shapes**, normalised by `_parse_schedule_save_payload`:
   - flat — `{"date": "...", "schedule_type_id": 3, "member_id": 10}`

@@ -173,7 +173,7 @@ List all hymns ordered by number (numeric sort, with alphanumeric suffix support
 
 Register songs played on a given Sunday.
 
-- **Auth**: IsAdminUser (authenticated + admin profile)
+- **Auth**: `IsAuthenticated` + `scope_permission(Scope.SONGS)` — `manage` (Admin, Liderança; `specs/012-feature-role-permissions/`)
 - **Request body**:
   ```json
   {
@@ -205,7 +205,7 @@ List all chord charts ordered alphabetically by song title.
 
 Create a new chord chart for a song.
 
-- **Auth**: IsAdminUser
+- **Auth**: `IsAuthenticated` + `scope_permission(Scope.SONGS)` — `manage`. `PATCH /api/chord-charts/{id}/` (edit `content`) requires the same
 - **Request body**: `{ song_id, content, tone, instrument }` — all required
 - **Response**: `201` with `{ id, song_id, content, tone, instrument, updated_at }`
 - **Errors**: `400` if song_id not found, or any required field missing/empty
@@ -223,7 +223,7 @@ List all lyrics ordered alphabetically by song title.
 
 Create lyrics for a song.
 
-- **Auth**: IsAdminUser
+- **Auth**: `IsAuthenticated` + `scope_permission(Scope.SONGS)` — `manage`. `PATCH /api/lyrics/{id}/` (edit `content`) requires the same
 - **Request body**: `{ song_id, content }` — all required
 - **Response**: `201` with `{ id, song_id, content, updated_at }`
 - **Errors**: `400` if song_id not found or content empty
@@ -257,7 +257,7 @@ Ingest a batch of view events. The app buffers offline and syncs when it has net
 
 Dashboard by period — covers week, month, year and any custom range.
 
-- **Auth**: IsAdminUser
+- **Auth**: `IsAuthenticated` + `scope_permission(Scope.REPORTS_HYMNAL_HISTORY)` — `view` (Admin, Liderança, Mídia)
 - **Query params**: `from` (date), `to` (date), `group_by` = `service` | `day` | `week` | `month`
 - **Response**: `200` — the occurrences in the range, each with the hymn number and title, its grouping bucket, and how many distinct devices contributed
 
@@ -267,7 +267,7 @@ Dashboard by period — covers week, month, year and any custom range.
 
 Ranking / chart data — X is the hymn number, Y is how many times it was sung.
 
-- **Auth**: IsAdminUser
+- **Auth**: `IsAuthenticated` + `scope_permission(Scope.REPORTS_HYMNAL_HISTORY)` — `view` (Admin, Liderança, Mídia)
 - **Query params**: `from` (optional), `to` (optional) — default is all time
 - **Response**: `200` — only hymns with at least one occurrence, ordered by count descending. Counts occurrences (collapsed), not raw events.
 
@@ -278,7 +278,7 @@ Ranking / chart data — X is the hymn number, Y is how many times it was sung.
 
 ### PATCH /api/hymnal-history/settings/
 
-- **Auth**: IsAdminUser
+- **Auth**: `IsAuthenticated` + `scope_permission(Scope.REPORTS_HYMNAL_HISTORY, {"PATCH": owner})` — `owner` by override: configuration is Admin-only
 - **Validation**: every field a positive integer within a sane upper bound
 - **Response**: `200` with the updated values
 - **Errors**: `400` naming the field, the offending value and the accepted range
@@ -286,7 +286,7 @@ Ranking / chart data — X is the hymn number, Y is how many times it was sung.
 
 ### CRUD /api/hymnal-history/service-windows/
 
-- **Auth**: IsAdminUser
+- **Auth**: `IsAuthenticated` + `scope_permission(Scope.REPORTS_HYMNAL_HISTORY)`. Reads (`GET` list and detail) `view`; `POST` and `PATCH` `owner` by override; `DELETE` `owner` by default — configuration writes are Admin-only
 - List, create, update and delete service windows from the app
 - **Validation**: `end_time` strictly after `start_time`, `weekday` in 0-6
 
@@ -307,7 +307,7 @@ Hymnal view history follows the same pattern — its own repositories for view e
 ## Design Decisions
 
 - **Position 1-4 vs 1-10**: Normal service has 4 songs (positions 1-4). `SuggestedSongsAPI` only suggests for 1-4. `RegisterSundayPlaysAPI` accepts up to 10 for special occasions. This is intentional.
-- **AllowAny on most endpoints**: Internal church app, no sensitive data. Only registration of plays requires admin auth.
+- **AllowAny on most endpoints**: Internal church app, no sensitive data. Only the management writes (plays, chord charts, lyrics) and the hymnal history reports and configuration require a scope level (`specs/012-feature-role-permissions/`).
 - **ETag caching**: Read-only list endpoints use SHA-256 ETag for conditional GET (304 Not Modified).
 - **Random suggestion**: `random.choice` for song selection — simple and adequate for the use case.
 - **View history lives in `songs`, not a new app**: `Hymn` lives here and the constitution forbids features importing from each other. The service catalogue was briefly duplicated here for the same reason, then moved to `core.ChurchService` in feature 007 so both features could share one source of truth.

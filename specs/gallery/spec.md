@@ -76,6 +76,10 @@ enough — the request must carry the member's JWT.
 
 Accessible at `/admin/gallery/album/upload/` (protected by Django admin login).
 
+The API has no gallery write endpoint yet. When it gets one, it belongs to scope `gallery`:
+Admin `owner`, Liderança and Mídia `manage` (`specs/012-feature-role-permissions/`). Until then
+the Mídia role has nothing to manage here.
+
 ### GET
 
 Renders HTML form with:

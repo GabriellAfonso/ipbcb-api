@@ -8,6 +8,11 @@
 
 **Input**: User description: "Add hymnal view history tracking to the backend, so the church can see which hymns the congregation actually opens and sings — during the week and on Sundays."
 
+> **Access terms superseded by `specs/012-feature-role-permissions/`.** Below, "admin", "leader"
+> and "church leaders" meant `Profile.is_admin` / `IsAdminUser`. Both are gone: access is now a
+> role (Admin, Liderança, Mídia) with a level on a scope. The tables that named the old flag are
+> updated; the narrative is kept as the record of this feature.
+
 ## Overview
 
 Today the church only knows which songs were *planned* for a Sunday: an admin manually registers the
@@ -342,12 +347,12 @@ All endpoints sit under the base path (`/ipbcb/`), consistent with the rest of t
 | Method | Path | Auth | Purpose |
 |--------|------|------|---------|
 | POST | `/api/hymnal-history/events/` | AllowAny, throttled | Ingest a batch of view records |
-| GET | `/api/hymnal-history/occurrences/` | IsAdminUser | Occurrences in a period, grouped |
-| GET | `/api/hymnal-history/top-hymns/` | IsAdminUser | Hymn ranking by occurrence count |
+| GET | `/api/hymnal-history/occurrences/` | `reports.hymnal_history` view | Occurrences in a period, grouped |
+| GET | `/api/hymnal-history/top-hymns/` | `reports.hymnal_history` view | Hymn ranking by occurrence count |
 | GET | `/api/hymnal-history/settings/` | AllowAny | Read collection settings |
-| PATCH | `/api/hymnal-history/settings/` | IsAdminUser | Update collection settings |
-| GET/POST | `/api/hymnal-history/service-windows/` | IsAdminUser | List / create service windows |
-| GET/PATCH/DELETE | `/api/hymnal-history/service-windows/{id}/` | IsAdminUser | Read / update / delete a window |
+| PATCH | `/api/hymnal-history/settings/` | `reports.hymnal_history` owner (override) | Update collection settings |
+| GET/POST | `/api/hymnal-history/service-windows/` | `reports.hymnal_history` view / owner (override) | List / create service windows |
+| GET/PATCH/DELETE | `/api/hymnal-history/service-windows/{id}/` | `reports.hymnal_history` view / owner (override) / owner | Read / update / delete a window |
 
 **Ingest response** (`201`):
 

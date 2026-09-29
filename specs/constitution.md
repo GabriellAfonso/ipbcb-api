@@ -6,6 +6,15 @@ Rules that no domain can break. These apply globally across the entire system.
 - All protected endpoints require JWT (SimpleJWT) or Google OAuth 2.0
 - Permission class `IsAuthenticated` on every authenticated view
 - No endpoint bypasses auth unless explicitly marked public
+- Every management endpoint declares exactly one **scope** (`members`, `schedule`, `songs`,
+  `gallery`, `events`, `notices`, `reports.<name>`) through
+  `core.http.permissions.scope_permission`. The required level comes from the method — `GET`
+  `view`, `POST`/`PUT`/`PATCH` `manage`, `DELETE` `owner` — or from a per-endpoint override,
+  which may only raise it. Levels come from **roles** alone (Admin, Liderança, Mídia — Django
+  groups); Admin is `owner` of every scope in code. The superuser flag, `is_staff`, direct user
+  permissions and other groups grant nothing in the panel. Church membership (`is_member`) is a
+  separate axis and never grants a level. Design and role matrix in
+  `specs/012-feature-role-permissions/`.
 - Every path that checks a password is behind failed-attempt lockout (`django-axes`), the API
   login and the Django admin login alike. DRF throttles do not reach the admin — it is a plain
   Django view — and the password policy below allows six-character passwords, so the lockout is
@@ -70,8 +79,8 @@ Rules that no domain can break. These apply globally across the entire system.
   data does not hold for `features/members`: the roll ties a named person to religious
   affiliation, which is sensitive personal data under LGPD art. 11. There, serializers list
   their fields explicitly (never `"__all__"`), structured logs carry `member_id` and never
-  member fields, leader-only responses are private per Caching below, and member photos are
-  readable only by leaders (Media below). Other domains keep the original premise until they
+  member fields, management responses are private per Caching below, and member photos are
+  readable only with `view` on `members` (Media below). Other domains keep the original premise until they
   store something comparable. Full rules in `specs/members/spec.md`.
 - **Accepted risk:** `POST /api/auth/register/` is public and answers "Este nome de usuário
   já está em uso." for a taken name, which confirms an account exists. Kept deliberately:
@@ -94,7 +103,7 @@ Rules that no domain can break. These apply globally across the entire system.
 ### Media
 - Every file under `MEDIA_ROOT` is served only through the authenticated access check in
   `features/media` (`/ipbcb/media/<path>`). Access is decided by the first path segment, with
-  **default deny**: a folder without a rule is unreadable by everyone, leaders included, so a
+  **default deny**: a folder without a rule is unreadable by everyone, Admin included, so a
   new upload location fails closed until a rule and a spec change are written for it.
 - The path is validated, never normalized: any empty, `.` or `..` segment, backslash, `%` or
   control character is rejected, and the file must resolve inside `MEDIA_ROOT`. The checked

@@ -12,6 +12,11 @@ leader-only member photo, with an edit history." (full request, including the de
 endpoints, history rules and security requirements, in the `/speckit-specify` invocation that
 created this directory; the decisions it relies on are recorded in `specs/members/decisions.md`)
 
+> **Access terms superseded by `specs/012-feature-role-permissions/`.** Below, "admin", "leader"
+> and "church leaders" meant `Profile.is_admin` / `IsAdminUser`. Both are gone: access is now a
+> role (Admin, Liderança, Mídia) with a level on a scope. The tables that named the old flag are
+> updated; the narrative is kept as the record of this feature.
+
 ## Overview
 
 The church keeps its membership roll in the `Member` table, but today it can only be edited

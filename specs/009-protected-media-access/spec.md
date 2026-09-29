@@ -11,6 +11,11 @@ file is served only to authenticated users allowed to see it, while nginx still 
 bytes." (full request, including the decided behaviour and required tests, in the
 `/speckit-specify` invocation that created this directory)
 
+> **Access terms superseded by `specs/012-feature-role-permissions/`.** Below, "admin", "leader"
+> and "church leaders" meant `Profile.is_admin` / `IsAdminUser`. Both are gone: access is now a
+> role (Admin, Liderança, Mídia) with a level on a scope. The tables that named the old flag are
+> updated; the narrative is kept as the record of this feature.
+
 ## Overview
 
 Every file under `MEDIA_ROOT` is public today. nginx serves `location /ipbcb/media/` with an
@@ -262,7 +267,7 @@ anonymous caller.
   |---------------|----------------------|-------------------------|
   | `gallery`     | members              | `Profile.is_member`     |
   | `profiles`    | members (any profile), or the photo's owner | `Profile.is_member`; owner by folder |
-  | `members`     | church leaders       | `Profile.is_admin`      |
+  | `members`     | `view` on `members` (Admin, Liderança) | role groups (spec 012) |
   | anything else | nobody               | —                       |
 
 - **FR-005a**: The owner exception applies to `profiles/` only. A caller owns
@@ -275,8 +280,8 @@ anonymous caller.
 - **FR-007**: An authenticated user lacking the permission a rule requires MUST get `403`,
   regardless of whether the file exists.
 - **FR-008**: The rules MUST reuse the existing permissions in `core.http.permissions`:
-  `IsMemberUser` for members and `IsAdminUser` (which reads `Profile.is_admin`) for church
-  leaders. No new permission class — the leader check already exists and is what the members
+  `IsMemberUser` for members and `scope_permission(Scope.MEMBERS)` (`view` on `members`, spec 012)
+  for `members/`. No new permission class — the leader check already exists and is what the members
   feature will reuse for its endpoints.
 - **FR-009**: Access MUST NOT depend on any database record linking the file to a gallery
   photo, profile or member. Folder and user are the only inputs.

@@ -1,14 +1,16 @@
 # Members Domain Spec
 
 The church membership roll: who the members are, their standing on the roll, their role and
-ministries. Regular members read a minimal view of it (names, birthdays); church leaders manage
-it in full, with an edit history.
+ministries. Regular members read a minimal view of it (names, birthdays); role holders with a
+level on the `members` scope manage it in full, with an edit history.
 
 Member data is **sensitive personal data** (LGPD art. 11: religious affiliation tied to a named
 person). Every rule marked *(data protection)* below exists because of that.
 
-Leader management was added by `specs/010-members-management/`. Birth date split into day,
-month and year by `specs/011-split-birth-date/`.
+Roll management was added by `specs/010-members-management/`. Birth date split into day,
+month and year by `specs/011-split-birth-date/`. Access by role and scope level (instead of
+`Profile.is_admin`) by `specs/012-feature-role-permissions/`: Admin is `owner` (everything,
+delete included), Liderança `manage` (everything except delete), Mídia has no access.
 
 ---
 
@@ -55,7 +57,8 @@ Statuses, roles and ministries are managed in the Django admin only.
 - `created_at`: datetime, set on creation
 - `photo`: image, nullable. Stored at `members/{uuid4().hex}.{ext}`, `ext` from the
   decoded image format. No member name or id in the path. Independent of `Profile.photo`:
-  never shared, copied or reused between the two. Readable only by leaders, through the media
+  never shared, copied or reused between the two. Readable only with `view` on `members`
+  (Admin, Liderança), through the media
   access rule for `members/` (`specs/009-protected-media-access/`).
 
 ### MemberChangeLog
@@ -76,7 +79,7 @@ Statuses, roles and ministries are managed in the Django admin only.
 | `MemberDTO` | id, name | Regular member list |
 | `BirthdayDTO` | name, gender, birth_month, birth_day | Birthdays |
 
-Leader DTOs (`NamedRefDTO`, `MemberSummaryDTO`, `MemberRecordDTO`, `MemberCreateDTO`,
+Management DTOs (`NamedRefDTO`, `MemberSummaryDTO`, `MemberRecordDTO`, `MemberCreateDTO`,
 `MemberPatchDTO`, `MemberFieldChange`, `ChangeLogEntryDTO`, `MemberOptionsDTO`): fields in
 `specs/010-members-management/data-model.md`. Writes send `status_id`, `role_id`,
 `ministry_ids`; `MemberPatchDTO` applies only the fields sent.
@@ -99,30 +102,31 @@ Leader DTOs (`NamedRefDTO`, `MemberSummaryDTO`, `MemberRecordDTO`, `MemberCreate
   29 in every year.
 - Invalid `month`: 400
 
-### Leader endpoints
+### Management endpoints
 
-All `IsAuthenticated` + `IsAdminUser` (leader = `Profile.is_admin`; no leader-named class). Prefixed
-`/admin/` because `api/members/` already serves regular members. GET responses are private:
-`Cache-Control: private, no-store`, `Vary: Authorization`, with ETag/304.
+All `IsAuthenticated` + `scope_permission(Scope.MEMBERS)`; the level column is what the method
+requires (`specs/012-feature-role-permissions/`). Prefixed `/admin/` because `api/members/`
+already serves regular members — the prefix means "management panel", not the Admin role. GET
+responses are private: `Cache-Control: private, no-store`, `Vary: Authorization`, with ETag/304.
 
-| Method | Route | Does |
-|---|---|---|
-| GET | `api/admin/members/` | Every member (valid or not), no pagination or search, ordered by name: id, name, photo_url, status `{id, name}` or null, is_active |
-| POST | `api/admin/members/` | Create; `name` required. Returns the full record (201). History: one `created` row |
-| GET | `api/admin/members/{id}/` | Full record: id, name, first_name, last_name, birth_day, birth_month, birth_year, gender, status, role, ministries `[{id, name}]`, baptism_date, is_active, photo_url, created_at |
-| PATCH | `api/admin/members/{id}/` | Partial edit of name, first_name, last_name, birth_day, birth_month, birth_year, gender, status, role, ministries (full replacement), baptism_date, is_active. Returns the full record. History: one row per changed field |
-| DELETE | `api/admin/members/{id}/` | Deletes member, its history and its photo file (204). No soft delete |
-| PUT | `api/admin/members/{id}/photo/` | Multipart `photo`. Upload/replace. Returns photo_url. History: `photo`, "photo changed" |
-| DELETE | `api/admin/members/{id}/photo/` | Remove photo (204). History: `photo`, "photo removed". No photo: 204, no history |
-| GET | `api/admin/members/{id}/history/` | Newest first: editor `{id, name}` or null, field, old_value, new_value, changed_at |
-| GET | `api/admin/members/options/` | `{"statuses", "roles", "ministries"}`, each `[{id, name}]` ordered by name |
+| Method | Route | Level | Does |
+|---|---|---|---|
+| GET | `api/admin/members/` | view | Every member (valid or not), no pagination or search, ordered by name: id, name, photo_url, status `{id, name}` or null, is_active |
+| POST | `api/admin/members/` | manage | Create; `name` required. Returns the full record (201). History: one `created` row |
+| GET | `api/admin/members/{id}/` | view | Full record: id, name, first_name, last_name, birth_day, birth_month, birth_year, gender, status, role, ministries `[{id, name}]`, baptism_date, is_active, photo_url, created_at |
+| PATCH | `api/admin/members/{id}/` | manage | Partial edit of name, first_name, last_name, birth_day, birth_month, birth_year, gender, status, role, ministries (full replacement), baptism_date, is_active. Returns the full record. History: one row per changed field |
+| DELETE | `api/admin/members/{id}/` | owner | Deletes member, its history and its photo file (204). No soft delete |
+| PUT | `api/admin/members/{id}/photo/` | manage | Multipart `photo`. Upload/replace. Returns photo_url. History: `photo`, "photo changed" |
+| DELETE | `api/admin/members/{id}/photo/` | owner | Remove photo (204). History: `photo`, "photo removed". No photo: 204, no history |
+| GET | `api/admin/members/{id}/history/` | view | Newest first: editor `{id, name}` or null, field, old_value, new_value, changed_at |
+| GET | `api/admin/members/options/` | view | `{"statuses", "roles", "ministries"}`, each `[{id, name}]` ordered by name |
 
 ---
 
 ## Business Rules
 
 1. Only valid profiles (`is_active=True`) appear in the regular member list and birthdays.
-   Leaders see every record.
+   The management endpoints see every record.
 2. Write validation: `name` non-blank; status, role and ministry ids must exist;
    gender `M`/`F`; baptism date not in the future. All checked against the record as it would
    be after the edit. Birth parts:
@@ -156,7 +160,7 @@ All `IsAuthenticated` + `IsAdminUser` (leader = `Profile.is_admin`; no leader-na
 11. **Known limitation — Django admin.** `Member` is still registered in the Django admin,
     which bypasses the service: an edit there writes no history, skips the calendar, future
     and baptism-before-birth checks (only the database constraints apply), and a delete there
-    leaves the photo file on disk (in the leader-only `members/` folder). The leader endpoints are the
+    leaves the photo file on disk (in the `members/` folder, readable with `view` on `members`). The management endpoints are the
     supported path.
 
 ---
@@ -166,7 +170,7 @@ All `IsAuthenticated` + `IsAdminUser` (leader = `Profile.is_admin`; no leader-na
 | Scenario | Status | `error_code` |
 |---|---|---|
 | Not authenticated | 401 | `NOT_AUTHENTICATED` / `AUTHENTICATION_FAILED` |
-| Not a member (regular endpoints) / not a leader (leader endpoints) | 403 | `PERMISSION_DENIED` |
+| Not a member (regular endpoints) / level below the method's on `members` (management endpoints) | 403 | `PERMISSION_DENIED` |
 | Invalid `month` | 400 | `VALIDATION_ERROR` |
 | Invalid write body or photo | 400 | `VALIDATION_ERROR` |
 | Unknown member id | 404 | `NOT_FOUND` |
