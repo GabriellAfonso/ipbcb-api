@@ -18,6 +18,7 @@ from features.gallery.dtos.gallery_dtos import (
     SiblingOrder,
 )
 from features.gallery.repositories.interfaces import AlbumRepository, GalleryFileStorage
+from features.gallery.services.cover_change_tracker import CoverChangeTracker
 from features.gallery.services.ordering import ensure_exact_order
 
 _PLAIN_FIELDS = ("description", "event_date")
@@ -30,9 +31,15 @@ class AlbumService:
     write, so concurrent moves cannot combine into a cycle (specs/013-gallery-write-api R-02).
     """
 
-    def __init__(self, album_repository: AlbumRepository, file_storage: GalleryFileStorage) -> None:
+    def __init__(
+        self,
+        album_repository: AlbumRepository,
+        file_storage: GalleryFileStorage,
+        cover_tracker: CoverChangeTracker,
+    ) -> None:
         self._albums = album_repository
         self._storage = file_storage
+        self._covers = cover_tracker
 
     def list_albums(self) -> list[AlbumView]:
         """Every album, empty ones included, in tree order.
@@ -84,8 +91,19 @@ class AlbumService:
                 }
             )
             if fields:
-                self._albums.update(album_id, fields)
+                self._write_update(current, fields)
         return self.view_of(album_id)
+
+    def _write_update(self, current: AlbumRecord, fields: dict[str, object]) -> None:
+        """Write the change and mark what it changed for the feed: a move can change the
+        resolved cover of old and new ancestors, a rename the ``album_name`` of every photo."""
+        moved = fields.get("parent_id", current.parent_id) != current.parent_id
+        before = self._covers.snapshot() if moved else None
+        self._albums.update(current.id, fields)
+        if before is not None:
+            self._covers.touch_changed(before)
+        if fields.get("name", current.name) != current.name:
+            self._albums.touch_photos_of(current.id)
 
     def validate_placement(self, album_id: int | None, name: str, parent_id: int | None) -> None:
         """Every rule a create or edit must pass, for callers that save by themselves (the Django
@@ -108,7 +126,10 @@ class AlbumService:
         with transaction.atomic():
             self._require_parent(order.parent_id)
             ensure_exact_order(order.ids, self._albums.child_ids(order.parent_id))
+            # A new first child can change which cover the parent and its ancestors inherit.
+            before = self._covers.snapshot()
             self._albums.apply_order(order.ids)
+            self._covers.touch_changed(before)
 
     def _placement_fields(self, current: AlbumRecord, changes: AlbumChanges) -> dict[str, object]:
         """``name``, ``parent_id`` and ``position`` to write, after checking the new place."""
@@ -164,6 +185,8 @@ class AlbumService:
             event_date=record.event_date,
             cover_path=self._storage.url(cover_names[source]) if source is not None else None,
             cover_source_album_id=source,
+            position=record.position,
+            updated_at=record.updated_at,
         )
 
 

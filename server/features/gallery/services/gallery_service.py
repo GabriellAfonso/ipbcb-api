@@ -13,7 +13,6 @@ from core.domain.exceptions import (
     ValidationError,
 )
 from core.files.image_validation import detect_image_extension
-from features.gallery.domain.album_tree import AlbumNode, tree_order
 from features.gallery.domain.gallery_rules import fit_photo_name
 from features.gallery.domain.image_limits import DERIVATIVE_JPEG_QUALITY, ensure_within_pixel_limit
 from features.gallery.dtos.gallery_dtos import (
@@ -32,6 +31,7 @@ from features.gallery.repositories.interfaces import (
 )
 from features.gallery.services.album_cover_service import AlbumCoverService
 from features.gallery.services.ordering import ensure_exact_order
+from features.gallery.services.photo_ordering import order_photos_by_tree
 
 # One constant so the thumbnail size can change later (specs/013-gallery-write-api).
 THUMBNAIL_LONGEST_SIDE_PX = 1000
@@ -64,11 +64,7 @@ class GalleryService:
         >>> [photo.album_name for photo in service.list_all_photos()]
         ['Retiros', 'Retiros', '2026']
         """
-        records = self._albums.list_records()
-        nodes = [AlbumNode(r.id, r.parent_id, r.position, bool(r.cover_name)) for r in records]
-        rank = {album_id: index for index, album_id in enumerate(tree_order(nodes))}
-        photos = self._repository.list_all_photos()
-        return sorted(photos, key=lambda photo: rank.get(photo.album_id, len(rank)))
+        return order_photos_by_tree(self._repository.list_all_photos(), self._albums.list_records())
 
     def list_photos_by_album(self, album_id: int) -> list[PhotoView]:
         """Photos directly in the album, never those of its sub-albums.

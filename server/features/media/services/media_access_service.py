@@ -4,6 +4,7 @@ from typing import BinaryIO
 from core.domain.exceptions import (
     MediaAccessDeniedError,
     MediaFileNotFoundError,
+    MediaFileTrashedError,
     MediaFolderNotRuledError,
     MediaPathRejectedError,
 )
@@ -18,9 +19,11 @@ from features.media.domain.media_rules import (
     validate_media_path,
 )
 from features.media.dtos.media_dtos import MediaFile, MediaViewer
-from features.media.repositories.interfaces import MediaFileRepository
+from features.media.repositories.interfaces import MediaFileRepository, TrashedMediaLookup
 
 logger = logging.getLogger(__name__)
+
+GALLERY_FOLDER = "gallery"
 
 _MediaDecisionError = (
     MediaPathRejectedError,
@@ -34,6 +37,7 @@ _OUTCOME_BY_ERROR: dict[type[Exception], MediaAccessOutcome] = {
     MediaFolderNotRuledError: MediaAccessOutcome.UNRULED,
     MediaAccessDeniedError: MediaAccessOutcome.FORBIDDEN,
     MediaFileNotFoundError: MediaAccessOutcome.NOT_FOUND,
+    MediaFileTrashedError: MediaAccessOutcome.TRASHED,
 }
 
 
@@ -42,11 +46,14 @@ class MediaAccessService:
 
     Order is the spec's: validate the path, pick the folder rule, check the caller, and only
     then look for the file — so a caller outside the folder's audience cannot learn whether a
-    file exists there. Design in ``specs/009-protected-media-access/``.
+    file exists there. Design in ``specs/009-protected-media-access/``. Under ``gallery/``, a
+    file whose photo or album is in the trash is refused to members before the existence check
+    (``specs/014-gallery-trash-sync/``).
     """
 
-    def __init__(self, repository: MediaFileRepository) -> None:
+    def __init__(self, repository: MediaFileRepository, trashed_lookup: TrashedMediaLookup) -> None:
         self._repository = repository
+        self._trashed = trashed_lookup
 
     def authorize(self, requested_path: str, viewer: MediaViewer) -> MediaFile:
         """Return the file to serve, or raise a media domain exception. Logs one decision.
@@ -75,9 +82,24 @@ class MediaAccessService:
         audience = audience_for_folder(folder)
         if audience is None:
             raise MediaFolderNotRuledError(path)
-        if not _viewer_may_read(path, viewer, audience):
+        if folder == GALLERY_FOLDER:
+            self._check_gallery_file(path, viewer)
+        elif not _viewer_may_read(path, viewer, audience):
             raise MediaAccessDeniedError(folder)
         return self._located_file(path)
+
+    def _check_gallery_file(self, path: str, viewer: MediaViewer) -> None:
+        """Membership, plus the trash rule of spec 014: a trashed item's file is ``404`` to a
+        member and readable with ``owner``. Callers who are both, or neither, need no lookup."""
+        if viewer.is_member and viewer.can_own_gallery:
+            return
+        if not (viewer.is_member or viewer.can_own_gallery):
+            raise MediaAccessDeniedError(GALLERY_FOLDER)
+        trashed = self._trashed.is_trashed(path)
+        if trashed and not viewer.can_own_gallery:
+            raise MediaFileTrashedError(path)
+        if not trashed and not viewer.is_member:
+            raise MediaAccessDeniedError(GALLERY_FOLDER)
 
     def _located_file(self, path: str) -> MediaFile:
         absolute_path = self._repository.locate(path)

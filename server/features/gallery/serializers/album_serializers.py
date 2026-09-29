@@ -5,7 +5,8 @@ from features.gallery.serializers.serializers import absolute_media_url
 
 
 class AlbumSerializer(serializers.Serializer[object]):
-    """The album resource; ``cover_url`` is the resolved cover, possibly a sub-album's."""
+    """The album resource; ``cover_url`` is the resolved cover, possibly a sub-album's.
+    ``position`` (last) was added by feature 014."""
 
     id = serializers.IntegerField()
     name = serializers.CharField()
@@ -14,6 +15,7 @@ class AlbumSerializer(serializers.Serializer[object]):
     event_date = serializers.DateField(allow_null=True)
     cover_url = serializers.SerializerMethodField()
     cover_source_album_id = serializers.IntegerField(allow_null=True)
+    position = serializers.IntegerField()
 
     def get_cover_url(self, album: AlbumView) -> str | None:
         return absolute_media_url(self.context, album.cover_path)

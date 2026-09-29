@@ -31,6 +31,7 @@ class TestCreate:
             "event_date": None,
             "cover_url": None,
             "cover_source_album_id": None,
+            "position": 1,
         }
         assert Album.objects.get(pk=response.data["id"]).position == 1
 

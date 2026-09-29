@@ -1,5 +1,5 @@
 """App versions released before feature 013 keep working: the existing reads lose nothing
-(specs/013-gallery-write-api SC-006, quickstart §2)."""
+(specs/013-gallery-write-api SC-006, quickstart §2; specs/014-gallery-trash-sync SC-007)."""
 
 import pytest
 
@@ -21,14 +21,16 @@ LEGACY_FIELDS = {
 @pytest.mark.django_db
 class TestLegacyReads:
     @pytest.mark.parametrize("url", ["/api/photos/", "/api/albums/{album}/photos/"])
-    def test_every_old_field_is_kept_and_only_thumbnail_url_is_added(self, url: str) -> None:
+    def test_every_old_field_is_kept_and_only_new_fields_are_added(self, url: str) -> None:
         album = Album.objects.create(name="Culto")
         Photo.objects.create(album=album, name="foto.jpg", image="gallery/culto/foto.jpg")
 
         client, _ = make_member_client()
         photo = client.get(url.format(album=album.pk)).data[0]
 
-        assert set(photo) == LEGACY_FIELDS | {"thumbnail_url"}
+        # thumbnail_url by 013, position (last) by 014.
+        assert set(photo) == LEGACY_FIELDS | {"thumbnail_url", "position"}
+        assert list(photo)[-1] == "position"
         assert list(photo)[:6] == [
             "id",
             "name",

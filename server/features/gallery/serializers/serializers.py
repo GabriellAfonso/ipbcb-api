@@ -18,7 +18,8 @@ def absolute_media_url(context: dict[str, object], path: str | None) -> str | No
 
 class PhotoSerializer(serializers.Serializer[object]):
     """The photo resource. Every field returned before feature 013 keeps its name and order;
-    only ``thumbnail_url`` was added."""
+    ``thumbnail_url`` was added by 013 and ``position`` (last) by 014, so a delta of the change
+    feed carries the order on its own."""
 
     id = serializers.IntegerField()
     name = serializers.CharField()
@@ -29,6 +30,7 @@ class PhotoSerializer(serializers.Serializer[object]):
     thumbnail_url = serializers.SerializerMethodField()
     date_taken = serializers.DateField(allow_null=True)
     uploaded_at = serializers.DateTimeField()
+    position = serializers.IntegerField()
 
     def get_image_url(self, photo: PhotoView) -> str | None:
         return absolute_media_url(self.context, photo.image_path)

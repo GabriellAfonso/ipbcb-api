@@ -5,6 +5,7 @@ from django import forms
 from django.contrib import admin
 from django.http import HttpRequest
 from django.urls import path
+from django.utils import timezone
 
 from config.di import Container
 from core.domain.exceptions import DomainError
@@ -60,6 +61,11 @@ class AlbumAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
             return
         obj.pk = obj.id = _album_service().create(AlbumCreate(**values)).id
 
+    def has_delete_permission(self, request: HttpRequest, obj: Album | None = None) -> bool:
+        # Deleting lives in the app, which sends the album to the trash, records it and reports
+        # it to devices; a hard delete here would orphan files (specs/014 FR-012).
+        return False
+
     def get_urls(self) -> list[Any]:
         urls = super().get_urls()
         custom = [
@@ -72,8 +78,26 @@ class AlbumAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
 class PhotoAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     """Photos arrive only through the upload page, so every photo has a thumbnail."""
 
-    readonly_fields = ("image", "thumbnail", "uploaded_by", "position")
+    readonly_fields = (
+        "image",
+        "thumbnail",
+        "uploaded_by",
+        "position",
+        "deleted_at",
+        "deletion_batch",
+        "updated_at",
+    )
     list_display = ("name", "album", "position")
 
     def has_add_permission(self, request: HttpRequest) -> bool:
         return False
+
+    def has_delete_permission(self, request: HttpRequest, obj: Photo | None = None) -> bool:
+        # Same as AlbumAdmin: the app deletes, through the trash (specs/014 FR-012).
+        return False
+
+    def save_model(self, request: HttpRequest, obj: Photo, form: Any, change: bool) -> None:
+        """Mark the edit for the change feed: ``Model.save()`` never touches ``updated_at``
+        (specs/014-gallery-trash-sync research R-06)."""
+        obj.updated_at = timezone.now()
+        super().save_model(request, obj, form, change)

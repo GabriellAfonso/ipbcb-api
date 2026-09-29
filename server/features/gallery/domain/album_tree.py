@@ -91,6 +91,39 @@ def resolve_cover_sources(nodes: Sequence[AlbumNode]) -> dict[int, int | None]:
     return sources
 
 
+def resolved_cover_names(
+    nodes: Sequence[AlbumNode], cover_names: Mapping[int, str]
+) -> dict[int, str | None]:
+    """For each album, the file name of the cover it shows, or ``None``.
+
+    >>> resolved_cover_names([AlbumNode(1, None, 0, False), AlbumNode(2, 1, 0, True)],
+    ...                      {2: "gallery/covers/2/a.jpg"})
+    {1: 'gallery/covers/2/a.jpg', 2: 'gallery/covers/2/a.jpg'}
+    """
+    sources = resolve_cover_sources(nodes)
+    return {
+        album_id: (cover_names.get(source) if source is not None else None)
+        for album_id, source in sources.items()
+    }
+
+
+def changed_cover_albums(
+    before: Mapping[int, str | None], after: Mapping[int, str | None]
+) -> set[int]:
+    """Albums present in ``after`` whose shown cover file differs from ``before`` (or that are
+    new). Compares file names, not source ids, so replacing an own cover counts
+    (specs/014-gallery-trash-sync research R-06).
+
+    >>> changed_cover_albums({1: "a.jpg", 2: "a.jpg"}, {1: "b.jpg", 2: "a.jpg"})
+    {1}
+    """
+    return {
+        album_id
+        for album_id, cover in after.items()
+        if album_id not in before or before[album_id] != cover
+    }
+
+
 def _resolve(
     node: AlbumNode,
     children: Mapping[int | None, list[AlbumNode]],

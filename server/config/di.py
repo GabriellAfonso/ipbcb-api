@@ -18,10 +18,17 @@ from features.bible.services import BibleService
 from features.gallery.imaging.pillow_image_processor import PillowImageProcessor
 from features.gallery.repositories.album_repository import AlbumRepositoryImpl
 from features.gallery.repositories.gallery_file_storage import DefaultStorageGalleryFileStorage
+from features.gallery.repositories.deletion_mark_repository import DeletionMarkRepositoryImpl
 from features.gallery.repositories.gallery_repository import GalleryRepositoryImpl
+from features.gallery.repositories.trash_repository import TrashRepositoryImpl
+from features.gallery.repositories.trashed_file_lookup import GalleryTrashedFileLookup
 from features.gallery.services.album_cover_service import AlbumCoverService
 from features.gallery.services.album_service import AlbumService
+from features.gallery.services.cover_change_tracker import CoverChangeTracker
+from features.gallery.services.gallery_change_feed_service import GalleryChangeFeedService
+from features.gallery.services.gallery_purge_service import GalleryPurgeService
 from features.gallery.services.gallery_service import GalleryService
+from features.gallery.services.gallery_trash_service import GalleryTrashService
 from features.media.repositories.filesystem_media_repository import FileSystemMediaRepository
 from features.media.services.media_access_service import MediaAccessService
 from features.members.repositories.member_change_log_repository import (
@@ -62,9 +69,12 @@ class Container(containers.DeclarativeContainer):
             "features.bible.views",
             "features.gallery.admin",
             "features.gallery.management.commands.generate_photo_thumbnails",
+            "features.gallery.management.commands.purge_gallery_trash",
             "features.gallery.views.albums",
             "features.gallery.views.album_cover",
+            "features.gallery.views.changes",
             "features.gallery.views.gallery",
+            "features.gallery.views.trash",
             "features.gallery.views.upload",
             "features.media.views.media_file",
             "features.songs.views.hymnal",
@@ -99,18 +109,25 @@ class Container(containers.DeclarativeContainer):
     bible_repository = providers.Singleton(BibleRepositoryImpl)
     bible_service = providers.Factory(BibleService, bible_repository=bible_repository)
 
-    gallery_repository = providers.Factory(GalleryRepositoryImpl)
-    album_repository = providers.Factory(AlbumRepositoryImpl)
+    clock = providers.Singleton(SystemClock)
+
+    gallery_repository = providers.Factory(GalleryRepositoryImpl, clock=clock)
+    album_repository = providers.Factory(AlbumRepositoryImpl, clock=clock)
     gallery_file_storage = providers.Factory(DefaultStorageGalleryFileStorage)
     image_processor = providers.Singleton(PillowImageProcessor)
+    cover_change_tracker = providers.Factory(CoverChangeTracker, album_repository=album_repository)
     album_service = providers.Factory(
-        AlbumService, album_repository=album_repository, file_storage=gallery_file_storage
+        AlbumService,
+        album_repository=album_repository,
+        file_storage=gallery_file_storage,
+        cover_tracker=cover_change_tracker,
     )
     album_cover_service = providers.Factory(
         AlbumCoverService,
         album_repository=album_repository,
         file_storage=gallery_file_storage,
         image_processor=image_processor,
+        cover_tracker=cover_change_tracker,
     )
     gallery_service = providers.Factory(
         GalleryService,
@@ -120,8 +137,33 @@ class Container(containers.DeclarativeContainer):
         image_processor=image_processor,
         cover_service=album_cover_service,
     )
-
-    clock = providers.Singleton(SystemClock)
+    trash_repository = providers.Factory(TrashRepositoryImpl, clock=clock)
+    deletion_mark_repository = providers.Factory(DeletionMarkRepositoryImpl, clock=clock)
+    gallery_trash_service = providers.Factory(
+        GalleryTrashService,
+        album_repository=album_repository,
+        gallery_repository=gallery_repository,
+        trash_repository=trash_repository,
+        mark_repository=deletion_mark_repository,
+        cover_tracker=cover_change_tracker,
+        album_service=album_service,
+        file_storage=gallery_file_storage,
+    )
+    gallery_purge_service = providers.Factory(
+        GalleryPurgeService,
+        trash_repository=trash_repository,
+        mark_repository=deletion_mark_repository,
+        file_storage=gallery_file_storage,
+        clock=clock,
+    )
+    gallery_change_feed_service = providers.Factory(
+        GalleryChangeFeedService,
+        album_service=album_service,
+        album_repository=album_repository,
+        gallery_repository=gallery_repository,
+        mark_repository=deletion_mark_repository,
+        clock=clock,
+    )
 
     song_repository = providers.Factory(SongRepositoryImpl)
     hymnal_repository = providers.Factory(HymnalRepositoryImpl)
@@ -176,4 +218,11 @@ class Container(containers.DeclarativeContainer):
     media_file_repository = providers.Factory(
         FileSystemMediaRepository, root=providers.Callable(_media_root)
     )
-    media_access_service = providers.Factory(MediaAccessService, repository=media_file_repository)
+    # The gallery implements the media check's port; wired here so neither feature imports the
+    # other (specs/014-gallery-trash-sync research R-05).
+    gallery_trashed_file_lookup = providers.Factory(GalleryTrashedFileLookup)
+    media_access_service = providers.Factory(
+        MediaAccessService,
+        repository=media_file_repository,
+        trashed_lookup=gallery_trashed_file_lookup,
+    )

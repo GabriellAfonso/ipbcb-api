@@ -9,6 +9,7 @@ from core.files.image_validation import detect_image_extension
 from features.gallery.domain.image_limits import DERIVATIVE_JPEG_QUALITY, ensure_within_pixel_limit
 from features.gallery.imaging.interfaces import ImageProcessor
 from features.gallery.repositories.interfaces import AlbumRepository, GalleryFileStorage
+from features.gallery.services.cover_change_tracker import CoverChangeTracker
 
 logger = logging.getLogger("features.gallery")
 
@@ -28,10 +29,12 @@ class AlbumCoverService:
         album_repository: AlbumRepository,
         file_storage: GalleryFileStorage,
         image_processor: ImageProcessor,
+        cover_tracker: CoverChangeTracker,
     ) -> None:
         self._albums = album_repository
         self._storage = file_storage
         self._images = image_processor
+        self._covers = cover_tracker
 
     def replace_cover(self, album_id: int, upload: IO[bytes]) -> None:
         """Validate ``upload`` like a photo, crop it to the square and make it the own cover.
@@ -83,8 +86,11 @@ class AlbumCoverService:
                 extra={"album_id": album_id, "error": type(exc).__name__},
             )
             return
-        if not self._albums.set_cover_name_if_absent(album_id, new_name):
-            self._storage.delete(new_name)
+        before = self._covers.snapshot()
+        if self._albums.set_cover_name_if_absent(album_id, new_name):
+            self._covers.touch_changed(before)
+            return
+        self._storage.delete(new_name)
 
     def _square(self, source: IO[bytes]) -> bytes:
         ensure_within_pixel_limit(*self._images.dimensions(source))
@@ -93,7 +99,10 @@ class AlbumCoverService:
     def _switch_cover(self, album_id: int, new_name: str | None) -> None:
         with transaction.atomic():
             old = self._albums.get_record(album_id)
+            # Ancestors inheriting this cover show a different file too (spec 014 FR-034).
+            before = self._covers.snapshot()
             self._albums.set_cover_name(album_id, new_name)
+            self._covers.touch_changed(before)
             if old is not None and old.cover_name:
                 transaction.on_commit(partial(self._storage.delete, old.cover_name), robust=True)
 

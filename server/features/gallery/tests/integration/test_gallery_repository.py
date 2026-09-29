@@ -1,13 +1,16 @@
-from datetime import date
+from datetime import date, timedelta
 
 import pytest
 
 from conftest import make_user
+from core.domain.exceptions import AlbumNotFoundError
 from features.gallery.dtos.gallery_dtos import NewPhoto
 from features.gallery.models.gallery import Album, Photo
 from features.gallery.repositories.gallery_repository import GalleryRepositoryImpl
+from features.gallery.tests.fakes import FakeClock
 
-REPO = GalleryRepositoryImpl()
+CLOCK = FakeClock()
+REPO = GalleryRepositoryImpl(CLOCK)
 
 
 def _new(album: Album, name: str = "a.jpg", thumbnail: str = "gallery/thumbs/1/t.jpg") -> NewPhoto:
@@ -105,3 +108,79 @@ class TestWrites:
         assert list(REPO.photos_without_thumbnail()) == [(bare.pk, album.pk, "x/a.jpg")]
         REPO.set_thumbnail(bare.pk, "t/a.jpg")
         assert list(REPO.photos_without_thumbnail()) == []
+
+
+LATER = FakeClock.START + timedelta(days=3)
+
+
+@pytest.mark.django_db
+class TestUpdatedAt:
+    """Every write sets updated_at from the clock (specs/014-gallery-trash-sync R-06)."""
+
+    def test_create_move_update_and_thumbnail_set_it(self) -> None:
+        CLOCK.current = FakeClock.START
+        source, target = Album.objects.create(name="A"), Album.objects.create(name="B")
+        photo = REPO.create_photo(_new(source))
+        assert photo.updated_at == FakeClock.START
+
+        CLOCK.current += timedelta(hours=1)
+        REPO.move_photo(photo.id, target.pk)
+        assert Photo.objects.get(pk=photo.id).updated_at == CLOCK.current
+
+        CLOCK.current += timedelta(hours=1)
+        REPO.update_photo(photo.id, {"name": "b.jpg"})
+        assert Photo.objects.get(pk=photo.id).updated_at == CLOCK.current
+
+        CLOCK.current += timedelta(hours=1)
+        REPO.set_thumbnail(photo.id, "t/b.jpg")
+        assert Photo.objects.get(pk=photo.id).updated_at == CLOCK.current
+
+    def test_apply_order_touches_only_rows_that_move(self) -> None:
+        CLOCK.current = FakeClock.START
+        album = Album.objects.create(name="A")
+        first, second, third = (REPO.create_photo(_new(album, f"{n}.jpg")) for n in "abc")
+        CLOCK.current = LATER
+
+        REPO.apply_order([second.id, first.id, third.id])
+
+        stamps = dict(Photo.objects.values_list("id", "updated_at"))
+        assert (stamps[first.id], stamps[second.id]) == (LATER, LATER)
+        assert stamps[third.id] == FakeClock.START
+
+    def test_changed_since_is_strict_and_live_only(self) -> None:
+        CLOCK.current = FakeClock.START
+        album = Album.objects.create(name="A")
+        old = REPO.create_photo(_new(album, "old.jpg"))
+        CLOCK.current = LATER
+        new = REPO.create_photo(_new(album, "new.jpg"))
+        gone = REPO.create_photo(_new(album, "gone.jpg"))
+        Photo.all_objects.filter(pk=gone.id).update(deleted_at=LATER)
+
+        changed = REPO.list_photos_changed_since(FakeClock.START)
+
+        assert [p.id for p in changed] == [new.id]
+        assert old.id not in [p.id for p in REPO.list_photos_changed_since(LATER)]
+        assert changed[0].position == 1
+
+
+@pytest.mark.django_db
+class TestTrashedAlbumRace:
+    """Regression: a lock query that finds no live row must refuse, not insert under a trashed
+    album (specs/014-gallery-trash-sync research R-02)."""
+
+    def test_create_photo_into_a_trashed_album_is_refused(self) -> None:
+        album = Album.objects.create(name="A")
+        Album.all_objects.filter(pk=album.pk).update(deleted_at=LATER)
+
+        with pytest.raises(AlbumNotFoundError):
+            REPO.create_photo(_new(album))
+        assert Photo.all_objects.count() == 0
+
+    def test_move_into_a_trashed_album_is_refused(self) -> None:
+        source, target = Album.objects.create(name="A"), Album.objects.create(name="B")
+        photo = Photo.objects.create(album=source, name="a.jpg", image="x/a.jpg")
+        Album.all_objects.filter(pk=target.pk).update(deleted_at=LATER)
+
+        with pytest.raises(AlbumNotFoundError):
+            REPO.move_photo(photo.pk, target.pk)
+        assert Photo.objects.get(pk=photo.pk).album_id == source.pk

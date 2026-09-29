@@ -14,10 +14,12 @@ class AlbumRecord(StrictBaseModel):
     event_date: date | None
     position: int
     cover_name: str
+    updated_at: datetime
 
 
 class AlbumView(StrictBaseModel):
-    """An album as members read it; ``cover_path`` is the resolved cover's URL path."""
+    """An album as members read it; ``cover_path`` is the resolved cover's URL path.
+    ``updated_at`` feeds the change feed and is never serialized."""
 
     id: int
     name: str
@@ -26,6 +28,8 @@ class AlbumView(StrictBaseModel):
     event_date: date | None
     cover_path: str | None
     cover_source_album_id: int | None
+    position: int
+    updated_at: datetime
 
 
 class AlbumCreate(StrictBaseModel):
@@ -53,7 +57,8 @@ class SiblingOrder(StrictBaseModel):
 
 
 class PhotoView(StrictBaseModel):
-    """A photo as members read it; ``*_path`` fields are URL paths, made absolute by the view."""
+    """A photo as members read it; ``*_path`` fields are URL paths, made absolute by the view.
+    ``updated_at`` feeds the change feed and is never serialized."""
 
     id: int
     name: str
@@ -64,6 +69,8 @@ class PhotoView(StrictBaseModel):
     thumbnail_path: str | None
     date_taken: date | None
     uploaded_at: datetime
+    position: int
+    updated_at: datetime
 
 
 class NewPhoto(StrictBaseModel):

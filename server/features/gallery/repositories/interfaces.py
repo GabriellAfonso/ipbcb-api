@@ -1,11 +1,21 @@
 from collections.abc import Iterator, Mapping, Sequence
+from datetime import datetime
 from typing import IO, Protocol
+from uuid import UUID
 
+from features.gallery.domain.trash_rules import TrashedItemKind
 from features.gallery.dtos.gallery_dtos import AlbumCreate, AlbumRecord, NewPhoto, PhotoView
+from features.gallery.dtos.trash_dtos import (
+    PurgedBatch,
+    TrashedRoot,
+    TrashEntryRow,
+    TrashOutcome,
+)
 
 
 class AlbumRepository(Protocol):
-    """Album rows. Writes that break sibling-unique names raise ``DuplicateAlbumNameError``.
+    """Live album rows. Writes that break sibling-unique names raise ``DuplicateAlbumNameError``;
+    every write sets ``updated_at``.
 
     ``parent_map(lock=True)`` and ``next_position`` lock rows, so callers run them inside a
     transaction.
@@ -39,13 +49,22 @@ class AlbumRepository(Protocol):
 
     def set_cover_name_if_absent(self, album_id: int, name: str) -> bool: ...
 
+    def live_sibling_named(self, name: str, parent_id: int | None) -> int | None: ...
+
+    def touch(self, ids: Sequence[int]) -> None: ...
+
+    def touch_photos_of(self, album_id: int) -> None: ...
+
 
 class GalleryRepository(Protocol):
-    """Photo rows. ``create_photo`` and ``move_photo`` lock the target album row to append."""
+    """Live photo rows. ``create_photo`` and ``move_photo`` lock the target album row to append,
+    and raise ``AlbumNotFoundError`` when that album is gone or trashed."""
 
     def list_all_photos(self) -> list[PhotoView]: ...
 
     def list_photos_by_album(self, album_id: int) -> list[PhotoView]: ...
+
+    def list_photos_changed_since(self, since: datetime) -> list[PhotoView]: ...
 
     def get_photo(self, photo_id: int) -> PhotoView | None: ...
 
@@ -78,3 +97,37 @@ class GalleryFileStorage(Protocol):
     def delete(self, name: str) -> None: ...
 
     def url(self, name: str) -> str: ...
+
+
+class TrashRepository(Protocol):
+    """Deletion batches and the trashed rows they hold (specs/014-gallery-trash-sync)."""
+
+    def create_batch(self, kind: TrashedItemKind, root_id: int, actor_id: UUID | None) -> UUID: ...
+
+    def trash_photo(self, photo_id: int, batch_id: UUID) -> bool: ...
+
+    def trash_albums(self, album_ids: Sequence[int], batch_id: UUID) -> list[int]: ...
+
+    def trash_photos_of_albums(self, album_ids: Sequence[int], batch_id: UUID) -> list[int]: ...
+
+    def batch_rooted_at(self, kind: TrashedItemKind, root_id: int) -> TrashedRoot | None: ...
+
+    def restore_batch(self, batch_id: UUID) -> TrashOutcome: ...
+
+    def list_entries(self) -> list[TrashEntryRow]: ...
+
+    def expired_batch_ids(self, before: datetime) -> list[UUID]: ...
+
+    def purge_batch(self, batch_id: UUID) -> PurgedBatch: ...
+
+
+class DeletionMarkRepository(Protocol):
+    """Deleted ids the change feed reports; independent of the rows."""
+
+    def upsert(self, kind: TrashedItemKind, ids: Sequence[int]) -> None: ...
+
+    def remove(self, kind: TrashedItemKind, ids: Sequence[int]) -> None: ...
+
+    def ids_since(self, kind: TrashedItemKind, since: datetime) -> list[int]: ...
+
+    def expire(self, before: datetime) -> int: ...

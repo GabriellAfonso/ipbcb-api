@@ -1,7 +1,9 @@
 from features.gallery.domain.album_tree import (
     AlbumNode,
+    changed_cover_albums,
     find_cycle,
     resolve_cover_sources,
+    resolved_cover_names,
     tree_order,
 )
 
@@ -94,3 +96,48 @@ class TestResolveCoverSources:
         nodes = [_node(1, 2), _node(2, 1)]
 
         assert resolve_cover_sources(nodes) == {1: None, 2: None}
+
+
+class TestResolvedCoverNames:
+    def test_inherited_name_is_the_source_file(self) -> None:
+        nodes = [_node(1, None), _node(2, 1, cover=True)]
+        assert resolved_cover_names(nodes, {2: "c2.jpg"}) == {1: "c2.jpg", 2: "c2.jpg"}
+
+    def test_no_cover_below_is_none(self) -> None:
+        assert resolved_cover_names([_node(1, None)], {}) == {1: None}
+
+
+class TestChangedCoverAlbums:
+    def _names(self, nodes: list[AlbumNode], covers: dict[int, str]) -> dict[int, str | None]:
+        return resolved_cover_names(nodes, covers)
+
+    def test_own_cover_replaced_is_a_change_for_it_and_its_inheritors(self) -> None:
+        nodes = [_node(1, None), _node(2, 1, cover=True)]
+        before = self._names(nodes, {2: "old.jpg"})
+        after = self._names(nodes, {2: "new.jpg"})
+        assert changed_cover_albums(before, after) == {1, 2}
+
+    def test_trashed_source_changes_its_ancestors(self) -> None:
+        tree = [
+            _node(1, None),
+            _node(2, 1, position=0, cover=True),
+            _node(3, 1, position=1, cover=True),
+        ]
+        before = self._names(tree, {2: "c2.jpg", 3: "c3.jpg"})
+        after = self._names([tree[0], tree[2]], {3: "c3.jpg"})  # 2 went to the trash
+        assert changed_cover_albums(before, after) == {1}
+
+    def test_reorder_making_another_child_first_changes_the_parent(self) -> None:
+        covers = {2: "c2.jpg", 3: "c3.jpg"}
+        before = self._names([_node(1, None), _node(2, 1, 0, True), _node(3, 1, 1, True)], covers)
+        after = self._names([_node(1, None), _node(2, 1, 1, True), _node(3, 1, 0, True)], covers)
+        assert changed_cover_albums(before, after) == {1}
+
+    def test_unrelated_album_is_unchanged(self) -> None:
+        nodes = [_node(1, None, cover=True), _node(4, None, cover=True)]
+        before = self._names(nodes, {1: "a.jpg", 4: "d.jpg"})
+        after = self._names(nodes, {1: "b.jpg", 4: "d.jpg"})
+        assert changed_cover_albums(before, after) == {1}
+
+    def test_restored_album_is_new(self) -> None:
+        assert changed_cover_albums({1: None}, {1: None, 2: None}) == {2}

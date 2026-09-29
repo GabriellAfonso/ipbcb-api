@@ -16,6 +16,7 @@ from features.gallery.serializers.album_serializers import (
     AlbumUpdateSerializer,
 )
 from features.gallery.services.album_service import AlbumService
+from features.gallery.services.gallery_trash_service import GalleryTrashService
 from features.gallery.views.gallery import GALLERY_WRITE
 from features.gallery.views.permissions import member_read_gallery_write_permissions
 
@@ -52,7 +53,8 @@ class AlbumListCreateAPIView(APIView):
 
 
 class AlbumDetailAPIView(APIView):
-    """``PATCH`` renames, moves (``parent_id``; ``null`` = root) or edits an album."""
+    """``PATCH`` renames, moves (``parent_id``; ``null`` = root) or edits an album (``manage``);
+    ``DELETE`` sends it and its subtree to the trash (``owner``, the method default)."""
 
     serializer_class = AlbumUpdateSerializer
     permission_classes = GALLERY_WRITE
@@ -69,6 +71,16 @@ class AlbumDetailAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         album = album_service.update(album_id, AlbumChanges(**serializer.validated_data))
         return Response(AlbumSerializer(album, context={"request": request}).data)
+
+    @inject
+    def delete(
+        self,
+        request: Request,
+        album_id: int,
+        trash_service: GalleryTrashService = Provide[Container.gallery_trash_service],
+    ) -> Response:
+        trash_service.delete_album(album_id, request.user.pk)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AlbumOrderAPIView(APIView):

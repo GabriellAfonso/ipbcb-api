@@ -6,12 +6,17 @@ from core.domain.exceptions import (
     DomainError,
     MediaAccessDeniedError,
     MediaFileNotFoundError,
+    MediaFileTrashedError,
     MediaFolderNotRuledError,
     MediaPathRejectedError,
 )
 from features.media.dtos.media_dtos import MediaViewer
 from features.media.services.media_access_service import MediaAccessService
-from features.media.tests.fakes import FAKE_MEDIA_ROOT, FakeMediaFileRepository
+from features.media.tests.fakes import (
+    FAKE_MEDIA_ROOT,
+    FakeMediaFileRepository,
+    FakeTrashedMediaLookup,
+)
 
 GALLERY_FILE = "gallery/retiro-2025/IMG_0042.jpg"
 PROFILE_FILE = "profiles/ana.paula/6f1c2d.png"
@@ -24,8 +29,12 @@ NON_MEMBER_OWNER = MediaViewer(
 )
 
 
-def _service(repository: FakeMediaFileRepository) -> MediaAccessService:
-    return MediaAccessService(repository=repository)
+def _service(
+    repository: FakeMediaFileRepository, lookup: FakeTrashedMediaLookup | None = None
+) -> MediaAccessService:
+    return MediaAccessService(
+        repository=repository, trashed_lookup=lookup or FakeTrashedMediaLookup()
+    )
 
 
 def _decision_records(caplog: pytest.LogCaptureFixture) -> list[logging.LogRecord]:
@@ -154,3 +163,61 @@ class TestProfileOwner:
             _service(FakeMediaFileRepository({GALLERY_FILE: b"x"})).authorize(
                 GALLERY_FILE, NON_MEMBER_OWNER
             )
+
+
+GALLERY_OWNER_MEMBER = MediaViewer(is_member=True, can_view_members=False, can_own_gallery=True)
+GALLERY_OWNER_ONLY = MediaViewer(is_member=False, can_view_members=False, can_own_gallery=True)
+
+
+class TestTrashedGalleryFiles:
+    """The decision table of specs/014-gallery-trash-sync research R-05."""
+
+    def _setup(self, trashed: bool) -> tuple[FakeMediaFileRepository, FakeTrashedMediaLookup]:
+        lookup = FakeTrashedMediaLookup({GALLERY_FILE} if trashed else set())
+        return FakeMediaFileRepository({GALLERY_FILE: b"x"}), lookup
+
+    def test_member_gets_404_for_a_trashed_file_before_existence(self) -> None:
+        repository, lookup = self._setup(trashed=True)
+        with pytest.raises(MediaFileTrashedError):
+            _service(repository, lookup).authorize(GALLERY_FILE, MEMBER)
+        assert repository.located == []
+
+    def test_member_reads_a_live_file(self) -> None:
+        repository, lookup = self._setup(trashed=False)
+        assert _service(repository, lookup).authorize(GALLERY_FILE, MEMBER)
+        assert lookup.asked == [GALLERY_FILE]
+
+    def test_owner_member_reads_a_trashed_file_without_a_lookup(self) -> None:
+        repository, lookup = self._setup(trashed=True)
+        assert _service(repository, lookup).authorize(GALLERY_FILE, GALLERY_OWNER_MEMBER)
+        assert lookup.asked == []
+
+    def test_owner_not_member_reads_a_trashed_file(self) -> None:
+        repository, lookup = self._setup(trashed=True)
+        assert _service(repository, lookup).authorize(GALLERY_FILE, GALLERY_OWNER_ONLY)
+
+    def test_owner_not_member_is_denied_a_live_file(self) -> None:
+        repository, lookup = self._setup(trashed=False)
+        with pytest.raises(MediaAccessDeniedError):
+            _service(repository, lookup).authorize(GALLERY_FILE, GALLERY_OWNER_ONLY)
+
+    def test_neither_is_denied_without_a_lookup(self) -> None:
+        repository, lookup = self._setup(trashed=True)
+        with pytest.raises(MediaAccessDeniedError):
+            _service(repository, lookup).authorize(GALLERY_FILE, NON_MEMBER)
+        assert lookup.asked == []
+
+    def test_other_folders_never_look_up(self) -> None:
+        lookup = FakeTrashedMediaLookup({PROFILE_FILE})
+        repository = FakeMediaFileRepository({PROFILE_FILE: b"x"})
+        assert _service(repository, lookup).authorize(PROFILE_FILE, MEMBER)
+        assert lookup.asked == []
+
+    def test_trashed_decision_is_logged_with_folder_only(
+        self, caplog: pytest.LogCaptureFixture
+    ) -> None:
+        repository, lookup = self._setup(trashed=True)
+        with caplog.at_level(logging.INFO), pytest.raises(MediaFileTrashedError):
+            _service(repository, lookup).authorize(GALLERY_FILE, MEMBER)
+        record = _decision_records(caplog)[-1]
+        assert (record.__dict__["folder"], record.__dict__["outcome"]) == ("gallery", "trashed")

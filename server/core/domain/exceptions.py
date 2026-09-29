@@ -387,3 +387,79 @@ class ImageTooLargeError(ValidationError):
         self.width = width
         self.height = height
         self.max_pixels = max_pixels
+
+
+class MediaFileTrashedError(MediaFileNotFoundError):
+    """A gallery file whose photo or album is in the trash, asked for by a caller without
+    ``owner`` on ``gallery``. Same message and status as a missing file, so a member cannot
+    tell a deleted photo from one that never existed (specs/014-gallery-trash-sync FR-024).
+
+    >>> raise MediaFileTrashedError("gallery/7/9b1e.jpg")
+    """
+
+
+class TrashEntryNotFoundError(NotFoundError):
+    """A restore for an item that is not the root of a deletion batch in the trash: live,
+    purged, unknown, or trashed only as part of another item's batch.
+
+    English: the app lists restorable entries, so only a client bug reaches it.
+
+    >>> raise TrashEntryNotFoundError("album", 9)
+    """
+
+    def __init__(self, kind: str, item_id: int) -> None:
+        super().__init__(
+            f"No trash entry for {kind} {item_id}; only the item a delete was made on can be "
+            "restored, while it is in the trash."
+        )
+        self.kind = kind
+        self.item_id = item_id
+
+    def extra_context(self) -> dict[str, object]:
+        return {"kind": self.kind, "id": self.item_id}
+
+
+class TrashedParentError(ValidationError):
+    """Restoring an album whose parent, or a photo whose album, is itself in the trash. The owner
+    restores the parent first; nothing is moved automatically (spec 014 FR-022).
+
+    >>> raise TrashedParentError("photo", 301, 7)
+    """
+
+    def __init__(self, kind: str, item_id: int, parent_album_id: int) -> None:
+        noun = "o álbum" if kind == "album" else "a foto"
+        super().__init__(
+            f"Não é possível restaurar {noun} {item_id}: o álbum {parent_album_id}, onde "
+            f"{'ele' if kind == 'album' else 'ela'} ficava, está na lixeira. "
+            f"Restaure o álbum {parent_album_id} primeiro."
+        )
+        self.kind = kind
+        self.item_id = item_id
+        self.parent_album_id = parent_album_id
+
+    def extra_context(self) -> dict[str, object]:
+        return {"kind": self.kind, "id": self.item_id, "trashed_parent_id": self.parent_album_id}
+
+
+class AlbumRestoreNameConflictError(ValidationError):
+    """Restoring an album while a live sibling holds its name (a trashed album never keeps its
+    name). The owner renames the sibling first; no name is invented (spec 014 FR-021).
+
+    >>> raise AlbumRestoreNameConflictError(7, "Culto", 12)
+    """
+
+    def __init__(self, album_id: int, name: str, sibling_id: int) -> None:
+        super().__init__(
+            f"Não é possível restaurar o álbum {album_id} ('{name}'): o álbum {sibling_id} já "
+            "usa esse nome no mesmo lugar. Renomeie-o antes."
+        )
+        self.album_id = album_id
+        self.name = name
+        self.sibling_id = sibling_id
+
+    def extra_context(self) -> dict[str, object]:
+        return {
+            "album_id": self.album_id,
+            "name": self.name,
+            "conflicting_album_id": self.sibling_id,
+        }

@@ -3,6 +3,7 @@ FR-006, research R-11)."""
 
 import pytest
 from django.test import Client
+from django.utils import timezone
 
 from features.accounts.models.user import User
 from features.gallery.models.gallery import Album, Photo
@@ -100,3 +101,68 @@ class TestPhotoAdmin:
 
         photo.refresh_from_db()
         assert (photo.name, photo.image.name) == ("b.jpg", "gallery/1/a.jpg")
+
+
+def _trash(album: Album) -> None:
+    Album.all_objects.filter(pk=album.pk).update(deleted_at=timezone.now())
+
+
+@pytest.mark.django_db
+class TestNoDeleteInTheAdmin:
+    """specs/014-gallery-trash-sync FR-012: deleting lives in the app, through the trash."""
+
+    @pytest.mark.parametrize("model", ["album", "photo"])
+    def test_delete_url_is_refused(self, admin_client: Client, model: str) -> None:
+        album = Album.objects.create(name="Retiros")
+        photo = Photo.objects.create(album=album, name="a.jpg", image="gallery/1/a.jpg")
+        pk = album.pk if model == "album" else photo.pk
+
+        get = admin_client.get(f"/admin/gallery/{model}/{pk}/delete/")
+        post = admin_client.post(f"/admin/gallery/{model}/{pk}/delete/", {"post": "yes"})
+
+        assert (get.status_code, post.status_code) == (403, 403)
+        assert (
+            Album.objects.filter(pk=album.pk).exists()
+            and Photo.objects.filter(pk=photo.pk).exists()
+        )
+
+    @pytest.mark.parametrize("model", ["album", "photo"])
+    def test_changelist_has_no_bulk_delete(self, admin_client: Client, model: str) -> None:
+        response = admin_client.get(f"/admin/gallery/{model}/")
+
+        assert "delete_selected" not in response.content.decode()
+
+    def test_change_page_has_no_delete_link(self, admin_client: Client) -> None:
+        album = Album.objects.create(name="Retiros")
+
+        response = admin_client.get(_change_url(album))
+
+        assert f"/admin/gallery/album/{album.pk}/delete/" not in response.content.decode()
+
+
+@pytest.mark.django_db
+class TestTrashedAlbumsHiddenInTheAdmin:
+    def test_changelist_parent_choices_and_upload_page(self, admin_client: Client) -> None:
+        Album.objects.create(name="Vivo")
+        gone = Album.objects.create(name="NaLixeira")
+        _trash(gone)
+
+        changelist = admin_client.get("/admin/gallery/album/").content.decode()
+        add_form = admin_client.get(ADD_URL).content.decode()
+        upload = admin_client.get("/admin/gallery/album/upload/").content.decode()
+
+        for page in (changelist, add_form, upload):
+            assert "Vivo" in page
+            assert "NaLixeira" not in page
+
+    def test_photo_edit_marks_it_changed_for_the_feed(self, admin_client: Client) -> None:
+        album = Album.objects.create(name="Retiros")
+        photo = Photo.objects.create(album=album, name="a.jpg", image="gallery/1/a.jpg")
+        before = Photo.objects.get(pk=photo.pk).updated_at
+
+        admin_client.post(
+            f"/admin/gallery/photo/{photo.pk}/change/",
+            {"album": album.pk, "name": "b.jpg", "description": "", "date_taken": ""},
+        )
+
+        assert Photo.objects.get(pk=photo.pk).updated_at > before

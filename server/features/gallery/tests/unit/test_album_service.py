@@ -1,7 +1,7 @@
 """AlbumService with named fakes. ``django_db`` only because the service opens transactions;
 every row lives in the fakes."""
 
-from datetime import date
+from datetime import date, timedelta
 
 import pytest
 
@@ -14,12 +14,17 @@ from core.domain.exceptions import (
 )
 from features.gallery.dtos.gallery_dtos import AlbumChanges, AlbumCreate, SiblingOrder
 from features.gallery.services.album_service import AlbumService
-from features.gallery.tests.fakes import FakeAlbumRepository, FakeGalleryFileStorage
+from features.gallery.services.cover_change_tracker import CoverChangeTracker
+from features.gallery.tests.fakes import (
+    FakeAlbumRepository,
+    FakeGalleryFileStorage,
+    FakeGalleryRepository,
+)
 
 
 def _service() -> tuple[AlbumService, FakeAlbumRepository]:
     albums = FakeAlbumRepository()
-    return AlbumService(albums, FakeGalleryFileStorage()), albums
+    return AlbumService(albums, FakeGalleryFileStorage(), CoverChangeTracker(albums)), albums
 
 
 @pytest.mark.django_db
@@ -271,3 +276,55 @@ class TestReorder:
 
         with pytest.raises(AlbumNotFoundError):
             service.reorder(SiblingOrder(parent_id=99, ids=[]))
+
+
+def _with_photos() -> tuple[AlbumService, FakeAlbumRepository, FakeGalleryRepository]:
+    service, albums = _service()
+    return service, albums, FakeGalleryRepository(albums)
+
+
+@pytest.mark.django_db
+class TestChangeTracking:
+    """What each write marks as changed for the feed (specs/014-gallery-trash-sync FR-034)."""
+
+    def test_rename_touches_the_album_and_its_photos_only(self) -> None:
+        service, albums, photos = _with_photos()
+        album, other = albums.add("A"), albums.add("B")
+        mine, theirs = photos.add(album), photos.add(other)
+        albums.clock.advance(timedelta(hours=1))
+
+        service.update(album, AlbumChanges(name="A2"))
+
+        now = albums.clock.now()
+        assert albums.records[album].updated_at == now
+        assert photos.photos[mine].updated_at == now
+        assert photos.photos[theirs].updated_at != now
+
+    def test_move_touches_ancestors_whose_resolved_cover_changed(self) -> None:
+        service, albums = _service()
+        old_parent, new_parent, bystander = albums.add("Old"), albums.add("New"), albums.add("X")
+        child = albums.add("Child", parent_id=old_parent, cover_name="c.jpg")
+
+        service.update(child, AlbumChanges(parent_id=new_parent))
+
+        assert set(albums.touched) == {old_parent, new_parent}
+        assert bystander not in albums.touched
+
+    def test_description_edit_touches_no_other_album(self) -> None:
+        service, albums = _service()
+        parent = albums.add("P")
+        child = albums.add("C", parent_id=parent, cover_name="c.jpg")
+
+        service.update(child, AlbumChanges(description="x"))
+
+        assert albums.touched == []
+
+    def test_reorder_making_another_child_first_touches_the_parent(self) -> None:
+        service, albums = _service()
+        parent = albums.add("P")
+        first = albums.add("A", parent_id=parent, cover_name="a.jpg")
+        second = albums.add("B", parent_id=parent, cover_name="b.jpg")
+
+        service.reorder(SiblingOrder(parent_id=parent, ids=[second, first]))
+
+        assert parent in albums.touched

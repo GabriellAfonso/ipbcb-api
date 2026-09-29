@@ -16,6 +16,8 @@ class MediaViewer(StrictBaseModel):
     is_member: bool
     can_view_members: bool
     own_profile_folder: str | None = None
+    # `owner` on `gallery`: may read the files of trashed gallery items (spec 014 FR-026).
+    can_own_gallery: bool = False
 
 
 class MediaFile(StrictBaseModel):

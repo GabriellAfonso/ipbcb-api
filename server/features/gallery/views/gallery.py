@@ -21,6 +21,7 @@ from features.gallery.serializers.serializers import (
     RejectedFileSerializer,
 )
 from features.gallery.services.gallery_service import GalleryService
+from features.gallery.services.gallery_trash_service import GalleryTrashService
 from features.gallery.views.permissions import member_read_gallery_write_permissions
 
 GALLERY_WRITE: list[type[BasePermission]] = [IsAuthenticated, scope_permission(Scope.GALLERY)]
@@ -92,7 +93,8 @@ class AlbumPhotoListAPIView(APIView):
 
 
 class PhotoDetailAPIView(APIView):
-    """``PATCH`` a photo's metadata or move it to another album; never its image."""
+    """``PATCH`` a photo's metadata or move it to another album, never its image (``manage``);
+    ``DELETE`` sends it to the trash (``owner``, the method default)."""
 
     serializer_class = PhotoUpdateSerializer
     permission_classes = GALLERY_WRITE
@@ -109,6 +111,16 @@ class PhotoDetailAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         photo = gallery_service.update_photo(photo_id, PhotoChanges(**serializer.validated_data))
         return Response(PhotoSerializer(photo, context={"request": request}).data)
+
+    @inject
+    def delete(
+        self,
+        request: Request,
+        photo_id: int,
+        trash_service: GalleryTrashService = Provide[Container.gallery_trash_service],
+    ) -> Response:
+        trash_service.delete_photo(photo_id, request.user.pk)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class AlbumPhotoOrderAPIView(APIView):

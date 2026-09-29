@@ -15,7 +15,9 @@ class DefaultStorageGalleryFileStorage:
 
     The album id in the path only spreads files; nothing reads it back, so renaming or moving an
     album or a photo never moves a file (specs/013-gallery-write-api FR-017). Everything lives
-    under ``gallery/``, readable only by members (specs/009-protected-media-access).
+    under ``gallery/``, readable only by members (specs/009-protected-media-access). Trashing a
+    photo or album never moves its files either: the media check hides them from members, and
+    the purge deletes them (specs/014-gallery-trash-sync).
     """
 
     def save_original(self, album_id: int, extension: str, stream: IO[bytes]) -> str:

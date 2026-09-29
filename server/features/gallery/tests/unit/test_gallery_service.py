@@ -19,6 +19,7 @@ from core.domain.exceptions import (
 from core.files.image_validation import MAX_IMAGE_BYTES
 from features.gallery.dtos.gallery_dtos import PhotoChanges
 from features.gallery.services.album_cover_service import AlbumCoverService
+from features.gallery.services.cover_change_tracker import CoverChangeTracker
 from features.gallery.services.gallery_service import GalleryService
 from features.gallery.tests.fakes import (
     FakeAlbumRepository,
@@ -50,7 +51,9 @@ class Setup:
         self.photos = FakeGalleryRepository(self.albums)
         self.storage = FakeGalleryFileStorage()
         self.images = processor or FakeImageProcessor()
-        covers = AlbumCoverService(self.albums, self.storage, self.images)
+        covers = AlbumCoverService(
+            self.albums, self.storage, self.images, CoverChangeTracker(self.albums)
+        )
         self.service = GalleryService(self.photos, self.albums, self.storage, self.images, covers)
         self.album_id = self.albums.add("Retiros")
 

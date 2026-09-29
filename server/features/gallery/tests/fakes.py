@@ -3,11 +3,15 @@
 
 import io
 from collections.abc import Iterator, Mapping, Sequence
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from itertools import count
 from typing import IO
 
-from core.domain.exceptions import DuplicateAlbumNameError, ImageProcessingError
+from core.domain.exceptions import (
+    AlbumNotFoundError,
+    DuplicateAlbumNameError,
+    ImageProcessingError,
+)
 from features.gallery.dtos.gallery_dtos import AlbumCreate, AlbumRecord, NewPhoto, PhotoView
 
 
@@ -96,13 +100,34 @@ class FakeGalleryFileStorage:
         return name
 
 
-class FakeAlbumRepository:
-    """Albums in a dict. Enforces sibling-unique names like the database constraints do."""
+class FakeClock:
+    """A settable clock for repeatable time (``core.time.clock.Clock``)."""
 
-    def __init__(self) -> None:
+    START = datetime(2026, 9, 29, 12, 0, tzinfo=timezone.utc)
+
+    def __init__(self, now: datetime = START) -> None:
+        self.current = now
+
+    def now(self) -> datetime:
+        return self.current
+
+    def advance(self, delta: timedelta) -> None:
+        self.current += delta
+
+
+class FakeAlbumRepository:
+    """Live albums in ``records``; trashed ones move to ``trashed`` (``FakeTrashRepository``).
+    Enforces sibling-unique names among live albums like the database constraints do, and sets
+    ``updated_at`` from its clock on every write."""
+
+    def __init__(self, clock: FakeClock | None = None) -> None:
+        self.clock = clock or FakeClock()
         self.records: dict[int, AlbumRecord] = {}
+        self.trashed: dict[int, AlbumRecord] = {}
         self.albums_with_photos: set[int] = set()
         self.locked_parent_map = False
+        self.touched: list[int] = []
+        self.photo_repository: "FakeGalleryRepository | None" = None
         self._ids = count(1)
 
     def add(self, name: str, parent_id: int | None = None, cover_name: str = "") -> int:
@@ -116,6 +141,7 @@ class FakeAlbumRepository:
             event_date=None,
             position=self.next_position(parent_id),
             cover_name=cover_name,
+            updated_at=self.clock.now(),
         )
         return album_id
 
@@ -134,11 +160,19 @@ class FakeAlbumRepository:
             for r in self.records.values()
         )
 
+    def live_sibling_named(self, name: str, parent_id: int | None) -> int | None:
+        return next(
+            (r.id for r in self.records.values() if r.name == name and r.parent_id == parent_id),
+            None,
+        )
+
     def parent_map(self, lock: bool) -> dict[int, int | None]:
         self.locked_parent_map = self.locked_parent_map or lock
         return {album_id: r.parent_id for album_id, r in self.records.items()}
 
     def next_position(self, parent_id: int | None) -> int:
+        if parent_id is not None and parent_id in self.trashed:
+            raise AlbumNotFoundError(parent_id)
         positions = [r.position for r in self.records.values() if r.parent_id == parent_id]
         return max(positions) + 1 if positions else 0
 
@@ -147,12 +181,17 @@ class FakeAlbumRepository:
             raise DuplicateAlbumNameError(album.name, album.parent_id)
         album_id = next(self._ids)
         self.records[album_id] = AlbumRecord(
-            id=album_id, position=position, cover_name="", **album.model_dump()
+            id=album_id,
+            position=position,
+            cover_name="",
+            updated_at=self.clock.now(),
+            **album.model_dump(),
         )
         return album_id
 
     def update(self, album_id: int, fields: Mapping[str, object]) -> None:
-        self.records[album_id] = self.records[album_id].model_copy(update=dict(fields))
+        changes = {**fields, "updated_at": self.clock.now()}
+        self.records[album_id] = self.records[album_id].model_copy(update=changes)
 
     def child_ids(self, parent_id: int | None) -> list[int]:
         children = [r for r in self.records.values() if r.parent_id == parent_id]
@@ -160,7 +199,8 @@ class FakeAlbumRepository:
 
     def apply_order(self, ids: Sequence[int]) -> None:
         for index, album_id in enumerate(ids):
-            self.update(album_id, {"position": index})
+            if self.records[album_id].position != index:
+                self.update(album_id, {"position": index})
 
     def has_photos(self, album_id: int) -> bool:
         return album_id in self.albums_with_photos
@@ -174,9 +214,20 @@ class FakeAlbumRepository:
         self.set_cover_name(album_id, name)
         return True
 
+    def touch(self, ids: Sequence[int]) -> None:
+        for album_id in ids:
+            if album_id in self.records:
+                self.touched.append(album_id)
+                self.update(album_id, {})
+
+    def touch_photos_of(self, album_id: int) -> None:
+        if self.photo_repository is not None:
+            self.photo_repository.touch_album(album_id)
+
 
 class FakeGalleryRepository:
-    """Photos in a dict, sharing album names and "has photos" with a ``FakeAlbumRepository``.
+    """Live photos in ``photos``; trashed ones move to ``trashed``. Shares album names and "has
+    photos" with a ``FakeAlbumRepository`` and uses its clock.
 
     ``fail_on_create`` makes ``create_photo`` raise, as a database failure would.
     """
@@ -185,7 +236,9 @@ class FakeGalleryRepository:
 
     def __init__(self, albums: FakeAlbumRepository) -> None:
         self.albums = albums
+        albums.photo_repository = self
         self.photos: dict[int, PhotoView] = {}
+        self.trashed: dict[int, PhotoView] = {}
         self.positions: dict[int, int] = {}
         self.thumbnails: dict[int, str] = {}
         self.images: dict[int, str] = {}
@@ -211,22 +264,33 @@ class FakeGalleryRepository:
     def list_photos_by_album(self, album_id: int) -> list[PhotoView]:
         return [p for p in self.list_all_photos() if p.album_id == album_id]
 
+    def list_photos_changed_since(self, since: datetime) -> list[PhotoView]:
+        return [p for p in self.list_all_photos() if p.updated_at > since]
+
     def get_photo(self, photo_id: int) -> PhotoView | None:
         return self.photos.get(photo_id)
 
     def create_photo(self, photo: NewPhoto) -> PhotoView:
         if self.fail_on_create:
             raise RuntimeError("database unavailable")
+        if photo.album_id not in self.albums.records:
+            raise AlbumNotFoundError(photo.album_id)
         self.created.append(photo)
         return self.photos[self._insert(photo)]
 
     def update_photo(self, photo_id: int, fields: Mapping[str, object]) -> None:
-        self.photos[photo_id] = self.photos[photo_id].model_copy(update=dict(fields))
+        changes = {**fields, "updated_at": self.albums.clock.now()}
+        self.photos[photo_id] = self.photos[photo_id].model_copy(update=changes)
 
     def move_photo(self, photo_id: int, album_id: int) -> None:
-        self.positions[photo_id] = self._next_position(album_id)
+        if album_id not in self.albums.records:
+            raise AlbumNotFoundError(album_id)
+        position = self._next_position(album_id)
+        self.positions[photo_id] = position
         name = self.albums.records[album_id].name
-        self.update_photo(photo_id, {"album_id": album_id, "album_name": name})
+        self.update_photo(
+            photo_id, {"album_id": album_id, "album_name": name, "position": position}
+        )
         self.albums.albums_with_photos.add(album_id)
 
     def photo_ids(self, album_id: int) -> list[int]:
@@ -234,7 +298,9 @@ class FakeGalleryRepository:
 
     def apply_order(self, ids: Sequence[int]) -> None:
         for index, photo_id in enumerate(ids):
-            self.positions[photo_id] = index
+            if self.positions[photo_id] != index:
+                self.positions[photo_id] = index
+                self.update_photo(photo_id, {"position": index})
 
     def photos_without_thumbnail(self) -> Iterator[tuple[int, int, str]]:
         for photo_id in sorted(self.photos):
@@ -245,9 +311,16 @@ class FakeGalleryRepository:
         self.thumbnails[photo_id] = name
         self.update_photo(photo_id, {"thumbnail_path": f"/ipbcb/media/{name}"})
 
+    def touch_album(self, album_id: int) -> None:
+        """Backs ``FakeAlbumRepository.touch_photos_of``."""
+        for photo in list(self.photos.values()):
+            if photo.album_id == album_id:
+                self.update_photo(photo.id, {})
+
     def _insert(self, photo: NewPhoto) -> int:
         photo_id = next(self._ids)
-        self.positions[photo_id] = self._next_position(photo.album_id)
+        position = self._next_position(photo.album_id)
+        self.positions[photo_id] = position
         self.images[photo_id] = photo.image_name
         self.thumbnails[photo_id] = photo.thumbnail_name
         self.photos[photo_id] = PhotoView(
@@ -260,6 +333,8 @@ class FakeGalleryRepository:
             thumbnail_path=f"/ipbcb/media/{photo.thumbnail_name}" if photo.thumbnail_name else None,
             date_taken=photo.date_taken,
             uploaded_at=self.UPLOADED_AT,
+            position=position,
+            updated_at=self.albums.clock.now(),
         )
         self.albums.albums_with_photos.add(photo.album_id)
         return photo_id

@@ -9,11 +9,16 @@ from django.conf import settings
 from django.http import FileResponse, HttpResponse, HttpResponseBase
 
 from config.di import Container
-from core.domain.access import Scope
+from core.domain.access import Level, Scope
 from core.http.permissions import IsMemberUser, scope_permission
 from features.accounts.validators import profile_photo_folder
+from features.media.domain.media_rules import first_segment
 from features.media.dtos.media_dtos import MediaFile, MediaViewer
 from features.media.services.media_access_service import MediaAccessService
+
+
+# `owner` on `gallery` for a GET: whoever can see the trash can see its files (spec 014 FR-026).
+_GalleryOwner = scope_permission(Scope.GALLERY, {"GET": Level.OWNER, "HEAD": Level.OWNER})
 
 
 class MediaFileAPIView(APIView):
@@ -35,16 +40,20 @@ class MediaFileAPIView(APIView):
         requested_path: str,
         media_access_service: MediaAccessService = Provide[Container.media_access_service],
     ) -> HttpResponseBase:
-        media_file = media_access_service.authorize(requested_path, self._viewer(request))
+        viewer = self._viewer(request, first_segment(requested_path) == "gallery")
+        media_file = media_access_service.authorize(requested_path, viewer)
         return self._file_response(media_file, media_access_service)
 
-    def _viewer(self, request: Request) -> MediaViewer:
+    def _viewer(self, request: Request, is_gallery: bool) -> MediaViewer:
         # The same permission classes every other endpoint uses, so the flags are read one way.
         return MediaViewer(
             is_member=IsMemberUser().has_permission(request, self),
             # GET/HEAD only, so the required level is "view" (specs/012 FR-017).
             can_view_members=scope_permission(Scope.MEMBERS)().has_permission(request, self),
             own_profile_folder=profile_photo_folder(request.user.username, str(request.user.pk)),
+            # Only gallery files need it, so other folders pay no extra role query (spec 014
+            # FR-028). A non-gallery path never reads the flag anyway.
+            can_own_gallery=is_gallery and _GalleryOwner().has_permission(request, self),
         )
 
     def _file_response(

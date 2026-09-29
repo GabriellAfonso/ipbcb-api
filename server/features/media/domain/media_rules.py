@@ -23,12 +23,15 @@ class MediaAccessOutcome(Enum):
     NOT_FOUND = "not_found"
     REJECTED = "rejected"
     UNRULED = "unruled"
+    # A gallery file of a trashed item, refused to a member (specs/014-gallery-trash-sync).
+    TRASHED = "trashed"
 
 
 # Default deny: a folder missing here is unreadable by everyone, so a new upload location
 # fails closed until someone writes its rule (and its spec).
 FOLDER_RULES: Mapping[str, MediaAudience] = MappingProxyType(
     {
+        # Members; files of trashed items only with `owner` on `gallery` (spec 014).
         "gallery": MediaAudience.MEMBER,
         "profiles": MediaAudience.MEMBER,
         # Member photos: readable with `view` on the `members` scope — Admin and Liderança,

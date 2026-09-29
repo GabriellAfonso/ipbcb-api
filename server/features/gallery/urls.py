@@ -6,11 +6,17 @@ from features.gallery.views.albums import (
     AlbumListCreateAPIView,
     AlbumOrderAPIView,
 )
+from features.gallery.views.changes import GalleryChangesAPIView
 from features.gallery.views.gallery import (
     AlbumPhotoListAPIView,
     AlbumPhotoOrderAPIView,
     PhotoDetailAPIView,
     PhotoListAPIView,
+)
+from features.gallery.views.trash import (
+    AlbumRestoreAPIView,
+    PhotoRestoreAPIView,
+    TrashListAPIView,
 )
 
 urlpatterns = [
@@ -22,4 +28,8 @@ urlpatterns = [
     path("api/albums/<int:album_id>/photos/order/", AlbumPhotoOrderAPIView.as_view()),
     path("api/photos/", PhotoListAPIView.as_view()),
     path("api/photos/<int:photo_id>/", PhotoDetailAPIView.as_view()),
+    path("api/gallery/trash/", TrashListAPIView.as_view()),
+    path("api/gallery/trash/albums/<int:album_id>/restore/", AlbumRestoreAPIView.as_view()),
+    path("api/gallery/trash/photos/<int:photo_id>/restore/", PhotoRestoreAPIView.as_view()),
+    path("api/gallery/changes/", GalleryChangesAPIView.as_view()),
 ]

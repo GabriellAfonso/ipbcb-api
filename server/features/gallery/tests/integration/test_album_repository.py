@@ -1,11 +1,15 @@
+from datetime import timedelta
+
 import pytest
 
-from core.domain.exceptions import DuplicateAlbumNameError
+from core.domain.exceptions import AlbumNotFoundError, DuplicateAlbumNameError
 from features.gallery.dtos.gallery_dtos import AlbumCreate
 from features.gallery.models.gallery import Album, Photo
 from features.gallery.repositories.album_repository import AlbumRepositoryImpl
+from features.gallery.tests.fakes import FakeClock
 
-REPO = AlbumRepositoryImpl()
+CLOCK = FakeClock()
+REPO = AlbumRepositoryImpl(CLOCK)
 
 
 @pytest.mark.django_db
@@ -97,3 +101,74 @@ class TestCover:
         assert REPO.set_cover_name_if_absent(album.pk, "first.jpg")
         assert not REPO.set_cover_name_if_absent(album.pk, "second.jpg")
         assert Album.objects.get(pk=album.pk).cover_image.name == "first.jpg"
+
+
+LATER = FakeClock.START + timedelta(days=3)
+
+
+@pytest.mark.django_db
+class TestChangeTracking:
+    """specs/014-gallery-trash-sync research R-06."""
+
+    def test_writes_set_updated_at(self) -> None:
+        CLOCK.current = FakeClock.START
+        album_id = REPO.create(AlbumCreate(name="A"), position=0)
+        assert Album.objects.get(pk=album_id).updated_at == FakeClock.START
+
+        CLOCK.current = LATER
+        REPO.update(album_id, {"description": "x"})
+        assert Album.objects.get(pk=album_id).updated_at == LATER
+
+        CLOCK.current = LATER + timedelta(hours=1)
+        REPO.set_cover_name(album_id, "c.jpg")
+        assert Album.objects.get(pk=album_id).updated_at == CLOCK.current
+
+    def test_apply_order_touches_only_rows_that_move(self) -> None:
+        CLOCK.current = FakeClock.START
+        ids = [REPO.create(AlbumCreate(name=n), position=i) for i, n in enumerate("ABC")]
+        CLOCK.current = LATER
+
+        REPO.apply_order([ids[1], ids[0], ids[2]])
+
+        stamps = dict(Album.objects.values_list("id", "updated_at"))
+        assert (stamps[ids[0]], stamps[ids[1]], stamps[ids[2]]) == (LATER, LATER, FakeClock.START)
+
+    def test_touch_and_touch_photos_of(self) -> None:
+        CLOCK.current = FakeClock.START
+        album, other = Album.objects.create(name="A"), Album.objects.create(name="B")
+        mine = Photo.objects.create(album=album, name="a.jpg", image="x/a.jpg")
+        theirs = Photo.objects.create(album=other, name="b.jpg", image="x/b.jpg")
+        CLOCK.current = LATER
+
+        REPO.touch([album.pk])
+        REPO.touch_photos_of(album.pk)
+
+        assert Album.objects.get(pk=album.pk).updated_at == LATER
+        assert Album.objects.get(pk=other.pk).updated_at != LATER
+        assert Photo.objects.get(pk=mine.pk).updated_at == LATER
+        assert Photo.objects.get(pk=theirs.pk).updated_at != LATER
+
+    def test_live_sibling_named_ignores_trashed(self) -> None:
+        parent = Album.objects.create(name="P")
+        trashed = Album.objects.create(name="Culto", parent=parent)
+        Album.all_objects.filter(pk=trashed.pk).update(deleted_at=LATER)
+        assert REPO.live_sibling_named("Culto", parent.pk) is None
+
+        live = Album.objects.create(name="Culto", parent=parent)
+        assert REPO.live_sibling_named("Culto", parent.pk) == live.pk
+
+    def test_regression_next_position_under_a_trashed_parent_is_refused(self) -> None:
+        parent = Album.objects.create(name="P")
+        Album.all_objects.filter(pk=parent.pk).update(deleted_at=LATER)
+
+        with pytest.raises(AlbumNotFoundError):
+            REPO.next_position(parent.pk)
+
+    def test_reads_ignore_trashed_albums(self) -> None:
+        live = Album.objects.create(name="A")
+        gone = Album.objects.create(name="B")
+        Album.all_objects.filter(pk=gone.pk).update(deleted_at=LATER)
+
+        assert [r.id for r in REPO.list_records()] == [live.pk]
+        assert REPO.get_record(gone.pk) is None
+        assert not REPO.exists(gone.pk)

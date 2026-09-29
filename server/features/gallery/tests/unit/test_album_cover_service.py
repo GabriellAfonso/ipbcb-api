@@ -8,6 +8,7 @@ from PIL import Image
 
 from core.domain.exceptions import AlbumNotFoundError, ImageTooLargeError, ValidationError
 from features.gallery.services.album_cover_service import AlbumCoverService
+from features.gallery.services.cover_change_tracker import CoverChangeTracker
 from features.gallery.tests.support import CaptureOnCommit
 from features.gallery.tests.fakes import (
     FakeAlbumRepository,
@@ -29,7 +30,9 @@ class Setup:
         self.albums = FakeAlbumRepository()
         self.storage = FakeGalleryFileStorage()
         self.images = processor or FakeImageProcessor()
-        self.service = AlbumCoverService(self.albums, self.storage, self.images)
+        self.service = AlbumCoverService(
+            self.albums, self.storage, self.images, CoverChangeTracker(self.albums)
+        )
         self.album_id = self.albums.add("Retiros")
 
     @property
@@ -139,3 +142,35 @@ class TestFirstCover:
         setup.service.cover_from_photo(setup.album_id, _image("IMG.jpg"))
 
         assert setup.cover == ""
+
+
+@pytest.mark.django_db
+class TestCoverChangeTracking:
+    """specs/014-gallery-trash-sync US3 scenario 11: a sub-album's cover change reaches the
+    ancestors that inherit it."""
+
+    def test_replace_touches_the_album_and_inheriting_ancestors(self) -> None:
+        setup = Setup()
+        child = setup.albums.add("2026", parent_id=setup.album_id, cover_name="old.jpg")
+        bystander = setup.albums.add("Cultos", cover_name="x.jpg")
+
+        setup.service.replace_cover(child, _image())
+
+        assert set(setup.albums.touched) == {setup.album_id, child}
+        assert bystander not in setup.albums.touched
+
+    def test_remove_touches_the_inheritors(self) -> None:
+        setup = Setup()
+        child = setup.albums.add("2026", parent_id=setup.album_id, cover_name="old.jpg")
+
+        setup.service.remove_cover(child)
+
+        assert set(setup.albums.touched) == {setup.album_id, child}
+
+    def test_automatic_cover_touches_the_inheritors(self) -> None:
+        setup = Setup()
+        child = setup.albums.add("2026", parent_id=setup.album_id)
+
+        setup.service.cover_from_photo(child, _image("IMG.jpg"))
+
+        assert set(setup.albums.touched) == {setup.album_id, child}

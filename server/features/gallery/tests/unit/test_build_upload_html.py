@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Generator
+from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -18,6 +19,8 @@ def _album(album_id: int, name: str, parent_id: int | None = None) -> AlbumView:
         event_date=None,
         cover_path=None,
         cover_source_album_id=None,
+        position=0,
+        updated_at=datetime(2026, 9, 29, tzinfo=timezone.utc),
     )
 
 
