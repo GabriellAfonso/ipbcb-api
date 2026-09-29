@@ -180,7 +180,7 @@ LEADER_PERMISSIONS = {
     "members": "manage",
     "schedule": "manage",
     "songs": "manage",
-    "gallery": "manage",
+    "gallery": "owner",
     "events": "manage",
     "notices": "manage",
     "reports.hymnal_history": "view",
