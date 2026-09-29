@@ -9,10 +9,17 @@ from typing import IO
 
 from core.domain.exceptions import (
     AlbumNotFoundError,
+    ClientUploadIdTakenError,
     DuplicateAlbumNameError,
     ImageProcessingError,
 )
-from features.gallery.dtos.gallery_dtos import AlbumCreate, AlbumRecord, NewPhoto, PhotoView
+from features.gallery.dtos.gallery_dtos import (
+    AlbumCreate,
+    AlbumRecord,
+    ClientUploadMatch,
+    NewPhoto,
+    PhotoView,
+)
 
 
 def _filename(source: IO[bytes]) -> str:
@@ -230,6 +237,10 @@ class FakeGalleryRepository:
     photos" with a ``FakeAlbumRepository`` and uses its clock.
 
     ``fail_on_create`` makes ``create_photo`` raise, as a database failure would.
+    ``upload_ids`` maps each stored client upload id to its photo, like the unique column: a photo
+    moved to ``trashed`` keeps it, a purged one (in neither dict) frees it. ``competing_upload``
+    stands for a concurrent request that wins the race: the next ``create_photo`` inserts it
+    first and then fails on the shared id (specs/016-photo-upload-idempotency R-10).
     """
 
     UPLOADED_AT = datetime(2026, 3, 15, 10, 0, tzinfo=timezone.utc)
@@ -244,6 +255,9 @@ class FakeGalleryRepository:
         self.images: dict[int, str] = {}
         self.created: list[NewPhoto] = []
         self.fail_on_create = False
+        self.upload_ids: dict[str, int] = {}
+        self.competing_upload: NewPhoto | None = None
+        self.upload_lookups: list[str] = []
         self._ids = count(1)
 
     def add(self, album_id: int, name: str = "photo.jpg", thumbnail: str = "") -> int:
@@ -273,11 +287,26 @@ class FakeGalleryRepository:
     def get_photo(self, photo_id: int) -> PhotoView | None:
         return self.photos.get(photo_id)
 
+    def find_client_upload(self, client_upload_id: str) -> ClientUploadMatch | None:
+        self.upload_lookups.append(client_upload_id)
+        return self._match(client_upload_id)
+
+    def _match(self, client_upload_id: str) -> ClientUploadMatch | None:
+        photo_id = self.upload_ids.get(client_upload_id)
+        if photo_id is None or photo_id not in {*self.photos, *self.trashed}:
+            return None
+        return ClientUploadMatch(photo_id=photo_id, trashed=photo_id in self.trashed)
+
     def create_photo(self, photo: NewPhoto) -> PhotoView:
         if self.fail_on_create:
             raise RuntimeError("database unavailable")
         if photo.album_id not in self.albums.records:
             raise AlbumNotFoundError(photo.album_id)
+        if self.competing_upload is not None:
+            winner, self.competing_upload = self.competing_upload, None
+            self._insert(winner)
+        if photo.client_upload_id is not None and self._match(photo.client_upload_id):
+            raise ClientUploadIdTakenError(photo.client_upload_id)
         self.created.append(photo)
         return self.photos[self._insert(photo)]
 
@@ -340,6 +369,8 @@ class FakeGalleryRepository:
             updated_at=self.albums.clock.now(),
         )
         self.albums.albums_with_photos.add(photo.album_id)
+        if photo.client_upload_id is not None:
+            self.upload_ids[photo.client_upload_id] = photo_id
         return photo_id
 
     def _next_position(self, album_id: int) -> int:

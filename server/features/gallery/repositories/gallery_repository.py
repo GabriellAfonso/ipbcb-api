@@ -1,12 +1,12 @@
 from collections.abc import Iterator, Mapping, Sequence
 from datetime import datetime
 
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import Count, Max, Prefetch, Q, QuerySet
 
-from core.domain.exceptions import AlbumNotFoundError
+from core.domain.exceptions import AlbumNotFoundError, ClientUploadIdTakenError
 from core.time.clock import Clock
-from features.gallery.dtos.gallery_dtos import NewPhoto, PhotoView
+from features.gallery.dtos.gallery_dtos import ClientUploadMatch, NewPhoto, PhotoView
 from features.gallery.dtos.tag_dtos import MemberRef
 from features.gallery.models.gallery import Album, Photo
 from features.gallery.models.tags import PhotoTag
@@ -48,20 +48,51 @@ class GalleryRepositoryImpl:
         photo = _photos().filter(pk=photo_id).first()
         return _to_view(photo) if photo else None
 
+    def find_client_upload(self, client_upload_id: str) -> ClientUploadMatch | None:
+        """The row carrying ``client_upload_id``, trashed included: ``all_objects``, because a
+        retry of a photo sent to the trash must be told so (specs/016 research R-03).
+
+        >>> repository.find_client_upload("3f2a9c1e-7b4d-4e8a-9f10-2c6b5d7e8a90")
+        ClientUploadMatch(photo_id=41, trashed=False)
+        """
+        row = (
+            Photo.all_objects.filter(client_upload_id=client_upload_id)
+            .values_list("pk", "deleted_at")
+            .first()
+        )
+        return (
+            None if row is None else ClientUploadMatch(photo_id=row[0], trashed=row[1] is not None)
+        )
+
     def create_photo(self, photo: NewPhoto) -> PhotoView:
-        """Insert the row last in its album. The files are already stored."""
-        with transaction.atomic():
-            created = Photo.objects.create(
-                album_id=photo.album_id,
-                image=photo.image_name,
-                thumbnail=photo.thumbnail_name,
-                name=photo.name,
-                date_taken=photo.date_taken,
-                uploaded_by_id=photo.uploader_id,
-                position=_next_photo_position(photo.album_id),
-                updated_at=self._clock.now(),
-            )
+        """Insert the row last in its album. The files are already stored.
+
+        Raises ``ClientUploadIdTakenError`` when a concurrent upload stored the same client
+        upload id first: the unique constraint decides the race (specs/016 research R-04).
+        """
+        try:
+            with transaction.atomic():
+                created = self._insert_photo(photo)
+        except IntegrityError:
+            # Checked by row, not by parsing the constraint name out of a driver message,
+            # which differs between PostgreSQL and SQLite.
+            if photo.client_upload_id and self.find_client_upload(photo.client_upload_id):
+                raise ClientUploadIdTakenError(photo.client_upload_id) from None
+            raise
         return _to_view(_photos().get(pk=created.pk))
+
+    def _insert_photo(self, photo: NewPhoto) -> Photo:
+        return Photo.objects.create(
+            album_id=photo.album_id,
+            image=photo.image_name,
+            thumbnail=photo.thumbnail_name,
+            name=photo.name,
+            date_taken=photo.date_taken,
+            uploaded_by_id=photo.uploader_id,
+            position=_next_photo_position(photo.album_id),
+            updated_at=self._clock.now(),
+            client_upload_id=photo.client_upload_id,
+        )
 
     def update_photo(self, photo_id: int, fields: Mapping[str, object]) -> None:
         Photo.objects.filter(pk=photo_id).update(**fields, updated_at=self._clock.now())

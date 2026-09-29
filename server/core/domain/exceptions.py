@@ -25,6 +25,10 @@ from core.domain.gallery_exceptions import (
     PhotoTagReferenceError as PhotoTagReferenceError,
     TagBulkLimitError as TagBulkLimitError,
     TagListOverlapError as TagListOverlapError,
+    InvalidClientUploadIdError as InvalidClientUploadIdError,
+    ClientUploadNeedsOneFileError as ClientUploadNeedsOneFileError,
+    UploadedPhotoTrashedError as UploadedPhotoTrashedError,
+    ClientUploadIdTakenError as ClientUploadIdTakenError,
 )
 
 

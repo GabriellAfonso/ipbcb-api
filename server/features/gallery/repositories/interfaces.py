@@ -5,7 +5,13 @@ from uuid import UUID
 
 from features.gallery.domain.tag_rules import TagDiff
 from features.gallery.domain.trash_rules import TrashedItemKind
-from features.gallery.dtos.gallery_dtos import AlbumCreate, AlbumRecord, NewPhoto, PhotoView
+from features.gallery.dtos.gallery_dtos import (
+    AlbumCreate,
+    AlbumRecord,
+    ClientUploadMatch,
+    NewPhoto,
+    PhotoView,
+)
 from features.gallery.dtos.tag_dtos import TaggedMember
 from features.gallery.dtos.trash_dtos import (
     PurgedBatch,
@@ -60,7 +66,9 @@ class AlbumRepository(Protocol):
 
 class GalleryRepository(Protocol):
     """Live photo rows. ``create_photo`` and ``move_photo`` lock the target album row to append,
-    and raise ``AlbumNotFoundError`` when that album is gone or trashed."""
+    and raise ``AlbumNotFoundError`` when that album is gone or trashed. ``create_photo`` raises
+    ``ClientUploadIdTakenError`` when another row already carries the photo's client upload id;
+    ``find_client_upload`` sees trashed rows too (specs/016-photo-upload-idempotency)."""
 
     def list_all_photos(self, member_ids: frozenset[int] = frozenset()) -> list[PhotoView]: ...
 
@@ -71,6 +79,8 @@ class GalleryRepository(Protocol):
     def list_photos_changed_since(self, since: datetime) -> list[PhotoView]: ...
 
     def get_photo(self, photo_id: int) -> PhotoView | None: ...
+
+    def find_client_upload(self, client_upload_id: str) -> ClientUploadMatch | None: ...
 
     def create_photo(self, photo: NewPhoto) -> PhotoView: ...
 

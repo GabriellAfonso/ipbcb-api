@@ -11,7 +11,12 @@ from rest_framework.views import APIView
 from config.di import Container
 from core.domain.access import Scope
 from core.domain.exceptions import ValidationError
-from core.http.parsing import require_int, require_int_list, require_object_body
+from core.http.parsing import (
+    optional_single_value,
+    require_int,
+    require_int_list,
+    require_object_body,
+)
 from core.http.permissions import IsMemberUser, scope_permission
 from features.gallery.dtos.gallery_dtos import PhotoChanges, UploadResult
 from features.gallery.serializers.serializers import (
@@ -79,7 +84,13 @@ class PhotoListAPIView(APIView):
         files = request.FILES.getlist("image")
         if not files:
             raise ValidationError("Envie ao menos uma imagem no campo 'image'.")
-        result = gallery_service.upload_photos(album_id, files, request.user.pk)
+        # The app's retry key (specs/016-photo-upload-idempotency); a retry answers 201 with the
+        # photo already stored, so the status logic below needs no branch for it. ``POST`` is
+        # the parsed multipart form (a QueryDict), which keeps a repeated field's every value.
+        client_upload_id = optional_single_value(
+            request.POST.getlist("client_upload_id"), "client_upload_id"
+        )
+        result = gallery_service.upload_photos(album_id, files, request.user.pk, client_upload_id)
         code = status.HTTP_207_MULTI_STATUS if result.rejected else status.HTTP_201_CREATED
         return Response(_upload_body(request, result), status=code)
 

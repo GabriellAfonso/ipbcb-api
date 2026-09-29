@@ -1,11 +1,11 @@
-"""Gallery domain exceptions (features 013–015).
+"""Gallery domain exceptions (features 013–016).
 
 Moved out of ``core/domain/exceptions.py`` to keep it under 500 lines; that module
 re-exports every name here, so ``from core.domain.exceptions import …`` keeps working
 (specs/015-gallery-member-tags research R-10).
 """
 
-from core.domain.base_exceptions import NotFoundError, ValidationError
+from core.domain.base_exceptions import ConflictError, NotFoundError, ValidationError
 
 
 class AlbumNotFoundError(NotFoundError):
@@ -264,3 +264,73 @@ class TagListOverlapError(ValidationError):
 
     def extra_context(self) -> dict[str, object]:
         return {"member_ids": self.member_ids}
+
+
+class InvalidClientUploadIdError(ValidationError):
+    """A ``client_upload_id`` that is empty, too long or has a character outside the allowed set.
+
+    English: only a client bug reaches it (specs/016-photo-upload-idempotency R-05). The caller
+    passes the value already cut to the length limit, so a huge field is never echoed back.
+
+    >>> raise InvalidClientUploadIdError("id com espaço", "got ' ' at position 2", "1-64 …")
+    """
+
+    def __init__(self, client_upload_id: str, problem: str, expected: str) -> None:
+        super().__init__(f"Field 'client_upload_id' must be {expected}; {problem}.")
+        self.client_upload_id = client_upload_id
+        self.expected = expected
+
+    def extra_context(self) -> dict[str, object]:
+        return {"client_upload_id": self.client_upload_id, "expected": self.expected}
+
+
+class ClientUploadNeedsOneFileError(ValidationError):
+    """A ``client_upload_id`` sent with more or fewer than one file: one id names one photo
+    (specs/016-photo-upload-idempotency FR-003).
+
+    >>> raise ClientUploadNeedsOneFileError(3)
+    """
+
+    def __init__(self, file_count: int) -> None:
+        super().__init__(
+            "Field 'client_upload_id' identifies one photo; send exactly one file in 'image', "
+            f"got {file_count}."
+        )
+        self.file_count = file_count
+
+    def extra_context(self) -> dict[str, object]:
+        return {"file_count": self.file_count}
+
+
+class UploadedPhotoTrashedError(ConflictError):
+    """A retried upload whose photo was stored and then sent to the trash. Portuguese: the app
+    shows it to the user and drops the queued item. Carries only the id the app sent, never the
+    photo's, so a caller with ``manage`` learns nothing else about the trash
+    (specs/016-photo-upload-idempotency FR-010).
+
+    >>> raise UploadedPhotoTrashedError("3f2a9c1e-7b4d-4e8a-9f10-2c6b5d7e8a90")
+    """
+
+    def __init__(self, client_upload_id: str) -> None:
+        super().__init__("Esta foto já foi enviada e depois apagada; ela está na lixeira.")
+        self.client_upload_id = client_upload_id
+
+    def extra_context(self) -> dict[str, object]:
+        return {"client_upload_id": self.client_upload_id}
+
+
+class ClientUploadIdTakenError(ConflictError):
+    """The insert of an uploaded photo hit the ``client_upload_id`` unique constraint: a
+    concurrent request with the same id stored its photo first. Raised by the repository so the
+    service never sees ``IntegrityError``; the service answers it as a repeat, so it never reaches
+    HTTP (specs/016-photo-upload-idempotency R-04).
+
+    >>> raise ClientUploadIdTakenError("3f2a9c1e-7b4d-4e8a-9f10-2c6b5d7e8a90")
+    """
+
+    def __init__(self, client_upload_id: str) -> None:
+        super().__init__(f"A photo already carries client_upload_id {client_upload_id!r}.")
+        self.client_upload_id = client_upload_id
+
+    def extra_context(self) -> dict[str, object]:
+        return {"client_upload_id": self.client_upload_id}

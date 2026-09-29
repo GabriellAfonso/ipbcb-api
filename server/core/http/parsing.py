@@ -49,3 +49,17 @@ def require_int_list(values: Sequence[Any], field: str) -> list[int]:
     [12, 40]
     """
     return [require_int(value, field) for value in values]
+
+
+def optional_single_value(values: Sequence[Any], field: str) -> str | None:
+    """The one value of an optional field, ``None`` when absent, or ``ValidationError`` when it
+    was sent more than once — a repeated field would leave the server guessing which one counts.
+
+    >>> optional_single_value(request.data.getlist("client_upload_id"), "client_upload_id")
+    '3f2a9c1e-7b4d-4e8a-9f10-2c6b5d7e8a90'
+    """
+    if len(values) > 1:
+        raise ValidationError(
+            f"Field '{field}' must be sent at most once, got {len(values)} values."
+        )
+    return str(values[0]) if values else None

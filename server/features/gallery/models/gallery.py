@@ -135,6 +135,10 @@ class Photo(models.Model):
         related_name="photos",
     )
     updated_at = models.DateTimeField(default=timezone.now, db_index=True)
+    # Sent by the app once per photo and on every retry, so a retry whose first answer was lost
+    # is recognised instead of stored twice. Never serialized; not editable, so no admin form
+    # shows it (specs/016-photo-upload-idempotency R-01).
+    client_upload_id = models.CharField(max_length=64, null=True, blank=True, editable=False)
 
     objects = LivePhotoManager()
     all_objects = models.Manager()
@@ -148,6 +152,13 @@ class Photo(models.Model):
         ordering = ["position", "id"]
         verbose_name = "photo"
         verbose_name_plural = "photos"
+        # Over every row, trashed included: a trashed photo keeps its id so a late retry is told
+        # it was deleted instead of creating a second photo. NULLs never collide (spec 016 R-01).
+        constraints = [
+            models.UniqueConstraint(
+                fields=["client_upload_id"], name="unique_photo_client_upload_id"
+            ),
+        ]
         indexes = [
             models.Index(fields=["album", "position"], name="photo_album_position"),
             models.Index(fields=["image"], condition=_TRASHED, name="photo_trashed_image"),

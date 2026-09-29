@@ -115,6 +115,47 @@ limit, and "could not be processed" (thumbnail failure). Accepted photos: `name`
 present. The album gets an automatic cover from the first accepted file when it had no photos
 and no own cover.
 
+#### `client_upload_id` *(added by `specs/016-photo-upload-idempotency/`)*
+
+Optional multipart field: 1–64 characters of `A-Z a-z 0-9 - _` (a canonical UUID v4 fits), sent
+once, with exactly one file; compared exactly; never returned in any resource.
+
+| Case | Status | Body |
+|------|--------|------|
+| no `client_upload_id` | as above | as above |
+| id not stored on any photo | as above | as above; the photo now carries the id |
+| id stored on a live photo | `201` | `{"accepted": [Photo], "rejected": []}` — the photo as it is now, possibly in another album |
+| id stored on a trashed photo | `409` | canonical `CONFLICT`, `client_upload_id` |
+| id empty, over 64 characters or another character | `400` | canonical, `client_upload_id` (cut at 64), `expected` |
+| id with 2+ files | `400` | canonical, `file_count` (0 files keeps the message above) |
+| id sent twice | `400` | canonical |
+
+With an id already stored, `album_id` is checked for presence and integer form only — never
+looked up — and the file is not examined. Permission comes first (`403`).
+
+```json
+{"error_code": "CONFLICT",
+ "detail": "Esta foto já foi enviada e depois apagada; ela está na lixeira.",
+ "client_upload_id": "3f2a9c1e-7b4d-4e8a-9f10-2c6b5d7e8a90"}
+```
+
+```json
+{"error_code": "VALIDATION_ERROR",
+ "detail": "Field 'client_upload_id' must be 1-64 characters of A-Z, a-z, 0-9, '-' or '_'; got 70 characters.",
+ "client_upload_id": "…first 64 characters…",
+ "expected": "1-64 characters of A-Z, a-z, 0-9, '-' or '_'"}
+```
+
+```json
+{"error_code": "VALIDATION_ERROR",
+ "detail": "Field 'client_upload_id' identifies one photo; send exactly one file in 'image', got 3.",
+ "file_count": 3}
+```
+
+Shape messages are in English (client developers); the trashed message is in Portuguese (shown
+to the user). Logs, ids only: `gallery_upload_deduplicated` and `gallery_upload_original_trashed`,
+each with `photo_id` and `actor_id`.
+
 ### PATCH /api/photos/{id}/ — manage
 
 Any subset of `name` (1–100), `description`, `date_taken` (`null` clears), `album_id`. Other

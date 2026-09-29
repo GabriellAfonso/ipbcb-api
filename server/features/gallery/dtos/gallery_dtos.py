@@ -85,6 +85,15 @@ class NewPhoto(StrictBaseModel):
     name: str
     date_taken: date | None
     uploader_id: UUID | None
+    client_upload_id: str | None = None
+
+
+class ClientUploadMatch(StrictBaseModel):
+    """The row carrying a client upload id: which photo, and whether it is in the trash
+    (specs/016-photo-upload-idempotency R-03)."""
+
+    photo_id: int
+    trashed: bool
 
 
 class PhotoChanges(StrictBaseModel):
