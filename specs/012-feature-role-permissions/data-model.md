@@ -70,6 +70,9 @@ Media. Admin holds none: its levels are implied in code.
 
 Only the single highest level is stored per scope; lower levels follow from the ordering.
 
+`core/migrations/0006_gallery_owner_for_leader_media.py` (feature 013) swaps `gallery__manage`
+for `gallery__owner` in `leader` and `media`.
+
 ### `accounts.User` (existing)
 
 Unchanged. Roles are `user.groups`; the Django admin's user form already edits them.

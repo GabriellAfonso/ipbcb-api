@@ -1,6 +1,22 @@
 # Gallery
 
-Photo gallery organized by albums. Members browse photos via API; admins upload via Django admin.
+Photo gallery organized in a tree of albums. Members browse it through the API; the Mídia,
+Liderança and Admin roles build it — albums, photos, covers and order — through the API from the
+app's management panel. The Django admin keeps an upload page and album editing, going through
+the same services.
+
+Write API introduced by `specs/013-gallery-write-api/` (design, research and contracts there).
+
+---
+
+## Permissions
+
+- **Reads** (`GET`) require membership: `IsMemberUser` (`Profile.is_member`).
+- **Writes** require scope `gallery` (`specs/012-feature-role-permissions/`) at the method's
+  default level: `manage` for `POST`/`PUT`/`PATCH`, `owner` for `DELETE`. No endpoint overrides it.
+- Admin, Liderança and Mídia all hold `owner` on `gallery` (raised from `manage` for Liderança
+  and Mídia by `core/migrations/0006_gallery_owner_for_leader_media.py`).
+- A caller without the permission gets `403` before existence is checked.
 
 ---
 
@@ -8,112 +24,270 @@ Photo gallery organized by albums. Members browse photos via API; admins upload 
 
 ### Album
 
-| Field | Type             | Constraints    |
-|-------|------------------|----------------|
-| id    | int (PK, auto)   |                |
-| name  | CharField(100)   | unique         |
+| Field       | Type                 | Constraints                                                 |
+|-------------|----------------------|-------------------------------------------------------------|
+| id          | int (PK, auto)       |                                                             |
+| name        | CharField(100)       | trimmed, non-blank; unique among siblings, roots included   |
+| parent      | FK -> Album, null    | PROTECT, related_name="children"; `null` = root             |
+| description | TextField            | blank, default ""                                           |
+| event_date  | DateField            | null                                                        |
+| position    | PositiveIntegerField | order among siblings                                        |
+| cover_image | ImageField           | blank; `gallery/covers/{album_id}/{uuid}.jpg`               |
+
+- Uniqueness: two conditional unique constraints, `(parent, name)` when `parent` is set and
+  `(name)` when it is not. A plain `(parent, name)` constraint would let roots repeat a name,
+  since SQL `NULL`s are distinct.
+- The tree has no depth limit and never contains a cycle: an album cannot be moved under itself
+  or any of its descendants.
+- An album may hold photos and sub-albums at the same time.
+- Deleting an album that has sub-albums is refused (`PROTECT`). Deletion as a feature belongs to
+  feature 014.
 
 ### Photo
 
-| Field       | Type              | Constraints                        |
-|-------------|-------------------|------------------------------------|
-| id          | int (PK, auto)    |                                    |
-| album       | FK -> Album       | CASCADE, related_name="photos"     |
-| name        | CharField(100)    |                                    |
-| description | TextField         | blank                              |
-| image       | ImageField        | upload_to=`gallery/{slug}/{file}`  |
-| date_taken  | DateField         | blank, null                        |
-| uploaded_at | DateTimeField     | auto_now_add                       |
+| Field       | Type                  | Constraints                                               |
+|-------------|-----------------------|-----------------------------------------------------------|
+| id          | int (PK, auto)        |                                                           |
+| album       | FK -> Album           | CASCADE, related_name="photos"                            |
+| name        | CharField(100)        | original filename, cut keeping the extension              |
+| description | TextField             | blank                                                     |
+| image       | ImageField            | `gallery/{album_id}/{uuid}.{ext}`                         |
+| thumbnail   | ImageField            | blank; `gallery/thumbs/{album_id}/{uuid}.jpg`             |
+| date_taken  | DateField             | null; EXIF capture date on upload                         |
+| uploaded_at | DateTimeField         | auto_now_add                                              |
+| uploaded_by | FK -> User, null      | SET_NULL; auditing only, never serialized                 |
+| position    | PositiveIntegerField  | order within the album                                    |
 
-Upload path: `gallery/{slugify(album.name)}/{filename}`.
+- `ext` comes from the decoded image format, never from the filename.
+- Paths carry the album id only to spread files. Renaming or moving an album or a photo never
+  moves a file; a moved photo keeps its files under the old album's folder.
+- Photos uploaded before feature 013 keep their old path, `gallery/{slugify(album.name)}/{filename}`.
+- Photos uploaded before feature 013 have no thumbnail until the
+  `generate_photo_thumbnails` command runs; they have no `uploaded_by`.
+
+---
+
+## Ordering
+
+- Albums order among siblings by `position`, then `id`; photos within an album likewise.
+- Created, uploaded and moved items go to the end of their new siblings.
+- **Tree order**: depth-first, pre-order walk of the album tree, siblings by `position` then `id`.
+- Reordering replaces the whole order of one set of siblings. The request lists every current
+  sibling exactly once; a missing, unexpected, nonexistent or repeated id is `400` and nothing
+  changes.
+
+---
+
+## Image Derivatives
+
+| Derivative      | Shape                                           | Format           |
+|-----------------|-------------------------------------------------|------------------|
+| Album cover     | 1000×1000 px square, center-cropped             | JPEG, quality 85 |
+| Photo thumbnail | longest side 1000 px, aspect kept, no crop, no upscale | JPEG, quality 85 |
+
+- Each size is one constant in its service.
+- Animated GIFs use the first frame; transparency is flattened onto white; EXIF orientation is
+  applied. The original file is never altered.
+- Uploaded images above **50 megapixels** are rejected before any derivative is made.
+
+## Album Cover
+
+- **Own cover**: an image stored on the album, independent of any photo.
+- **Automatic**: when photos are uploaded into an album that, at that moment, has no photos and
+  no own cover, the first accepted photo becomes its cover (a resized copy — moving the photo
+  later does not affect it).
+- **Manual**: `PUT …/cover/` replaces it with any image; `DELETE …/cover/` removes it and
+  nothing regenerates one.
+- **Resolved cover** (read time, never stored): the album's own cover, otherwise the own cover of
+  the first descendant that has one, in tree order. `cover_source_album_id` names the album it
+  comes from. No cover anywhere below: both `cover_url` and `cover_source_album_id` are `null`.
+- Existing albums start without a cover.
 
 ---
 
 ## API Endpoints
 
-All API endpoints require `IsMemberUser` permission.
+| Method | Route                              | Permission | Purpose                                   |
+|--------|------------------------------------|------------|-------------------------------------------|
+| GET    | `/api/albums/`                     | member     | flat list of every album, tree order      |
+| POST   | `/api/albums/`                     | manage     | create                                    |
+| PATCH  | `/api/albums/{id}/`                | manage     | rename, move, `description`, `event_date` |
+| PUT    | `/api/albums/order/`               | manage     | full order of one set of sibling albums   |
+| PUT    | `/api/albums/{id}/cover/`          | manage     | upload own cover                          |
+| DELETE | `/api/albums/{id}/cover/`          | owner      | remove own cover                          |
+| GET    | `/api/photos/`                     | member     | every photo                               |
+| POST   | `/api/photos/`                     | manage     | upload photos into an album               |
+| PATCH  | `/api/photos/{id}/`                | manage     | edit metadata, move to another album      |
+| GET    | `/api/albums/{id}/photos/`         | member     | photos directly in one album              |
+| PUT    | `/api/albums/{id}/photos/order/`   | manage     | full order of the photos of one album     |
+
+A nonexistent album or photo — in the route or referenced by `parent_id` / `album_id` in the
+body — is `404` on every endpoint. Full request and response bodies:
+`specs/013-gallery-write-api/contracts/gallery-api.md`.
+
+### GET /api/albums/
+
+`200` with an array of Album resources, every album including empty ones, in tree order.
+
+### POST /api/albums/
+
+Body: `name` (required), `parent_id` (optional, `null` = root), `description`, `event_date`.
+`201` with the Album resource, placed last among its siblings. `400` for a blank name or a name
+already used by a sibling.
+
+### PATCH /api/albums/{id}/
+
+Any subset of `name`, `parent_id` (`null` moves to root), `description`, `event_date` (`null`
+clears). `200` with the Album resource. A move places the album last among its new siblings; the
+same parent keeps its position. `400` for a duplicate sibling name, and for a cycle — the body
+carries `album_id`, `parent_id` and `chain`.
+
+### PUT /api/albums/order/
+
+Body `{"parent_id": <id or null>, "ids": [...]}`. `204`. `400` when `ids` is not exactly the
+current children of `parent_id`; the body carries `missing`, `unexpected`, `repeated`.
+
+### PUT /api/albums/{id}/cover/ · DELETE /api/albums/{id}/cover/
+
+`PUT`: multipart, one file in field `image`, validated like a photo upload; `200` with the Album
+resource; on any validation failure `400` and the previous cover stays. `DELETE`: `204`, also
+when there was no own cover; the file is removed after the change commits.
 
 ### GET /api/photos/
 
-List all photos across all albums.
-
-- Order: `album__name`, `uploaded_at`
-- Response: `200` with array of Photo resources
+`200` with every photo, ordered by the tree order of its album, then `position`, then `id`.
 
 ### GET /api/albums/{album_id}/photos/
 
-List photos from a specific album.
+`200` with the photos **directly** in the album (never those of sub-albums), by `position` then
+`id`. `404` if the album does not exist; `200 []` for an existing empty album.
 
-- Order: `uploaded_at`
-- Response: `200` with array of Photo resources
-- Returns empty list if album does not exist or has no photos
+### POST /api/photos/
+
+Multipart: `album_id` and one or more files in field `image`. The app sends one file per request;
+several are accepted for tooling.
+
+Each file is validated by `core.files.image_validation.detect_image_extension` (max 10 MB, must
+decode as JPEG, PNG, WEBP or GIF), then the 50 MP limit, then the thumbnail is made. A failure at
+any step rejects that file only, with its own reason, and nothing is kept for it.
+
+| Outcome                    | Status | Body                                                           |
+|----------------------------|--------|----------------------------------------------------------------|
+| every file accepted        | `201`  | `{"accepted": [Photo…], "rejected": []}`                       |
+| some accepted, some not    | `207`  | `{"accepted": [Photo…], "rejected": [{"filename", "reason"}]}` |
+| every file rejected        | `400`  | canonical error `VALIDATION_ERROR`, detail "Nenhuma imagem foi aceita.", plus `rejected` |
+| no `album_id` or no file   | `400`  | canonical error                                                |
+
+An accepted photo gets `name` = the filename, empty `description`, `date_taken` from the EXIF
+capture date (or `null`), the last position in the album, a thumbnail, and the uploader recorded.
+
+### PATCH /api/photos/{id}/
+
+Any subset of `name`, `description`, `date_taken` (`null` clears), `album_id`. Any other key —
+the image included — is `400`. `200` with the Photo resource. A move places the photo last in the
+target album; its files stay where they are.
+
+### PUT /api/albums/{id}/photos/order/
+
+Body `{"ids": [...]}`. `204`. Same exact-set rule and `400` body as album order.
+
+### Album Resource
+
+```json
+{
+  "id": 7,
+  "name": "Retiro 2026",
+  "parent_id": 2,
+  "description": "",
+  "event_date": "2026-03-14",
+  "cover_url": "http://host/ipbcb/media/gallery/covers/9/3f2a….jpg",
+  "cover_source_album_id": 9
+}
+```
 
 ### Photo Resource
 
 ```json
 {
   "id": 1,
-  "name": "foto.jpg",
+  "name": "IMG_0042.jpg",
   "description": "",
-  "album_id": 1,
-  "album_name": "Culto",
-  "image_url": "http://host/ipbcb/media/gallery/culto/foto.jpg",
-  "date_taken": "2026-01-15",
-  "uploaded_at": "2026-01-15T10:00:00Z"
+  "album_id": 7,
+  "album_name": "Retiro 2026",
+  "image_url": "http://host/ipbcb/media/gallery/7/9b1e….jpg",
+  "thumbnail_url": "http://host/ipbcb/media/gallery/thumbs/7/c4d0….jpg",
+  "date_taken": "2026-03-14",
+  "uploaded_at": "2026-03-15T10:00:00Z"
 }
 ```
 
-`image_url` is an absolute URI built from the request. Returns `null` if image is missing or request is unavailable.
+`image_url`, `thumbnail_url` and `cover_url` are absolute URIs built from the request, `null`
+when there is no file or no request. Every field returned before feature 013 is still returned;
+`thumbnail_url` was added.
 
-The file behind `image_url` is readable only by members: `/ipbcb/media/gallery/...` goes
+The files behind these URLs are readable only by members: `/ipbcb/media/gallery/...` goes
 through the authenticated media access check (`specs/009-protected-media-access/`), which
-requires the same `Profile.is_member` as the endpoints listing it. Holding the URL is not
-enough — the request must carry the member's JWT.
+requires the same `Profile.is_member` as the endpoints listing them. Holding the URL is not
+enough — the request must carry the member's JWT. Covers and thumbnails live under `gallery/`
+too, so the same rule covers them.
 
 ---
 
-## Admin Upload
+## Errors
+
+| Case                                   | Status | `error_code`       | Extra body fields                 |
+|----------------------------------------|--------|--------------------|-----------------------------------|
+| album / photo not found                | 404    | `NOT_FOUND`        |                                   |
+| blank or duplicate sibling album name  | 400    | `VALIDATION_ERROR` |                                   |
+| album moved under itself / descendant  | 400    | `VALIDATION_ERROR` | `album_id`, `parent_id`, `chain`  |
+| order does not match the siblings      | 400    | `VALIDATION_ERROR` | `missing`, `unexpected`, `repeated` |
+| every uploaded file rejected           | 400    | `VALIDATION_ERROR` | `rejected`                        |
+| invalid cover image                    | 400    | `VALIDATION_ERROR` |                                   |
+
+User-facing messages (duplicate name, cycle, image rejections, no image accepted) are in
+Portuguese; the order-mismatch and not-found messages address client developers and are in
+English.
+
+---
+
+## Admin
+
+### Album admin
+
+Edits `name`, `parent`, `description`, `event_date`; `position` and `cover_image` are read-only.
+The form validates through the same service as the API (duplicate sibling name, cycle) and saving
+goes through it too, so a new or moved album is placed last among its siblings.
+
+### Photo admin
+
+Registered read-mostly: photos cannot be added from it (they arrive only through the upload
+page, so every photo has a thumbnail); `image`, `thumbnail`, `uploaded_by` and `position` are
+read-only.
+
+### Upload page
 
 Accessible at `/admin/gallery/album/upload/` (protected by Django admin login).
 
-The API has no gallery write endpoint yet. When it gets one, it belongs to scope `gallery`:
-Admin `owner`, Liderança and Mídia `manage` (`specs/012-feature-role-permissions/`). Until then
-the Mídia role has nothing to manage here.
-
-### GET
-
-Renders HTML form with:
-- Album dropdown (all albums)
-- Multi-file image input (accept `image/*`)
-- CSRF token
-
-### POST
-
-Accepts `album` (ID) and `images` (file list).
-
-**Validation rules:**
-- Album and at least one file must be provided
-- Delegated to `core.files.image_validation.detect_image_extension`, shared with the
-  profile photo upload: max 10 MB, and the file must decode as JPEG, PNG, WEBP or GIF
-- Raised per file and caught per file, so one bad file never fails the batch
-
-**Behavior:**
-- Valid files create Photo records linked to selected album
-- Invalid files accumulate errors; valid files in same batch still upload
-- On full success: redirect to `admin:gallery_album_changelist`
-- On errors: re-render form with red error messages
+- **GET** renders an HTML form: album dropdown, multi-file image input (`image/*`), CSRF token.
+- **POST** accepts `album` (ID) and `images` (file list) and calls the same upload service as
+  `POST /api/photos/`, with the logged-in user as uploader — same validation, storage path,
+  thumbnail, position and automatic cover.
+- On full success: redirect to `admin:gallery_album_changelist`.
+- On any rejection: re-render the form with one red message per rejected file,
+  `"{filename}: {reason}"`; accepted files in the same batch are kept.
 
 **Error messages (user-facing, Portuguese):**
-- Missing album/files: "Selecione um album e ao menos uma imagem."
-- Oversized: "{filename}: Arquivo muito grande: {n} bytes. O maximo e {max} bytes (10 MB)."
-- Invalid format: "{filename}: Formato invalido: o arquivo enviado nao e uma imagem
-  legivel. Use JPEG, PNG, WEBP ou GIF."
-- Both come from `core.files.image_validation`, which is why its messages are in
-  Portuguese: they reach the user verbatim
+- Missing album/files: "Selecione um álbum e ao menos uma imagem."
+- Unknown album: "Álbum não encontrado."
+- Per file: the reasons of `POST /api/photos/` (size and format come from
+  `core.files.image_validation`, which is why they are in Portuguese: they reach the user
+  verbatim).
 
 ---
 
-## Admin Registration
+## Management Command
 
-- `Album`: registered with custom upload URL (`/admin/gallery/album/upload/`)
-- `Photo`: registered with default admin
+`python manage.py generate_photo_thumbnails` — fills the thumbnail of every photo that has none.
+Idempotent: a second run changes nothing. A photo whose original is missing or unreadable is
+skipped and listed in the output; the others are still processed. Run once at the deploy of
+feature 013.

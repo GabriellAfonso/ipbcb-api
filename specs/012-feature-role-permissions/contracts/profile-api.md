@@ -18,7 +18,7 @@ PATCH of `name`) is as in `specs/accounts/spec.md`.
     "members": "manage",
     "schedule": "manage",
     "songs": "manage",
-    "gallery": "manage",
+    "gallery": "owner",
     "events": "manage",
     "notices": "manage",
     "reports.hymnal_history": "view"
@@ -42,7 +42,7 @@ only authority.
 |---------------------------|--------------------------------|----------------------------------------------------------------|
 | No role                   | `[]`                           | every key `null`                                               |
 | Admin                     | `[admin]`                      | every key `"owner"`                                            |
-| Media only                | `[media]`                      | `gallery`/`events`/`notices` `"manage"`, `reports.hymnal_history` `"view"`, rest `null` |
+| Media only                | `[media]`                      | `gallery` `"owner"` (since feature 013), `events`/`notices` `"manage"`, `reports.hymnal_history` `"view"`, rest `null` |
 | Superuser, no role        | `[]`                           | every key `null`                                               |
 
 ## PATCH `api/me/profile/` — 200

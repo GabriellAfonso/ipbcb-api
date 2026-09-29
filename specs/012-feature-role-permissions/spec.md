@@ -79,7 +79,7 @@ declare a lower level than the default.
 | `members`                | owner | manage | —      |
 | `schedule`               | owner | manage | —      |
 | `songs`                  | owner | manage | —      |
-| `gallery`                | owner | manage | manage |
+| `gallery`                | owner | owner  | owner  |
 | `events`                 | owner | manage | manage |
 | `notices`                | owner | manage | manage |
 | `reports.hymnal_history` | owner | view   | view   |
@@ -88,16 +88,18 @@ declare a lower level than the default.
 
 - **ADMIN is owner of every scope, including scopes added later**, decided in code and never
   read from stored permissions. Adding a scope can therefore never lock the administrator out.
-- **LEADER can do everything except delete**, in every scope. No `DELETE` is ever allowed to a
-  leader, member deletion included.
+- **LEADER can do everything except delete**, in every scope but `gallery`. No `DELETE` is
+  allowed to a leader outside `gallery`, member deletion included. On `gallery` Leader is `owner`
+  (feature 013, below).
 - **Reports are scopes of their own**, one per report (`reports.<name>`), so each report can be
   released to different roles. The hymnal history report is not sensitive and is readable by
   every role that reaches the panel. Writing its configuration requires `owner`.
 - **`events` and `notices`** are future features. This feature only reserves their scopes and
   who will hold them; it creates no data or endpoints for them.
-- **`gallery`**: today gallery writes happen in the Django admin only; the API has no gallery
-  write endpoint. The MEDIA role will need gallery management; those endpoints come in a future
-  feature. Until then MEDIA can only read the hymnal history report — accepted.
+- **`gallery`**: write endpoints in `specs/013-gallery-write-api/`. Feature 013 raised LEADER
+  and MEDIA from `manage` to `owner` on this scope (data migration
+  `core/0006_gallery_owner_for_leader_media.py`), so the three roles can remove album covers and,
+  in feature 014, delete albums and photos. This is the one scope where LEADER deletes.
 
 ## Endpoint Classification
 
@@ -191,7 +193,8 @@ profile; the first can reach every management endpoint with every method, the se
 ### User Story 2 - Leader manages everything but cannot delete (Priority: P1)
 
 A church leader manages members, the monthly schedule and songs, and reads the hymnal report.
-Nothing they do can delete data.
+Nothing they do outside the gallery can delete data (on `gallery` they are `owner` since
+feature 013).
 
 **Why this priority**: The safety tier is the main motivation of the feature.
 
@@ -285,7 +288,7 @@ reflects it.
   (Before this feature it meant "not an admin", because the flag lived on the profile.)
 - **Unauthenticated request** to a management endpoint: `401`, as today (authentication is
   checked before permission).
-- **Two roles**: union, never intersection. Leader + Media on `gallery` is `manage`.
+- **Two roles**: union, never intersection. Leader + Media on `events` is `manage`.
 - **Method not implemented by an endpoint** (e.g. `DELETE` on the member list): `405` for a user
   with enough level on the scope; a user without any level on the scope gets `403` first and
   learns nothing about the endpoint.
@@ -324,7 +327,8 @@ reflects it.
   levels in the scope matrix.
 - **FR-008**: The Admin role MUST be `owner` of every scope, present or future, without relying
   on any stored permission.
-- **FR-009**: The Leader role MUST NOT hold `owner` on any scope in the initial configuration.
+- **FR-009**: The Leader role MUST NOT hold `owner` on any scope except `gallery` (raised by
+  feature 013).
 - **FR-010**: A user's level on a scope MUST be the highest level any of their roles gives.
 - **FR-011**: Membership (`is_member`) MUST NOT grant any role or level, and holding a role MUST
   NOT require membership.
@@ -422,7 +426,7 @@ Decided with the requester; recorded, not to be re-raised.
 - **SC-001**: 100% of the users who managed the panel before the deploy can still perform every
   action they could before, with no manual step after deploy.
 - **SC-002**: 0 delete operations succeed for a user holding only the Leader role, across every
-  classified endpoint.
+  classified endpoint outside scope `gallery`.
 - **SC-003**: A user holding only the Media role gets 0 records from the membership roll and 0
   member photos.
 - **SC-004**: For every combination of role (Admin, Leader, Media, none) × scope × method in the
@@ -457,7 +461,7 @@ Decided with the requester; recorded, not to be re-raised.
 
 ## Out of Scope
 
-- Gallery write endpoints; the events and notices features.
+- The events and notices features. (Gallery write endpoints: feature 013.)
 - Assigning roles from the app.
 - Change history or audit outside members.
 - Android app changes (separate repository).

@@ -1,14 +1,10 @@
 # Gallery — Tasks
 
-## Architecture alignment
+What the domain still lacks compared with `spec.md`. Nothing is missing from the spec itself;
+the items below are follow-up features.
 
-- [x] Create `GalleryRepository` — extract all ORM queries from views
-- [x] Create `GalleryService` — extract upload validation logic from `upload.py`
-- [x] Create Pydantic DTO (`UploadResult`) for upload operation
-- [x] Register repository and service in `config/di.py`
-- [x] Update views to call service instead of ORM directly
-- [x] Update tests for new layered structure
+## Follow-up features
 
-## Bug fixes
-
-- [x] Escape `album.name` in `_build_upload_html` — potential XSS (admin-only, low risk)
+- [ ] Deleting albums and photos, with a trash, restore, file purge and deleted-id sync for the
+  app — feature 014 (the `owner` level on `gallery` is already in place)
+- [ ] Tagging members in photos (`Profile.member`) — feature 015
