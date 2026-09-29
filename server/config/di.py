@@ -10,6 +10,8 @@ from features.accounts.services.login_service import LoginService
 from features.accounts.services.profile_service import ProfileService
 from features.accounts.services.refresh_service import RefreshService
 from features.accounts.services.register_service import RegisterService
+from core.application.access_service import AccessService
+from core.repositories.access_repository import RoleGrantRepositoryImpl
 from core.time.clock import SystemClock
 from features.bible.repositories import BibleRepositoryImpl
 from features.bible.services import BibleService
@@ -49,6 +51,7 @@ def _media_root() -> Path:
 class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         modules=[
+            "core.http.permissions",
             "features.accounts.views.auth",
             "features.accounts.views.profile",
             "features.bible.views",
@@ -67,6 +70,9 @@ class Container(containers.DeclarativeContainer):
             "features.schedule.views.schedule",
         ]
     )
+
+    role_grant_repository = providers.Factory(RoleGrantRepositoryImpl)
+    access_service = providers.Factory(AccessService, role_grant_repository=role_grant_repository)
 
     user_repository = providers.Factory(UserRepositoryImpl)
     profile_repository = providers.Factory(ProfileRepositoryImpl)
