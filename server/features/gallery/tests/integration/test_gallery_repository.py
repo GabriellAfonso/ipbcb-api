@@ -3,8 +3,8 @@ from datetime import date, timedelta
 import pytest
 
 from conftest import make_user
-from core.domain.exceptions import AlbumNotFoundError
-from features.gallery.dtos.gallery_dtos import NewPhoto
+from core.domain.exceptions import AlbumNotFoundError, ClientUploadIdTakenError
+from features.gallery.dtos.gallery_dtos import ClientUploadMatch, NewPhoto, PhotoView
 from features.gallery.models.gallery import Album, Photo
 from features.gallery.repositories.gallery_repository import GalleryRepositoryImpl
 from features.gallery.tests.fakes import FakeClock
@@ -184,3 +184,65 @@ class TestTrashedAlbumRace:
         with pytest.raises(AlbumNotFoundError):
             REPO.move_photo(photo.pk, target.pk)
         assert Photo.objects.get(pk=photo.pk).album_id == source.pk
+
+
+UPLOAD_ID = "3f2a9c1e-7b4d-4e8a-9f10-2c6b5d7e8a90"
+
+
+def _with_upload_id(album: Album, name: str, client_upload_id: str | None) -> NewPhoto:
+    return _new(album, name).model_copy(update={"client_upload_id": client_upload_id})
+
+
+@pytest.mark.django_db
+class TestClientUploadId:
+    def test_insert_stores_the_id(self) -> None:
+        album = Album.objects.create(name="Retiros")
+
+        created = REPO.create_photo(_with_upload_id(album, "a.jpg", UPLOAD_ID))
+
+        assert Photo.objects.get(pk=created.id).client_upload_id == UPLOAD_ID
+
+    def test_lookup_finds_live_and_trashed_rows(self) -> None:
+        album = Album.objects.create(name="Retiros")
+        live = REPO.create_photo(_with_upload_id(album, "a.jpg", UPLOAD_ID))
+        trashed = REPO.create_photo(_with_upload_id(album, "b.jpg", "other-id"))
+        Photo.all_objects.filter(pk=trashed.id).update(deleted_at=CLOCK.now())
+
+        assert REPO.find_client_upload(UPLOAD_ID) == ClientUploadMatch(
+            photo_id=live.id, trashed=False
+        )
+        assert REPO.find_client_upload("other-id") == ClientUploadMatch(
+            photo_id=trashed.id, trashed=True
+        )
+        assert REPO.find_client_upload("unknown") is None
+
+    def test_second_insert_with_the_same_id_raises_and_keeps_one_row(self) -> None:
+        """Regression guard for the race: the constraint, not a prior lookup, refuses the loser
+        (specs/016-photo-upload-idempotency FR-014)."""
+        album = Album.objects.create(name="Retiros")
+        REPO.create_photo(_with_upload_id(album, "a.jpg", UPLOAD_ID))
+
+        with pytest.raises(ClientUploadIdTakenError):
+            REPO.create_photo(_with_upload_id(album, "b.jpg", UPLOAD_ID))
+
+        assert Photo.all_objects.filter(client_upload_id=UPLOAD_ID).count() == 1
+        assert Photo.objects.count() == 1
+
+    def test_id_taken_by_a_trashed_row_still_raises(self) -> None:
+        album = Album.objects.create(name="Retiros")
+        first = REPO.create_photo(_with_upload_id(album, "a.jpg", UPLOAD_ID))
+        Photo.all_objects.filter(pk=first.id).update(deleted_at=CLOCK.now())
+
+        with pytest.raises(ClientUploadIdTakenError):
+            REPO.create_photo(_with_upload_id(album, "b.jpg", UPLOAD_ID))
+
+    def test_photos_without_an_id_never_collide(self) -> None:
+        album = Album.objects.create(name="Retiros")
+
+        REPO.create_photo(_with_upload_id(album, "a.jpg", None))
+        REPO.create_photo(_with_upload_id(album, "b.jpg", None))
+
+        assert Photo.objects.filter(client_upload_id__isnull=True).count() == 2
+
+    def test_id_is_not_part_of_the_view(self) -> None:
+        assert "client_upload_id" not in PhotoView.model_fields

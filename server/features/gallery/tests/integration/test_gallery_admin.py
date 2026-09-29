@@ -104,6 +104,30 @@ class TestPhotoAdmin:
         photo.refresh_from_db()
         assert (photo.name, photo.image.name) == ("b.jpg", "gallery/1/a.jpg")
 
+    def test_client_upload_id_is_neither_shown_nor_editable(self, admin_client: Client) -> None:
+        """specs/016-photo-upload-idempotency FR-007: written once by the upload, never here."""
+        album = Album.objects.create(name="Retiros")
+        photo = Photo.objects.create(
+            album=album, name="a.jpg", image="gallery/1/a.jpg", client_upload_id="retry-key"
+        )
+        url = f"/admin/gallery/photo/{photo.pk}/change/"
+
+        page = admin_client.get(url)
+        admin_client.post(
+            url,
+            {
+                "album": album.pk,
+                "name": "a.jpg",
+                "description": "",
+                "date_taken": "",
+                "client_upload_id": "changed",
+            },
+        )
+
+        assert b"client_upload_id" not in page.content
+        photo.refresh_from_db()
+        assert photo.client_upload_id == "retry-key"
+
 
 def _trash(album: Album) -> None:
     Album.all_objects.filter(pk=album.pk).update(deleted_at=timezone.now())

@@ -3,7 +3,12 @@
 import pytest
 
 from core.domain.exceptions import ValidationError
-from core.http.parsing import require_int, require_int_list, require_object_body
+from core.http.parsing import (
+    optional_single_value,
+    require_int,
+    require_int_list,
+    require_object_body,
+)
 
 
 class TestRequireObjectBody:
@@ -55,3 +60,18 @@ class TestRequireIntList:
 
         assert "member_id" in str(caught.value)
         assert repr(bad) in str(caught.value)
+
+
+class TestOptionalSingleValue:
+    def test_absent_is_none(self) -> None:
+        assert optional_single_value([], "client_upload_id") is None
+
+    def test_one_value_is_returned_as_text(self) -> None:
+        assert optional_single_value(["abc"], "client_upload_id") == "abc"
+
+    def test_repeated_field_names_it_and_the_count(self) -> None:
+        with pytest.raises(ValidationError) as caught:
+            optional_single_value(["a", "b"], "client_upload_id")
+
+        assert "'client_upload_id'" in str(caught.value)
+        assert "got 2 values" in str(caught.value)

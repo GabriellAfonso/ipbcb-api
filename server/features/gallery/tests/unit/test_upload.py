@@ -58,6 +58,8 @@ class TestUploadPhotosView:
         )
         assert stored_name(photo.thumbnail).startswith(f"gallery/thumbs/{self.album.pk}/")
         assert (photo.uploaded_by_id, photo.position, photo.name) == (self.user.pk, 0, "test.jpg")
+        # The page never sends a retry key (specs/016-photo-upload-idempotency FR-016).
+        assert photo.client_upload_id is None
 
     def test_first_upload_gives_the_album_its_cover(self, media_root: Path) -> None:
         self.client.post(UPLOAD_URL, {"album": self.album.pk, "images": _make_image_file()})

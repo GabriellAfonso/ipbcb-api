@@ -5,13 +5,17 @@ import pytest
 from core.domain.exceptions import (
     AlbumCycleError,
     AlbumNotFoundError,
+    ClientUploadIdTakenError,
+    ClientUploadNeedsOneFileError,
     DomainError,
     DuplicateAlbumNameError,
     ImageProcessingError,
     ImageTooLargeError,
+    InvalidClientUploadIdError,
     NoPhotoAcceptedError,
     OrderMismatchError,
     PhotoNotFoundError,
+    UploadedPhotoTrashedError,
 )
 from core.http.exceptions import custom_exception_handler
 
@@ -93,3 +97,36 @@ class TestImageErrors:
     def test_both_are_400(self, exc: DomainError) -> None:
         status, _ = _handle(exc)
         assert status == 400
+
+
+UPLOAD_ID = "3f2a9c1e-7b4d-4e8a-9f10-2c6b5d7e8a90"
+
+
+class TestClientUploadErrors:
+    def test_invalid_id_names_problem_and_expected_shape(self) -> None:
+        status, body = _handle(InvalidClientUploadIdError("a b", "got ' ' at position 1", "X"))
+
+        assert status == 400
+        assert body["error_code"] == "VALIDATION_ERROR"
+        assert "client_upload_id" in str(body["detail"])
+        assert "position 1" in str(body["detail"])
+        assert (body["client_upload_id"], body["expected"]) == ("a b", "X")
+
+    def test_needs_one_file_carries_the_count(self) -> None:
+        status, body = _handle(ClientUploadNeedsOneFileError(3))
+
+        assert status == 400
+        assert "got 3" in str(body["detail"])
+        assert body["file_count"] == 3
+
+    def test_trashed_original_is_409_without_the_photo(self) -> None:
+        status, body = _handle(UploadedPhotoTrashedError(UPLOAD_ID))
+
+        assert status == 409
+        assert body["error_code"] == "CONFLICT"
+        assert "lixeira" in str(body["detail"])
+        assert body["client_upload_id"] == UPLOAD_ID
+        assert "photo_id" not in body
+
+    def test_taken_id_names_the_id(self) -> None:
+        assert UPLOAD_ID in str(ClientUploadIdTakenError(UPLOAD_ID))
