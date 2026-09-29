@@ -1,15 +1,16 @@
 from typing import Any
 
 from dependency_injector.wiring import Provide, inject
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.di import Container
+from core.domain.access import Scope
 from core.domain.exceptions import ValidationError
 from core.http.parsing import require_int
-from core.http.permissions import IsAdminUser
+from core.http.permissions import scope_permission
 from core.http.utils import _not_modified_or_response
 from features.songs.serializers.serializers import (
     ChordChartSerializer,
@@ -131,7 +132,7 @@ class AllSongsAPI(APIView):
 class ChordChartListAPI(APIView):
     def get_permissions(self) -> list[Any]:
         if self.request.method == "POST":
-            return [IsAdminUser()]
+            return [IsAuthenticated(), scope_permission(Scope.SONGS)()]
         return [AllowAny()]
 
     @inject
@@ -165,7 +166,7 @@ class ChordChartListAPI(APIView):
 class LyricsListAPI(APIView):
     def get_permissions(self) -> list[Any]:
         if self.request.method == "POST":
-            return [IsAdminUser()]
+            return [IsAuthenticated(), scope_permission(Scope.SONGS)()]
         return [AllowAny()]
 
     @inject
@@ -193,7 +194,7 @@ class LyricsListAPI(APIView):
 
 
 class ChordChartDetailAPI(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated, scope_permission(Scope.SONGS)]
 
     @inject
     def patch(
@@ -210,7 +211,7 @@ class ChordChartDetailAPI(APIView):
 
 
 class LyricsDetailAPI(APIView):
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated, scope_permission(Scope.SONGS)]
 
     @inject
     def patch(

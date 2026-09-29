@@ -17,8 +17,8 @@ class TestAudienceForFolder:
     def test_member_folders(self, folder: str) -> None:
         assert audience_for_folder(folder) is MediaAudience.MEMBER
 
-    def test_members_folder_is_leaders_only(self) -> None:
-        assert audience_for_folder("members") is MediaAudience.LEADER
+    def test_members_folder_can_view_memberss_only(self) -> None:
+        assert audience_for_folder("members") is MediaAudience.MEMBERS_SCOPE
 
     @pytest.mark.parametrize("folder", ["reports", "gallery-old", "Gallery", "", "logo.png"])
     def test_unruled_folders_have_no_audience(self, folder: str) -> None:
@@ -102,7 +102,7 @@ class TestIsOwnProfileFile:
             ("profiles/joao/6f1c2d.png", "ana.paula"),  # another user's folder
             ("profiles/ana.paula", "ana.paula"),  # the folder itself, not a file
             ("gallery/ana.paula/x.jpg", "ana.paula"),  # same name, other root folder
-            ("members/ana.paula/x.jpg", "ana.paula"),  # never unlocks leader-only files
+            ("members/ana.paula/x.jpg", "ana.paula"),  # never unlocks members/ files
             ("profiles/ana.paula/6f1c2d.png", None),  # caller without a folder
         ],
     )

@@ -14,7 +14,7 @@ from core.domain.exceptions import MediaPathRejectedError
 
 class MediaAudience(Enum):
     MEMBER = "member"
-    LEADER = "leader"
+    MEMBERS_SCOPE = "members_scope"
 
 
 class MediaAccessOutcome(Enum):
@@ -31,9 +31,9 @@ FOLDER_RULES: Mapping[str, MediaAudience] = MappingProxyType(
     {
         "gallery": MediaAudience.MEMBER,
         "profiles": MediaAudience.MEMBER,
-        # Reserved for the upcoming members feature's photos; in place before any file is
-        # written there, so that feature finds the rule already enforced.
-        "members": MediaAudience.LEADER,
+        # Member photos: readable with `view` on the `members` scope — Admin and Liderança,
+        # never Mídia (specs/012-feature-role-permissions FR-017).
+        "members": MediaAudience.MEMBERS_SCOPE,
     }
 )
 

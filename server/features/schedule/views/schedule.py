@@ -2,14 +2,16 @@ from datetime import date
 from typing import Any
 
 from dependency_injector.wiring import Provide, inject
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.di import Container
+from core.domain.access import Scope
 from core.domain.exceptions import ValidationError
 from core.http.parsing import require_int, require_object_body
-from core.http.permissions import IsAdminUser, IsMemberUser
+from core.http.permissions import IsMemberUser, scope_permission
 from core.http.utils import _not_modified_or_response
 from features.schedule.services.schedule_service import ScheduleService
 
@@ -42,7 +44,9 @@ class MonthlySchedulePreviewAPI(APIView):
     If year/month omitted -> defaults to next month.
     """
 
-    permission_classes = [IsAdminUser]
+    # Persists nothing, but it is a POST that only exists to feed a save: "manage" by method
+    # (specs/012-feature-role-permissions, Endpoint Classification).
+    permission_classes = [IsAuthenticated, scope_permission(Scope.SCHEDULE)]
 
     @inject
     def post(
@@ -86,7 +90,7 @@ class MonthlyScheduleSaveAPI(APIView):
     }
     """
 
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated, scope_permission(Scope.SCHEDULE)]
 
     @inject
     def post(

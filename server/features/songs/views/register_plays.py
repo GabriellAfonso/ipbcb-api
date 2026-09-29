@@ -1,10 +1,12 @@
 from dependency_injector.wiring import Provide, inject
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.di import Container
-from core.http.permissions import IsAdminUser
+from core.domain.access import Scope
+from core.http.permissions import scope_permission
 from features.songs.dtos import parse_register_plays_input
 from features.songs.services.register_plays_service import RegisterPlaysService
 
@@ -12,7 +14,7 @@ from features.songs.services.register_plays_service import RegisterPlaysService
 class RegisterSundayPlaysAPI(APIView):
     """POST: create Played records for a given date.
 
-    Requires: authenticated user with admin profile.
+    Requires: ``manage`` on scope ``songs`` (specs/012-feature-role-permissions).
 
     Expected payload:
     {
@@ -24,7 +26,7 @@ class RegisterSundayPlaysAPI(APIView):
     }
     """
 
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated, scope_permission(Scope.SONGS)]
 
     @inject
     def post(

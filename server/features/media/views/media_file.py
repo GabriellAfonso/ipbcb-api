@@ -9,7 +9,8 @@ from django.conf import settings
 from django.http import FileResponse, HttpResponse, HttpResponseBase
 
 from config.di import Container
-from core.http.permissions import IsAdminUser, IsMemberUser
+from core.domain.access import Scope
+from core.http.permissions import IsMemberUser, scope_permission
 from features.accounts.validators import profile_photo_folder
 from features.media.dtos.media_dtos import MediaFile, MediaViewer
 from features.media.services.media_access_service import MediaAccessService
@@ -41,7 +42,8 @@ class MediaFileAPIView(APIView):
         # The same permission classes every other endpoint uses, so the flags are read one way.
         return MediaViewer(
             is_member=IsMemberUser().has_permission(request, self),
-            is_leader=IsAdminUser().has_permission(request, self),
+            # GET/HEAD only, so the required level is "view" (specs/012 FR-017).
+            can_view_members=scope_permission(Scope.MEMBERS)().has_permission(request, self),
             own_profile_folder=profile_photo_folder(request.user.username, str(request.user.pk)),
         )
 

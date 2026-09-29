@@ -104,6 +104,6 @@ def _viewer_may_read(path: str, viewer: MediaViewer, audience: MediaAudience) ->
 
 
 def _viewer_in_audience(viewer: MediaViewer, audience: MediaAudience) -> bool:
-    if audience is MediaAudience.LEADER:
-        return viewer.is_leader
+    if audience is MediaAudience.MEMBERS_SCOPE:
+        return viewer.can_view_members
     return viewer.is_member

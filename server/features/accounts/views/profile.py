@@ -12,6 +12,7 @@ from features.accounts.models.user import User
 from features.accounts.serializers.serializers import ProfileSerializer
 from features.accounts.services.profile_service import ProfileService
 from config.di import Container
+from core.application.access_service import AccessService
 from core.http.utils import _not_modified_or_response
 
 
@@ -63,10 +64,13 @@ class MeProfileAPIView(APIView):
         self,
         request: Request,
         profile_service: ProfileService = Provide[Container.profile_service],
+        access_service: AccessService = Provide[Container.access_service],
     ) -> Response:
         user = cast(User, request.user)
         profile = profile_service.get_profile(user)
-        serializer = ProfileSerializer(profile, context={"request": request})
+        serializer = ProfileSerializer(
+            profile, context=_serializer_context(request, user, access_service)
+        )
         data = serializer.data
         return _not_modified_or_response(request, data, private=True)
 
@@ -75,6 +79,7 @@ class MeProfileAPIView(APIView):
         self,
         request: Request,
         profile_service: ProfileService = Provide[Container.profile_service],
+        access_service: AccessService = Provide[Container.access_service],
     ) -> Response:
         user = cast(User, request.user)
         profile = profile_service.get_profile(user)
@@ -82,8 +87,20 @@ class MeProfileAPIView(APIView):
             profile,
             data=request.data,
             partial=True,
-            context={"request": request},
+            context=_serializer_context(request, user, access_service),
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+def _serializer_context(
+    request: Request, user: User, access_service: AccessService
+) -> dict[str, object]:
+    """The profile carries the caller's panel roles, so the app decides from one read whether
+    to show the panel (specs/012-feature-role-permissions US4).
+
+    >>> _serializer_context(request, user, access_service)["access_grants"].roles
+    [<Role.LEADER: 'leader'>]
+    """
+    return {"request": request, "access_grants": access_service.grants_for(user.pk)}

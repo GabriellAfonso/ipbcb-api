@@ -7,7 +7,9 @@ from rest_framework.request import Request
 from features.accounts.models.profile import Profile
 from features.accounts.validators import USERNAME_RULE_MESSAGE, is_valid_username
 from features.accounts.models.user import User
+from core.application.dtos.access_dtos import AccessGrantsDTO
 from core.application.dtos.auth_dtos import RegisterDTO
+from core.domain.access import ROLE_DISPLAY_NAMES, Scope
 
 
 class RegisterData(TypedDict):
@@ -104,12 +106,51 @@ class TokenSerializer(serializers.Serializer[Any]):
 
 
 class ProfileSerializer(serializers.ModelSerializer[Profile]):
+    """Profile plus the caller's panel roles and levels. The view passes an ``AccessGrantsDTO``
+    as ``context["access_grants"]``; shapes in
+    specs/012-feature-role-permissions/contracts/profile-api.md.
+    """
+
     photo_url = serializers.SerializerMethodField()
+    roles = serializers.SerializerMethodField()
+    permissions = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
-        fields = ["name", "is_admin", "is_member", "photo_url"]
-        read_only_fields = ["is_admin", "is_member", "photo_url"]
+        fields = ["name", "is_member", "photo_url", "roles", "permissions"]
+        read_only_fields = ["is_member", "photo_url", "roles", "permissions"]
+
+    def _access_grants(self) -> AccessGrantsDTO:
+        # No silent default: a view that forgot to pass the grants would tell the app the user
+        # has no role, hiding the panel from an administrator.
+        grants = self.context.get("access_grants")
+        if not isinstance(grants, AccessGrantsDTO):
+            raise KeyError(
+                f"ProfileSerializer needs context['access_grants'] as AccessGrantsDTO, "
+                f"got {type(grants).__name__}."
+            )
+        return grants
+
+    def get_roles(self, obj: Profile) -> list[dict[str, str]]:
+        """>>> serializer.get_roles(profile)
+        [{'id': 'leader', 'name': 'Liderança'}]
+        """
+        return [
+            {"id": role.value, "name": ROLE_DISPLAY_NAMES[role]}
+            for role in self._access_grants().roles
+        ]
+
+    def get_permissions(self, obj: Profile) -> dict[str, str | None]:
+        """Every scope as a key, so the app never has to guess a missing one.
+
+        >>> serializer.get_permissions(profile)["members"]
+        'manage'
+        """
+        grants = self._access_grants()
+        return {
+            scope.value: level.wire_name if (level := grants.level_for(scope)) else None
+            for scope in Scope
+        }
 
     def get_photo_url(self, obj: Profile) -> str | None:
         request: Request | None = self.context.get("request")

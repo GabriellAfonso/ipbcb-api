@@ -3,11 +3,13 @@ import tempfile
 from typing import IO
 
 import pytest
+from django.contrib.auth.models import Group
 from django.test import override_settings
 from PIL import Image
 from rest_framework.test import APIClient
 
-from conftest import make_auth_client, make_user
+from conftest import make_auth_client, make_role_client, make_user
+from core.domain.access import Role
 
 PROFILE_URL = "/api/me/profile/"
 PHOTO_URL = "/api/me/profile/photo/"
@@ -81,13 +83,15 @@ def test_patch_profile_updates_name() -> None:
 
 
 @pytest.mark.django_db
-def test_patch_profile_cannot_update_is_admin() -> None:
+def test_is_admin_is_gone_and_cannot_grant_a_role() -> None:
+    # specs/012-feature-role-permissions FR-021: the flag was replaced by roles.
     user = make_user(username="noadmin", password="testpass123")
     client = make_auth_client(user)
     response = client.patch(PROFILE_URL, {"is_admin": True}, format="json")
     assert response.status_code == 200
-    user.profile.refresh_from_db()
-    assert user.profile.is_admin is False
+    assert "is_admin" not in response.data
+    assert response.data["roles"] == []
+    assert not user.groups.exists()
 
 
 # ---------------------------------------------------------------------------
@@ -157,3 +161,81 @@ def test_delete_photo_when_no_photo_returns_204() -> None:
     client = make_auth_client(user)
     response = client.delete(PHOTO_URL)
     assert response.status_code == 204
+
+
+# ---------------------------------------------------------------------------
+# Panel roles and levels (specs/012-feature-role-permissions/contracts/profile-api.md)
+# ---------------------------------------------------------------------------
+
+ALL_SCOPES = [
+    "members",
+    "schedule",
+    "songs",
+    "gallery",
+    "events",
+    "notices",
+    "reports.hymnal_history",
+]
+LEADER_PERMISSIONS = {
+    "members": "manage",
+    "schedule": "manage",
+    "songs": "manage",
+    "gallery": "manage",
+    "events": "manage",
+    "notices": "manage",
+    "reports.hymnal_history": "view",
+}
+
+
+@pytest.mark.django_db
+class TestProfileRoles:
+    def test_leader(self) -> None:
+        client, _ = make_role_client(Role.LEADER)
+        data = client.get(PROFILE_URL).data
+        assert data["roles"] == [{"id": "leader", "name": "Liderança"}]
+        assert data["permissions"] == LEADER_PERMISSIONS
+
+    def test_admin_owns_everything(self) -> None:
+        client, _ = make_role_client(Role.ADMIN)
+        data = client.get(PROFILE_URL).data
+        assert data["roles"] == [{"id": "admin", "name": "Admin"}]
+        assert data["permissions"] == {scope: "owner" for scope in ALL_SCOPES}
+
+    def test_no_role(self) -> None:
+        client, _ = make_role_client()
+        data = client.get(PROFILE_URL).data
+        assert data["roles"] == []
+        assert data["permissions"] == {scope: None for scope in ALL_SCOPES}
+
+    def test_two_roles_give_the_higher_level(self) -> None:
+        client, _ = make_role_client(Role.MEDIA, Role.LEADER)
+        data = client.get(PROFILE_URL).data
+        assert [role["id"] for role in data["roles"]] == ["leader", "media"]
+        assert data["permissions"] == LEADER_PERMISSIONS
+
+    def test_superuser_without_role_has_nothing(self) -> None:
+        client, user = make_role_client()
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+        data = client.get(PROFILE_URL).data
+        assert data["roles"] == []
+        assert set(data["permissions"].values()) == {None}
+
+    def test_patch_returns_roles_and_ignores_them(self) -> None:
+        client, _ = make_role_client(Role.MEDIA)
+        response = client.patch(
+            PROFILE_URL,
+            {"name": "Nova", "roles": [{"id": "admin"}], "permissions": {"members": "owner"}},
+            format="json",
+        )
+        assert response.status_code == 200
+        assert response.data["roles"] == [{"id": "media", "name": "Mídia"}]
+        assert response.data["permissions"]["members"] is None
+
+    def test_role_change_invalidates_the_etag(self) -> None:
+        client, user = make_role_client()
+        etag = client.get(PROFILE_URL)["ETag"]
+        user.groups.add(Group.objects.get(name=Role.LEADER.value))
+        response = client.get(PROFILE_URL, HTTP_IF_NONE_MATCH=etag)
+        assert response.status_code == 200

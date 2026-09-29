@@ -2,7 +2,9 @@
 
 Ingest and the settings read are ``AllowAny`` by design: most members use the
 hymnal without logging in, and a fresh install must learn the view threshold
-before anyone authenticates. Everything else is admin-only.
+before anyone authenticates. Everything else is scope ``reports.hymnal_history``: reads need
+``view``, configuration writes ``owner`` by override, so only Admin configures
+(specs/012-feature-role-permissions).
 """
 
 from datetime import date, timedelta
@@ -12,15 +14,16 @@ from uuid import UUID
 from dependency_injector.wiring import Provide, inject
 from drf_spectacular.utils import extend_schema
 from pydantic import ValidationError as PydanticValidationError
-from rest_framework.permissions import AllowAny, BasePermission
+from rest_framework.permissions import AllowAny, BasePermission, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
 from config.di import Container
+from core.domain.access import Level, Scope
 from core.http.parsing import require_object_body
-from core.http.permissions import IsAdminUser
+from core.http.permissions import scope_permission
 from features.songs.hymnal_history_dtos import (
     REASON_INVALID_EVENT,
     HymnViewEventInput,
@@ -44,6 +47,14 @@ from features.songs.services.hymnal_history_report_service import (
     DEFAULT_RANGE_DAYS,
     HymnalHistoryReportService,
 )
+
+
+_REPORT_SCOPE = Scope.REPORTS_HYMNAL_HISTORY
+# Configuration writes are owner-only by override: a report can be released to a role for
+# reading without letting it change how the report is computed. DELETE is owner by default.
+_CONFIG_WRITE = {"POST": Level.OWNER, "PATCH": Level.OWNER}
+_ReportPermission = scope_permission(_REPORT_SCOPE)
+_ConfigPermission = scope_permission(_REPORT_SCOPE, _CONFIG_WRITE)
 
 
 def _parse_events(
@@ -116,7 +127,7 @@ class HymnalHistoryIngestAPI(APIView):
 class HymnalHistoryOccurrencesAPI(APIView):
     """GET: the occurrences in a period, grouped."""
 
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated, _ReportPermission]
 
     @extend_schema(
         parameters=[OccurrenceQueryParamSerializer],
@@ -158,7 +169,7 @@ class HymnalHistoryOccurrencesAPI(APIView):
 class HymnalHistoryTopHymnsAPI(APIView):
     """GET: hymns ranked by how many times the congregation sang them."""
 
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated, _ReportPermission]
 
     @extend_schema(
         parameters=[TopHymnsQueryParamSerializer],
@@ -189,11 +200,11 @@ class HymnalHistoryTopHymnsAPI(APIView):
 
 
 class HymnalHistorySettingsAPI(APIView):
-    """GET (public): the app reads the view threshold on startup. PATCH: admin only."""
+    """GET (public): the app reads the view threshold on startup. PATCH: owner only."""
 
     def get_permissions(self) -> list[BasePermission]:
         if self.request.method == "PATCH":
-            return [IsAdminUser()]
+            return [IsAuthenticated(), _ConfigPermission()]
         return [AllowAny()]
 
     @extend_schema(responses={200: HymnalHistorySettingsSerializer})
@@ -230,7 +241,7 @@ class HymnalHistorySettingsAPI(APIView):
 class ServiceWindowListCreateAPI(APIView):
     """GET: list every service window. POST: create one."""
 
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated, _ConfigPermission]
 
     @extend_schema(responses={200: ServiceWindowSerializer(many=True)})
     @inject
@@ -268,7 +279,7 @@ class ServiceWindowDetailAPI(APIView):
     derived at read time, so only the interpretation changes.
     """
 
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated, _ConfigPermission]
 
     @extend_schema(responses={200: ServiceWindowSerializer})
     @inject

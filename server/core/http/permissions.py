@@ -1,6 +1,16 @@
+from collections.abc import Mapping
+from types import MappingProxyType
+from uuid import UUID
+
+from dependency_injector.wiring import Provide, inject
 from rest_framework import permissions
 from rest_framework.request import Request
 from rest_framework.views import APIView
+
+from config.di import Container
+from core.application.access_service import AccessService
+from core.application.dtos.access_dtos import AccessGrantsDTO
+from core.domain.access import Level, Scope, required_level, validate_overrides
 
 
 def _profile_of(request: Request) -> object | None:
@@ -30,16 +40,36 @@ class IsMemberUser(permissions.BasePermission):
         )
 
 
-class IsAdminUser(permissions.BasePermission):
-    """
-    Permite acesso apenas a usuários que possuem um perfil com is_admin = True.
-    """
+@inject
+def _grants_for(
+    user_id: UUID, access_service: AccessService = Provide[Container.access_service]
+) -> AccessGrantsDTO:
+    # Module level on purpose: dependency-injector wires the functions a module holds when the
+    # container is wired. A method of a class built later by ``scope_permission`` would never be.
+    return access_service.grants_for(user_id)
 
-    message = "Acesso restrito a administradores."
 
-    def has_permission(self, request: Request, view: APIView) -> bool:
-        return bool(
-            request.user
-            and request.user.is_authenticated
-            and getattr(_profile_of(request), "is_admin", False)
-        )
+def scope_permission(
+    scope: Scope, overrides: Mapping[str, Level] | None = None
+) -> type[permissions.BasePermission]:
+    """Permission class requiring a level on ``scope``: by method (GET view, POST/PUT/PATCH
+    manage, DELETE owner) unless ``overrides`` raises it. An override below the default raises
+    ``ValueError`` here, at import (specs/012-feature-role-permissions).
+
+    >>> permission_classes = [IsAuthenticated, scope_permission(Scope.MEMBERS)]
+    >>> scope_permission(Scope.REPORTS_HYMNAL_HISTORY, {"PATCH": Level.OWNER})
+    """
+    frozen_overrides = MappingProxyType(dict(overrides or {}))
+    validate_overrides(frozen_overrides)
+
+    class ScopePermission(permissions.BasePermission):
+        message = "Você não tem permissão para esta ação."
+
+        def has_permission(self, request: Request, view: APIView) -> bool:
+            if not (request.user and request.user.is_authenticated):
+                return False
+            level = required_level(request.method or "", frozen_overrides)
+            return _grants_for(request.user.pk).allows(scope, level)
+
+    ScopePermission.__name__ = ScopePermission.__qualname__ = f"ScopePermission_{scope.name}"
+    return ScopePermission

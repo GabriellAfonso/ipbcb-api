@@ -16,10 +16,12 @@ from features.media.tests.fakes import FAKE_MEDIA_ROOT, FakeMediaFileRepository
 GALLERY_FILE = "gallery/retiro-2025/IMG_0042.jpg"
 PROFILE_FILE = "profiles/ana.paula/6f1c2d.png"
 
-MEMBER = MediaViewer(is_member=True, is_leader=False)
-NON_MEMBER = MediaViewer(is_member=False, is_leader=False)
-BOTH = MediaViewer(is_member=True, is_leader=True)
-NON_MEMBER_OWNER = MediaViewer(is_member=False, is_leader=False, own_profile_folder="ana.paula")
+MEMBER = MediaViewer(is_member=True, can_view_members=False)
+NON_MEMBER = MediaViewer(is_member=False, can_view_members=False)
+BOTH = MediaViewer(is_member=True, can_view_members=True)
+NON_MEMBER_OWNER = MediaViewer(
+    is_member=False, can_view_members=False, own_profile_folder="ana.paula"
+)
 
 
 def _service(repository: FakeMediaFileRepository) -> MediaAccessService:
@@ -100,21 +102,26 @@ class TestDecisionLog:
         assert path.rsplit("/", 1)[-1] not in str(record.__dict__)
 
 
-class TestLeaderFolder:
+class TestMembersFolder:
     MEMBERS_FILE = "members/ana/photo.jpg"
 
     @pytest.mark.parametrize(
         "viewer",
-        [MediaViewer(is_member=False, is_leader=True), MediaViewer(is_member=True, is_leader=True)],
+        [
+            MediaViewer(is_member=False, can_view_members=True),
+            MediaViewer(is_member=True, can_view_members=True),
+        ],
     )
-    def test_leader_gets_media_file(self, viewer: MediaViewer) -> None:
+    def test_members_scope_viewer_gets_media_file(self, viewer: MediaViewer) -> None:
         repository = FakeMediaFileRepository({self.MEMBERS_FILE: b"x"})
         assert _service(repository).authorize(self.MEMBERS_FILE, viewer).relative_path == (
             self.MEMBERS_FILE
         )
 
     @pytest.mark.parametrize("viewer", [MEMBER, NON_MEMBER])
-    def test_non_leader_denied_before_existence_is_checked(self, viewer: MediaViewer) -> None:
+    def test_viewer_without_members_scope_denied_before_existence_is_checked(
+        self, viewer: MediaViewer
+    ) -> None:
         repository = FakeMediaFileRepository({self.MEMBERS_FILE: b"x"})
         with pytest.raises(MediaAccessDeniedError):
             _service(repository).authorize(self.MEMBERS_FILE, viewer)

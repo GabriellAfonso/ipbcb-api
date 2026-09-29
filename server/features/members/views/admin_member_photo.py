@@ -8,17 +8,19 @@ from rest_framework.views import APIView
 
 from config.di import Container
 from core.domain.exceptions import ValidationError
-from core.http.permissions import IsAdminUser
+from core.domain.access import Scope
+from core.http.permissions import scope_permission
 from features.members.serializers.admin_member_serializers import build_photo_url
 from features.members.services.member_photo_service import MemberPhotoService
 from features.members.views.admin_members import editor_id_of
 
 
 class AdminMemberPhotoAPIView(APIView):
-    """Leader-only member photo. Reading it goes through the media access check, which
-    allows ``members/`` to leaders alone (specs/009-protected-media-access)."""
+    """Member photo: PUT needs ``manage`` on ``members``, DELETE ``owner``. Reading it goes
+    through the media access check, which allows ``members/`` with ``view`` on ``members``
+    (specs/009-protected-media-access, specs/012-feature-role-permissions)."""
 
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, scope_permission(Scope.MEMBERS)]
     parser_classes = [MultiPartParser, FormParser]
 
     @inject

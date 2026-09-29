@@ -21,7 +21,6 @@ class Profile(models.Model):
     name = models.CharField(max_length=100, blank=True)
     photo = models.ImageField(upload_to=profile_photo_path, null=True, blank=True)
     is_member = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.name

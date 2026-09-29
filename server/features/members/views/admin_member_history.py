@@ -5,14 +5,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.di import Container
-from core.http.permissions import IsAdminUser
+from core.domain.access import Scope
+from core.http.permissions import scope_permission
 from core.http.utils import _not_modified_or_response
 from features.members.serializers.admin_member_serializers import ChangeLogEntrySerializer
 from features.members.services.member_change_log_service import MemberChangeLogService
 
 
 class AdminMemberHistoryAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, scope_permission(Scope.MEMBERS)]
 
     @inject
     def get(

@@ -1,7 +1,8 @@
-"""Leader endpoints for the membership roll (specs/010-members-management).
+"""Management endpoints for the membership roll (specs/010-members-management).
 
-Leader = ``Profile.is_admin``, checked by ``IsAdminUser`` on every view. Every GET is private:
-member data must never be stored by a shared cache.
+Access: scope ``members``, level by method — GET view, POST/PATCH manage, DELETE owner, so only
+Admin deletes (specs/012-feature-role-permissions). Every GET is private: member data must never
+be stored by a shared cache.
 """
 
 from typing import cast
@@ -16,7 +17,8 @@ from rest_framework.views import APIView
 
 from config.di import Container
 from core.http.parsing import require_object_body
-from core.http.permissions import IsAdminUser
+from core.domain.access import Scope
+from core.http.permissions import scope_permission
 from core.http.utils import _not_modified_or_response
 from features.members.dtos import MemberCreateDTO, MemberPatchDTO, MemberRecordDTO
 from features.members.serializers.admin_member_serializers import (
@@ -44,7 +46,7 @@ def _record_body(request: Request, record: MemberRecordDTO) -> dict[str, object]
 
 
 class AdminMemberListAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, scope_permission(Scope.MEMBERS)]
 
     @inject
     def get(
@@ -70,7 +72,7 @@ class AdminMemberListAPIView(APIView):
 
 
 class AdminMemberDetailAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, scope_permission(Scope.MEMBERS)]
 
     @inject
     def get(
@@ -109,7 +111,7 @@ class AdminMemberDetailAPIView(APIView):
 
 
 class AdminMemberOptionsAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    permission_classes = [IsAuthenticated, scope_permission(Scope.MEMBERS)]
 
     @inject
     def get(
