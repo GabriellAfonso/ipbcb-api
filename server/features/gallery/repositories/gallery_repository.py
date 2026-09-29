@@ -2,12 +2,14 @@ from collections.abc import Iterator, Mapping, Sequence
 from datetime import datetime
 
 from django.db import transaction
-from django.db.models import Max, QuerySet
+from django.db.models import Count, Max, Prefetch, Q, QuerySet
 
 from core.domain.exceptions import AlbumNotFoundError
 from core.time.clock import Clock
 from features.gallery.dtos.gallery_dtos import NewPhoto, PhotoView
+from features.gallery.dtos.tag_dtos import MemberRef
 from features.gallery.models.gallery import Album, Photo
+from features.gallery.models.tags import PhotoTag
 
 
 class GalleryRepositoryImpl:
@@ -19,12 +21,20 @@ class GalleryRepositoryImpl:
     def __init__(self, clock: Clock) -> None:
         self._clock = clock
 
-    def list_all_photos(self) -> list[PhotoView]:
-        """Every photo by position within its album; the service orders albums by tree."""
-        return [_to_view(photo) for photo in _photos()]
+    def list_all_photos(self, member_ids: frozenset[int] = frozenset()) -> list[PhotoView]:
+        """Every photo by position within its album; the service orders albums by tree. With
+        ``member_ids``, only photos tagged with every one of them.
 
-    def list_photos_by_album(self, album_id: int) -> list[PhotoView]:
-        return [_to_view(photo) for photo in _photos().filter(album_id=album_id)]
+        >>> repository.list_all_photos(frozenset({12, 40}))[0].members
+        [MemberRef(id=40, name='João Lima'), MemberRef(id=12, name='Maria Souza')]
+        """
+        return [_to_view(photo) for photo in _filter_by_members(_photos(), member_ids)]
+
+    def list_photos_by_album(
+        self, album_id: int, member_ids: frozenset[int] = frozenset()
+    ) -> list[PhotoView]:
+        photos = _filter_by_members(_photos().filter(album_id=album_id), member_ids)
+        return [_to_view(photo) for photo in photos]
 
     def list_photos_changed_since(self, since: datetime) -> list[PhotoView]:
         """Live photos whose resource changed strictly after ``since`` (the change feed).
@@ -90,7 +100,25 @@ class GalleryRepositoryImpl:
 
 
 def _photos() -> QuerySet[Photo]:
-    return Photo.objects.select_related("album").order_by("position", "id")
+    """Every Photo resource is built from this query, so each carries its tags: one extra query
+    for all of them, member names through the tag's relation (specs/015 research R-06)."""
+    tags = PhotoTag.objects.select_related("member").order_by("member__name", "member_id")
+    return (
+        Photo.objects.select_related("album")
+        .prefetch_related(Prefetch("tags", queryset=tags))
+        .order_by("position", "id")
+    )
+
+
+def _filter_by_members(photos: QuerySet[Photo], member_ids: frozenset[int]) -> QuerySet[Photo]:
+    """Photos tagged with **every** member of ``member_ids`` (AND), in one join: count the
+    distinct matching members per photo and keep those that match them all (R-05)."""
+    if not member_ids:
+        return photos
+    matching = Q(tags__member_id__in=member_ids)
+    return photos.annotate(
+        matched_members=Count("tags__member", filter=matching, distinct=True)
+    ).filter(matched_members=len(member_ids))
 
 
 def _next_photo_position(album_id: int) -> int:
@@ -120,4 +148,5 @@ def _to_view(photo: Photo) -> PhotoView:
         uploaded_at=photo.uploaded_at,
         position=photo.position,
         updated_at=photo.updated_at,
+        members=[MemberRef(id=tag.member_id, name=tag.member.name) for tag in photo.tags.all()],
     )

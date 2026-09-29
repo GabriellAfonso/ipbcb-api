@@ -20,6 +20,7 @@ from features.gallery.repositories.album_repository import AlbumRepositoryImpl
 from features.gallery.repositories.gallery_file_storage import DefaultStorageGalleryFileStorage
 from features.gallery.repositories.deletion_mark_repository import DeletionMarkRepositoryImpl
 from features.gallery.repositories.gallery_repository import GalleryRepositoryImpl
+from features.gallery.repositories.photo_tag_repository import PhotoTagRepositoryImpl
 from features.gallery.repositories.trash_repository import TrashRepositoryImpl
 from features.gallery.repositories.trashed_file_lookup import GalleryTrashedFileLookup
 from features.gallery.services.album_cover_service import AlbumCoverService
@@ -29,6 +30,7 @@ from features.gallery.services.gallery_change_feed_service import GalleryChangeF
 from features.gallery.services.gallery_purge_service import GalleryPurgeService
 from features.gallery.services.gallery_service import GalleryService
 from features.gallery.services.gallery_trash_service import GalleryTrashService
+from features.gallery.services.photo_tag_service import PhotoTagService
 from features.media.repositories.filesystem_media_repository import FileSystemMediaRepository
 from features.media.services.media_access_service import MediaAccessService
 from features.members.repositories.member_change_log_repository import (
@@ -73,7 +75,9 @@ class Container(containers.DeclarativeContainer):
             "features.gallery.views.albums",
             "features.gallery.views.album_cover",
             "features.gallery.views.changes",
+            "features.gallery.signals",
             "features.gallery.views.gallery",
+            "features.gallery.views.tags",
             "features.gallery.views.trash",
             "features.gallery.views.upload",
             "features.media.views.media_file",
@@ -189,6 +193,16 @@ class Container(containers.DeclarativeContainer):
 
     member_repository = providers.Factory(MemberRepositoryImpl)
     member_service = providers.Factory(MemberService, repository=member_repository)
+
+    # The members feature implements the gallery's MemberDirectory port with its repository;
+    # wired here so neither feature imports the other (specs/015-gallery-member-tags R-03).
+    photo_tag_repository = providers.Factory(PhotoTagRepositoryImpl, clock=clock)
+    photo_tag_service = providers.Factory(
+        PhotoTagService,
+        tag_repository=photo_tag_repository,
+        member_directory=member_repository,
+        gallery_repository=gallery_repository,
+    )
 
     member_roster_repository = providers.Factory(MemberRosterRepositoryImpl)
     member_change_log_repository = providers.Factory(MemberChangeLogRepositoryImpl)

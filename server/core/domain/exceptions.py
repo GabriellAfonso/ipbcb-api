@@ -1,56 +1,31 @@
 from datetime import date
 
-
-class DomainError(Exception):
-    """Base exception for all domain errors.
-
-    Every subclass inherits ``error_code`` for machine-readable identification
-    and can override ``extra_context()`` to attach domain data to error responses.
-
-    >>> raise DomainError("something broke")
-    """
-
-    error_code: str = "DOMAIN_ERROR"
-
-    def extra_context(self) -> dict[str, object]:
-        """Return additional domain data to include in the error response."""
-        return {}
-
-
-class NotFoundError(DomainError):
-    """Raised when a requested entity does not exist."""
-
-    error_code: str = "NOT_FOUND"
-
-
-class ConflictError(DomainError):
-    """Raised when an operation conflicts with existing state."""
-
-    error_code: str = "CONFLICT"
-
-
-class ValidationError(DomainError):
-    """Raised when input validation fails at the domain level."""
-
-    error_code: str = "VALIDATION_ERROR"
-
-
-class AuthenticationError(DomainError):
-    """Raised when authentication fails."""
-
-    error_code: str = "AUTHENTICATION_FAILED"
-
-
-class PermissionDeniedError(DomainError):
-    """Raised when an authenticated caller lacks the permission an operation requires.
-
-    Same ``error_code`` DRF's own ``PermissionDenied`` produces, so clients see one code for
-    a denial whether it came from a permission class or from a service.
-
-    >>> raise PermissionDeniedError("Leaders only: 'members'")
-    """
-
-    error_code: str = "PERMISSION_DENIED"
+# Base classes and the gallery's exceptions live in their own modules (500-line rule);
+# this module stays the one import path for every domain exception (CLAUDE.md §2).
+from core.domain.base_exceptions import (
+    DomainError as DomainError,
+    NotFoundError as NotFoundError,
+    ConflictError as ConflictError,
+    ValidationError as ValidationError,
+    AuthenticationError as AuthenticationError,
+    PermissionDeniedError as PermissionDeniedError,
+)
+from core.domain.gallery_exceptions import (
+    AlbumNotFoundError as AlbumNotFoundError,
+    PhotoNotFoundError as PhotoNotFoundError,
+    AlbumCycleError as AlbumCycleError,
+    DuplicateAlbumNameError as DuplicateAlbumNameError,
+    OrderMismatchError as OrderMismatchError,
+    NoPhotoAcceptedError as NoPhotoAcceptedError,
+    ImageProcessingError as ImageProcessingError,
+    ImageTooLargeError as ImageTooLargeError,
+    TrashEntryNotFoundError as TrashEntryNotFoundError,
+    TrashedParentError as TrashedParentError,
+    AlbumRestoreNameConflictError as AlbumRestoreNameConflictError,
+    PhotoTagReferenceError as PhotoTagReferenceError,
+    TagBulkLimitError as TagBulkLimitError,
+    TagListOverlapError as TagListOverlapError,
+)
 
 
 class BibleVersionNotFound(NotFoundError):
@@ -257,138 +232,6 @@ class MediaFileNotFoundError(MediaNotFoundError):
     """Raised when an allowed path names no regular file inside MEDIA_ROOT."""
 
 
-class AlbumNotFoundError(NotFoundError):
-    """No gallery album with this id, in the route or referenced from a body.
-
-    >>> raise AlbumNotFoundError(7)
-    """
-
-    def __init__(self, album_id: int) -> None:
-        super().__init__(f"Album not found: id={album_id}")
-        self.album_id = album_id
-
-    def extra_context(self) -> dict[str, object]:
-        return {"album_id": self.album_id}
-
-
-class PhotoNotFoundError(NotFoundError):
-    """No gallery photo with this id.
-
-    >>> raise PhotoNotFoundError(12)
-    """
-
-    def __init__(self, photo_id: int) -> None:
-        super().__init__(f"Photo not found: id={photo_id}")
-        self.photo_id = photo_id
-
-    def extra_context(self) -> dict[str, object]:
-        return {"photo_id": self.photo_id}
-
-
-class AlbumCycleError(ValidationError):
-    """Moving an album under itself or one of its descendants.
-
-    ``chain`` runs from the requested parent up to the album being moved. Portuguese because a
-    normal move in the app reaches it (specs/013-gallery-write-api FR-006).
-
-    >>> raise AlbumCycleError(3, 9, [9, 5, 3])
-    """
-
-    def __init__(self, album_id: int, parent_id: int, chain: list[int]) -> None:
-        super().__init__(
-            f"Não é possível mover o álbum {album_id} para dentro do álbum {parent_id}: "
-            f"{parent_id} está dentro de {album_id}."
-        )
-        self.album_id = album_id
-        self.parent_id = parent_id
-        self.chain = chain
-
-    def extra_context(self) -> dict[str, object]:
-        return {"album_id": self.album_id, "parent_id": self.parent_id, "chain": self.chain}
-
-
-class DuplicateAlbumNameError(ValidationError):
-    """An album with this name already exists under the same parent (roots included).
-
-    `400`, not `409`: the spec treats it as invalid input (specs/013-gallery-write-api FR-005).
-
-    >>> raise DuplicateAlbumNameError("Retiros", None)
-    """
-
-    def __init__(self, name: str, parent_id: int | None) -> None:
-        super().__init__(f"Já existe um álbum chamado '{name}' neste local.")
-        self.name = name
-        self.parent_id = parent_id
-
-    def extra_context(self) -> dict[str, object]:
-        return {"name": self.name, "parent_id": self.parent_id}
-
-
-class OrderMismatchError(ValidationError):
-    """A full-order request does not list every current sibling exactly once.
-
-    English: only a client bug reaches it, never a normal action in the app.
-
-    >>> raise OrderMismatchError(missing=[4], unexpected=[8], repeated=[])
-    """
-
-    def __init__(self, missing: list[int], unexpected: list[int], repeated: list[int]) -> None:
-        super().__init__(
-            "Order must list every sibling exactly once: "
-            f"missing {missing}, unexpected {unexpected}, repeated {repeated}."
-        )
-        self.missing = missing
-        self.unexpected = unexpected
-        self.repeated = repeated
-
-    def extra_context(self) -> dict[str, object]:
-        return {"missing": self.missing, "unexpected": self.unexpected, "repeated": self.repeated}
-
-
-class NoPhotoAcceptedError(ValidationError):
-    """Every file of an upload was rejected. The canonical 400 carries the per-file reasons in
-    ``rejected`` (specs/013-gallery-write-api, clarification Q1).
-
-    >>> raise NoPhotoAcceptedError([{"filename": "a.txt", "reason": "Formato inválido"}])
-    """
-
-    def __init__(self, rejected: list[dict[str, str]]) -> None:
-        super().__init__("Nenhuma imagem foi aceita.")
-        self.rejected = rejected
-
-    def extra_context(self) -> dict[str, object]:
-        return {"rejected": self.rejected}
-
-
-class ImageProcessingError(ValidationError):
-    """A file that passed format validation could not be turned into a thumbnail or cover.
-
-    >>> raise ImageProcessingError("IMG_0042.jpg")
-    """
-
-    def __init__(self, filename: str) -> None:
-        super().__init__(f"Não foi possível processar a imagem '{filename}'. Envie outro arquivo.")
-        self.filename = filename
-
-
-class ImageTooLargeError(ValidationError):
-    """An image over the pixel limit, refused before it is decoded for a derivative.
-
-    A 10 MB file can still decode to hundreds of MB of pixels (clarification Q3).
-
-    >>> raise ImageTooLargeError(9000, 8000, 50_000_000)
-    """
-
-    def __init__(self, width: int, height: int, max_pixels: int) -> None:
-        super().__init__(
-            f"Imagem grande demais: {width}x{height} pixels. "
-            f"O máximo é {max_pixels // 1_000_000} megapixels."
-        )
-        self.width = width
-        self.height = height
-        self.max_pixels = max_pixels
-
-
 class MediaFileTrashedError(MediaFileNotFoundError):
     """A gallery file whose photo or album is in the trash, asked for by a caller without
     ``owner`` on ``gallery``. Same message and status as a missing file, so a member cannot
@@ -396,70 +239,3 @@ class MediaFileTrashedError(MediaFileNotFoundError):
 
     >>> raise MediaFileTrashedError("gallery/7/9b1e.jpg")
     """
-
-
-class TrashEntryNotFoundError(NotFoundError):
-    """A restore for an item that is not the root of a deletion batch in the trash: live,
-    purged, unknown, or trashed only as part of another item's batch.
-
-    English: the app lists restorable entries, so only a client bug reaches it.
-
-    >>> raise TrashEntryNotFoundError("album", 9)
-    """
-
-    def __init__(self, kind: str, item_id: int) -> None:
-        super().__init__(
-            f"No trash entry for {kind} {item_id}; only the item a delete was made on can be "
-            "restored, while it is in the trash."
-        )
-        self.kind = kind
-        self.item_id = item_id
-
-    def extra_context(self) -> dict[str, object]:
-        return {"kind": self.kind, "id": self.item_id}
-
-
-class TrashedParentError(ValidationError):
-    """Restoring an album whose parent, or a photo whose album, is itself in the trash. The owner
-    restores the parent first; nothing is moved automatically (spec 014 FR-022).
-
-    >>> raise TrashedParentError("photo", 301, 7)
-    """
-
-    def __init__(self, kind: str, item_id: int, parent_album_id: int) -> None:
-        noun = "o álbum" if kind == "album" else "a foto"
-        super().__init__(
-            f"Não é possível restaurar {noun} {item_id}: o álbum {parent_album_id}, onde "
-            f"{'ele' if kind == 'album' else 'ela'} ficava, está na lixeira. "
-            f"Restaure o álbum {parent_album_id} primeiro."
-        )
-        self.kind = kind
-        self.item_id = item_id
-        self.parent_album_id = parent_album_id
-
-    def extra_context(self) -> dict[str, object]:
-        return {"kind": self.kind, "id": self.item_id, "trashed_parent_id": self.parent_album_id}
-
-
-class AlbumRestoreNameConflictError(ValidationError):
-    """Restoring an album while a live sibling holds its name (a trashed album never keeps its
-    name). The owner renames the sibling first; no name is invented (spec 014 FR-021).
-
-    >>> raise AlbumRestoreNameConflictError(7, "Culto", 12)
-    """
-
-    def __init__(self, album_id: int, name: str, sibling_id: int) -> None:
-        super().__init__(
-            f"Não é possível restaurar o álbum {album_id} ('{name}'): o álbum {sibling_id} já "
-            "usa esse nome no mesmo lugar. Renomeie-o antes."
-        )
-        self.album_id = album_id
-        self.name = name
-        self.sibling_id = sibling_id
-
-    def extra_context(self) -> dict[str, object]:
-        return {
-            "album_id": self.album_id,
-            "name": self.name,
-            "conflicting_album_id": self.sibling_id,
-        }

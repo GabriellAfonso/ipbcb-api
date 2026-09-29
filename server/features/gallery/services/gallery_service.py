@@ -58,22 +58,27 @@ class GalleryService:
         self._images = image_processor
         self._covers = cover_service
 
-    def list_all_photos(self) -> list[PhotoView]:
-        """Every photo, by the tree order of its album, then position.
+    def list_all_photos(self, member_ids: frozenset[int] = frozenset()) -> list[PhotoView]:
+        """Every photo, by the tree order of its album, then position. With ``member_ids``,
+        only photos in which every one of those members is tagged (AND).
 
         >>> [photo.album_name for photo in service.list_all_photos()]
         ['Retiros', 'Retiros', '2026']
         """
-        return order_photos_by_tree(self._repository.list_all_photos(), self._albums.list_records())
+        photos = self._repository.list_all_photos(member_ids)
+        return order_photos_by_tree(photos, self._albums.list_records())
 
-    def list_photos_by_album(self, album_id: int) -> list[PhotoView]:
-        """Photos directly in the album, never those of its sub-albums.
+    def list_photos_by_album(
+        self, album_id: int, member_ids: frozenset[int] = frozenset()
+    ) -> list[PhotoView]:
+        """Photos directly in the album, never those of its sub-albums; ``member_ids`` filters
+        as in ``list_all_photos``.
 
-        >>> service.list_photos_by_album(7)[0].album_id
+        >>> service.list_photos_by_album(7, frozenset({12}))[0].album_id
         7
         """
         self._require_album(album_id)
-        return self._repository.list_photos_by_album(album_id)
+        return self._repository.list_photos_by_album(album_id, member_ids)
 
     def upload_photos(
         self, album_id: int, files: Sequence[IO[bytes]], uploader_id: UUID | None = None

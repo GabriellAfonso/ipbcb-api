@@ -86,8 +86,16 @@ class PhotoAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         "deleted_at",
         "deletion_batch",
         "updated_at",
+        "tagged_members",
     )
     list_display = ("name", "album", "position")
+
+    @admin.display(description="membros marcados")
+    def tagged_members(self, obj: Photo) -> str:
+        """Read-only: tags change only through the API, so the change feed and the log see every
+        change (specs/015-gallery-member-tags FR-029). ``PhotoTag`` is not registered either."""
+        tags = obj.tags.select_related("member").order_by("member__name", "member_id")
+        return ", ".join(tag.member.name for tag in tags) or "—"
 
     def has_add_permission(self, request: HttpRequest) -> bool:
         return False

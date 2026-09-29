@@ -16,10 +16,19 @@ def absolute_media_url(context: dict[str, object], path: str | None) -> str | No
     return request.build_absolute_uri(path)
 
 
+class MemberRefSerializer(serializers.Serializer[object]):
+    """A member as the gallery shows it. Exactly these two fields, listed by hand: member data
+    is sensitive (constitution), and nothing else of the roll leaves the gallery
+    (specs/015-gallery-member-tags FR-033, FR-035)."""
+
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+
+
 class PhotoSerializer(serializers.Serializer[object]):
     """The photo resource. Every field returned before feature 013 keeps its name and order;
-    ``thumbnail_url`` was added by 013 and ``position`` (last) by 014, so a delta of the change
-    feed carries the order on its own."""
+    ``thumbnail_url`` was added by 013, ``position`` by 014, so a delta of the change feed
+    carries the order on its own, and ``members`` (last) by 015."""
 
     id = serializers.IntegerField()
     name = serializers.CharField()
@@ -31,6 +40,7 @@ class PhotoSerializer(serializers.Serializer[object]):
     date_taken = serializers.DateField(allow_null=True)
     uploaded_at = serializers.DateTimeField()
     position = serializers.IntegerField()
+    members = MemberRefSerializer(many=True)
 
     def get_image_url(self, photo: PhotoView) -> str | None:
         return absolute_media_url(self.context, photo.image_path)

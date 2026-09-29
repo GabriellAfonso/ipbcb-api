@@ -5,7 +5,13 @@ from features.accounts.models.profile import Profile
 from features.accounts.models.user import User
 
 
-admin.site.register(Profile)
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
+    # The member link is set here and nowhere else. Autocomplete searches the roll by name
+    # (MemberAdmin.search_fields) instead of a dropdown of every member; the one-to-one's unique
+    # check turns a second link to the same member into a form error (spec 015 FR-002).
+    autocomplete_fields = ["member"]
+    list_display = ("name", "user", "is_member", "member")
 
 
 @admin.register(User)

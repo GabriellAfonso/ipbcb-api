@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 from config.di import Container
 from core.domain.access import Scope
 from core.domain.exceptions import ValidationError
-from core.http.parsing import require_int, require_object_body
+from core.http.parsing import require_int, require_int_list, require_object_body
 from core.http.permissions import IsMemberUser, scope_permission
 from features.gallery.dtos.gallery_dtos import PhotoChanges, UploadResult
 from features.gallery.serializers.serializers import (
@@ -25,6 +25,16 @@ from features.gallery.services.gallery_trash_service import GalleryTrashService
 from features.gallery.views.permissions import member_read_gallery_write_permissions
 
 GALLERY_WRITE: list[type[BasePermission]] = [IsAuthenticated, scope_permission(Scope.GALLERY)]
+
+
+def _member_filter(request: Request) -> frozenset[int]:
+    """The repeated ``member_id`` query parameter as a set; empty means "no filter". A value
+    that is not an integer is a 400 naming it (specs/015-gallery-member-tags FR-023).
+
+    >>> _member_filter(request)  # ?member_id=12&member_id=40&member_id=12
+    frozenset({12, 40})
+    """
+    return frozenset(require_int_list(request.query_params.getlist("member_id"), "member_id"))
 
 
 def _upload_body(request: Request, result: UploadResult) -> dict[str, Any]:
@@ -55,7 +65,7 @@ class PhotoListAPIView(APIView):
         request: Request,
         gallery_service: GalleryService = Provide[Container.gallery_service],
     ) -> Response:
-        photos = gallery_service.list_all_photos()
+        photos = gallery_service.list_all_photos(_member_filter(request))
         serializer = PhotoSerializer(photos, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -87,7 +97,7 @@ class AlbumPhotoListAPIView(APIView):
         album_id: int,
         gallery_service: GalleryService = Provide[Container.gallery_service],
     ) -> Response:
-        photos = gallery_service.list_photos_by_album(album_id)
+        photos = gallery_service.list_photos_by_album(album_id, _member_filter(request))
         serializer = PhotoSerializer(photos, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 

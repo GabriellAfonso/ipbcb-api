@@ -2,6 +2,7 @@ from datetime import date, datetime
 from uuid import UUID
 
 from core.application.dtos.strict_base import StrictBaseModel
+from features.gallery.dtos.tag_dtos import MemberRef
 
 
 class AlbumRecord(StrictBaseModel):
@@ -71,6 +72,8 @@ class PhotoView(StrictBaseModel):
     uploaded_at: datetime
     position: int
     updated_at: datetime
+    # The photo's tags, by name then id (specs/015-gallery-member-tags R-06).
+    members: list[MemberRef] = []
 
 
 class NewPhoto(StrictBaseModel):

@@ -1,4 +1,4 @@
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from django.conf import settings
@@ -7,6 +7,11 @@ from django.db.models import Q
 from django.utils import timezone
 
 from features.gallery.models.trash import GalleryDeletionBatch
+
+if TYPE_CHECKING:
+    from django.db.models.fields.related_descriptors import RelatedManager
+
+    from features.gallery.models.tags import PhotoTag
 
 # Hiding trashed rows is the default on purpose: the feature exists so that deleted photos stop
 # being visible, and a forgotten filter would show one silently. Every 013 query, the reverse
@@ -133,6 +138,11 @@ class Photo(models.Model):
 
     objects = LivePhotoManager()
     all_objects = models.Manager()
+
+    if TYPE_CHECKING:
+        # Reverse of PhotoTag.photo (specs/015). Declared for mypy: the model lives in its own
+        # module, which cannot be imported here without a cycle.
+        tags: "RelatedManager[PhotoTag]"
 
     class Meta:
         ordering = ["position", "id"]

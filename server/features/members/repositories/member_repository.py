@@ -1,3 +1,5 @@
+from collections.abc import Collection
+
 from features.members.dtos import BirthdayDTO, MemberDTO
 from features.members.models.member import Member
 
@@ -13,6 +15,25 @@ class MemberRepositoryImpl:
         """
         qs = Member.objects.filter(is_active=True).order_by("name").values_list("id", "name")
         return [MemberDTO(id=pk, name=name) for pk, name in qs]
+
+    def list_names(self) -> list[MemberDTO]:
+        """Every member, valid profile or not, by name then id: the gallery's tag picker, which
+        the Mídia role reads, so nothing but id and name leaves here
+        (specs/015-gallery-member-tags research R-03).
+
+        >>> repo.list_names()
+        [MemberDTO(id=40, name='João Lima'), MemberDTO(id=12, name='Maria Souza')]
+        """
+        qs = Member.objects.order_by("name", "id").values_list("id", "name")
+        return [MemberDTO(id=pk, name=name) for pk, name in qs]
+
+    def existing_ids(self, member_ids: Collection[int]) -> set[int]:
+        """The ids among ``member_ids`` that name a member, in one query.
+
+        >>> repo.existing_ids([12, 999])
+        {12}
+        """
+        return set(Member.objects.filter(pk__in=member_ids).values_list("id", flat=True))
 
     def list_birthdays_by_month_range(self, start_month: int, end_month: int) -> list[BirthdayDTO]:
         """Return active members born in the given month range, ordered by month then day.

@@ -258,11 +258,14 @@ class FakeGalleryRepository:
         )
         return self._insert(photo)
 
-    def list_all_photos(self) -> list[PhotoView]:
-        return [self.photos[i] for i in sorted(self.photos, key=self._sort_key)]
+    def list_all_photos(self, member_ids: frozenset[int] = frozenset()) -> list[PhotoView]:
+        photos = [self.photos[i] for i in sorted(self.photos, key=self._sort_key)]
+        return [p for p in photos if member_ids <= {m.id for m in p.members}]
 
-    def list_photos_by_album(self, album_id: int) -> list[PhotoView]:
-        return [p for p in self.list_all_photos() if p.album_id == album_id]
+    def list_photos_by_album(
+        self, album_id: int, member_ids: frozenset[int] = frozenset()
+    ) -> list[PhotoView]:
+        return [p for p in self.list_all_photos(member_ids) if p.album_id == album_id]
 
     def list_photos_changed_since(self, since: datetime) -> list[PhotoView]:
         return [p for p in self.list_all_photos() if p.updated_at > since]

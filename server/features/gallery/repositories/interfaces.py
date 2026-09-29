@@ -1,10 +1,12 @@
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Collection, Iterator, Mapping, Sequence
 from datetime import datetime
 from typing import IO, Protocol
 from uuid import UUID
 
+from features.gallery.domain.tag_rules import TagDiff
 from features.gallery.domain.trash_rules import TrashedItemKind
 from features.gallery.dtos.gallery_dtos import AlbumCreate, AlbumRecord, NewPhoto, PhotoView
+from features.gallery.dtos.tag_dtos import TaggedMember
 from features.gallery.dtos.trash_dtos import (
     PurgedBatch,
     TrashedRoot,
@@ -60,9 +62,11 @@ class GalleryRepository(Protocol):
     """Live photo rows. ``create_photo`` and ``move_photo`` lock the target album row to append,
     and raise ``AlbumNotFoundError`` when that album is gone or trashed."""
 
-    def list_all_photos(self) -> list[PhotoView]: ...
+    def list_all_photos(self, member_ids: frozenset[int] = frozenset()) -> list[PhotoView]: ...
 
-    def list_photos_by_album(self, album_id: int) -> list[PhotoView]: ...
+    def list_photos_by_album(
+        self, album_id: int, member_ids: frozenset[int] = frozenset()
+    ) -> list[PhotoView]: ...
 
     def list_photos_changed_since(self, since: datetime) -> list[PhotoView]: ...
 
@@ -131,3 +135,43 @@ class DeletionMarkRepository(Protocol):
     def ids_since(self, kind: TrashedItemKind, since: datetime) -> list[int]: ...
 
     def expire(self, before: datetime) -> int: ...
+
+
+class PhotoTagRepository(Protocol):
+    """Member tags of live photos (specs/015-gallery-member-tags).
+
+    ``lock_live_photos`` locks rows, so callers run it inside a transaction; ``write_diff`` sets
+    ``updated_at`` on the photos whose tags it changed, and only on those.
+    """
+
+    def lock_live_photos(self, photo_ids: Collection[int]) -> list[int]: ...
+
+    def current_tags(self, photo_ids: Collection[int]) -> dict[int, set[int]]: ...
+
+    def write_diff(self, diff: TagDiff, actor_id: UUID | None) -> None: ...
+
+    def tagged_members(self) -> list[TaggedMember]: ...
+
+    def touch_photos_if_renamed(self, member_id: int, new_name: str) -> None: ...
+
+    def touch_photos_of_member(self, member_id: int) -> None: ...
+
+
+class NamedMember(Protocol):
+    """A member as the roll's owner hands it over: id and name. Structural, so the members
+    feature's own DTO satisfies it without either feature importing the other."""
+
+    @property
+    def id(self) -> int: ...
+
+    @property
+    def name(self) -> str: ...
+
+
+class MemberDirectory(Protocol):
+    """The church roll as the gallery needs it, implemented by ``features/members`` and wired in
+    ``config/di.py`` (research R-03)."""
+
+    def list_names(self) -> Sequence[NamedMember]: ...
+
+    def existing_ids(self, member_ids: Collection[int]) -> set[int]: ...

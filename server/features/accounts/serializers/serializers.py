@@ -114,11 +114,13 @@ class ProfileSerializer(serializers.ModelSerializer[Profile]):
     photo_url = serializers.SerializerMethodField()
     roles = serializers.SerializerMethodField()
     permissions = serializers.SerializerMethodField()
+    # Set only in the Django admin; a value sent in PATCH is ignored (spec 015 FR-003).
+    member_id = serializers.IntegerField(read_only=True, allow_null=True)
 
     class Meta:
         model = Profile
-        fields = ["name", "is_member", "photo_url", "roles", "permissions"]
-        read_only_fields = ["is_member", "photo_url", "roles", "permissions"]
+        fields = ["name", "is_member", "photo_url", "roles", "permissions", "member_id"]
+        read_only_fields = ["is_member", "photo_url", "roles", "permissions", "member_id"]
 
     def _access_grants(self) -> AccessGrantsDTO:
         # No silent default: a view that forgot to pass the grants would tell the app the user

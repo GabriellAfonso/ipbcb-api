@@ -9,6 +9,7 @@ Messages are in English, matching the other contract errors raised from these vi
 address whoever is building a client, and are not meant to reach an app screen.
 """
 
+from collections.abc import Sequence
 from typing import Any
 
 from core.domain.exceptions import ValidationError
@@ -38,3 +39,13 @@ def require_int(value: Any, field: str) -> int:
         return int(value)
     except (TypeError, ValueError):
         raise ValidationError(f"Field '{field}' must be an integer, got {value!r}.") from None
+
+
+def require_int_list(values: Sequence[Any], field: str) -> list[int]:
+    """Coerce every value of a repeated field to int, or raise ``ValidationError`` naming the
+    field and the first value that is not one. Order and repeats are kept.
+
+    >>> require_int_list(request.query_params.getlist("member_id"), "member_id")
+    [12, 40]
+    """
+    return [require_int(value, field) for value in values]
