@@ -23,6 +23,9 @@ READS = [
     "/api/albums/",
     "/api/albums/{album}/photos/",
     "/api/gallery/changes/",
+    # specs/015-gallery-member-tags: the tagged-member list and the filter are member reads.
+    "/api/gallery/tagged-members/",
+    "/api/photos/?member_id=1",
 ]
 
 WRITES = [
@@ -39,6 +42,9 @@ WRITES = [
     ("DELETE", f"/api/photos/{MISSING}/"),
     ("POST", f"/api/gallery/trash/albums/{MISSING}/restore/"),
     ("POST", f"/api/gallery/trash/photos/{MISSING}/restore/"),
+    # specs/015-gallery-member-tags: tag writes at the default manage.
+    ("PUT", f"/api/photos/{MISSING}/members/"),
+    ("POST", "/api/photos/members/"),
 ]
 
 
@@ -120,3 +126,31 @@ class TestTrashList:
 
     def test_anonymous_is_401(self) -> None:
         assert _anonymous().get("/api/gallery/trash/").status_code == 401
+
+
+@pytest.mark.django_db
+class TestTagPicker:
+    """GET with a ``manage`` override (spec 015 FR-020, FR-030): the three roles, never a plain
+    member."""
+
+    @pytest.mark.parametrize("caller", list(ROLE_CALLERS))
+    def test_every_role_reads_the_picker(self, caller: str) -> None:
+        assert ROLE_CALLERS[caller]().get("/api/gallery/taggable-members/").status_code == 200
+
+    def test_member_without_role_may_not(self) -> None:
+        assert _member().get("/api/gallery/taggable-members/").status_code == 403
+
+    def test_anonymous_is_401(self) -> None:
+        assert _anonymous().get("/api/gallery/taggable-members/").status_code == 401
+
+    def test_regression_media_reaches_the_picker_but_not_the_roll(self) -> None:
+        """The picker is the one exception to spec 012 User Story 3: a Mídia user who is not
+        flagged a member reads names there and is still refused the member list, the management
+        endpoints and a members/ file (spec 015 FR-031)."""
+        media = _role(Role.MEDIA)()
+
+        assert media.get("/api/gallery/taggable-members/").status_code == 200
+        assert media.get("/api/members/").status_code == 403
+        assert media.get("/api/admin/members/").status_code == 403
+        # Permission is checked before existence (spec 009), so a missing file still says 403.
+        assert media.get("/ipbcb/media/members/x.jpg").status_code == 403

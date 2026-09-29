@@ -8,13 +8,17 @@ from datetime import timedelta
 from typing import Any
 
 import pytest
+from django.apps import apps
 from django.core.management import call_command
+from django.test import Client
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from conftest import make_auth_client, make_member_client, make_user
+from conftest import make_auth_client, make_member_client, make_role_client, make_user
+from core.domain.access import Role
 from features.gallery.domain.feed_cursor import encode_cursor
 from features.gallery.models.gallery import Album, Photo
+from features.gallery.models.tags import PhotoTag
 from features.gallery.models.trash import GalleryDeletionBatch
 from features.gallery.tests.integration.helpers import gallery_manager
 
@@ -163,3 +167,106 @@ class TestFullSyncRequired:
 @pytest.mark.django_db
 def test_non_member_is_403() -> None:
     assert make_auth_client(make_user(username="outsider")).get(FEED).status_code == 403
+
+
+def _tagged_gallery() -> tuple[Gallery, Any, Any]:
+    """The Gallery with Ana tagged in pa1 and pb, Bruno tagged nowhere; rows an hour old."""
+    gallery = Gallery()
+    member = apps.get_model("members", "Member")
+    ana = member.objects.create(name="Ana")
+    bruno = member.objects.create(name="Bruno")
+    PhotoTag.objects.bulk_create(
+        [PhotoTag(photo=gallery.pa1, member=ana), PhotoTag(photo=gallery.pb, member=ana)]
+    )
+    Photo.all_objects.update(updated_at=timezone.now() - timedelta(hours=1))
+    return gallery, ana, bruno
+
+
+def _staff_admin() -> Client:
+    """A Django admin session (the admin paths bypass the members API)."""
+    user = make_user(username="staff")
+    user.is_staff = user.is_superuser = True
+    user.save()
+    client = Client()
+    client.force_login(user)
+    return client
+
+
+@pytest.mark.django_db
+class TestMemberTagsInTheFeed:
+    """specs/015-gallery-member-tags US5, FR-025–FR-028."""
+
+    def test_tag_write_returns_only_the_changed_photos(self) -> None:
+        gallery, ana, _ = _tagged_gallery()
+        body = {
+            "photo_ids": [gallery.pa1.pk, gallery.pa2.pk],
+            "add_member_ids": [ana.pk],
+        }
+        gallery.manager.post("/api/photos/members/", body, format="json")
+
+        delta = gallery.delta()
+
+        assert _ids(delta["photos"]) == [gallery.pa2.pk]
+        assert _ids(delta["photos"][0]["members"]) == [ana.pk]
+
+    def test_regression_rename_through_the_api_returns_the_member_s_photos(self) -> None:
+        gallery, ana, _ = _tagged_gallery()
+        admin = make_role_client(Role.ADMIN, username="roll_admin")[0]
+        admin.patch(f"/api/admin/members/{ana.pk}/", {"name": "Ana Maria"}, format="json")
+
+        delta = gallery.delta()
+
+        assert _ids(delta["photos"]) == [gallery.pa1.pk, gallery.pb.pk]
+        assert {m["name"] for p in delta["photos"] for m in p["members"]} == {"Ana Maria"}
+
+    def test_delete_through_the_api_returns_the_photos_without_the_member(self) -> None:
+        gallery, ana, _ = _tagged_gallery()
+        admin = make_role_client(Role.ADMIN, username="roll_admin")[0]
+        assert admin.delete(f"/api/admin/members/{ana.pk}/").status_code == 204
+
+        delta = gallery.delta()
+
+        assert _ids(delta["photos"]) == [gallery.pa1.pk, gallery.pb.pk]
+        assert all(p["members"] == [] for p in delta["photos"])
+
+    def test_rename_in_the_django_admin_is_seen_too(self) -> None:
+        gallery, ana, _ = _tagged_gallery()
+        response = _staff_admin().post(
+            f"/admin/members/member/{ana.pk}/change/",
+            {"name": "Ana Admin", "first_name": "", "last_name": "", "is_active": "on"},
+        )
+        assert response.status_code == 302
+
+        assert _ids(gallery.delta()["photos"]) == [gallery.pa1.pk, gallery.pb.pk]
+
+    def test_bulk_delete_in_the_django_admin_is_seen_too(self) -> None:
+        gallery, ana, _ = _tagged_gallery()
+        response = _staff_admin().post(
+            "/admin/members/member/",
+            {"action": "delete_selected", "_selected_action": [ana.pk], "post": "yes"},
+        )
+        assert response.status_code == 302
+
+        assert _ids(gallery.delta()["photos"]) == [gallery.pa1.pk, gallery.pb.pk]
+
+    def test_untagged_member_or_another_field_returns_nothing(self) -> None:
+        gallery, ana, bruno = _tagged_gallery()
+        admin = make_role_client(Role.ADMIN, username="roll_admin")[0]
+        admin.patch(f"/api/admin/members/{bruno.pk}/", {"name": "Bruno Lima"}, format="json")
+        admin.patch(f"/api/admin/members/{ana.pk}/", {"first_name": "Ana"}, format="json")
+
+        assert gallery.delta()["photos"] == []
+
+    def test_trashed_photo_waits_for_its_restore(self) -> None:
+        gallery, ana, _ = _tagged_gallery()
+        gallery.manager.delete(f"/api/photos/{gallery.pb.pk}/")
+        ana.name = "Ana Maria"
+        ana.save()
+
+        first = gallery.delta()
+        gallery.manager.post(f"/api/gallery/trash/photos/{gallery.pb.pk}/restore/")
+        second = gallery.delta()
+
+        assert _ids(first["photos"]) == [gallery.pa1.pk]
+        restored = {p["id"]: p for p in second["photos"]}[gallery.pb.pk]
+        assert restored["members"][0]["name"] == "Ana Maria"

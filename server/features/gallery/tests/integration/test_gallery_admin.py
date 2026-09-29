@@ -2,11 +2,13 @@
 FR-006, research R-11)."""
 
 import pytest
+from django.apps import apps
 from django.test import Client
 from django.utils import timezone
 
 from features.accounts.models.user import User
 from features.gallery.models.gallery import Album, Photo
+from features.gallery.models.tags import PhotoTag
 
 ADD_URL = "/admin/gallery/album/add/"
 
@@ -166,3 +168,34 @@ class TestTrashedAlbumsHiddenInTheAdmin:
         )
 
         assert Photo.objects.get(pk=photo.pk).updated_at > before
+
+
+@pytest.mark.django_db
+class TestPhotoTagsInTheAdmin:
+    """specs/015-gallery-member-tags FR-029: tags are shown read-only; members delete as before."""
+
+    def test_photo_page_lists_the_tags_read_only(self, admin_client: Client) -> None:
+        album = Album.objects.create(name="A")
+        photo = Photo.objects.create(album=album, name="p.jpg", image="gallery/1/p.jpg")
+        member = apps.get_model("members", "Member")
+        tags = [PhotoTag(photo=photo, member=member.objects.create(name=n)) for n in ("Bia", "Ana")]
+        PhotoTag.objects.bulk_create(tags)
+
+        page = admin_client.get(f"/admin/gallery/photo/{photo.pk}/change/")
+
+        assert "Ana, Bia" in page.content.decode()
+        assert "tagged_members" not in page.context["adminform"].form.fields
+
+    def test_photo_tag_has_no_admin_page(self, admin_client: Client) -> None:
+        assert admin_client.get("/admin/gallery/phototag/").status_code == 404
+
+    def test_a_tagged_member_is_deleted_from_the_member_admin(self, admin_client: Client) -> None:
+        album = Album.objects.create(name="A")
+        photo = Photo.objects.create(album=album, name="p.jpg", image="gallery/1/p.jpg")
+        ana = apps.get_model("members", "Member").objects.create(name="Ana")
+        PhotoTag.objects.create(photo=photo, member=ana)
+
+        response = admin_client.post(f"/admin/members/member/{ana.pk}/delete/", {"post": "yes"})
+
+        assert response.status_code == 302
+        assert not PhotoTag.objects.exists()

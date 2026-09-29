@@ -28,9 +28,10 @@ class TestLegacyReads:
         client, _ = make_member_client()
         photo = client.get(url.format(album=album.pk)).data[0]
 
-        # thumbnail_url by 013, position (last) by 014.
-        assert set(photo) == LEGACY_FIELDS | {"thumbnail_url", "position"}
-        assert list(photo)[-1] == "position"
+        # thumbnail_url by 013, position by 014, members (last) by 015.
+        assert set(photo) == LEGACY_FIELDS | {"thumbnail_url", "position", "members"}
+        assert list(photo)[-2:] == ["position", "members"]
+        assert photo["members"] == []
         assert list(photo)[:6] == [
             "id",
             "name",
@@ -39,6 +40,15 @@ class TestLegacyReads:
             "album_name",
             "image_url",
         ]
+
+    def test_the_feed_carries_members_too(self) -> None:
+        album = Album.objects.create(name="Culto")
+        Photo.objects.create(album=album, name="foto.jpg", image="gallery/culto/foto.jpg")
+
+        client, _ = make_member_client()
+        photo = client.get("/api/gallery/changes/").data["photos"][0]
+
+        assert list(photo)[-1] == "members"
 
     def test_a_photo_stored_under_the_old_path_keeps_its_url(self) -> None:
         album = Album.objects.create(name="Culto")

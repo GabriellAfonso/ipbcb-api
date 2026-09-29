@@ -3,7 +3,7 @@
 import pytest
 
 from core.domain.exceptions import ValidationError
-from core.http.parsing import require_int, require_object_body
+from core.http.parsing import require_int, require_int_list, require_object_body
 
 
 class TestRequireObjectBody:
@@ -39,3 +39,19 @@ class TestRequireInt:
     def test_message_names_the_field_and_the_value(self) -> None:
         with pytest.raises(ValidationError, match="'song_id'.*'abc'"):
             require_int("abc", "song_id")
+
+
+class TestRequireIntList:
+    def test_coerces_every_value_keeping_order_and_repeats(self) -> None:
+        assert require_int_list(["12", 40, "12"], "member_id") == [12, 40, 12]
+
+    def test_empty_list_is_empty(self) -> None:
+        assert require_int_list([], "member_id") == []
+
+    @pytest.mark.parametrize("bad", ["abc", "1.5", "", None])
+    def test_rejects_a_value_that_is_not_an_integer(self, bad: object) -> None:
+        with pytest.raises(ValidationError) as caught:
+            require_int_list(["12", bad], "member_id")
+
+        assert "member_id" in str(caught.value)
+        assert repr(bad) in str(caught.value)

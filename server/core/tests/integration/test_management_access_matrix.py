@@ -64,7 +64,7 @@ ENDPOINTS: list[tuple[str, str, str, Level]] = [
         "reports.hymnal_history",
         Level.OWNER,
     ),
-    # gallery (specs 013 and 014)
+    # gallery (specs 013, 014 and 015)
     ("POST", "/api/albums/", "gallery", Level.MANAGE),
     ("PATCH", f"/api/albums/{MISSING_ID}/", "gallery", Level.MANAGE),
     ("DELETE", f"/api/albums/{MISSING_ID}/", "gallery", Level.OWNER),
@@ -78,6 +78,9 @@ ENDPOINTS: list[tuple[str, str, str, Level]] = [
     ("GET", "/api/gallery/trash/", "gallery", Level.OWNER),
     ("POST", f"/api/gallery/trash/albums/{MISSING_ID}/restore/", "gallery", Level.OWNER),
     ("POST", f"/api/gallery/trash/photos/{MISSING_ID}/restore/", "gallery", Level.OWNER),
+    ("PUT", f"/api/photos/{MISSING_ID}/members/", "gallery", Level.MANAGE),
+    ("POST", "/api/photos/members/", "gallery", Level.MANAGE),
+    ("GET", "/api/gallery/taggable-members/", "gallery", Level.MANAGE),
 ]
 
 _ALL_SCOPES = [

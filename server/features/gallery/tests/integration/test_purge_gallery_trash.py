@@ -5,10 +5,12 @@ from io import StringIO
 from pathlib import Path
 
 import pytest
+from django.apps import apps
 from django.core.management import call_command
 from django.utils import timezone
 
 from features.gallery.models.gallery import Album, Photo
+from features.gallery.models.tags import PhotoTag
 from features.gallery.models.trash import GalleryDeletionBatch, GalleryDeletionMark
 from features.gallery.tests.integration.helpers import gallery_manager
 from features.gallery.tests.support import CaptureOnCommit
@@ -96,3 +98,21 @@ class TestPurgeCommand:
         _age(41, root_kind="photo")
         assert "purged 2 batches" in _purge()
         assert not Album.all_objects.exists() and not Photo.all_objects.exists()
+
+
+@pytest.mark.django_db
+def test_purge_removes_the_photo_s_tags_and_keeps_the_member_s_others(media_root: Path) -> None:
+    """specs/015-gallery-member-tags FR-009: tags go with the purged row, nowhere else."""
+    album = Album.objects.create(name="A")
+    gone = Photo.objects.create(album=album, name="g.jpg", image="gallery/1/g.jpg")
+    kept = Photo.objects.create(album=album, name="k.jpg", image="gallery/1/k.jpg")
+    ana = apps.get_model("members", "Member").objects.create(name="Ana")
+    PhotoTag.objects.bulk_create(
+        [PhotoTag(photo=gone, member=ana), PhotoTag(photo=kept, member=ana)]
+    )
+    gallery_manager().delete(f"/api/photos/{gone.pk}/")
+    _age(31)
+
+    _purge()
+
+    assert list(PhotoTag.objects.values_list("photo_id", flat=True)) == [kept.pk]
