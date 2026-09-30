@@ -10,6 +10,10 @@ ALLOWED_HOSTS = ["*"]
 SECRET_KEY = "insecure-test-only-key-with-enough-bytes-for-hs256"  # nosec B105
 SIMPLE_JWT = {**SIMPLE_JWT, "SIGNING_KEY": SECRET_KEY}  # noqa: F405
 
+# PBKDF2 is slow by design and the suite hashes a password in almost every test (make_user,
+# logins): the default hasher took the full run from ~1 min to ~15 min. Production keeps PBKDF2.
+PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
