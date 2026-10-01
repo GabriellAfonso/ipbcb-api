@@ -8,6 +8,7 @@ from core.domain.access import (
     Role,
     Scope,
     codename,
+    codenames_at_least,
     panel_scope_permissions,
     required_level,
     resolve_grants,
@@ -135,3 +136,23 @@ class TestResolveGrants:
 def test_every_role_has_a_display_name() -> None:
     assert set(ROLE_DISPLAY_NAMES) == set(Role)
     assert ROLE_DISPLAY_NAMES[Role.LEADER] == "Liderança"
+
+
+class TestCodenamesAtLeast:
+    def test_manage_includes_owner(self) -> None:
+        assert codenames_at_least(Scope.SONGS, Level.MANAGE) == {"songs__manage", "songs__owner"}
+
+    def test_view_includes_every_level(self) -> None:
+        assert codenames_at_least(Scope.SONGS, Level.VIEW) == {
+            "songs__view",
+            "songs__manage",
+            "songs__owner",
+        }
+
+    def test_owner_is_only_owner(self) -> None:
+        assert codenames_at_least(Scope.SONGS, Level.OWNER) == {"songs__owner"}
+
+    def test_dotted_scope_uses_underscore(self) -> None:
+        assert codenames_at_least(Scope.REPORTS_HYMNAL_HISTORY, Level.OWNER) == {
+            "reports_hymnal_history__owner"
+        }

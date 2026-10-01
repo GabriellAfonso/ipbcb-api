@@ -41,7 +41,17 @@ class TestProfileResource:
         data = make_auth_client(user).get(PROFILE_URL).data
 
         assert data["member_id"] is None
-        assert set(data) == {"name", "is_member", "photo_url", "roles", "permissions", "member_id"}
+        # Worship flags added by specs/017-sunday-setlist-push US4.
+        assert set(data) == {
+            "name",
+            "is_member",
+            "photo_url",
+            "roles",
+            "permissions",
+            "member_id",
+            "is_worship_member",
+            "can_save_setlist",
+        }
 
     def test_linked_profile_carries_the_member_id(self) -> None:
         user = make_user(username="linked")

@@ -3,11 +3,13 @@
 Named classes rather than inline stubs, per CLAUDE.md §10.
 """
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 from uuid import UUID
 
 from features.songs.hymnal_history_dtos import ServiceWindowDTO
+from features.songs.models.song import Song
+from features.songs.setlist_dtos import SetlistDTO, SetlistItemDTO, SetlistItemInput
 from core.models import ChurchService
 from features.songs.models.hymnal_history import (
     HymnalHistorySettings,
@@ -128,3 +130,71 @@ class FakeHymnalHistoryRepository:
         for field, value in changes.items():
             setattr(self.settings, field, value)
         return self.settings
+
+
+class FakeSetlistRepository:
+    """In-memory ``SetlistRepository``. Songs are named from ``titles`` (song id -> title);
+    ``played_dates`` stands for dates with ``Played`` rows.
+
+    >>> FakeSetlistRepository().current(date(2026, 10, 1)) is None
+    True
+    """
+
+    def __init__(self, titles: dict[int, str] | None = None) -> None:
+        self.titles = dict(titles or {})
+        self.setlists: dict[date, SetlistDTO] = {}
+        self.slots: dict[date, datetime] = {}
+        self.played_dates: set[date] = set()
+        self.replace_calls = 0
+
+    def replace(
+        self, day: date, author_id: UUID, items: list[SetlistItemInput], saved_at: datetime
+    ) -> tuple[SetlistDTO, bool]:
+        self.replace_calls += 1
+        existed = day in self.setlists
+        self.setlists[day] = SetlistDTO(
+            date=day,
+            items=[self._item(item) for item in sorted(items, key=lambda i: i.position)],
+            saved_by_name=str(author_id),
+            saved_at=saved_at,
+        )
+        return self.setlists[day], existed
+
+    def get_by_date(self, day: date) -> SetlistDTO | None:
+        return self.setlists.get(day)
+
+    def current(self, today: date) -> SetlistDTO | None:
+        upcoming = sorted(day for day in self.setlists if day >= today)
+        return self.setlists[upcoming[0]] if upcoming else None
+
+    def pending(self, today: date) -> list[SetlistDTO]:
+        days = [d for d in self.setlists if d <= today and d not in self.played_dates]
+        return [self.setlists[d] for d in sorted(days, reverse=True)]
+
+    def has_plays(self, day: date) -> bool:
+        return day in self.played_dates
+
+    def claim_reminder_slot(self, day: date, slot: datetime) -> bool:
+        if day not in self.setlists:
+            return False
+        last = self.slots.get(day)
+        if last is not None and last >= slot:
+            return False
+        self.slots[day] = slot
+        return True
+
+    def _item(self, item: SetlistItemInput) -> SetlistItemDTO:
+        title = self.titles.get(item.song_id, f"Song {item.song_id}")
+        return SetlistItemDTO(
+            position=item.position, song_id=item.song_id, title=title, artist="A", tone=item.tone
+        )
+
+
+class FakeSongLookup:
+    """``SongLookup`` over a fixed set of existing song ids."""
+
+    def __init__(self, existing_ids: set[int]) -> None:
+        self.existing_ids = set(existing_ids)
+
+    def get_songs_in_bulk(self, ids: set[int]) -> dict[int, Song]:
+        return {i: Song(id=i, title=f"Song {i}", artist="A") for i in ids & self.existing_ids}

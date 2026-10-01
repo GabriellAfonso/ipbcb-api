@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import Mock
 from core.application.dtos.access_dtos import AccessGrantsDTO
+from core.application.dtos.worship_dtos import WorshipFlagsDTO
 from core.domain.access import Role, resolve_grants
 from features.accounts.serializers.serializers import ProfileSerializer
 from conftest import make_user
@@ -107,3 +108,16 @@ def test_missing_grants_is_an_error_not_an_empty_role_list() -> None:
     s = ProfileSerializer(context={})
     with pytest.raises(KeyError, match="access_grants"):
         s.get_roles(Mock())
+
+
+def test_worship_flags_come_from_context() -> None:
+    flags = WorshipFlagsDTO(is_worship_member=True, can_save_setlist=False)
+    s = ProfileSerializer(context={"worship_flags": flags})
+    assert s.get_is_worship_member(Mock()) is True
+    assert s.get_can_save_setlist(Mock()) is False
+
+
+def test_missing_worship_flags_is_an_error_not_false() -> None:
+    s = ProfileSerializer(context={})
+    with pytest.raises(KeyError, match="WorshipFlagsDTO"):
+        s.get_can_save_setlist(Mock())
