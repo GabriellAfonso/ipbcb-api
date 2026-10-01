@@ -185,5 +185,5 @@ specs/                          # project root, outside server/
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at `specs/016-photo-upload-idempotency/plan.md`
+at `specs/017-sunday-setlist-push/plan.md`
 <!-- SPECKIT END -->
