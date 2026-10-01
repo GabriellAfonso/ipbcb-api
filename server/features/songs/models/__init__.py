@@ -6,3 +6,4 @@ from .hymnal_history import (
     HymnalHistorySettings as HymnalHistorySettings,
     HymnalViewEvent as HymnalViewEvent,
 )
+from .setlist import Setlist as Setlist, SetlistItem as SetlistItem

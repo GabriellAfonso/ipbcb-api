@@ -13,6 +13,7 @@ from features.songs.models.hymnal_history import (
 )
 from features.songs.models.lyrics import Lyrics
 from features.songs.models.song import Played, Song
+from features.songs.setlist_dtos import SetlistDTO, SetlistItemInput
 
 
 class SongRepository(Protocol):
@@ -115,3 +116,27 @@ class HymnalHistoryRepository(Protocol):
     def get_settings(self) -> HymnalHistorySettings: ...
 
     def update_settings(self, changes: dict[str, int]) -> HymnalHistorySettings: ...
+
+
+class SongLookup(Protocol):
+    """The one song query a setlist save needs; ``SongRepositoryImpl`` satisfies it."""
+
+    def get_songs_in_bulk(self, ids: set[int]) -> dict[int, Song]: ...
+
+
+class SetlistRepository(Protocol):
+    """Contract for Sunday setlist persistence (specs/017-sunday-setlist-push)."""
+
+    def replace(
+        self, day: date, author_id: UUID, items: list[SetlistItemInput], saved_at: datetime
+    ) -> tuple[SetlistDTO, bool]: ...
+
+    def get_by_date(self, day: date) -> SetlistDTO | None: ...
+
+    def current(self, today: date) -> SetlistDTO | None: ...
+
+    def pending(self, today: date) -> list[SetlistDTO]: ...
+
+    def has_plays(self, day: date) -> bool: ...
+
+    def claim_reminder_slot(self, day: date, slot: datetime) -> bool: ...

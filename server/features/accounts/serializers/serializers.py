@@ -9,6 +9,7 @@ from features.accounts.validators import USERNAME_RULE_MESSAGE, is_valid_usernam
 from features.accounts.models.user import User
 from core.application.dtos.access_dtos import AccessGrantsDTO
 from core.application.dtos.auth_dtos import RegisterDTO
+from core.application.dtos.worship_dtos import WorshipFlagsDTO
 from core.domain.access import ROLE_DISPLAY_NAMES, Scope
 
 
@@ -116,11 +117,31 @@ class ProfileSerializer(serializers.ModelSerializer[Profile]):
     permissions = serializers.SerializerMethodField()
     # Set only in the Django admin; a value sent in PATCH is ignored (spec 015 FR-003).
     member_id = serializers.IntegerField(read_only=True, allow_null=True)
+    # Worship ministry flags (spec 017 US4), from ``context["worship_flags"]``.
+    is_worship_member = serializers.SerializerMethodField()
+    can_save_setlist = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
-        fields = ["name", "is_member", "photo_url", "roles", "permissions", "member_id"]
-        read_only_fields = ["is_member", "photo_url", "roles", "permissions", "member_id"]
+        fields = [
+            "name",
+            "is_member",
+            "photo_url",
+            "roles",
+            "permissions",
+            "member_id",
+            "is_worship_member",
+            "can_save_setlist",
+        ]
+        read_only_fields = [
+            "is_member",
+            "photo_url",
+            "roles",
+            "permissions",
+            "member_id",
+            "is_worship_member",
+            "can_save_setlist",
+        ]
 
     def _access_grants(self) -> AccessGrantsDTO:
         # No silent default: a view that forgot to pass the grants would tell the app the user
@@ -153,6 +174,29 @@ class ProfileSerializer(serializers.ModelSerializer[Profile]):
             scope.value: level.wire_name if (level := grants.level_for(scope)) else None
             for scope in Scope
         }
+
+    def _worship_flags(self) -> WorshipFlagsDTO:
+        # Same guard as _access_grants: a silent False would hide the setlist screens from the
+        # worship leader without any error.
+        flags = self.context.get("worship_flags")
+        if not isinstance(flags, WorshipFlagsDTO):
+            raise KeyError(
+                f"ProfileSerializer needs context['worship_flags'] as WorshipFlagsDTO, "
+                f"got {type(flags).__name__}."
+            )
+        return flags
+
+    def get_is_worship_member(self, obj: Profile) -> bool:
+        """>>> serializer.get_is_worship_member(profile)
+        True
+        """
+        return self._worship_flags().is_worship_member
+
+    def get_can_save_setlist(self, obj: Profile) -> bool:
+        """>>> serializer.get_can_save_setlist(profile)
+        False
+        """
+        return self._worship_flags().can_save_setlist
 
     def get_photo_url(self, obj: Profile) -> str | None:
         request: Request | None = self.context.get("request")

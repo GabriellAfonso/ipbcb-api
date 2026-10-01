@@ -79,6 +79,36 @@ services:
     networks:
       - proxy-network
 
+  # Sunday-night reminder to register the played songs (specs/017-sunday-setlist-push). Each
+  # run does nothing outside Sunday 21:00-24:00; inside, it claims the current half-hour window
+  # on the setlist before pushing, so restarts and overlaps never send a window twice. A loop
+  # plus a management command, like the token flush above, instead of a task queue. Reads
+  # FCM_SERVICE_ACCOUNT_JSON_BASE64 from ./.env, the only extra secret it needs.
+  ipbcb_setlist_reminder:
+    container_name: ipbcb-setlist-reminder-prod
+    image: ipbcb-server:prod
+    command:
+    - sh
+    - -c
+    - |
+      while true; do
+        python manage.py send_setlist_reminders
+        sleep 60
+      done
+    env_file:
+      - ./.env
+    environment:
+      DJANGO_ENV: prod
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+    depends_on:
+      ipbcb_db:
+        condition: service_healthy
+      ipbcb_server:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - proxy-network
+
   prometheus:
     container_name: ipbcb-prometheus-prod
     image: prom/prometheus:v3.4.2

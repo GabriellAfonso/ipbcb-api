@@ -2,6 +2,10 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenBlacklistView
 
 from features.accounts.views.auth import GoogleLoginAPI, LoginAPI, RefreshAPI, RegisterAPI
+from features.accounts.views.devices import (
+    DeviceTokenRegisterAPIView,
+    DeviceTokenUnregisterAPIView,
+)
 from features.accounts.views.profile import MeProfileAPIView, ProfilePhotoAPIView
 
 urlpatterns = [
@@ -15,4 +19,10 @@ urlpatterns = [
     path("api/auth/logout/", TokenBlacklistView.as_view(), name="logout"),
     path("api/me/profile/photo/", ProfilePhotoAPIView.as_view(), name="profile_photo"),
     path("api/me/profile/", MeProfileAPIView.as_view(), name="me_profile"),
+    path("api/me/devices/", DeviceTokenRegisterAPIView.as_view(), name="device_register"),
+    path(
+        "api/me/devices/unregister/",
+        DeviceTokenUnregisterAPIView.as_view(),
+        name="device_unregister",
+    ),
 ]

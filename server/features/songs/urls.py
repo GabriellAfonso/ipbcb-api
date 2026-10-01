@@ -10,6 +10,11 @@ from features.songs.views.hymnal_history import (
     ServiceWindowListCreateAPI,
 )
 from features.songs.views.register_plays import RegisterSundayPlaysAPI
+from features.songs.views.setlists import (
+    CurrentSetlistAPI,
+    PendingConfirmationSetlistsAPI,
+    SetlistByDateAPI,
+)
 from features.songs.views.songs import (
     AllSongsAPI,
     ChordChartDetailAPI,
@@ -30,6 +35,14 @@ urlpatterns = [
     path("api/suggested-songs/", SuggestedSongsAPI.as_view(), name="suggested_songs"),
     path("api/hymnal/", HymnalAPI.as_view(), name="hymnal"),
     path("api/played/register/", RegisterSundayPlaysAPI.as_view(), name="register_sunday_plays"),
+    # current/ and pending-confirmation/ before <day>/, which would otherwise swallow them.
+    path("api/setlists/current/", CurrentSetlistAPI.as_view(), name="setlist_current"),
+    path(
+        "api/setlists/pending-confirmation/",
+        PendingConfirmationSetlistsAPI.as_view(),
+        name="setlist_pending_confirmation",
+    ),
+    path("api/setlists/<str:day>/", SetlistByDateAPI.as_view(), name="setlist_by_date"),
     path("api/chord-charts/", ChordChartListAPI.as_view(), name="chord_charts"),
     path("api/chord-charts/<int:pk>/", ChordChartDetailAPI.as_view(), name="chord_chart_detail"),
     path("api/lyrics/", LyricsListAPI.as_view(), name="lyrics"),

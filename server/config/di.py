@@ -51,12 +51,15 @@ from features.members.services.member_roster_service import MemberRosterService
 from features.members.services.member_service import MemberService
 from features.songs.repositories.hymnal_history_repository import HymnalHistoryRepositoryImpl
 from features.songs.repositories.hymnal_repository import HymnalRepositoryImpl
+from features.songs.repositories.setlist_repository import SetlistRepositoryImpl
 from features.songs.repositories.song_repository import SongRepositoryImpl
 from features.songs.services.hymnal_history_config_service import HymnalHistoryConfigService
 from features.songs.services.hymnal_history_ingest_service import HymnalHistoryIngestService
 from features.songs.services.hymnal_history_report_service import HymnalHistoryReportService
 from features.songs.services.hymnal_service import HymnalService
 from features.songs.services.register_plays_service import RegisterPlaysService
+from features.songs.services.setlist_reminder_service import SetlistReminderService
+from features.songs.services.setlist_service import SetlistService
 from features.schedule.repositories.schedule_repository import ScheduleRepositoryImpl
 from features.schedule.services.schedule_service import ScheduleService
 from features.songs.services.song_service import SongService
@@ -78,11 +81,13 @@ class Container(containers.DeclarativeContainer):
         modules=[
             "core.http.permissions",
             "features.accounts.views.auth",
+            "features.accounts.views.devices",
             "features.accounts.views.profile",
             "features.bible.views",
             "features.gallery.admin",
             "features.gallery.management.commands.generate_photo_thumbnails",
             "features.gallery.management.commands.purge_gallery_trash",
+            "features.songs.management.commands.send_setlist_reminders",
             "features.gallery.views.albums",
             "features.gallery.views.album_cover",
             "features.gallery.views.changes",
@@ -95,6 +100,7 @@ class Container(containers.DeclarativeContainer):
             "features.songs.views.hymnal",
             "features.songs.views.hymnal_history",
             "features.songs.views.register_plays",
+            "features.songs.views.setlists",
             "features.songs.views.songs",
             "features.members.views.birthdays",
             "features.members.views.members",
@@ -206,6 +212,23 @@ class Container(containers.DeclarativeContainer):
     song_service = providers.Factory(SongService, repository=song_repository)
     register_plays_service = providers.Factory(RegisterPlaysService, repository=song_repository)
     hymnal_service = providers.Factory(HymnalService, repository=hymnal_repository)
+
+    setlist_repository = providers.Factory(SetlistRepositoryImpl)
+    setlist_service = providers.Factory(
+        SetlistService,
+        setlist_repository=setlist_repository,
+        song_repository=song_repository,
+        worship_access_service=worship_access_service,
+        push_service=push_service,
+        clock=clock,
+    )
+    setlist_reminder_service = providers.Factory(
+        SetlistReminderService,
+        setlist_repository=setlist_repository,
+        worship_access_service=worship_access_service,
+        push_service=push_service,
+        clock=clock,
+    )
 
     hymnal_history_ingest_service = providers.Factory(
         HymnalHistoryIngestService,
