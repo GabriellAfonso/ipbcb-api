@@ -34,6 +34,27 @@ Manages worship songs, play history, hymnal, chord charts, and lyrics for the ch
 | position | IntegerField |                                |
 | date     | DateField  |                                  |
 
+### Setlist
+
+The Sunday repertoire chosen in advance by the worship ministry — what *will* be played.
+`Played` stays the record of what *was* played. Design in `specs/017-sunday-setlist-push/`.
+
+| Field              | Type          | Constraints                                               |
+|--------------------|---------------|-----------------------------------------------------------|
+| date               | DateField     | unique — always a Sunday (checked by the service)         |
+| saved_by           | FK(User)      | nullable, SET_NULL — last author                          |
+| saved_at           | DateTimeField | set on every save                                         |
+| last_reminder_slot | DateTimeField | nullable — start of the last reminder window claimed; a re-save never resets it |
+
+### SetlistItem
+
+| Field    | Type                      | Constraints                                  |
+|----------|---------------------------|----------------------------------------------|
+| setlist  | FK(Setlist)               | CASCADE, `related_name="items"`              |
+| position | PositiveSmallIntegerField | 1-10, unique per setlist                     |
+| song     | FK(Song)                  | PROTECT — a song in any setlist cannot be deleted |
+| tone     | CharField                 | max=3, required                              |
+
 ### Hymn
 
 | Field  | Type       | Constraints         |
@@ -190,7 +211,45 @@ Register songs played on a given Sunday.
   - Position range: 1-10 (allows extra songs for special occasions)
   - All referenced songs must exist
 - **Response**: `201 { "created": N }` on success
-- **Errors**: `400 { "detail": "..." }` with descriptive messages
+- **Errors**:
+  - `400` (`VALIDATION_ERROR`) for a malformed body, a missing or invalid field, or a position
+    out of range
+  - `404` (`NOT_FOUND`, `SongsNotFoundError`) when any referenced song does not exist, listing
+    the missing ids; nothing is created
+
+### Setlist endpoints
+
+Full contract (bodies, every error) in `specs/017-sunday-setlist-push/contracts/setlist-api.md`.
+All private (`Cache-Control: private, no-store`, `Vary: Authorization`).
+
+**Worship member**: a user whose profile is linked to a member of the ministry named "Louvor"
+(case-insensitive, surrounding whitespace ignored; constant `core.domain.worship`). Ministry ids
+are never used. `Member.is_active` is not considered. Membership never grants a scope level; it
+only narrows who may save.
+
+| Method | Path | Permission | Behaviour |
+|--------|------|------------|-----------|
+| PUT | `api/setlists/{date}/` | `manage` on `songs` **and** worship member | Create or fully replace the setlist of that Sunday. `items: [{song_id, position, tone}]`, non-empty, positions 1-10 unique, tone 1-3 chars. 400 non-Sunday / bad body / repeated positions, 403, 404 unknown songs (`missing_song_ids`). 200 with the stored setlist, then a `setlist_saved` push |
+| GET | `api/setlists/{date}/` | `manage` on `songs` (`GET` override) | The setlist of that date, or 404 |
+| GET | `api/setlists/current/` | worship member (`IsWorshipMember`) | `{"setlist": ... }` — earliest date on or after today (`America/Sao_Paulo`), or `null` |
+| GET | `api/setlists/pending-confirmation/` | `manage` on `songs` (`GET` override) | Setlists dated on or before today with no `Played` row for their date, newest first |
+
+Setlist body: `{date, items: [{position, song_id, title, artist, tone}], saved_by_name, saved_at}`.
+
+**Push after save**: data message `{"type": "setlist_saved", "date": "YYYY-MM-DD"}` to every
+registered device of every worship member, author included, sent after the save commits. A push
+failure is logged and never fails or rolls back the save. Tokens FCM reports as unregistered are
+deleted.
+
+### Reminder: `manage.py send_setlist_reminders`
+
+Run every 60 s by the `ipbcb_setlist_reminder` loop in `compose.prod.yml`. On the setlist's
+Sunday, from 21:00 `America/Sao_Paulo`, each half-hour window (21:00 … 23:30) sends one
+`{"type": "confirm_plays", "date": ...}` push to the devices of users with `manage` on `songs` who
+are worship members — only while no `Played` row exists for that date. The window is claimed on
+the setlist row (`last_reminder_slot`, conditional update) before sending, so a restart, an
+overlapping run or a failed send never repeats it; missed windows are never sent late. Prints one
+summary line, always exits 0.
 
 ### GET /api/chord-charts/
 
@@ -298,6 +357,7 @@ Follows clean architecture (Views -> Services -> Repositories -> Models):
 
 - **Repository**: `SongRepositoryImpl` (songs, played, chord charts, lyrics), `HymnalRepositoryImpl` (hymns)
 - **Services**: `SongService` (queries + suggestions), `RegisterPlaysService` (play registration), `HymnalService` (hymnal listing)
+- **Setlists**: `SetlistRepositoryImpl`, `SetlistService` (save, current, by date, pending), `SetlistReminderService` (reminder run); push, device tokens and worship membership come from `core` (`PushService`, `WorshipAccessService`)
 - **DI**: All services/repositories registered in `config/di.py`, injected via `@inject` + `Provide[Container.xxx]`
 
 Hymnal view history follows the same pattern — its own repositories for view events, service windows and settings, its own services for ingest and for occurrence reporting, Pydantic DTOs between layers, domain exceptions from `core/domain/exceptions.py`, and DI registration in `config/di.py`. Component names and implementation order are defined in `specs/006-hymnal-view-history/plan.md`.
@@ -315,4 +375,13 @@ Hymnal view history follows the same pattern — its own repositories for view e
 - **AllowAny + throttle on ingest**: this is the only *write* endpoint open to unauthenticated clients. Most members use the hymnal without logging in, so requiring auth would collect a biased and largely empty history. Compensating controls: throttling, a required `device_id`, the `client_event_id` idempotency key, and strict per-event validation. The data carries nothing sensitive.
 - **Client-side duration threshold**: `min_seconds_to_count` is enforced by the app, never re-checked on ingest. A device syncing buffered events may still hold an older config value, and rejecting those would silently drop legitimate history.
 - **No confirmation endpoint**: `client_event_id` gives real idempotency, so the app just re-sends instead of asking the server what it already has.
+- **`Setlist` vs `Played`**: separate on purpose. The setlist is the plan, saved before the
+  service by the worship ministry; `Played` is what happened, registered after. A `Played` row for
+  the date — any row, matching the setlist or not — is what stops the reminder and clears the
+  pending card.
+- **Worship ministry by name**: ministry ids change when ministries are recreated in the admin,
+  so "Louvor" is matched by name. Renaming it disables saving, distribution and reminders, which
+  is logged as `worship_ministry_missing`.
+- **Push is best effort**: the setlist is the source of truth; the app falls back to
+  `api/setlists/current/` when a push never arrives.
 - **Occurrences derived at read time**: never materialized. Editing service windows changes future reports without touching a single stored event.

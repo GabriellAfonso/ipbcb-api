@@ -123,10 +123,14 @@ All under `/ipbcb/accounts/`.
 - Supports ETag (`If-None-Match` -> 304)
 - Auto-creates Profile if missing (get_or_create)
 
+- Also returns `is_worship_member` (the linked member belongs to the ministry named "Louvor") and
+  `can_save_setlist` (`is_worship_member` and `manage` on `songs`), computed on every read; the
+  ETag changes with them (`specs/017-sunday-setlist-push/`)
+
 ### PATCH `api/me/profile/`
 - **Authenticated**
-- Updatable: `name` only (is_member, photo_url, roles, permissions, member_id are read-only;
-  a `member_id` sent is ignored)
+- Updatable: `name` only (is_member, photo_url, roles, permissions, member_id,
+  is_worship_member, can_save_setlist are read-only; a `member_id` sent is ignored)
 - Returns: updated profile (200)
 
 ### POST `api/me/profile/photo/`
@@ -145,6 +149,28 @@ All under `/ipbcb/accounts/`.
 - **Authenticated**
 - Removes photo from profile and disk
 - Returns: 204
+
+---
+
+### POST `api/me/devices/`
+- **Authenticated**
+- Input: `{"token": "<FCM registration token>"}` — string, trimmed, 1-512 chars, no inner
+  whitespace
+- Stores the token as `core.DeviceToken` for the caller. Idempotent; a token already registered
+  by another account moves to the caller (one phone, one owner: the account last signed in)
+- Returns: 204, or 400 `VALIDATION_ERROR`
+- The app calls it after every login and whenever FCM rotates the token
+
+### POST `api/me/devices/unregister/`
+- **Authenticated** — the app calls it on logout, **before** `api/auth/logout/`
+- Input: `{"token": "..."}`
+- Deletes the token only if the caller owns it. Unknown token or someone else's: nothing
+  changes, still 204, so logout never fails on it
+- `POST`, not `DELETE` on a path: the token must never appear in a URL (access logs)
+
+Tokens are also deleted when FCM reports them unregistered, and with their user (`CASCADE`).
+Never logged, never shown in the Django admin. Contract in
+`specs/017-sunday-setlist-push/contracts/me-api.md`.
 
 ---
 

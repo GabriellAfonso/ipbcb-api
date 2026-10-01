@@ -35,6 +35,11 @@ member names through the gallery tag picker (`specs/015-gallery-member-tags/`).
 
 ### Ministry
 - `name`: string, max 100, unique
+- **One name is load-bearing: "Louvor".** The worship setlist (`specs/017-sunday-setlist-push/`)
+  finds the worship ministry by that name (case-insensitive, surrounding whitespace ignored),
+  never by id. Renaming or deleting it in the Django admin silently disables setlist saving,
+  distribution and reminders; each push attempt then logs `worship_ministry_missing`. Unlike
+  statuses, this is the one place code depends on a ministry name.
 
 Statuses, roles and ministries are managed in the Django admin only.
 
