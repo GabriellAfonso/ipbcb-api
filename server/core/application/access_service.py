@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from core.application.dtos.access_dtos import AccessGrantsDTO
-from core.domain.access import Role, resolve_grants
+from core.domain.access import Level, Role, Scope, resolve_grants
 from core.repositories.interfaces import RoleGrantRepository
 
 
@@ -25,3 +25,11 @@ class AccessService:
         held = set(rows.role_names)
         roles = [role for role in Role if role.value in held]
         return AccessGrantsDTO(roles=roles, levels=resolve_grants(roles, rows.codenames))
+
+    def user_ids_with_level(self, scope: Scope, level: Level) -> set[UUID]:
+        """Every active user holding ``level`` or higher on ``scope``.
+
+        >>> service.user_ids_with_level(Scope.SONGS, Level.MANAGE)
+        {UUID('...')}
+        """
+        return self._repository.user_ids_with_level(scope, level)

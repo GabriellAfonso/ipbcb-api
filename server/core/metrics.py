@@ -39,3 +39,11 @@ LYRICS_VIEWS_COUNTER = Counter(
     "ipbcb_lyrics_views_total",
     "Total lyrics list views",
 )
+
+# Server process only: the reminder container is not scraped, its logs are the record there
+# (specs/017-sunday-setlist-push R-15).
+PUSH_MESSAGES_COUNTER = Counter(
+    "ipbcb_push_messages_total",
+    "Push messages handed to the provider, by message type and per-device outcome",
+    ["type", "outcome"],
+)

@@ -81,6 +81,17 @@ PERMISSION_BY_CODENAME: Mapping[str, tuple[Scope, Level]] = MappingProxyType(
 )
 
 
+def codenames_at_least(scope: Scope, level: Level) -> frozenset[str]:
+    """Codenames that give ``level`` or higher on ``scope`` — levels are hierarchical, so a role
+    holding ``owner`` also counts for ``manage``. Used to find every holder of a level at once
+    (specs/017-sunday-setlist-push R-04).
+
+    >>> sorted(codenames_at_least(Scope.SONGS, Level.MANAGE))
+    ['songs__manage', 'songs__owner']
+    """
+    return frozenset(codename(scope, held) for held in Level if held >= level)
+
+
 def panel_scope_permissions() -> tuple[tuple[str, str], ...]:
     """``Meta.permissions`` of ``core.PanelScope``: one entry per scope and level.
 

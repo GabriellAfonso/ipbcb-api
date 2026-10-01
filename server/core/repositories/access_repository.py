@@ -1,9 +1,11 @@
 from uuid import UUID
 
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
+from django.db.models import Q
 
 from core.application.dtos.access_dtos import RoleGrantRowsDTO
-from core.domain.access import Role
+from core.domain.access import Level, Role, Scope, codenames_at_least
 
 _ROLE_NAMES = [role.value for role in Role]
 
@@ -37,3 +39,28 @@ class RoleGrantRepositoryImpl:
             .distinct()
         )
         return RoleGrantRowsDTO(role_names=list(role_names), codenames=list(codenames))
+
+    def user_ids_with_level(self, scope: Scope, level: Level) -> set[UUID]:
+        """Every active user holding ``level`` or higher on ``scope``, in one query: Admin by
+        group alone (it is owner of every scope without stored rows, as in ``resolve_grants``),
+        the other roles through their scope codenames. Inactive users are left out — they cannot
+        sign in, so nothing is sent to them.
+
+        >>> RoleGrantRepositoryImpl().user_ids_with_level(Scope.SONGS, Level.MANAGE)
+        {UUID('...admin...'), UUID('...leader...')}
+        """
+        by_admin = Q(groups__name=Role.ADMIN.value)
+        by_codename = Q(
+            groups__name__in=_ROLE_NAMES,
+            groups__permissions__content_type__app_label="core",
+            groups__permissions__content_type__model="panelscope",
+            groups__permissions__codename__in=codenames_at_least(scope, level),
+        )
+        user_ids = (
+            get_user_model()
+            .objects.filter(is_active=True)
+            .filter(by_admin | by_codename)
+            .values_list("pk", flat=True)
+            .distinct()
+        )
+        return set(user_ids)

@@ -49,6 +49,11 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "")
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", default="")
 
+# Firebase service account JSON, base64-encoded on one line (specs/017-sunday-setlist-push R-06).
+# Empty disables push: saves and reminders still work, with a warning logged per send. Decoded
+# only by core.push.factory, which never echoes the value in an error.
+FCM_SERVICE_ACCOUNT_JSON_BASE64 = os.environ.get("FCM_SERVICE_ACCOUNT_JSON_BASE64", "")
+
 DEBUG = env_bool("DJANGO_DEBUG", False)
 
 AUTH_USER_MODEL = "accounts.User"

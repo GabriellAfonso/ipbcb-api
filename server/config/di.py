@@ -11,7 +11,13 @@ from features.accounts.services.profile_service import ProfileService
 from features.accounts.services.refresh_service import RefreshService
 from features.accounts.services.register_service import RegisterService
 from core.application.access_service import AccessService
+from core.application.device_token_service import DeviceTokenService
+from core.application.push_service import PushService
+from core.application.worship_access_service import WorshipAccessService
+from core.push.factory import build_push_sender
 from core.repositories.access_repository import RoleGrantRepositoryImpl
+from core.repositories.device_token_repository import DeviceTokenRepositoryImpl
+from core.repositories.worship_repository import WorshipMembershipRepositoryImpl
 from core.time.clock import SystemClock
 from features.bible.repositories import BibleRepositoryImpl
 from features.bible.services import BibleService
@@ -62,6 +68,11 @@ def _media_root() -> Path:
     return Path(settings.MEDIA_ROOT)
 
 
+def _push_credentials() -> str:
+    """Read when the sender is first built, not at import: settings are not loaded yet then."""
+    return str(settings.FCM_SERVICE_ACCOUNT_JSON_BASE64)
+
+
 class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         modules=[
@@ -96,6 +107,25 @@ class Container(containers.DeclarativeContainer):
 
     role_grant_repository = providers.Factory(RoleGrantRepositoryImpl)
     access_service = providers.Factory(AccessService, role_grant_repository=role_grant_repository)
+
+    # Worship ministry and push (specs/017-sunday-setlist-push). The sender is a Singleton so the
+    # OAuth token (valid 1 h) and the HTTP connection are reused across sends.
+    worship_membership_repository = providers.Factory(WorshipMembershipRepositoryImpl)
+    worship_access_service = providers.Factory(
+        WorshipAccessService,
+        membership_repository=worship_membership_repository,
+        access_service=access_service,
+    )
+    device_token_repository = providers.Factory(DeviceTokenRepositoryImpl)
+    push_sender = providers.Singleton(
+        build_push_sender, encoded_credentials=providers.Callable(_push_credentials)
+    )
+    push_service = providers.Factory(
+        PushService, token_repository=device_token_repository, sender=push_sender
+    )
+    device_token_service = providers.Factory(
+        DeviceTokenService, token_repository=device_token_repository
+    )
 
     user_repository = providers.Factory(UserRepositoryImpl)
     profile_repository = providers.Factory(ProfileRepositoryImpl)

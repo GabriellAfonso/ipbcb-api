@@ -9,8 +9,10 @@ from rest_framework.views import APIView
 
 from config.di import Container
 from core.application.access_service import AccessService
+from core.application.worship_access_service import WorshipAccessService
 from core.application.dtos.access_dtos import AccessGrantsDTO
 from core.domain.access import Level, Scope, required_level, validate_overrides
+from core.domain.exceptions import NotWorshipMemberError
 
 
 def _profile_of(request: Request) -> object | None:
@@ -47,6 +49,29 @@ def _grants_for(
     # Module level on purpose: dependency-injector wires the functions a module holds when the
     # container is wired. A method of a class built later by ``scope_permission`` would never be.
     return access_service.grants_for(user_id)
+
+
+@inject
+def _is_worship_member(
+    user_id: UUID,
+    worship_access_service: WorshipAccessService = Provide[Container.worship_access_service],
+) -> bool:
+    # Module level for the same wiring reason as ``_grants_for``.
+    return worship_access_service.is_worship_member(user_id)
+
+
+class IsWorshipMember(permissions.BasePermission):
+    """Only users in the worship ministry ("Louvor"). Not a management gate: it grants no scope
+    level and reads no role — the band reads the current setlist with it whatever their roles
+    (specs/017-sunday-setlist-push R-02).
+    """
+
+    message = NotWorshipMemberError().args[0]
+
+    def has_permission(self, request: Request, view: APIView) -> bool:
+        if not (request.user and request.user.is_authenticated):
+            return False
+        return _is_worship_member(request.user.pk)
 
 
 def scope_permission(

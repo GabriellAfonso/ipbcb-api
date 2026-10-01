@@ -30,6 +30,12 @@ from core.domain.gallery_exceptions import (
     UploadedPhotoTrashedError as UploadedPhotoTrashedError,
     ClientUploadIdTakenError as ClientUploadIdTakenError,
 )
+from core.domain.setlist_exceptions import (
+    NotWorshipMemberError as NotWorshipMemberError,
+    SetlistDateNotSundayError as SetlistDateNotSundayError,
+    DuplicateSetlistPositionError as DuplicateSetlistPositionError,
+    SetlistNotFoundError as SetlistNotFoundError,
+)
 
 
 class BibleVersionNotFound(NotFoundError):
