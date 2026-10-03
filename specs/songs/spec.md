@@ -346,8 +346,11 @@ Ranking / chart data — X is the hymn number, Y is how many times it was sung.
 ### CRUD /api/hymnal-history/service-windows/
 
 - **Auth**: `IsAuthenticated` + `scope_permission(Scope.REPORTS_HYMNAL_HISTORY)`. Reads (`GET` list and detail) `view`; `POST` and `PATCH` `owner` by override; `DELETE` `owner` by default — configuration writes are Admin-only
-- List, create, update and delete service windows from the app
-- **Validation**: `end_time` strictly after `start_time`, `weekday` in 0-6
+- List, create, update and delete rows of the shared catalogue `core.ChurchService` from the
+  app (the route keeps its old "service-windows" name). Fields: `name`, `weekday`,
+  `start_time`, `end_time`, `active` (default true), `takes_rota` (default true)
+- **Validation**: `end_time` strictly after `start_time` (a PATCH is checked against the stored
+  row), `weekday` in 1-7 (`1 = Sunday … 7 = Saturday`, same as everywhere else)
 
 ---
 
