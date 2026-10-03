@@ -63,7 +63,7 @@ All inherit from `StrictBaseModel`. Username normalized (strip + lowercase) via 
 
 ## Endpoints
 
-All under `/ipbcb/accounts/`.
+All under the base path `/ipbcb/` (e.g. `/ipbcb/api/auth/login/`).
 
 ### POST `api/auth/register/`
 - **Public**, throttled (scope: `login`)
@@ -236,53 +236,54 @@ Never logged, never shown in the Django admin. Contract in
 | Missing id_token | 400 | "id_token e obrigatorio." |
 | Invalid Google token | 401 | "Token do Google invalido." |
 | Unverified Google email | 400 | "Conta Google sem email verificado." |
-| Google user creation failure | 500 | "Erro ao criar usuario." |
+| Google user creation clash (unique e-mail or username) | 500 | "Erro ao criar usuario." |
 | Invalid credentials (login) | 401 | "Nome de usuario ou senha invalidos." |
 | Too many failed logins (login, admin) | 429 | "Muitas tentativas de login. Tente novamente em 30 minutos." (`ACCOUNT_LOCKED`, with `cooloff_seconds`) |
 | Username taken (register) | 400 | Validation error on username field |
+| Username taken between the check and the insert (register race) | 409 | `UsernameAlreadyExistsError` |
 | Passwords don't match | 400 | Validation error on password_confirm field |
-| Profile not found (photo delete) | 404 | "Perfil nao encontrado." |
+| No file in photo upload | 400 | "Nenhuma foto enviada." |
+
+A missing profile is never an error: every profile read and write goes through
+`get_or_create`, so there is no "profile not found" exception.
 
 ---
 
-## Architecture (current state)
+## Architecture
 
 ```
-Views (auth.py, profile.py)
-  |
-  +---> Serializers (validation + DTO creation)
-  |
-  +---> UserRepository (only used by RegisterAPI)
-  |
-  +---> Models directly (GoogleLoginAPI, ProfileViews bypass repository)
+RegisterAPI        -> RegisterService    -> UserRepository
+LoginAPI           -> LoginService       -> django.contrib.auth.authenticate (+ django-axes)
+RefreshAPI         -> RefreshService     -> UserRepository
+GoogleLoginAPI     -> GoogleAuthService  -> UserRepository, ProfileRepository
+MeProfileAPIView   -> ProfileService     -> ProfileRepository
+                   -> AccessService, WorshipAccessService (core) for roles and worship flags
+ProfilePhotoAPIView -> ProfileService    -> ProfileRepository
+DeviceToken*APIView -> DeviceTokenService (core)
 ```
 
-### Known violations against constitution.md
+- Repositories: `UserRepository` and `ProfileRepository` (Protocols in
+  `repositories/interfaces.py`, ORM implementations next to them). The only ORM access.
+- `MeProfileAPIView.patch`: `ProfileSerializer` only validates; the write is
+  `ProfileService.update_profile()`. Read-only fields never reach it.
+- Google avatar: `AvatarDownloader` (Protocol) <- `HttpAvatarDownloader`
+  (`repositories/avatar_downloader.py`, the only `requests` import in accounts, 5 s timeout).
+  Returns the bytes or `None`; a failure logs `avatar_download_failed` with the reason, never
+  the URL.
+- Google user creation: `UserRepositoryImpl.create_google_user` runs in one transaction and
+  turns an `IntegrityError` (two first logins racing for the same e-mail or username) into
+  `GoogleUserCreationError` (500), chained to the original. Any other error propagates as
+  itself.
+- Tokens: `features/accounts/auth/jwt.py` (`get_tokens_for_user`), see Business Rule 15.
+- Google token data goes through `GoogleUserDTO`; register and login through `RegisterDTO` and
+  `LoginDTO`.
+- Everything wired in `config/di.py`. Domain errors from `core/domain/exceptions.py`, mapped
+  to HTTP by the project's exception handler.
 
-1. **No service layer** — Views contain business logic directly
-2. **Views access ORM** — GoogleLoginAPI uses `User.objects` directly; profile views use `Profile.objects`
-3. **DI partial** — Only RegisterAPI injects UserRepository; GoogleLoginAPI bypasses it
-4. **No Google auth DTO** — Google token data extracted as raw dict values, no Pydantic validation
-5. **Repository incomplete** — Missing `get_by_email()`, `username_exists()`, `get_or_create_profile()`
-6. **Broad exception catch** — `except Exception:` in GoogleLoginAPI hides root cause
-7. **Serializer touches ORM** — `RegisterSerializer.validate_username()` queries `User.objects` directly
+### Known deviations
 
-### Target architecture
-
-```
-Views (thin HTTP layer)
-  |
-  +---> Serializers (I/O validation only, no ORM)
-  |
-  +---> Services (business logic, orchestration)
-  |       +---> RegisterService
-  |       +---> LoginService
-  |       +---> GoogleAuthService
-  |       +---> ProfileService
-  |
-  +---> Repositories (ORM access)
-          +---> UserRepository (complete: create, get_by_email, username_exists, etc.)
-          +---> ProfileRepository (get_or_create, update_photo, delete_photo)
-```
-
-All services injected via `config/di.py`. Domain errors as exceptions from `core/domain/exceptions.py`.
+1. **Username uniqueness in the serializer.** `RegisterSerializer.validate_username()` queries
+   `User.objects` so a taken username is a field-level 400. Kept on purpose; `RegisterService`
+   re-checks and raises `UsernameAlreadyExistsError` (409) for the race.
+2. **`LoginService` receives the `HttpRequest`.** The constitution's one named exception, see
+   `POST api/auth/login/`.

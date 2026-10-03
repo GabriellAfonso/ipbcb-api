@@ -3,13 +3,16 @@ import tempfile
 from typing import IO
 
 import pytest
+from dependency_injector import providers
 from django.contrib.auth.models import Group
 from django.test import override_settings
 from PIL import Image
 from rest_framework.test import APIClient
 
+from config.di import Container
 from conftest import make_auth_client, make_role_client, make_user
 from core.domain.access import Role
+from features.accounts.tests.fakes import RecordingProfileService
 
 PROFILE_URL = "/api/me/profile/"
 PHOTO_URL = "/api/me/profile/photo/"
@@ -80,6 +83,23 @@ def test_patch_profile_updates_name() -> None:
     assert response.data["name"] == "Updated Name"
     user.profile.refresh_from_db()
     assert user.profile.name == "Updated Name"
+
+
+@pytest.mark.django_db
+def test_patch_profile_writes_through_the_service(di_container: Container) -> None:
+    """Regression: the PATCH used to save through ProfileSerializer.save(), bypassing
+    ProfileService. Read-only fields sent along never reach the service."""
+    user = make_user(username="viaservice", password="testpass123")
+    recording = RecordingProfileService(di_container.profile_service())
+    with di_container.profile_service.override(providers.Object(recording)):
+        response = make_auth_client(user).patch(
+            PROFILE_URL, {"name": "Via Serviço", "is_member": True}, format="json"
+        )
+    assert response.status_code == 200
+    assert response.data["name"] == "Via Serviço"
+    assert recording.updates == [{"name": "Via Serviço"}]
+    user.profile.refresh_from_db()
+    assert user.profile.is_member is False
 
 
 @pytest.mark.django_db

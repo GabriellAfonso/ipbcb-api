@@ -37,3 +37,12 @@
 - [x] Fix type hints in `GoogleAuthService` (`object` -> `User`)
 - [x] Verify signals still work with new layer (97 tests pass)
 - [x] Review naming — `invalid_credentials_error` variable removed in view refactor
+
+## Phase 5: Leftover deviations
+
+- [x] `MeProfileAPIView.patch` writes through `ProfileService.update_profile()`, not
+      `ProfileSerializer.save()`
+- [x] Google avatar download behind `AvatarDownloader` / `HttpAvatarDownloader`
+- [x] `except Exception` on Google user creation replaced by the repository translating
+      `IntegrityError` into `GoogleUserCreationError` (chained)
+- [x] `ProfileNotFoundError` removed: nothing raised it

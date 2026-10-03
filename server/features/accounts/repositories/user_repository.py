@@ -1,8 +1,11 @@
 from typing import Optional
 from uuid import UUID
 
+from django.db import IntegrityError, transaction
+
 from features.accounts.models.user import User
 from core.application.dtos.auth_dtos import RegisterDTO
+from core.domain.exceptions import GoogleUserCreationError
 from features.accounts.repositories.interfaces import UserRepository
 
 
@@ -20,14 +23,27 @@ class UserRepositoryImpl(UserRepository):
     def create_google_user(
         self, email: str, username: str, first_name: str, last_name: str
     ) -> User:
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            first_name=first_name,
-            last_name=last_name,
-        )
-        user.set_unusable_password()
-        user.save(update_fields=["password"])
+        """Create a Google user with an unusable password.
+
+        A clash on a unique column (two first logins racing for the same e-mail or
+        username) raises ``GoogleUserCreationError``, chained to the ``IntegrityError``.
+        Only that error is translated: anything else is a bug and propagates unchanged.
+
+        >>> repo.create_google_user("ana@gmail.com", "ana", "Ana", "Souza").has_usable_password()
+        False
+        """
+        try:
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name,
+                )
+                user.set_unusable_password()
+                user.save(update_fields=["password"])
+        except IntegrityError as exc:
+            raise GoogleUserCreationError(email) from exc
         return user
 
     def get_by_id(self, user_id: UUID | str) -> Optional[User]:

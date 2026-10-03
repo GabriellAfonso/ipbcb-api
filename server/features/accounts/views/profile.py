@@ -86,16 +86,13 @@ class MeProfileAPIView(APIView):
         worship_access_service: WorshipAccessService = Provide[Container.worship_access_service],
     ) -> Response:
         user = cast(User, request.user)
-        profile = profile_service.get_profile(user)
-        serializer = ProfileSerializer(
-            profile,
-            data=request.data,
-            partial=True,
-            context=_serializer_context(request, user, access_service, worship_access_service),
-        )
+        context = _serializer_context(request, user, access_service, worship_access_service)
+        # The serializer only validates; the write goes through the service like every other
+        # one. Read-only fields never reach validated_data, so only `name` can be written.
+        serializer = ProfileSerializer(data=request.data, partial=True, context=context)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        profile = profile_service.update_profile(user, **serializer.validated_data)
+        return Response(ProfileSerializer(profile, context=context).data, status=status.HTTP_200_OK)
 
 
 def _serializer_context(

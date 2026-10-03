@@ -1,8 +1,11 @@
 import pytest
 from typing import Any
 from unittest.mock import patch
+from dependency_injector import providers
 from rest_framework.test import APIClient
+from config.di import Container
 from features.accounts.models.user import User
+from features.accounts.tests.fakes import FakeAvatarDownloader
 from conftest import make_user
 
 GOOGLE_URL = "/api/auth/google/"
@@ -88,21 +91,41 @@ def test_google_login_empty_email_returns_400() -> None:
 
 
 @pytest.mark.django_db
-def test_google_login_photo_download_failure_still_succeeds() -> None:
+def test_google_login_photo_download_failure_still_succeeds(di_container: Container) -> None:
     """Photo download fails gracefully — user still created, tokens returned."""
     client = APIClient()
     payload = _google_payload(email="photofail@example.com", picture="https://example.com/pic.jpg")
+    failing_download = FakeAvatarDownloader(content=None)
     with (
         patch(MOCK_PATH, return_value=payload),
-        patch(
-            "features.accounts.services.google_auth_service.http_requests.get",
-            side_effect=__import__("requests").RequestException("network error"),
-        ),
+        di_container.avatar_downloader.override(providers.Object(failing_download)),
     ):
         response = client.post(GOOGLE_URL, {"id_token": "fake_token"}, format="json")
     assert response.status_code == 200
     assert "access" in response.data
     assert User.objects.filter(email="photofail@example.com").exists()
+    assert failing_download.requested_urls == ["https://example.com/pic.jpg=s400-c"]
+
+
+@pytest.mark.django_db
+def test_google_login_creation_clash_returns_500_without_partial_user() -> None:
+    """Two first logins racing: the loser's insert hits a unique column. The repository turns
+    the IntegrityError into GoogleUserCreationError, and nothing half-created is left."""
+    make_user(username="racer", password="pass123", email="other@example.com")
+    client = APIClient()
+    with (
+        patch(MOCK_PATH, return_value=_google_payload(email="racer@example.com")),
+        # Simulates the race: the username was free when generated, taken at insert time.
+        patch(
+            "features.accounts.repositories.user_repository.UserRepositoryImpl"
+            ".generate_unique_username",
+            return_value="racer",
+        ),
+    ):
+        response = client.post(GOOGLE_URL, {"id_token": "fake_token"}, format="json")
+    assert response.status_code == 500
+    assert response.data["error_code"] == "DOMAIN_ERROR"
+    assert not User.objects.filter(email="racer@example.com").exists()
 
 
 @pytest.mark.django_db

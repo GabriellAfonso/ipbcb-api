@@ -46,8 +46,11 @@ Create services that own business logic. One service per use case.
 - `authenticate_google(id_token: str) -> TokenDTO`
 - Verify token, extract user info into `GoogleUserDTO`
 - Get or create user via UserRepository
-- Download photo via ProfileRepository
-- Raises: `InvalidGoogleTokenError`, `UnverifiedGoogleEmailError`, `GoogleUserCreationError`
+- Download photo via `AvatarDownloader` (thin interface over `requests`, CLAUDE.md §7),
+  validate it, store it via ProfileRepository
+- Raises: `InvalidGoogleTokenError`, `UnverifiedGoogleEmailError`; `GoogleUserCreationError`
+  comes from `UserRepository.create_google_user`, which is where the `IntegrityError` it
+  translates is visible — the service no longer catches anything around creation
 
 ### `services/profile_service.py`
 - `get_profile(user) -> Profile`
@@ -65,7 +68,8 @@ Create services that own business logic. One service per use case.
 - `InvalidGoogleTokenError`
 - `UnverifiedGoogleEmailError`
 - `GoogleUserCreationError`
-- `ProfileNotFoundError`
+- (`ProfileNotFoundError` was added and later removed: profiles are always `get_or_create`d,
+  so nothing ever raised it)
 
 ---
 

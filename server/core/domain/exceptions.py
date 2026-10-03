@@ -87,15 +87,6 @@ class GoogleUserCreationError(DomainError):
         return {"email": self.email}
 
 
-class ProfileNotFoundError(NotFoundError):
-    def __init__(self, user_id: str) -> None:
-        super().__init__(f"Profile not found for user: '{user_id}'")
-        self.user_id = user_id
-
-    def extra_context(self) -> dict[str, object]:
-        return {"user_id": self.user_id}
-
-
 class MemberNotFoundError(NotFoundError):
     """No member with this id. Carries only the id: member data never goes into errors."""
 

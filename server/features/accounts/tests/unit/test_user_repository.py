@@ -1,5 +1,7 @@
 import pytest
+from django.db import IntegrityError
 
+from core.domain.exceptions import GoogleUserCreationError
 from features.accounts.models.user import User
 from features.accounts.repositories.user_repository import UserRepositoryImpl
 from core.application.dtos.auth_dtos import RegisterDTO
@@ -113,3 +115,18 @@ def test_create_google_user(repo: UserRepositoryImpl) -> None:
     assert user.first_name == "Google"
     assert user.last_name == "User"
     assert user.has_usable_password() is False
+
+
+@pytest.mark.django_db
+def test_create_google_user_clash_raises_domain_error_chained(
+    repo: UserRepositoryImpl, sample_dto: RegisterDTO
+) -> None:
+    repo.create(sample_dto)  # takes the username "repouser"
+
+    with pytest.raises(GoogleUserCreationError) as caught:
+        repo.create_google_user(
+            email="clash@test.com", username="repouser", first_name="A", last_name="B"
+        )
+
+    assert isinstance(caught.value.__cause__, IntegrityError)
+    assert not User.objects.filter(email="clash@test.com").exists()

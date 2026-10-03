@@ -40,6 +40,16 @@ class UserRepository(Protocol):
         ...
 
 
+class AvatarDownloader(Protocol):
+    """Fetches a remote avatar image, so services never call an HTTP client directly
+    (CLAUDE.md §7: third-party libraries sit behind a project-owned interface)."""
+
+    def download(self, url: str) -> bytes | None:
+        """Return the image bytes, or None when the remote did not deliver them (network
+        error, timeout, non-200). The bytes are untrusted: the caller validates them."""
+        ...
+
+
 class ProfileRepository(Protocol):
     """Contrato para operações de perfil."""
 

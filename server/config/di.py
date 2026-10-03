@@ -3,6 +3,7 @@ from pathlib import Path
 from dependency_injector import containers, providers
 from django.conf import settings
 
+from features.accounts.repositories.avatar_downloader import HttpAvatarDownloader
 from features.accounts.repositories.profile_repository import ProfileRepositoryImpl
 from features.accounts.repositories.user_repository import UserRepositoryImpl
 from features.accounts.services.google_auth_service import GoogleAuthService
@@ -135,6 +136,7 @@ class Container(containers.DeclarativeContainer):
 
     user_repository = providers.Factory(UserRepositoryImpl)
     profile_repository = providers.Factory(ProfileRepositoryImpl)
+    avatar_downloader = providers.Factory(HttpAvatarDownloader)
 
     register_service = providers.Factory(RegisterService, user_repository=user_repository)
     login_service = providers.Factory(LoginService)
@@ -143,6 +145,7 @@ class Container(containers.DeclarativeContainer):
         GoogleAuthService,
         user_repository=user_repository,
         profile_repository=profile_repository,
+        avatar_downloader=avatar_downloader,
     )
     profile_service = providers.Factory(ProfileService, profile_repository=profile_repository)
 
