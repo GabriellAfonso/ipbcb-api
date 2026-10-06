@@ -5,7 +5,7 @@ import pytest
 
 from conftest import make_user
 from features.accounts.models.user import User
-from features.songs.models import Played, Setlist, Song
+from features.songs.models import Played, Setlist, SetlistItem, Song
 from features.songs.repositories.setlist_repository import SetlistRepositoryImpl
 from features.songs.setlist_dtos import SetlistItemInput
 
@@ -59,6 +59,16 @@ class TestReplace:
         self.author.delete()
         setlist = self.repository.get_by_date(SUNDAY)
         assert setlist is not None and setlist.saved_by_name is None
+
+    def test_delete_cascades_items_and_keeps_plays(self) -> None:
+        self.repository.replace(SUNDAY, self.author.pk, self._items(0, 1), SAVED_AT)
+        Played.objects.create(song=self.songs[0], tone="G", position=1, date=SUNDAY)
+        assert self.repository.delete(SUNDAY)
+        assert not Setlist.objects.exists() and not SetlistItem.objects.exists()
+        assert Played.objects.filter(date=SUNDAY).count() == 1
+
+    def test_delete_missing_is_false(self) -> None:
+        assert not self.repository.delete(SUNDAY)
 
 
 @pytest.mark.django_db

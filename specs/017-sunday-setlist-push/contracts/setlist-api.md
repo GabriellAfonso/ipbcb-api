@@ -57,6 +57,23 @@ canonical `{"error_code", "detail"}` shape (spec 001).
 - **Errors**: `400` bad date format; `403`; `404` `NOT_FOUND` when no setlist for that date.
   Any date format-valid is accepted (a non-Sunday simply has no setlist → 404).
 
+## DELETE `api/setlists/{date}/` — delete
+
+- **Permission**: `manage` on `songs` **and** worship member — the same as saving. `DELETE`
+  defaults to `owner`; the endpoint lowers it with `lowered={"DELETE"}` (spec 012, Lowered
+  overrides).
+- **Success**: `204`, no body. The setlist and its items are deleted; `Played` rows are not.
+  No push is sent: the app re-reads `current/` on start and resume and treats
+  `{"setlist": null}` as deleted.
+
+| Situation | Status | `error_code` |
+|-----------|--------|--------------|
+| No / invalid JWT | 401 | `NOT_AUTHENTICATED` / `AUTHENTICATION_FAILED` |
+| No `manage` on `songs` | 403 | `PERMISSION_DENIED` |
+| Not a worship member | 403 | `PERMISSION_DENIED` — "Disponível apenas para o ministério de Louvor." |
+| `{date}` not `YYYY-MM-DD` | 400 | `VALIDATION_ERROR` |
+| No setlist for `{date}` | 404 | `NOT_FOUND` |
+
 ## GET `api/setlists/current/` — current setlist
 
 - **Permission**: worship member (any role or none).

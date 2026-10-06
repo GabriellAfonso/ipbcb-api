@@ -19,6 +19,12 @@ from features.songs.setlist_dtos import SetlistDTO, parse_setlist_date, parse_se
 # Reading a setlist by date and the pending list serve the register-played side: whoever may
 # register plays sees them (``manage``), not every ``view`` holder (spec 017 FR-022, FR-023).
 _MANAGERS_ONLY = scope_permission(Scope.SONGS, {"GET": Level.MANAGE})
+# A setlist only serves one Sunday, so deleting it is the same act as saving it and needs what
+# saving needs (``manage`` plus worship membership, checked by the service) — a listed exception
+# to DELETE's ``owner`` default (spec 012, Lowered overrides; spec 017 FR-026).
+_SETLIST_BY_DATE = scope_permission(
+    Scope.SONGS, {"GET": Level.MANAGE, "DELETE": Level.MANAGE}, lowered={"DELETE"}
+)
 
 
 def setlist_body(setlist: SetlistDTO) -> dict[str, object]:
@@ -31,10 +37,10 @@ def setlist_body(setlist: SetlistDTO) -> dict[str, object]:
 
 
 class SetlistByDateAPI(APIView):
-    """GET: the setlist of a date. PUT: create or fully replace it (``manage`` on ``songs``
-    plus worship membership, checked by the service)."""
+    """GET: the setlist of a date. PUT: create or fully replace it. DELETE: remove it. PUT and
+    DELETE need ``manage`` on ``songs`` plus worship membership, checked by the service."""
 
-    permission_classes = [IsAuthenticated, _MANAGERS_ONLY]
+    permission_classes = [IsAuthenticated, _SETLIST_BY_DATE]
 
     @inject
     def get(
@@ -59,6 +65,17 @@ class SetlistByDateAPI(APIView):
         author_id = cast(UUID, request.user.pk)
         setlist = setlist_service.save(author_id, setlist_date, items)
         return Response(setlist_body(setlist), status=200)
+
+    @inject
+    def delete(
+        self,
+        request: Request,
+        day: str,
+        setlist_service: SetlistService = Provide[Container.setlist_service],
+    ) -> Response:
+        setlist_date = parse_setlist_date(day)
+        setlist_service.delete(cast(UUID, request.user.pk), setlist_date)
+        return Response(status=204)
 
 
 class CurrentSetlistAPI(APIView):

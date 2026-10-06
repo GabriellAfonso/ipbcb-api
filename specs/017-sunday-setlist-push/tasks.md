@@ -228,6 +228,17 @@ other three newest first; by-date returns one and 404 for a date without setlist
 
 ---
 
+## Phase 10: Delete a setlist (US1 scenarios 7–9, FR-026, FR-027)
+
+**Goal**: `DELETE api/setlists/{date}/` for whoever may save; no push.
+
+- [X] T072 [P] Add `lowered: Collection[str]` to `validate_overrides` in `server/core/domain/access.py` and a keyword-only `lowered` to `scope_permission` in `server/core/http/permissions.py`: a named method may sit below its default; naming a method without an override raises. Unit tests in `server/core/tests/unit/test_access.py` and `test_scope_permission.py`
+- [X] T073 Add `delete(day) -> bool` to `SetlistRepository`, `SetlistRepositoryImpl` (items cascade) and `FakeSetlistRepository`; integration test in `server/features/songs/tests/integration/test_setlist_repository.py`
+- [X] T074 Add `SetlistService.delete(user_id, day)`: worship membership, then `delete`, `SetlistNotFoundError` when nothing was deleted, log `setlist_deleted` (`setlist_date`, `user_id`); no push. Unit tests in `test_setlist_service.py`
+- [X] T075 Add `delete` (204) to `SetlistByDateAPI` with `lowered={"DELETE"}` on its permission; integration tests in `test_setlist_api.py`: 204 and gone from `current/` and `pending-confirmation/`, `Played` untouched, 404, 403 (Media; Liderança outside "Louvor"), 400 bad date
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phases

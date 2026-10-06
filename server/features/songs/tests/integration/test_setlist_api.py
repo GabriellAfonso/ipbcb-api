@@ -192,6 +192,53 @@ class TestSavePush:
 
 
 @pytest.mark.django_db
+class TestDelete:
+    def test_deletes_and_leaves_current_and_pending(
+        self, di_container: Container, sender: FakePushSender
+    ) -> None:
+        client, leader = _leader()
+        DeviceToken.objects.create(user=leader, token="leader-phone")
+        song = _songs(1)[0]
+        client.put(URL, _body(song), format="json")
+        Played.objects.create(song=song, tone="G", position=1, date="2026-09-27")
+        sender.calls.clear()
+        with _frozen(di_container, "2026-10-04T22:00:00-03:00"):
+            response = client.delete(URL)
+            current, pending = client.get(CURRENT), client.get(PENDING)
+        assert response.status_code == 204 and not response.content
+        assert current.data == {"setlist": None} and pending.data == []
+        assert not Setlist.objects.exists() and Played.objects.count() == 1
+        assert sender.calls == []
+
+    def test_missing_is_404(self) -> None:
+        client, _ = _leader()
+        response = client.delete(URL)
+        assert response.status_code == 404
+        assert response.data["error_code"] == "NOT_FOUND"
+
+    def test_bad_date_is_400(self) -> None:
+        client, _ = _leader()
+        assert client.delete("/api/setlists/04-10-2026/").status_code == 400
+
+    @pytest.mark.usefixtures("sender")
+    def test_media_in_worship_is_403(self) -> None:
+        _leader("saver")[0].put(URL, _body(*_songs(1)), format="json")
+        client, user = make_role_client(Role.MEDIA, username="media")
+        link_to_ministry(user)
+        assert client.delete(URL).status_code == 403
+        assert Setlist.objects.exists()
+
+    @pytest.mark.usefixtures("sender")
+    def test_leader_outside_worship_is_403(self) -> None:
+        _leader("saver")[0].put(URL, _body(*_songs(1)), format="json")
+        client, _ = make_role_client(Role.LEADER, username="outsider")
+        response = client.delete(URL)
+        assert response.status_code == 403
+        assert response.data["detail"] == "Disponível apenas para o ministério de Louvor."
+        assert Setlist.objects.exists()
+
+
+@pytest.mark.django_db
 @pytest.mark.usefixtures("sender")
 class TestCurrent:
     def test_worship_member_gets_the_next_one(self, di_container: Container) -> None:

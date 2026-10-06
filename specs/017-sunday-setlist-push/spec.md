@@ -54,6 +54,14 @@ songs on Sunday night until someone does.
   members — the same rule as saving, so the reminder reaches exactly who can resolve it (FR-017).
 - Q: Assumptions listed below? → A: accepted as written.
 
+### Session 2026-10-06
+
+- Q: Who may delete a setlist? → A: exactly who may save it — `manage` on `songs` AND worship
+  member. `DELETE` defaults to `owner`, so the endpoint lowers it explicitly (listed in
+  `specs/012-feature-role-permissions/spec.md`, Lowered overrides) (FR-026).
+- Q: Push on delete? → A: no. The app re-reads `current/` on start and resume and treats
+  `{"setlist": null}` as deleted (FR-027).
+
 ## Definitions
 
 ### Worship ministry
@@ -124,6 +132,12 @@ save a different one for the same date, and check only the second remains.
    listing the missing song ids, nothing stored.
 6. **Given** a user without `manage` on `songs`, or with it but not a worship member, **When**
    they save, **Then** `403` and nothing stored.
+7. **Given** a saved setlist, **When** an authorized user deletes it, **Then** `204`, the setlist
+   and its items are gone, it leaves the current setlist and the pending list, and the played
+   songs of that date are untouched. No push is sent.
+8. **Given** no setlist for the date, **When** an authorized user deletes it, **Then** `404`.
+9. **Given** a user without `manage` on `songs`, or with it but not a worship member, **When**
+   they delete, **Then** `403` and nothing is deleted.
 
 ---
 
@@ -315,6 +329,12 @@ and check the list holds the other three, newest first.
   update author and save time, atomically: a failed save leaves the previous setlist intact.
 - **FR-007**: A successful save MUST answer with the stored setlist: date, items ordered by
   position (position, song id, title, artist, key), author's display name, save time.
+- **FR-026**: Users allowed to save (FR-002) MUST be able to delete the setlist of a date, with
+  its items; `204` without body, `404` when none exists for that date, `400` for a malformed
+  date. `Played` rows are never affected. Each deletion is logged as `setlist_deleted` with the
+  date and the user id.
+- **FR-027**: Deleting MUST NOT send a push; the app learns of it from the current-setlist read
+  (FR-012) on start and resume.
 
 **Distribution**
 

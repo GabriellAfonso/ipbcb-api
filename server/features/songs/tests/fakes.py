@@ -160,6 +160,9 @@ class FakeSetlistRepository:
         )
         return self.setlists[day], existed
 
+    def delete(self, day: date) -> bool:
+        return self.setlists.pop(day, None) is not None
+
     def get_by_date(self, day: date) -> SetlistDTO | None:
         return self.setlists.get(day)
 

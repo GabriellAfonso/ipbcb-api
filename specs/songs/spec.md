@@ -231,6 +231,7 @@ only narrows who may save.
 |--------|------|------------|-----------|
 | PUT | `api/setlists/{date}/` | `manage` on `songs` **and** worship member | Create or fully replace the setlist of that Sunday. `items: [{song_id, position, tone}]`, non-empty, positions 1-10 unique, tone 1-3 chars. 400 non-Sunday / bad body / repeated positions, 403, 404 unknown songs (`missing_song_ids`). 200 with the stored setlist, then a `setlist_saved` push |
 | GET | `api/setlists/{date}/` | `manage` on `songs` (`GET` override) | The setlist of that date, or 404 |
+| DELETE | `api/setlists/{date}/` | `manage` on `songs` (`lowered` `DELETE`, spec 012) **and** worship member | Delete the setlist and its items; `Played` untouched. 204, 400 bad date, 403, 404 none for that date. No push |
 | GET | `api/setlists/current/` | worship member (`IsWorshipMember`) | `{"setlist": ... }` — earliest date on or after today (`America/Sao_Paulo`), or `null` |
 | GET | `api/setlists/pending-confirmation/` | `manage` on `songs` (`GET` override) | Setlists dated on or before today with no `Played` row for their date, newest first |
 

@@ -38,6 +38,16 @@ class SetlistRepositoryImpl:
             raise RuntimeError(f"Setlist {day.isoformat()} vanished right after being saved.")
         return stored, not created
 
+    def delete(self, day: date) -> bool:
+        """Delete the setlist of ``day`` with its items (``CASCADE``). ``False`` when none existed.
+        ``Played`` rows are separate and stay.
+
+        >>> SetlistRepositoryImpl().delete(date(2026, 10, 4))
+        True
+        """
+        deleted, _ = Setlist.objects.filter(date=day).delete()
+        return deleted > 0
+
     def get_by_date(self, day: date) -> SetlistDTO | None:
         """>>> SetlistRepositoryImpl().get_by_date(date(2026, 10, 4)).items[0].title
         'Grande é o Senhor'

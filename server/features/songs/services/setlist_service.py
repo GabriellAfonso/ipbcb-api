@@ -55,6 +55,18 @@ class SetlistService:
         self._push.notify(self._worship.setlist_recipients(), message)
         return setlist
 
+    def delete(self, user_id: UUID, day: date) -> None:
+        """Delete the setlist of ``day``; same audience as ``save`` (FR-026). No push: the app
+        re-reads ``current/`` on start and resume (FR-027). ``Played`` rows are untouched.
+
+        >>> service.delete(leader.pk, date(2026, 10, 4))
+        """
+        self._worship.ensure_worship_member(user_id)
+        if not self._setlists.delete(day):
+            raise SetlistNotFoundError(day)
+        fields = {"setlist_date": day.isoformat(), "user_id": str(user_id)}
+        logger.info("setlist_deleted", extra=fields)
+
     def current(self) -> SetlistDTO | None:
         """Earliest setlist from today on (``America/Sao_Paulo``), or ``None``.
 

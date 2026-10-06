@@ -111,6 +111,36 @@ class TestSavePush:
         assert world.setlists.get_by_date(SUNDAY) is not None
 
 
+class TestDelete:
+    def test_removes_it_without_push(self) -> None:
+        world = _World()
+        _save(world)
+        world.sender.calls.clear()
+        world.service.delete(LEADER, SUNDAY)
+        assert world.setlists.get_by_date(SUNDAY) is None
+        assert world.sender.calls == []
+
+    def test_missing_raises(self) -> None:
+        with pytest.raises(SetlistNotFoundError):
+            _World().service.delete(LEADER, SUNDAY)
+
+    def test_outsider_is_refused_and_nothing_deleted(self) -> None:
+        world = _World()
+        _save(world)
+        with pytest.raises(NotWorshipMemberError):
+            world.service.delete(OUTSIDER, SUNDAY)
+        assert world.setlists.get_by_date(SUNDAY) is not None
+
+    def test_logs_date_and_author(self, caplog: pytest.LogCaptureFixture) -> None:
+        world = _World()
+        _save(world)
+        with caplog.at_level("INFO"):
+            world.service.delete(LEADER, SUNDAY)
+        [record] = [r for r in caplog.records if r.getMessage() == "setlist_deleted"]
+        fields = vars(record)
+        assert fields["setlist_date"] == "2026-10-04" and fields["user_id"] == str(LEADER)
+
+
 class TestReads:
     def test_current_is_the_next_sunday_from_local_today(self) -> None:
         world = _World()
