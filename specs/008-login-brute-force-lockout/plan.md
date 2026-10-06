@@ -136,6 +136,14 @@ block and silently falls back to `request.META["REMOTE_ADDR"]` when it is absent
 `AXES_IPWARE_*` setting above becomes dead configuration with no warning. `requirements.txt`
 therefore pins `django-axes[ipware]`.
 
+The extra's own packages are pinned too: `django-ipware==7.0.1` and `python-ipware==3.0.0`. The
+extra leaves them unbounded, and `django-ipware` 8.0.0 / `python-ipware` 4.x switch to a "modern"
+engine by default that skips a non-public right-most entry and walks left to the first public
+address — the part of the header the client wrote. With `X-Forwarded-For: 1.1.1.1, 203.0.113.7`
+it returns the spoofed `1.1.1.1`. That broke `test_lockout_ip.py` and the request-log IP test in
+CI the day 8.0.0 was released. Upgrading is a separate decision: it means either opting back into
+`IPWARE_ALGORITHM = "legacy"` or accepting the weaker guarantee.
+
 ### D-8 — Reset-on-success reaches the admin, not the API, and that is left as it is
 
 `AXES_RESET_ON_SUCCESS = True` is honoured through the library's receiver for Django's

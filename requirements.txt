@@ -18,6 +18,11 @@ requests==2.33.0
 # The [ipware] extra is NOT optional here: without it axes silently ignores
 # AXES_IPWARE_* and reads REMOTE_ADDR, which behind nginx is the proxy for every client.
 django-axes[ipware]==8.3.1
+# The extra leaves these unbounded. 8.0.0 / 4.x default to a "modern" engine that skips a
+# non-public right-most X-Forwarded-For entry and returns the client-written one to its left.
+# See specs/008-login-brute-force-lockout/plan.md (D-6) before upgrading.
+django-ipware==7.0.1
+python-ipware==3.0.0
 
 # ─── API Docs ─────────────────────────────────────────────────────────────────
 drf-spectacular==0.29.0
