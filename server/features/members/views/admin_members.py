@@ -9,6 +9,7 @@ from typing import cast
 from uuid import UUID
 
 from dependency_injector.wiring import Provide, inject
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -48,6 +49,9 @@ def _record_body(request: Request, record: MemberRecordDTO) -> dict[str, object]
 class AdminMemberListAPIView(APIView):
     permission_classes = [IsAuthenticated, scope_permission(Scope.MEMBERS)]
 
+    # A plain APIView has no list serializer, so drf-spectacular names this GET "_retrieve" and
+    # collides with the detail view's (drf_spectacular.W001, fails `check --deploy` in CI).
+    @extend_schema(operation_id="api_admin_members_list")
     @inject
     def get(
         self,
