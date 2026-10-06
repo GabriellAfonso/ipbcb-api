@@ -48,6 +48,19 @@ class SetlistRepositoryImpl:
         deleted, _ = Setlist.objects.filter(date=day).delete()
         return deleted > 0
 
+    def purge(self, confirmed_before: date, unconfirmed_before: date) -> int:
+        """Delete setlists dated before ``confirmed_before`` with plays registered, and before
+        ``unconfirmed_before`` without, items included. Returns how many setlists went.
+
+        >>> SetlistRepositoryImpl().purge(date(2026, 9, 6), date(2026, 7, 8))
+        2
+        """
+        played = Exists(Played.objects.filter(date=OuterRef("date")))
+        confirmed = Q(played, date__lt=confirmed_before)
+        unconfirmed = Q(~played, date__lt=unconfirmed_before)
+        _, per_model = Setlist.objects.filter(confirmed | unconfirmed).delete()
+        return per_model.get(Setlist._meta.label, 0)
+
     def get_by_date(self, day: date) -> SetlistDTO | None:
         """>>> SetlistRepositoryImpl().get_by_date(date(2026, 10, 4)).items[0].title
         'Grande é o Senhor'

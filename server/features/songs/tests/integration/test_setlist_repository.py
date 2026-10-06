@@ -70,6 +70,24 @@ class TestReplace:
     def test_delete_missing_is_false(self) -> None:
         assert not self.repository.delete(SUNDAY)
 
+    def test_purge_uses_each_cutoff_and_keeps_plays(self) -> None:
+        # Cutoffs: confirmed before 2026-09-06, unconfirmed before 2026-07-08.
+        days = {
+            "confirmed_old": date(2026, 8, 30),
+            "confirmed_boundary": date(2026, 9, 6),
+            "unconfirmed_mid": date(2026, 8, 23),
+            "unconfirmed_old": date(2026, 7, 5),
+        }
+        for day in days.values():
+            self.repository.replace(day, self.author.pk, self._items(0), SAVED_AT)
+        for key in ("confirmed_old", "confirmed_boundary"):
+            Played.objects.create(song=self.songs[0], tone="G", position=1, date=days[key])
+        assert self.repository.purge(date(2026, 9, 6), date(2026, 7, 8)) == 2
+        kept = set(Setlist.objects.values_list("date", flat=True))
+        assert kept == {days["confirmed_boundary"], days["unconfirmed_mid"]}
+        assert Played.objects.count() == 2
+        assert SetlistItem.objects.count() == 2
+
 
 @pytest.mark.django_db
 class TestReminderQueries:

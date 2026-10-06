@@ -388,4 +388,9 @@ Hymnal view history follows the same pattern — its own repositories for view e
   is logged as `worship_ministry_missing`.
 - **Push is best effort**: the setlist is the source of truth; the app falls back to
   `api/setlists/current/` when a push never arrives.
+- **Setlists are transient**: a setlist serves one Sunday; `Played` is the lasting record.
+  `python manage.py purge_expired_setlists`, run daily by the `ipbcb_token_flush` loop, deletes
+  setlists confirmed more than 30 days ago and unconfirmed ones more than 90 days ago (spec 017
+  FR-028). For the same reason deleting one needs only what saving needs (spec 012, Lowered
+  overrides).
 - **Occurrences derived at read time**: never materialized. Editing service windows changes future reports without touching a single stored event.

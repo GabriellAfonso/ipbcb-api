@@ -59,6 +59,7 @@ from features.songs.services.hymnal_history_ingest_service import HymnalHistoryI
 from features.songs.services.hymnal_history_report_service import HymnalHistoryReportService
 from features.songs.services.hymnal_service import HymnalService
 from features.songs.services.register_plays_service import RegisterPlaysService
+from features.songs.services.setlist_purge_service import SetlistPurgeService
 from features.songs.services.setlist_reminder_service import SetlistReminderService
 from features.songs.services.setlist_service import SetlistService
 from features.schedule.repositories.schedule_repository import ScheduleRepositoryImpl
@@ -89,6 +90,7 @@ class Container(containers.DeclarativeContainer):
             "features.gallery.management.commands.generate_photo_thumbnails",
             "features.gallery.management.commands.purge_gallery_trash",
             "features.songs.management.commands.send_setlist_reminders",
+            "features.songs.management.commands.purge_expired_setlists",
             "features.gallery.views.albums",
             "features.gallery.views.album_cover",
             "features.gallery.views.changes",
@@ -231,6 +233,9 @@ class Container(containers.DeclarativeContainer):
         worship_access_service=worship_access_service,
         push_service=push_service,
         clock=clock,
+    )
+    setlist_purge_service = providers.Factory(
+        SetlistPurgeService, setlist_repository=setlist_repository, clock=clock
     )
 
     hymnal_history_ingest_service = providers.Factory(

@@ -53,7 +53,9 @@ services:
 
   # Every refresh writes a blacklist row (BLACKLIST_AFTER_ROTATION), so the table grows
   # without bound. This drops the rows whose tokens have already expired — housekeeping,
-  # not security: an expired token is refused on its own expiry.
+  # not security: an expired token is refused on its own expiry. The same daily loop deletes
+  # Sunday setlists past their use (specs/017-sunday-setlist-push FR-028); a failure in one
+  # command does not skip the other.
   ipbcb_token_flush:
     container_name: ipbcb-token-flush-prod
     image: ipbcb-server:prod
@@ -63,6 +65,7 @@ services:
     - |
       while true; do
         python manage.py flushexpiredtokens
+        python manage.py purge_expired_setlists
         sleep 86400
       done
     env_file:

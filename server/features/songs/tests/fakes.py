@@ -163,6 +163,16 @@ class FakeSetlistRepository:
     def delete(self, day: date) -> bool:
         return self.setlists.pop(day, None) is not None
 
+    def purge(self, confirmed_before: date, unconfirmed_before: date) -> int:
+        expired = [
+            day
+            for day in self.setlists
+            if day < (confirmed_before if day in self.played_dates else unconfirmed_before)
+        ]
+        for day in expired:
+            del self.setlists[day]
+        return len(expired)
+
     def get_by_date(self, day: date) -> SetlistDTO | None:
         return self.setlists.get(day)
 

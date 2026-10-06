@@ -239,6 +239,17 @@ other three newest first; by-date returns one and 404 for a date without setlist
 
 ---
 
+## Phase 11: Purge expired setlists (FR-028)
+
+**Goal**: setlists never pile up; nobody has to remember to clean them.
+
+- [X] T076 [P] Add `CONFIRMED_RETENTION_DAYS = 30`, `UNCONFIRMED_RETENTION_DAYS = 90` and `purge_cutoffs(today) -> tuple[date, date]` to `server/features/songs/services/setlist_rules.py`; unit tests in `test_setlist_rules.py`
+- [X] T077 Add `purge(confirmed_before, unconfirmed_before) -> int` to `SetlistRepository`, `SetlistRepositoryImpl` (one `DELETE` with `Exists(Played …)`) and `FakeSetlistRepository`; integration tests in `test_setlist_repository.py` (each cutoff, boundary day kept, `Played` untouched)
+- [X] T078 Create `SetlistPurgeService(setlist_repository, clock)` in `server/features/songs/services/setlist_purge_service.py` with `purge_expired() -> int` logging `setlist_purged` (`deleted`, `confirmed_before`, `unconfirmed_before`); unit tests; register in `server/config/di.py`
+- [X] T079 Create the `purge_expired_setlists` command (one summary line, exit 0), wire it in `server/config/di.py`, command test; add it to the `ipbcb_token_flush` loop in `compose.prod.yml`
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phases

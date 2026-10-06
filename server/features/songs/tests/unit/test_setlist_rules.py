@@ -8,6 +8,7 @@ from features.songs.services.setlist_rules import (
     current_reminder_slot,
     ensure_sunday,
     ensure_unique_positions,
+    purge_cutoffs,
 )
 from features.songs.setlist_dtos import SetlistItemInput
 
@@ -60,3 +61,7 @@ class TestCurrentReminderSlot:
     def test_keeps_the_local_timezone(self) -> None:
         result = current_reminder_slot(_at(4, 22, 10))
         assert result is not None and result.tzinfo is SP
+
+
+def test_purge_cutoffs_are_30_and_90_days_back() -> None:
+    assert purge_cutoffs(date(2026, 12, 31)) == (date(2026, 12, 1), date(2026, 10, 2))

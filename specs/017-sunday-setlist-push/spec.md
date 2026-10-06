@@ -61,6 +61,9 @@ songs on Sunday night until someone does.
   `specs/012-feature-role-permissions/spec.md`, Lowered overrides) (FR-026).
 - Q: Push on delete? → A: no. The app re-reads `current/` on start and resume and treats
   `{"setlist": null}` as deleted (FR-027).
+- Q: Is a setlist kept forever? → A: no, it serves one Sunday. A daily job deletes setlists
+  confirmed (plays registered) more than 30 days ago, and unconfirmed ones more than 90 days
+  ago — by then nobody will register them, and the pending card must not grow forever (FR-028).
 
 ## Definitions
 
@@ -335,6 +338,11 @@ and check the list holds the other three, newest first.
   date and the user id.
 - **FR-027**: Deleting MUST NOT send a push; the app learns of it from the current-setlist read
   (FR-012) on start and resume.
+- **FR-028**: A daily job MUST delete, with their items, setlists dated more than 30 days before
+  today (`America/Sao_Paulo`) that have played songs registered for their date, and setlists
+  dated more than 90 days before today that have none. `Played` rows are never affected. Each
+  run logs `setlist_purged` with the number deleted and both cutoffs. It runs in the existing
+  daily `ipbcb_token_flush` loop in `compose.prod.yml`; no task queue, no host cron.
 
 **Distribution**
 
@@ -402,7 +410,8 @@ and check the list holds the other three, newest first.
 ### Key Entities
 
 - **Setlist**: one per date (a Sunday). Date, author (user, kept nullable if the user is
-  deleted), saved at, last reminder window sent (empty until the first reminder).
+  deleted), saved at, last reminder window sent (empty until the first reminder). Transient:
+  deleted 30 days after its Sunday once confirmed, 90 days after if never confirmed (FR-028).
 - **Setlist item**: belongs to one setlist. Position (1-10, unique within the setlist), song
   (existing song; a song referenced by a setlist cannot be deleted), key.
 - **Device token**: token string (unique), owning user, registered/updated at. Deleted on
