@@ -55,8 +55,17 @@ Hierarchical — each level includes the one above it.
 | `DELETE`                | `owner`        |
 
 Any endpoint may declare a **higher** level than its method's default. This is a general rule,
-not a one-off: many things will be editable by the administrator only. An endpoint can never
-declare a lower level than the default.
+not a one-off: many things will be editable by the administrator only. An endpoint cannot
+declare a lower level than the default unless it names the method in `lowered=` and the
+endpoint is listed below; an unlisted lower override still fails at import.
+
+### Lowered overrides
+
+Each entry is a deliberate exception to the method default, with its reason.
+
+| Method | Endpoint | Scope | Level | Reason |
+|--------|----------|-------|-------|--------|
+| DELETE | `api/setlists/{date}/` | `songs` | `manage` | A setlist is transient: the plan for a single Sunday, useless once that service is over, and rebuilt in seconds. `owner` protects data that is costly or permanent to lose, which this is not, so deleting it is the same act as saving it (spec 017): whoever may save it (`manage` + worship member) may delete it. The lasting record of the Sunday is `Played`, which this never touches |
 
 ### Roles
 
@@ -330,8 +339,8 @@ reflects it.
 - **Method not implemented by an endpoint** (e.g. `DELETE` on the member list): `405` for a user
   with enough level on the scope; a user without any level on the scope gets `403` first and
   learns nothing about the endpoint.
-- **Declared level below the default** (e.g. a `DELETE` declared as `manage`): impossible; the
-  effective level is always at least the method's default.
+- **Declared level below the default** (e.g. a `DELETE` declared as `manage`): refused at
+  import unless the endpoint names the method in `lowered=` and appears in Lowered overrides.
 - **Role removed while the app is open**: the next request is refused. The profile the app holds
   may be stale until it is read again; the backend check is the only authority.
 - **Media cache**: a leader who loses the role still gets `403` on the next use of a cached
@@ -355,7 +364,8 @@ reflects it.
 - **FR-004**: The required level MUST default from the request method (`GET` → `view`;
   `POST`/`PUT`/`PATCH` → `manage`; `DELETE` → `owner`).
 - **FR-005**: An endpoint MUST be able to declare a higher required level, per method; a lower
-  one MUST NOT take effect.
+  one MUST NOT take effect unless the method is named in `lowered=` and the endpoint is listed
+  in Lowered overrides.
 - **FR-006**: A request whose caller lacks the required level on the endpoint's scope MUST be
   refused with `403` and the canonical error shape, before any business logic runs.
 

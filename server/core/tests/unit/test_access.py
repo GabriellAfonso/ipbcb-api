@@ -79,6 +79,17 @@ class TestValidateOverrides:
         with pytest.raises(ValueError, match="'FOO'"):
             validate_overrides({"FOO": Level.OWNER})
 
+    def test_lowered_method_may_sit_below_default(self) -> None:
+        validate_overrides({"DELETE": Level.MANAGE}, lowered={"DELETE"})
+
+    def test_lowered_covers_only_the_named_method(self) -> None:
+        with pytest.raises(ValueError, match="PATCH=VIEW"):
+            validate_overrides({"DELETE": Level.MANAGE, "PATCH": Level.VIEW}, lowered={"DELETE"})
+
+    def test_lowered_without_override_rejected(self) -> None:
+        with pytest.raises(ValueError, match=r"\['DELETE'\] have no override"):
+            validate_overrides({}, lowered={"DELETE"})
+
 
 class TestCodenames:
     def test_members_manage(self) -> None:

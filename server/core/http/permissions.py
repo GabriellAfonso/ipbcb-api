@@ -1,4 +1,4 @@
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping
 from types import MappingProxyType
 from uuid import UUID
 
@@ -75,17 +75,21 @@ class IsWorshipMember(permissions.BasePermission):
 
 
 def scope_permission(
-    scope: Scope, overrides: Mapping[str, Level] | None = None
+    scope: Scope,
+    overrides: Mapping[str, Level] | None = None,
+    *,
+    lowered: Collection[str] = frozenset(),
 ) -> type[permissions.BasePermission]:
     """Permission class requiring a level on ``scope``: by method (GET view, POST/PUT/PATCH
     manage, DELETE owner) unless ``overrides`` raises it. An override below the default raises
-    ``ValueError`` here, at import (specs/012-feature-role-permissions).
+    ``ValueError`` here, at import, unless its method is in ``lowered`` — an exception that must
+    be listed in specs/012-feature-role-permissions/spec.md (Lowered overrides).
 
     >>> permission_classes = [IsAuthenticated, scope_permission(Scope.MEMBERS)]
     >>> scope_permission(Scope.REPORTS_HYMNAL_HISTORY, {"PATCH": Level.OWNER})
     """
     frozen_overrides = MappingProxyType(dict(overrides or {}))
-    validate_overrides(frozen_overrides)
+    validate_overrides(frozen_overrides, lowered)
 
     class ScopePermission(permissions.BasePermission):
         message = "Você não tem permissão para esta ação."

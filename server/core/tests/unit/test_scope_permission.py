@@ -78,5 +78,17 @@ def test_override_below_default_fails_when_declared() -> None:
         scope_permission(Scope.SONGS, {"DELETE": Level.VIEW})
 
 
+class TestLowered:
+    permission = scope_permission(Scope.SONGS, {"DELETE": Level.MANAGE}, lowered={"DELETE"})
+
+    def test_manage_holder_can_delete(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        _use(monkeypatch, FakeRoleGrantRepository(["leader"], ["songs__manage"]))
+        assert _allowed(self.permission, "DELETE")
+
+    def test_view_holder_cannot_delete(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        _use(monkeypatch, FakeRoleGrantRepository(["media"], ["songs__view"]))
+        assert not _allowed(self.permission, "DELETE")
+
+
 def test_class_name_names_the_scope() -> None:
     assert scope_permission(Scope.SONGS).__name__ == "ScopePermission_SONGS"

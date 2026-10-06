@@ -10,7 +10,9 @@ Rules that no domain can break. These apply globally across the entire system.
   `gallery`, `events`, `notices`, `reports.<name>`) through
   `core.http.permissions.scope_permission`. The required level comes from the method — `GET`
   `view`, `POST`/`PUT`/`PATCH` `manage`, `DELETE` `owner` — or from a per-endpoint override,
-  which may only raise it. Levels come from **roles** alone (Admin, Liderança, Mídia — Django
+  which may only raise it. The one exception is a method the endpoint names in `lowered=`,
+  which must be listed in `specs/012-feature-role-permissions/spec.md` (Lowered overrides) with
+  its reason. Levels come from **roles** alone (Admin, Liderança, Mídia — Django
   groups); Admin is `owner` of every scope in code. The superuser flag, `is_staff`, direct user
   permissions and other groups grant nothing in the panel. Church membership (`is_member`) is a
   separate axis and never grants a level. Design and role matrix in

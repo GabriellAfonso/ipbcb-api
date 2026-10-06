@@ -118,20 +118,27 @@ def required_level(method: str, overrides: Mapping[str, Level]) -> Level:
     return DEFAULT_LEVEL_BY_METHOD.get(method, Level.OWNER)
 
 
-def validate_overrides(overrides: Mapping[str, Level]) -> None:
-    """Reject an override that names an unknown method or lowers its method's default.
+def validate_overrides(
+    overrides: Mapping[str, Level], lowered: Collection[str] = frozenset()
+) -> None:
+    """Reject an override that names an unknown method or lowers its method's default, unless
+    the method is in ``lowered`` — a deliberate exception listed in spec 012 (Lowered overrides).
 
     Called when an endpoint's permission is declared, so the mistake fails at import instead
     of silently granting less protection (spec FR-005).
 
     >>> validate_overrides({"PATCH": Level.OWNER})
+    >>> validate_overrides({"DELETE": Level.MANAGE}, lowered={"DELETE"})
     """
+    stray = sorted(set(lowered) - set(overrides))
+    if stray:
+        raise ValueError(f"Lowered methods {stray} have no override; expected keys of overrides.")
     for method, level in overrides.items():
         default = DEFAULT_LEVEL_BY_METHOD.get(method)
         if default is None:
             allowed = ", ".join(DEFAULT_LEVEL_BY_METHOD)
             raise ValueError(f"Override for unknown method {method!r}; expected one of {allowed}.")
-        if level < default:
+        if level < default and method not in lowered:
             raise ValueError(
                 f"Override {method}={level.name} is below the method default {default.name}; "
                 "overrides may only raise the level."
