@@ -4,6 +4,7 @@ from uuid import UUID
 
 from django.db.models import QuerySet
 
+from features.songs.dtos import NewSongInput
 from features.songs.hymnal_history_dtos import ServiceWindowDTO
 from features.songs.models.chord_chart import ChordChart
 from core.models import ChurchService
@@ -55,6 +56,10 @@ class SongRepository(Protocol):
     def save_lyrics(self, lyrics: Lyrics, fields: list[str]) -> None: ...
 
     def get_song_by_id(self, song_id: int) -> Song | None: ...
+
+    def song_exists(self, title: str, artist: str) -> bool: ...
+
+    def create_song(self, new_song: NewSongInput) -> Song: ...
 
     def create_chord_chart(
         self, song: Song, content: str, tone: str, instrument: str

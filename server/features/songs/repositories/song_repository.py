@@ -3,6 +3,7 @@ from typing import Any
 
 from django.db.models import Count, QuerySet
 
+from features.songs.dtos import NewSongInput
 from features.songs.models.chord_chart import ChordChart
 from features.songs.models.lyrics import Lyrics
 from features.songs.models.song import Played, Song
@@ -74,6 +75,14 @@ class SongRepositoryImpl:
 
     def get_song_by_id(self, song_id: int) -> Song | None:
         return Song.objects.filter(pk=song_id).first()
+
+    def song_exists(self, title: str, artist: str) -> bool:
+        return Song.objects.filter(title__iexact=title, artist__iexact=artist).exists()
+
+    def create_song(self, new_song: NewSongInput) -> Song:
+        return Song.objects.create(
+            title=new_song.title, artist=new_song.artist, youtube_link=new_song.youtube_link
+        )
 
     def create_chord_chart(
         self, song: Song, content: str, tone: str, instrument: str

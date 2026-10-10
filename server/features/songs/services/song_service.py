@@ -8,11 +8,12 @@ from django.utils.timezone import now
 
 from core.domain.exceptions import (
     ChordChartNotFoundError,
+    DuplicateSongError,
     LyricsNotFoundError,
     ValidationError,
 )
 from core.metrics import CHORD_CHART_VIEWS_COUNTER, LYRICS_VIEWS_COUNTER
-from features.songs.dtos import SundaySetDTO, SundaySongDTO
+from features.songs.dtos import NewSongInput, SundaySetDTO, SundaySongDTO
 from features.songs.models.chord_chart import ChordChart
 from features.songs.models.lyrics import Lyrics
 from features.songs.models.song import Played, Song
@@ -30,6 +31,19 @@ class SongService:
 
     def list_all_songs(self) -> QuerySet[Song]:
         return self._repository.list_all_songs()
+
+    def create_song(self, new_song: NewSongInput) -> Song:
+        """Add a song to the catalogue, refusing a title+artist already there (any case).
+
+        Check-then-insert: two simultaneous requests for the same song can both pass the
+        check. No unique constraint backs it, since legacy rows may already repeat a pair.
+
+        >>> service.create_song(NewSongInput(title="Oceans", artist="Hillsong"))
+        <Song: Oceans ------- Hillsong>
+        """
+        if self._repository.song_exists(new_song.title, new_song.artist):
+            raise DuplicateSongError(new_song.title, new_song.artist)
+        return self._repository.create_song(new_song)
 
     def list_all_played(self) -> QuerySet[Played]:
         return self._repository.list_all_played()

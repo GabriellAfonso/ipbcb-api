@@ -150,13 +150,14 @@ Liderança or Admin who is not flagged as a member can still build the schedule.
 
 | Method | Endpoint                     | Scope   | Level  | Why                                      |
 |--------|------------------------------|---------|--------|------------------------------------------|
+| POST   | `api/songs/`                 | `songs` | manage | default                                  |
 | POST   | `api/played/register/`       | `songs` | manage | default — creates or replaces a Sunday's plays (accepted risk) |
 | POST   | `api/chord-charts/`          | `songs` | manage | default                                  |
 | PATCH  | `api/chord-charts/{id}/`     | `songs` | manage | default                                  |
 | POST   | `api/lyrics/`                | `songs` | manage | default                                  |
 | PATCH  | `api/lyrics/{id}/`           | `songs` | manage | default                                  |
 
-`GET api/chord-charts/` and `GET api/lyrics/` stay public, as today.
+`GET api/songs/`, `GET api/chord-charts/` and `GET api/lyrics/` stay public, as today.
 
 ### reports.hymnal_history
 

@@ -12,6 +12,7 @@ from core.domain.exceptions import ValidationError
 from core.http.parsing import require_int
 from core.http.permissions import scope_permission
 from core.http.utils import _not_modified_or_response
+from features.songs.dtos import NewSongInput
 from features.songs.serializers.serializers import (
     ChordChartSerializer,
     LyricsSerializer,
@@ -116,7 +117,10 @@ class SuggestedSongsAPI(APIView):
 
 
 class AllSongsAPI(APIView):
-    permission_classes = [AllowAny]
+    def get_permissions(self) -> list[Any]:
+        if self.request.method == "POST":
+            return [IsAuthenticated(), scope_permission(Scope.SONGS)()]
+        return [AllowAny()]
 
     @inject
     def get(
@@ -127,6 +131,17 @@ class AllSongsAPI(APIView):
         qs = song_service.list_all_songs()
         data = SongSerializer(qs, many=True).data
         return _not_modified_or_response(request, data)
+
+    @inject
+    def post(
+        self,
+        request: Request,
+        song_service: SongService = Provide[Container.song_service],
+    ) -> Response:
+        # A body that fails NewSongInput raises pydantic's ValidationError, which the
+        # exception handler turns into a 400 with field_errors.
+        song = song_service.create_song(NewSongInput.model_validate(request.data))
+        return Response(SongSerializer(song).data, status=201)
 
 
 class ChordChartListAPI(APIView):

@@ -134,8 +134,24 @@ List all songs with category name.
 
 - **Auth**: AllowAny
 - **Response**: `200` with ETag support (304 if unchanged)
-- **Response body**: array of `{ id, title, artist, category }`
+- **Response body**: array of `{ id, title, artist, category, youtube_link }`
 - **Ordering**: title, artist
+
+### POST /api/songs/
+
+Add a song to the catalogue.
+
+- **Auth**: `IsAuthenticated` + `scope_permission(Scope.SONGS)` — `manage`. `GET` on the same path stays `AllowAny`
+- **Request body**: `{ title, artist, youtube_link? }`
+  - `title`, `artist`: required, trimmed, 1-100 characters after trimming
+  - `youtube_link`: optional, trimmed, `""` or an http(s) URL of at most 200 characters; stored as sent, not normalized
+  - any other key is rejected
+- **Response**: `201` with `{ id, title, artist, category, youtube_link }` — `category` is `""`, since a new song has none
+- **Errors**:
+  - `400 VALIDATION_ERROR` with `field_errors` — field missing, empty, too long, unknown, or `youtube_link` not a URL
+  - `409 CONFLICT` — a song with the same `title` and `artist`, ignoring case, already exists; the body carries the `title` and `artist` sent
+  - `401` without login, `403` without `songs` `manage`
+- **Duplicate check**: done in `SongService`, not by a database constraint — legacy rows may already repeat a pair. Two simultaneous requests for the same song can both succeed (accepted risk: one leader edits the catalogue at a time)
 
 ### GET /api/songs-by-sunday/
 
@@ -360,7 +376,7 @@ Ranking / chart data — X is the hymn number, Y is how many times it was sung.
 Follows clean architecture (Views -> Services -> Repositories -> Models):
 
 - **Repository**: `SongRepositoryImpl` (songs, played, chord charts, lyrics), `HymnalRepositoryImpl` (hymns)
-- **Services**: `SongService` (queries + suggestions), `RegisterPlaysService` (play registration), `HymnalService` (hymnal listing)
+- **Services**: `SongService` (queries, suggestions, song/chord chart/lyrics creation), `RegisterPlaysService` (play registration), `HymnalService` (hymnal listing)
 - **Setlists**: `SetlistRepositoryImpl`, `SetlistService` (save, current, by date, pending), `SetlistReminderService` (reminder run); push, device tokens and worship membership come from `core` (`PushService`, `WorshipAccessService`)
 - **DI**: All services/repositories registered in `config/di.py`, injected via `@inject` + `Provide[Container.xxx]`
 
@@ -371,7 +387,7 @@ Hymnal view history follows the same pattern — its own repositories for view e
 ## Design Decisions
 
 - **Position 1-4 vs 1-10**: Normal service has 4 songs (positions 1-4). `SuggestedSongsAPI` only suggests for 1-4. `RegisterSundayPlaysAPI` accepts up to 10 for special occasions. This is intentional.
-- **AllowAny on most endpoints**: Internal church app, no sensitive data. Only the management writes (plays, chord charts, lyrics) and the hymnal history reports and configuration require a scope level (`specs/012-feature-role-permissions/`).
+- **AllowAny on most endpoints**: Internal church app, no sensitive data. Only the management writes (songs, plays, chord charts, lyrics) and the hymnal history reports and configuration require a scope level (`specs/012-feature-role-permissions/`).
 - **ETag caching**: Read-only list endpoints use SHA-256 ETag for conditional GET (304 Not Modified).
 - **Random suggestion**: `random.choice` for song selection — simple and adequate for the use case.
 - **View history lives in `songs`, not a new app**: `Hymn` lives here and the constitution forbids features importing from each other. The service catalogue was briefly duplicated here for the same reason, then moved to `core.ChurchService` in feature 007 so both features could share one source of truth.

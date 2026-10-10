@@ -1,10 +1,40 @@
 from datetime import date, datetime
-from typing import Any
+from typing import Annotated, Any
 
-from pydantic import field_validator
+from pydantic import Field, HttpUrl, StringConstraints, TypeAdapter, field_validator
+from pydantic import ValidationError as PydanticValidationError
 
 from core.application.dtos.strict_base import StrictBaseModel
 from core.domain.exceptions import ValidationError
+
+_SongText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+_HTTP_URL = TypeAdapter(HttpUrl)
+
+
+class NewSongInput(StrictBaseModel):
+    """A song to add to the catalogue. Lengths mirror the ``Song`` columns.
+
+    >>> NewSongInput(title=" Oceans ", artist="Hillsong")
+    NewSongInput(title='Oceans', artist='Hillsong', youtube_link='')
+    """
+
+    title: _SongText
+    artist: _SongText
+    youtube_link: Annotated[
+        str, StringConstraints(strip_whitespace=True), Field(max_length=200)
+    ] = ""
+
+    @field_validator("youtube_link")
+    @classmethod
+    def youtube_link_is_url(cls, v: str) -> str:
+        # Validated but stored as typed: HttpUrl would normalize it (trailing slash, punycode).
+        if not v:
+            return v
+        try:
+            _HTTP_URL.validate_python(v)
+        except PydanticValidationError:
+            raise ValueError(f"youtube_link must be an http(s) URL; got {v!r}") from None
+        return v
 
 
 class SundaySongDTO(StrictBaseModel):

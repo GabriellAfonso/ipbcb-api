@@ -116,6 +116,21 @@ class LyricsNotFoundError(NotFoundError):
         return {"pk": self.pk}
 
 
+class DuplicateSongError(ConflictError):
+    """A song with this title and artist, ignoring case, is already in the catalogue.
+
+    >>> raise DuplicateSongError("Oceans", "Hillsong")
+    """
+
+    def __init__(self, title: str, artist: str) -> None:
+        super().__init__(f"Song already exists: title={title!r}, artist={artist!r}")
+        self.title = title
+        self.artist = artist
+
+    def extra_context(self) -> dict[str, object]:
+        return {"title": self.title, "artist": self.artist}
+
+
 class SongsNotFoundError(NotFoundError):
     """Raised when one or more songs are not found."""
 
