@@ -21,6 +21,7 @@ from features.songs.views.songs import (
     ChordChartListAPI,
     LyricsDetailAPI,
     LyricsListAPI,
+    SongDetailAPI,
     SongsBySundayAPI,
     SuggestedSongsAPI,
     TopSongsAPI,
@@ -29,6 +30,7 @@ from features.songs.views.songs import (
 
 urlpatterns = [
     path("api/songs/", AllSongsAPI.as_view(), name="all_songs"),
+    path("api/songs/<int:pk>/", SongDetailAPI.as_view(), name="song_detail"),
     path("api/songs-by-sunday/", SongsBySundayAPI.as_view(), name="songs_by_sunday"),
     path("api/top-songs/", TopSongsAPI.as_view(), name="top_songs"),
     path("api/top-tones/", TopTonesAPI.as_view(), name="top_tones"),

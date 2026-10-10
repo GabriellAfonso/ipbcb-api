@@ -142,6 +142,69 @@ class SongsNotFoundError(NotFoundError):
         return {"missing_song_ids": self.missing_ids}
 
 
+class SongNotFoundError(NotFoundError):
+    """One song id matched nothing. ``SongsNotFoundError`` stays the batch case.
+
+    >>> raise SongNotFoundError(7)
+    """
+
+    def __init__(self, song_id: int) -> None:
+        super().__init__(f"Song not found: id={song_id}")
+        self.song_id = song_id
+
+    def extra_context(self) -> dict[str, object]:
+        return {"song_id": self.song_id}
+
+
+def _join_pt(parts: list[str]) -> str:
+    """>>> _join_pt(["a", "b", "c"])
+    'a, b e c'
+    """
+    if len(parts) < 2:
+        return "".join(parts)
+    return f"{', '.join(parts[:-1])} e {parts[-1]}"
+
+
+def _plays_reason(plays: int) -> list[str]:
+    if plays == 0:
+        return []
+    return [f"foi tocada em {plays} {'domingo' if plays == 1 else 'domingos'}"]
+
+
+def _setlist_reason(setlist_dates: list[date]) -> list[str]:
+    if not setlist_dates:
+        return []
+    noun = "na setlist" if len(setlist_dates) == 1 else "nas setlists"
+    days = _join_pt([day.strftime("%d/%m/%Y") for day in setlist_dates])
+    return [f"está {noun} de {days}"]
+
+
+class SongInUseError(ConflictError):
+    """A song the Sunday record still points at (plays, saved setlists) cannot be deleted.
+
+    The message is pt-BR, unlike ``ServiceInUseError``: the app shows it as is, so the
+    leader can tell a permanent block (plays) from one the setlist purge will lift.
+
+    >>> raise SongInUseError(42, "Oceans", 7, [date(2026, 10, 18)])
+    """
+
+    def __init__(self, song_id: int, title: str, plays: int, setlist_dates: list[date]) -> None:
+        reasons = _join_pt(_plays_reason(plays) + _setlist_reason(setlist_dates))
+        super().__init__(f'A música "{title}" não pode ser excluída: {reasons}.')
+        self.song_id = song_id
+        self.title = title
+        self.plays = plays
+        self.setlist_dates = setlist_dates
+
+    def extra_context(self) -> dict[str, object]:
+        return {
+            "song_id": self.song_id,
+            "title": self.title,
+            "plays": self.plays,
+            "setlist_dates": [day.isoformat() for day in self.setlist_dates],
+        }
+
+
 class ServiceInUseError(ConflictError):
     """Raised when deleting a church service that rota history still references.
 

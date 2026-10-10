@@ -153,6 +153,32 @@ Add a song to the catalogue.
   - `401` without login, `403` without `songs` `manage`
 - **Duplicate check**: done in `SongService`, not by a database constraint — legacy rows may already repeat a pair. Two simultaneous requests for the same song can both succeed (accepted risk: one leader edits the catalogue at a time)
 
+### PATCH /api/songs/{id}/
+
+Fix a catalogue song. Every place that shows the song (Sunday history, setlists, chord charts, lyrics) follows, since they reference it by foreign key. Full contract in `specs/018-song-edit-delete/contracts/song-detail-api.md`.
+
+- **Auth**: `IsAuthenticated` + `scope_permission(Scope.SONGS)` — `manage`
+- **Request body**: any non-empty subset of `{ title, artist, youtube_link }`, with the same per-field rules as `POST /api/songs/` (shared types in `dtos.py`)
+  - an omitted field is unchanged; `youtube_link: ""` clears the link; `null` is invalid
+  - any other key, `category` included, is rejected
+- **Response**: `200` with `{ id, title, artist, category, youtube_link }`
+- **Errors**:
+  - `400 VALIDATION_ERROR` with `field_errors` — empty body, unknown key, `null`, or a field breaking its rule
+  - `409 CONFLICT` — the edit changes the title + artist pair (ignoring case and surrounding whitespace) to one another song already has; the body carries the `title` and `artist` sent
+  - `404 NOT_FOUND` with `song_id`; `401` without login, `403` without `songs` `manage`
+- **Duplicate check**: runs only when the normalized pair changes, so a song never conflicts with itself and a legacy duplicate can still have its link fixed. Same accepted race as create
+
+### DELETE /api/songs/{id}/
+
+Remove a song registered by mistake. Its chord charts and lyrics are deleted with it (`CASCADE`).
+
+- **Auth**: `IsAuthenticated` + `scope_permission(Scope.SONGS)` — `owner` (Admin only)
+- **Response**: `204` with no body
+- **Errors**:
+  - `409 CONFLICT` — the song has plays and/or is on a saved setlist (both `PROTECT`). Nothing is deleted. `detail` is pt-BR and names only the reasons that apply, e.g. `A música "Oceans" não pode ser excluída: foi tocada em 7 domingos e está na setlist de 18/10/2026.`; the body adds `song_id`, `title`, `plays` (distinct play dates) and `setlist_dates` (ISO, ascending)
+  - `404 NOT_FOUND` with `song_id`; `401` without login, `403` without `songs` `owner`
+- **Race**: a play or setlist saved between the check and the delete still answers the same `409`, never a 500 — the repository translates both `ProtectedError` and PostgreSQL's deferred foreign-key `IntegrityError`
+
 ### GET /api/songs-by-sunday/
 
 List all plays grouped by date.
@@ -376,7 +402,7 @@ Ranking / chart data — X is the hymn number, Y is how many times it was sung.
 Follows clean architecture (Views -> Services -> Repositories -> Models):
 
 - **Repository**: `SongRepositoryImpl` (songs, played, chord charts, lyrics), `HymnalRepositoryImpl` (hymns)
-- **Services**: `SongService` (queries, suggestions, song/chord chart/lyrics creation), `RegisterPlaysService` (play registration), `HymnalService` (hymnal listing)
+- **Services**: `SongService` (queries, suggestions, song/chord chart/lyrics creation, song edit and delete), `RegisterPlaysService` (play registration), `HymnalService` (hymnal listing)
 - **Setlists**: `SetlistRepositoryImpl`, `SetlistService` (save, current, by date, pending), `SetlistReminderService` (reminder run); push, device tokens and worship membership come from `core` (`PushService`, `WorshipAccessService`)
 - **DI**: All services/repositories registered in `config/di.py`, injected via `@inject` + `Provide[Container.xxx]`
 
@@ -410,3 +436,4 @@ Hymnal view history follows the same pattern — its own repositories for view e
   FR-028). For the same reason deleting one needs only what saving needs (spec 012, Lowered
   overrides).
 - **Occurrences derived at read time**: never materialized. Editing service windows changes future reports without touching a single stored event.
+- **A song in use is never deleted**: `Played` is the church's history, so a played song stays; a setlist block lifts on its own once the setlist is purged. No soft delete or archive — the `409` explains which block applies. Editing a song is a fix to the catalogue entry, not a new song, so it changes the title everywhere at once (spec 018).

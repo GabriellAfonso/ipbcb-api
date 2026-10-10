@@ -151,6 +151,8 @@ Liderança or Admin who is not flagged as a member can still build the schedule.
 | Method | Endpoint                     | Scope   | Level  | Why                                      |
 |--------|------------------------------|---------|--------|------------------------------------------|
 | POST   | `api/songs/`                 | `songs` | manage | default                                  |
+| PATCH  | `api/songs/{id}/`            | `songs` | manage | default — fixes title, artist or link (spec 018) |
+| DELETE | `api/songs/{id}/`            | `songs` | owner  | default — and never while plays or setlists reference the song (spec 018) |
 | POST   | `api/played/register/`       | `songs` | manage | default — creates or replaces a Sunday's plays (accepted risk) |
 | POST   | `api/chord-charts/`          | `songs` | manage | default                                  |
 | PATCH  | `api/chord-charts/{id}/`     | `songs` | manage | default                                  |

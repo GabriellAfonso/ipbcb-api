@@ -7,8 +7,14 @@ from datetime import date, datetime
 from typing import Any
 from uuid import UUID
 
+from django.db.models import QuerySet
+
+from features.songs.dtos import NewSongInput, SongChangesInput, SongUsage
 from features.songs.hymnal_history_dtos import ServiceWindowDTO
-from features.songs.models.song import Song
+from features.songs.models.chord_chart import ChordChart
+from features.songs.models.lyrics import Lyrics
+from features.songs.models.song import Played, Song
+from features.songs.repositories.song_repository import SongRepositoryImpl
 from features.songs.setlist_dtos import SetlistDTO, SetlistItemDTO, SetlistItemInput
 from core.models import ChurchService
 from features.songs.models.hymnal_history import (
@@ -211,3 +217,126 @@ class FakeSongLookup:
 
     def get_songs_in_bulk(self, ids: set[int]) -> dict[int, Song]:
         return {i: Song(id=i, title=f"Song {i}", artist="A") for i in ids & self.existing_ids}
+
+
+class BlindUsageSongRepository(SongRepositoryImpl):
+    """Real repository whose first usage read sees nothing: a play saved right after the
+    service's check. Later reads (the repository's own re-check) see the database.
+    """
+
+    def __init__(self) -> None:
+        self._first_read = True
+
+    def get_song_usage(self, song_id: int) -> SongUsage:
+        if self._first_read:
+            self._first_read = False
+            return SongUsage(plays=0, setlist_dates=[])
+        return super().get_song_usage(song_id)
+
+
+def _unused(name: str) -> NotImplementedError:
+    return NotImplementedError(f"FakeSongRepository.{name} is not used by these tests")
+
+
+class FakeSongRepository:
+    """In-memory ``SongRepository`` over unsaved ``Song`` instances, keyed by id.
+
+    It spells out the whole protocol because mypy checks the tests against it; the
+    methods the catalogue tests never reach raise. ``calls`` records the catalogue
+    methods, so a test can assert that a query did *not* run.
+
+    >>> FakeSongRepository({1: Song(id=1, title="Oceans", artist="Hillsong")}).get_song_by_id(1)
+    <Song: Oceans ------- Hillsong>
+    """
+
+    def __init__(
+        self, songs: dict[int, Song] | None = None, usage: dict[int, SongUsage] | None = None
+    ) -> None:
+        self.songs = dict(songs or {})
+        # Songs missing here are free: no plays, on no setlist.
+        self.usage = dict(usage or {})
+        self.calls: list[str] = []
+
+    def get_song_by_id(self, song_id: int) -> Song | None:
+        return self.songs.get(song_id)
+
+    def list_all_songs(self) -> QuerySet[Song]:
+        raise _unused("list_all_songs")
+
+    def list_all_played(self) -> QuerySet[Played]:
+        raise _unused("list_all_played")
+
+    def top_songs(self) -> list[dict[str, Any]]:
+        raise _unused("top_songs")
+
+    def top_tones(self) -> list[dict[str, Any]]:
+        raise _unused("top_tones")
+
+    def get_recent_song_ids(self, since: date) -> list[int]:
+        raise _unused("get_recent_song_ids")
+
+    def get_played_by_ids(self, ids: list[int]) -> dict[int, Played]:
+        raise _unused("get_played_by_ids")
+
+    def get_eligible_plays(
+        self, position: int, before: date, exclude_song_ids: set[int]
+    ) -> QuerySet[Played]:
+        raise _unused("get_eligible_plays")
+
+    def get_songs_in_bulk(self, ids: set[int]) -> dict[int, Song]:
+        raise _unused("get_songs_in_bulk")
+
+    def bulk_create_played(self, items: list[Played]) -> list[Played]:
+        raise _unused("bulk_create_played")
+
+    def list_all_chord_charts(self) -> QuerySet[ChordChart]:
+        raise _unused("list_all_chord_charts")
+
+    def get_chord_chart_by_id(self, pk: int) -> ChordChart | None:
+        raise _unused("get_chord_chart_by_id")
+
+    def list_all_lyrics(self) -> QuerySet[Lyrics]:
+        raise _unused("list_all_lyrics")
+
+    def get_lyrics_by_id(self, pk: int) -> Lyrics | None:
+        raise _unused("get_lyrics_by_id")
+
+    def save_chord_chart(self, chart: ChordChart, fields: list[str]) -> None:
+        raise _unused("save_chord_chart")
+
+    def save_lyrics(self, lyrics: Lyrics, fields: list[str]) -> None:
+        raise _unused("save_lyrics")
+
+    def song_exists(self, title: str, artist: str, exclude_id: int | None = None) -> bool:
+        self.calls.append("song_exists")
+        pair = (title.lower(), artist.lower())
+        return any(
+            (song.title.lower(), song.artist.lower()) == pair
+            for song_id, song in self.songs.items()
+            if song_id != exclude_id
+        )
+
+    def create_song(self, new_song: NewSongInput) -> Song:
+        raise _unused("create_song")
+
+    def update_song(self, song: Song, changes: SongChangesInput) -> Song:
+        self.calls.append("update_song")
+        for field, value in changes.model_dump(exclude_unset=True).items():
+            setattr(song, field, value)
+        return song
+
+    def get_song_usage(self, song_id: int) -> SongUsage:
+        self.calls.append("get_song_usage")
+        return self.usage.get(song_id, SongUsage(plays=0, setlist_dates=[]))
+
+    def delete_song(self, song: Song) -> None:
+        self.calls.append("delete_song")
+        del self.songs[song.pk]
+
+    def create_chord_chart(
+        self, song: Song, content: str, tone: str, instrument: str
+    ) -> ChordChart:
+        raise _unused("create_chord_chart")
+
+    def create_lyrics(self, song: Song, content: str) -> Lyrics:
+        raise _unused("create_lyrics")

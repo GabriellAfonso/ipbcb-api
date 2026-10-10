@@ -1,11 +1,16 @@
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import date
 from typing import Any
 
-from django.db.models import Count, QuerySet
+from django.db import IntegrityError, transaction
+from django.db.models import Count, ProtectedError, QuerySet
 
-from features.songs.dtos import NewSongInput
+from core.domain.exceptions import SongInUseError
+from features.songs.dtos import NewSongInput, SongChangesInput, SongUsage
 from features.songs.models.chord_chart import ChordChart
 from features.songs.models.lyrics import Lyrics
+from features.songs.models.setlist import SetlistItem
 from features.songs.models.song import Played, Song
 
 
@@ -76,13 +81,66 @@ class SongRepositoryImpl:
     def get_song_by_id(self, song_id: int) -> Song | None:
         return Song.objects.filter(pk=song_id).first()
 
-    def song_exists(self, title: str, artist: str) -> bool:
-        return Song.objects.filter(title__iexact=title, artist__iexact=artist).exists()
+    def song_exists(self, title: str, artist: str, exclude_id: int | None = None) -> bool:
+        matches = Song.objects.filter(title__iexact=title, artist__iexact=artist)
+        if exclude_id is not None:
+            matches = matches.exclude(pk=exclude_id)
+        return matches.exists()
 
     def create_song(self, new_song: NewSongInput) -> Song:
         return Song.objects.create(
             title=new_song.title, artist=new_song.artist, youtube_link=new_song.youtube_link
         )
+
+    def update_song(self, song: Song, changes: SongChangesInput) -> Song:
+        sent = changes.model_dump(exclude_unset=True)
+        for field, value in sent.items():
+            setattr(song, field, value)
+        song.save(update_fields=list(sent))
+        return song
+
+    def get_song_usage(self, song_id: int) -> SongUsage:
+        """Distinct play dates and setlist dates holding the song: its two PROTECT relations.
+
+        >>> repo.get_song_usage(42)
+        SongUsage(plays=7, setlist_dates=[datetime.date(2026, 10, 18)])
+        """
+        plays = Played.objects.filter(song_id=song_id).values("date").distinct().count()
+        setlist_dates = (
+            SetlistItem.objects.filter(song_id=song_id)
+            .values_list("setlist__date", flat=True)
+            .distinct()
+            .order_by("setlist__date")
+        )
+        return SongUsage(plays=plays, setlist_dates=list(setlist_dates))
+
+    def delete_song(self, song: Song) -> None:
+        """Delete the song with its chord charts and lyrics (CASCADE), or refuse it in use.
+
+        >>> repo.delete_song(song)
+        """
+        with self._translate_in_use(song):
+            song.delete()
+
+    @contextmanager
+    def _translate_in_use(self, song: Song) -> Iterator[None]:
+        """The service checks usage first; this catches a play or setlist saved after it.
+
+        Two ways the database refuses: Django's collector raises ``ProtectedError`` for a
+        reference already committed when it collects, and PostgreSQL's foreign keys are
+        DEFERRABLE INITIALLY DEFERRED, so one committed after the collect fails as
+        ``IntegrityError`` at commit. ``ATOMIC_REQUESTS`` is off, so this block is the
+        outermost and its commit happens inside the ``try``. Anything not explained by a
+        reference is re-raised rather than hidden.
+        """
+        try:
+            with transaction.atomic():
+                yield
+        except (ProtectedError, IntegrityError) as exc:
+            usage = self.get_song_usage(song.pk)
+            if not usage.in_use:
+                raise
+            raise SongInUseError(song.pk, song.title, usage.plays, usage.setlist_dates) from exc
 
     def create_chord_chart(
         self, song: Song, content: str, tone: str, instrument: str

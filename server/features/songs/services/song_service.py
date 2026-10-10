@@ -10,10 +10,12 @@ from core.domain.exceptions import (
     ChordChartNotFoundError,
     DuplicateSongError,
     LyricsNotFoundError,
+    SongInUseError,
+    SongNotFoundError,
     ValidationError,
 )
 from core.metrics import CHORD_CHART_VIEWS_COUNTER, LYRICS_VIEWS_COUNTER
-from features.songs.dtos import NewSongInput, SundaySetDTO, SundaySongDTO
+from features.songs.dtos import NewSongInput, SongChangesInput, SundaySetDTO, SundaySongDTO
 from features.songs.models.chord_chart import ChordChart
 from features.songs.models.lyrics import Lyrics
 from features.songs.models.song import Played, Song
@@ -23,6 +25,17 @@ from features.songs.repositories.interfaces import SongRepository
 class SuggestedPlay(NamedTuple):
     played: Played
     position: int
+
+
+def _normalized_pair(title: str, artist: str) -> tuple[str, str]:
+    return title.strip().lower(), artist.strip().lower()
+
+
+def _pair_changed(song: Song, title: str, artist: str) -> bool:
+    """>>> _pair_changed(Song(title="oceans", artist="Hillsong"), "Oceans ", "hillsong")
+    False
+    """
+    return _normalized_pair(song.title, song.artist) != _normalized_pair(title, artist)
 
 
 class SongService:
@@ -44,6 +57,45 @@ class SongService:
         if self._repository.song_exists(new_song.title, new_song.artist):
             raise DuplicateSongError(new_song.title, new_song.artist)
         return self._repository.create_song(new_song)
+
+    def update_song(self, song_id: int, changes: SongChangesInput) -> Song:
+        """Apply a partial edit, refusing one that makes it repeat another song's pair.
+
+        The duplicate check runs only when the title + artist pair changes once case and
+        surrounding whitespace are ignored: legacy rows may already repeat a pair, and
+        checking a link-only edit would leave such a song's link unfixable (spec 018
+        FR-005). Same accepted race as ``create_song``.
+
+        >>> service.update_song(42, SongChangesInput(title="Oceans"))
+        <Song: Oceans ------- Hillsong>
+        """
+        song = self._require_song(song_id)
+        title = changes.title if changes.title is not None else song.title
+        artist = changes.artist if changes.artist is not None else song.artist
+        if _pair_changed(song, title, artist) and self._repository.song_exists(
+            title, artist, exclude_id=song.pk
+        ):
+            raise DuplicateSongError(title, artist)
+        return self._repository.update_song(song, changes)
+
+    def delete_song(self, song_id: int) -> None:
+        """Delete a song nothing in the Sunday record points at; its chord charts and
+        lyrics go with it. Usage is checked here; the repository covers a reference
+        saved between this check and the delete.
+
+        >>> service.delete_song(42)
+        """
+        song = self._require_song(song_id)
+        usage = self._repository.get_song_usage(song.pk)
+        if usage.in_use:
+            raise SongInUseError(song.pk, song.title, usage.plays, usage.setlist_dates)
+        self._repository.delete_song(song)
+
+    def _require_song(self, song_id: int) -> Song:
+        song = self._repository.get_song_by_id(song_id)
+        if song is None:
+            raise SongNotFoundError(song_id)
+        return song
 
     def list_all_played(self) -> QuerySet[Played]:
         return self._repository.list_all_played()

@@ -12,7 +12,7 @@ from core.domain.exceptions import ValidationError
 from core.http.parsing import require_int
 from core.http.permissions import scope_permission
 from core.http.utils import _not_modified_or_response
-from features.songs.dtos import NewSongInput
+from features.songs.dtos import NewSongInput, SongChangesInput
 from features.songs.serializers.serializers import (
     ChordChartSerializer,
     LyricsSerializer,
@@ -142,6 +142,33 @@ class AllSongsAPI(APIView):
         # exception handler turns into a 400 with field_errors.
         song = song_service.create_song(NewSongInput.model_validate(request.data))
         return Response(SongSerializer(song).data, status=201)
+
+
+class SongDetailAPI(APIView):
+    # No override: PATCH needs manage, like creating a song; DELETE needs owner (spec 018).
+    permission_classes = [IsAuthenticated, scope_permission(Scope.SONGS)]
+
+    @inject
+    def patch(
+        self,
+        request: Request,
+        pk: int,
+        song_service: SongService = Provide[Container.song_service],
+    ) -> Response:
+        # A body that fails SongChangesInput raises pydantic's ValidationError, which the
+        # exception handler turns into a 400 with field_errors.
+        song = song_service.update_song(pk, SongChangesInput.model_validate(request.data))
+        return Response(SongSerializer(song).data)
+
+    @inject
+    def delete(
+        self,
+        request: Request,
+        pk: int,
+        song_service: SongService = Provide[Container.song_service],
+    ) -> Response:
+        song_service.delete_song(pk)
+        return Response(status=204)
 
 
 class ChordChartListAPI(APIView):

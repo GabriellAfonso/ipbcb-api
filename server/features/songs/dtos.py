@@ -1,14 +1,43 @@
 from datetime import date, datetime
-from typing import Annotated, Any
+from typing import Annotated, Any, Self
 
-from pydantic import Field, HttpUrl, StringConstraints, TypeAdapter, field_validator
+from pydantic import (
+    AfterValidator,
+    Field,
+    HttpUrl,
+    StringConstraints,
+    TypeAdapter,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+)
 from pydantic import ValidationError as PydanticValidationError
 
 from core.application.dtos.strict_base import StrictBaseModel
 from core.domain.exceptions import ValidationError
 
-_SongText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 _HTTP_URL = TypeAdapter(HttpUrl)
+
+
+def _require_http_url(v: str) -> str:
+    # Validated but stored as typed: HttpUrl would normalize it (trailing slash, punycode).
+    if not v:
+        return v
+    try:
+        _HTTP_URL.validate_python(v)
+    except PydanticValidationError:
+        raise ValueError(f"youtube_link must be an http(s) URL; got {v!r}") from None
+    return v
+
+
+# Field rules shared by create and edit, so the two can never drift (spec 018 FR-002).
+_SongText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
+_YoutubeLink = Annotated[
+    str,
+    StringConstraints(strip_whitespace=True),
+    Field(max_length=200),
+    AfterValidator(_require_http_url),
+]
 
 
 class NewSongInput(StrictBaseModel):
@@ -20,21 +49,52 @@ class NewSongInput(StrictBaseModel):
 
     title: _SongText
     artist: _SongText
-    youtube_link: Annotated[
-        str, StringConstraints(strip_whitespace=True), Field(max_length=200)
-    ] = ""
+    youtube_link: _YoutubeLink = ""
 
-    @field_validator("youtube_link")
+
+class SongChangesInput(StrictBaseModel):
+    """A partial edit of a catalogue song: only the fields sent change.
+
+    ``None`` means "not sent" and is never written; an explicit ``null`` is refused, since
+    only the link can be cleared, and with ``""``.
+
+    >>> SongChangesInput(title=" Oceans ").model_dump(exclude_unset=True)
+    {'title': 'Oceans'}
+    """
+
+    title: _SongText | None = None
+    artist: _SongText | None = None
+    youtube_link: _YoutubeLink | None = None
+
+    @field_validator("title", "artist", "youtube_link", mode="before")
     @classmethod
-    def youtube_link_is_url(cls, v: str) -> str:
-        # Validated but stored as typed: HttpUrl would normalize it (trailing slash, punycode).
-        if not v:
-            return v
-        try:
-            _HTTP_URL.validate_python(v)
-        except PydanticValidationError:
-            raise ValueError(f"youtube_link must be an http(s) URL; got {v!r}") from None
+    def reject_null(cls, v: object, info: ValidationInfo) -> object:
+        # Runs only for keys the client sent: pydantic does not validate defaults.
+        if v is None:
+            raise ValueError(f"{info.field_name} must not be null; omit the field to keep it")
         return v
+
+    @model_validator(mode="after")
+    def require_a_change(self) -> Self:
+        if not self.model_fields_set:
+            raise ValueError("send at least one of: title, artist, youtube_link; got {}")
+        return self
+
+
+class SongUsage(StrictBaseModel):
+    """What in the Sunday record still points at a song, blocking its deletion.
+
+    >>> SongUsage(plays=2, setlist_dates=[date(2026, 10, 18)]).in_use
+    True
+    """
+
+    # Distinct dates, not Played rows: the message says "N domingos" (spec 018 FR-014).
+    plays: int
+    setlist_dates: list[date]
+
+    @property
+    def in_use(self) -> bool:
+        return self.plays > 0 or bool(self.setlist_dates)
 
 
 class SundaySongDTO(StrictBaseModel):
