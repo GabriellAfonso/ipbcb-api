@@ -37,6 +37,8 @@ ENDPOINTS: list[tuple[str, str, str, Level]] = [
     # songs
     ("POST", "/api/played/register/", "songs", Level.MANAGE),
     ("POST", "/api/songs/", "songs", Level.MANAGE),
+    ("PATCH", f"/api/songs/{MISSING_ID}/", "songs", Level.MANAGE),
+    ("DELETE", f"/api/songs/{MISSING_ID}/", "songs", Level.OWNER),
     ("POST", "/api/chord-charts/", "songs", Level.MANAGE),
     ("PATCH", f"/api/chord-charts/{MISSING_ID}/", "songs", Level.MANAGE),
     ("POST", "/api/lyrics/", "songs", Level.MANAGE),
