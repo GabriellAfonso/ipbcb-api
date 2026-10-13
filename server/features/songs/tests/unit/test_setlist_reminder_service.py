@@ -90,6 +90,32 @@ def test_provider_failure_still_consumes_the_window() -> None:
     assert len(world.sender.calls) == 1
 
 
+def test_monday_reminds_every_two_hours_for_sunday() -> None:
+    world = _World()
+    monday = date(2026, 10, 5)
+    outcomes = [world.run_at(h, m, day=monday) for h, m in ((7, 59), (8, 5), (9, 50), (10, 1))]
+    assert outcomes == ["outside_window", "sent", "already_sent", "sent"]
+    message = world.sender.calls[-1][1]
+    assert message.type is PushMessageType.CONFIRM_PLAYS and message.date == SUNDAY
+    assert world.setlists.slots[SUNDAY] == datetime(2026, 10, 5, 10, 0, tzinfo=SP)
+
+
+def test_monday_after_sunday_night_still_sends() -> None:
+    world = _World()
+    assert world.run_at(23, 40) == "sent"
+    assert world.run_at(8, 0, day=date(2026, 10, 5)) == "sent"
+
+
+def test_monday_stops_once_sunday_is_registered() -> None:
+    world = _World()
+    world.setlists.played_dates.add(SUNDAY)
+    assert world.run_at(8, 5, day=date(2026, 10, 5)) == "confirmed"
+
+
+def test_tuesday_is_outside_the_window() -> None:
+    assert _World().run_at(10, 0, day=date(2026, 10, 6)) == "outside_window"
+
+
 def test_last_window_runs_until_midnight() -> None:
     world = _World()
     assert world.run_at(23, 59) == "sent"

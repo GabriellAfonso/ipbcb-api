@@ -239,8 +239,8 @@ pinned `DJANGO_ENV`/`DJANGO_SETTINGS_MODULE`, `depends_on` db healthy and server
 command prints one summary line and always exits 0.
 
 **Rationale**: request — follow the token flush pattern, no Celery. 60 s keeps each window's send
-within its first two minutes. Outside Sunday 21:00–24:00 a run exits after computing that no slot
-applies, without a query; inside it, a run is at most four cheap queries plus the send.
+within its first two minutes. Outside the reminder windows (Sunday 21:00–24:00, Monday
+08:00–24:00) a run exits after computing that no slot applies, without a query; inside it, a run is at most four cheap queries plus the send.
 
 **Alternatives**: one long-running command with an internal loop — reuses Django boot, but a
 crash inside it would stop reminders until the restart policy kicks in, and it diverges from the

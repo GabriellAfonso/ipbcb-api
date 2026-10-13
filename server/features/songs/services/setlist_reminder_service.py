@@ -9,15 +9,16 @@ from core.application.worship_access_service import WorshipAccessService
 from core.domain.push import PushMessageType
 from core.time.clock import Clock
 from features.songs.repositories.interfaces import SetlistRepository
-from features.songs.services.setlist_rules import current_reminder_slot
+from features.songs.services.setlist_rules import current_reminder_window
 from features.songs.setlist_dtos import ReminderRunReport
 
 logger = logging.getLogger(__name__)
 
 
 class SetlistReminderService:
-    """Sunday-night nudge to register the played songs (specs/017-sunday-setlist-push US5,
-    research R-10). Run every minute by ``send_setlist_reminders``.
+    """Sunday-night nudge to register the played songs, repeated through Monday for a Sunday
+    still unregistered (specs/017-sunday-setlist-push US5, research R-10). Run every minute by
+    ``send_setlist_reminders``.
 
     The window is claimed on the setlist row *before* the push goes out: a crash, a restart or
     an overlapping run can at worst lose one reminder, never send one twice, and a failing
@@ -40,11 +41,10 @@ class SetlistReminderService:
         """>>> SetlistReminderService(...).run().outcome
         'outside_window'
         """
-        now_local = timezone.localtime(self._clock.now())
-        slot = current_reminder_slot(now_local)
-        if slot is None:
+        window = current_reminder_window(timezone.localtime(self._clock.now()))
+        if window is None:
             return _done(ReminderRunReport(outcome="outside_window"))
-        day = now_local.date()
+        day, slot = window.setlist_date, window.start
         report = self._skip_reason(day)
         if report is not None:
             return _done(report.model_copy(update={"slot": slot}))

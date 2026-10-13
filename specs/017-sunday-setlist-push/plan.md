@@ -13,7 +13,8 @@ requests, a `PushService` that deletes tokens FCM reports as unregistered, and t
 membership query (ministry named "Louvor", by lookup string, no feature import). Saving sends
 `setlist_saved` to every worship member's devices after commit; a failure is logged and never
 fails the save. A compose loop runs `send_setlist_reminders` every 60 s: on the setlist's Sunday
-from 21:00, it claims the current half-hour window on the setlist row with a conditional update
+from 21:00 (half-hour windows) and the following Monday from 08:00 (two-hour windows), it claims
+the current window on the setlist row with a conditional update
 and sends `confirm_plays` to worship members holding `manage` on `songs`, until a `Played` row
 exists for the date. The profile gains `is_worship_member` and `can_save_setlist`; `accounts`
 gains `api/me/devices/` register/unregister.

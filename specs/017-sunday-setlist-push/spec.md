@@ -96,9 +96,17 @@ matches the setlist.
 
 ### Reminder window
 
-Each half hour of the setlist's Sunday from 21:00 to 23:30 inclusive, `America/Sao_Paulo`:
-21:00, 21:30, 22:00, 22:30, 23:00, 23:30 — at most six reminders per setlist. A window runs
-from its start until the next window's start (the 23:30 window until midnight).
+`America/Sao_Paulo`, in two stretches:
+
+- **Sunday night** — each half hour of the setlist's Sunday from 21:00: 21:00, 21:30, 22:00,
+  22:30, 23:00, 23:30.
+- **Monday** — every two hours of the following day from 08:00: 08:00, 10:00, 12:00, 14:00,
+  16:00, 18:00, 20:00, 22:00. The night in between has no window, so nobody is woken up, and the
+  wider step keeps a forgotten Sunday from becoming a stream of pushes the user silences.
+
+At most fourteen reminders per setlist. A window runs from its start until the next window's
+start; the last window of each stretch runs until midnight. Monday windows belong to the
+previous day's setlist.
 
 ### Device token
 
@@ -229,10 +237,10 @@ check both flags.
 
 ### User Story 5 - Sunday night reminder to confirm the played songs (Priority: P2)
 
-On the setlist's Sunday, from 21:00 and every half hour until midnight, the people responsible
-— worship members who can register plays — get a data push of type `confirm_plays` with the
-date — but only while no played songs are
-registered for that date. Once anyone registers them, the reminders stop.
+On the setlist's Sunday, from 21:00 and every half hour until midnight, and again on Monday from
+08:00 every two hours until midnight, the people responsible — worship members who can register
+plays — get a data push of type `confirm_plays` with the Sunday's date — but only while no played
+songs are registered for that date. Once anyone registers them, the reminders stop.
 
 **Why this priority**: it fixes the gap that motivates the feature (unrecorded Sundays), but the
 setlist is already useful without it.
@@ -249,13 +257,18 @@ setlist is already useful without it.
    after the process restarted — **Then** nothing is sent.
 3. **Given** played songs are registered for today, **When** the reminder runs in any later
    window, **Then** nothing is sent.
-4. **Given** no setlist for today, or today is not a Sunday, or it is before 21:00, **When** the
-   reminder runs, **Then** nothing is sent.
+4. **Given** no setlist for the Sunday, or it is a day other than Sunday or Monday, or before
+   21:00 on Sunday, **When** the reminder runs, **Then** nothing is sent.
 5. **Given** the process was down from 21:00 to 22:40, **When** it runs at 22:40, **Then** it
    sends once, for the 22:30 window only; missed windows are not sent retroactively.
 6. **Given** the push provider fails, **When** the reminder runs, **Then** the failure is logged
    and the window is still recorded as attempted, so a broken provider is not retried every few
    minutes within the same window.
+7. **Given** Sunday's setlist still has no played songs, **When** the reminder runs on Monday at
+   08:05, **Then** recipients receive one `confirm_plays` message with Sunday's date; at 09:50 it
+   is the same 08:00 window and nothing is sent; at 10:01 the 10:00 window is sent.
+8. **Given** it is between midnight and 08:00 on Monday, or any time on Tuesday, **When** the
+   reminder runs, **Then** nothing is sent.
 
 ---
 
@@ -375,8 +388,9 @@ and check the list holds the other three, newest first.
 
 **Reminder**
 
-- **FR-017**: A scheduled job MUST, for today's setlist (Sunday, `America/Sao_Paulo`), send a
-  data message of type `confirm_plays` with the date to every registered device of the reminder
+- **FR-017**: A scheduled job MUST, for the setlist of the Sunday the current reminder window
+  belongs to (Sunday night or the following Monday, `America/Sao_Paulo`), send a data message of
+  type `confirm_plays` with that Sunday's date to every registered device of the reminder
   recipients, once per reminder window, only while no played songs are registered for that date.
   Recipients are users who hold `manage` on scope `songs` AND are worship members — the same
   rule as saving (FR-002), so the reminder reaches exactly the people who can register the
