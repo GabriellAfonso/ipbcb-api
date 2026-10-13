@@ -37,5 +37,9 @@ django-prometheus>=2.3.1,<3.0
 # ─── Utilities ────────────────────────────────────────────────────────────────
 pillow==12.3.0
 pydantic==2.12.5
+# Not imported by our code: dependency-injector tries pydantic_settings first and,
+# when missing, falls back to pydantic.BaseSettings, which pydantic 2 removed and
+# turns into a noisy PydanticImportError traceback at startup.
+pydantic-settings==2.15.0
 dependency-injector==4.48.3
 python-dotenv==1.2.2
