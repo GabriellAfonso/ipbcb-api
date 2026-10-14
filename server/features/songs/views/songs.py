@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from typing import Any
 
 from dependency_injector.wiring import Provide, inject
@@ -22,6 +23,36 @@ from features.songs.serializers.serializers import (
 from features.songs.services.song_service import SongService
 
 
+# Caps `exclude` so a long or hostile query string never becomes an unbounded SQL IN.
+MAX_EXCLUDE_PAIRS = 200
+
+
+def _parse_position_pair(part: str) -> tuple[int, int] | None:
+    """Parse one "position:id" entry; None when malformed or the position is outside 1-4.
+
+    >>> _parse_position_pair(" 3 : 45 ")
+    (3, 45)
+    """
+    if ":" not in part:
+        return None
+    pos_str, id_str = [x.strip() for x in part.split(":", 1)]
+    try:
+        pos, target_id = int(pos_str), int(id_str)
+    except ValueError:
+        return None
+    if pos < 1 or pos > 4:
+        return None
+    return pos, target_id
+
+
+def _iter_position_pairs(value: str) -> Iterator[tuple[int, int]]:
+    """Valid (position, id) pairs of a comma-separated query param, in order."""
+    for part in value.split(","):
+        pair = _parse_position_pair(part.strip())
+        if pair is not None:
+            yield pair
+
+
 def _parse_fixed_param(value: str) -> dict[int, int]:
     """Parse query param like: "1:12,3:45" -> {1: 12, 3: 45}.
     Invalid entries are ignored.
@@ -29,27 +60,25 @@ def _parse_fixed_param(value: str) -> dict[int, int]:
     >>> _parse_fixed_param("1:12,3:45")
     {1: 12, 3: 45}
     """
-    fixed: dict[int, int] = {}
-    if not value:
-        return fixed
+    return dict(_iter_position_pairs(value))
 
-    parts = [p.strip() for p in value.split(",") if p.strip()]
-    for part in parts:
-        if ":" not in part:
-            continue
-        pos_str, played_id_str = [x.strip() for x in part.split(":", 1)]
-        try:
-            pos = int(pos_str)
-            played_id = int(played_id_str)
-        except ValueError:
-            continue
 
-        if pos < 1 or pos > 4:
-            continue
+def _parse_exclude_param(value: str) -> dict[int, set[int]]:
+    """Parse "3:12,3:34,1:7" -> {3: {12, 34}, 1: {7}}; ids are Song ids, not Played ids.
 
-        fixed[pos] = played_id
+    Invalid entries are ignored; only the first MAX_EXCLUDE_PAIRS distinct pairs count.
 
-    return fixed
+    >>> _parse_exclude_param("3:12,3:34")
+    {3: {12, 34}}
+    """
+    excluded: dict[int, set[int]] = {}
+    seen: set[tuple[int, int]] = set()
+    for pos, song_id in _iter_position_pairs(value):
+        if len(seen) >= MAX_EXCLUDE_PAIRS:
+            break
+        seen.add((pos, song_id))
+        excluded.setdefault(pos, set()).add(song_id)
+    return excluded
 
 
 class SongsBySundayAPI(APIView):
@@ -103,9 +132,9 @@ class SuggestedSongsAPI(APIView):
         request: Request,
         song_service: SongService = Provide[Container.song_service],
     ) -> Response:
-        fixed_param = request.query_params.get("fixed", "")
-        fixed_by_position = _parse_fixed_param(fixed_param)
-        suggestions = song_service.suggest_songs(fixed_by_position)
+        fixed_by_position = _parse_fixed_param(request.query_params.get("fixed", ""))
+        excluded_by_position = _parse_exclude_param(request.query_params.get("exclude", ""))
+        suggestions = song_service.suggest_songs(fixed_by_position, excluded_by_position)
 
         result = []
         for suggestion in suggestions:

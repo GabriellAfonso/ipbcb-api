@@ -42,16 +42,38 @@ class SongRepositoryImpl:
         qs = Played.objects.select_related("song").filter(id__in=ids)
         return {p.id: p for p in qs}
 
-    def get_eligible_plays(
+    def get_candidate_song_ids(
         self,
         position: int,
         before: date,
         exclude_song_ids: set[int],
-    ) -> QuerySet[Played]:
+    ) -> list[int]:
+        """Distinct songs played in ``position`` before ``before``, ascending, one id each.
+
+        One id per song, however often it was played, so the draw over them is uniform.
+
+        >>> repo.get_candidate_song_ids(3, date(2026, 7, 16), {12})
+        [5, 98, 301]
+        """
+        return list(
+            Played.objects.filter(position=position, date__lt=before, song_id__isnull=False)
+            .exclude(song_id__in=exclude_song_ids)
+            .order_by("song_id")
+            .values_list("song_id", flat=True)
+            .distinct()
+        )
+
+    def get_latest_play(self, song_id: int, position: int) -> Played | None:
+        """The song's most recent play in ``position``; it sets the suggested tone.
+
+        >>> repo.get_latest_play(98, 3)
+        <Played: Oceans ------- 01/02/2026>
+        """
         return (
             Played.objects.select_related("song")
-            .filter(position=position, date__lt=before)
-            .exclude(song_id__in=exclude_song_ids)
+            .filter(song_id=song_id, position=position)
+            .order_by("-date", "-id")
+            .first()
         )
 
     def get_songs_in_bulk(self, ids: set[int]) -> dict[int, Song]:

@@ -211,15 +211,34 @@ Suggest songs for positions 1-4. Excludes songs played in the last 90 days.
 
 - **Auth**: AllowAny
 - **Query params**:
-  - `fixed` (optional): pin specific positions. Format: `"1:12,3:45"` (position:played_id)
+  - `fixed` (optional): pin specific positions. Format: `"1:12,3:45"` (position:**played_id**).
+    A repeated position keeps the last entry
+  - `exclude` (optional): songs the app already showed for a position and does not want again.
+    Format: `"3:12,3:34,3:56"` (position:**song_id**), a position may repeat. Example:
+    `?fixed=1:120,2:98,4:301&exclude=3:12,3:34,3:56`
+  - Both are parsed best-effort: an entry that is not `int:int` or whose position is outside
+    1-4 is ignored, never a `400`. `exclude` keeps at most the first 200 distinct pairs; the
+    rest are ignored, so a long list never becomes an unbounded `IN`
 - **Response**: `200`
-- **Response body**: array of serialized Played objects with overridden position
+- **Response body**: array of serialized Played objects plus `position`, ordered by position.
+  A position with no candidate is absent from the array
 
 **Business rules**:
-- Only suggests songs not played in last 90 days
-- Matches songs to their historical position
+- Candidates for a free position are **distinct songs** that were played in that position
+  before the 90-day cutoff, minus songs played (in any position) in the last 90 days, minus
+  songs already used this Sunday (fixed, or drawn for an earlier position). Plays with no song
+  are never candidates
+- The draw is uniform over those songs: a song played 12 times in the position weighs the same
+  as one played once
+- The suggestion returned for the drawn song is its **most recent** play in that position,
+  which sets the tone shown
 - No duplicate songs across positions
-- Fixed positions are respected (pinned by Played id)
+- Fixed positions are respected (pinned by Played id); `exclude` is ignored for them
+- `exclude` applies only to the position it names
+- **Exclusion fallback**: when `exclude` leaves a position with no candidate, the position is
+  drawn again ignoring its `exclude` (the 90-day rule and the songs used this Sunday still
+  apply). The response carries no flag: the app sees the reset when a song already on its list
+  comes back
 - Positions limited to 1-4
 
 ### GET /api/hymnal/
@@ -415,7 +434,14 @@ Hymnal view history follows the same pattern — its own repositories for view e
 - **Position 1-4 vs 1-10**: Normal service has 4 songs (positions 1-4). `SuggestedSongsAPI` only suggests for 1-4. `RegisterSundayPlaysAPI` accepts up to 10 for special occasions. This is intentional.
 - **AllowAny on most endpoints**: Internal church app, no sensitive data. Only the management writes (songs, plays, chord charts, lyrics) and the hymnal history reports and configuration require a scope level (`specs/012-feature-role-permissions/`).
 - **ETag caching**: Read-only list endpoints use SHA-256 ETag for conditional GET (304 Not Modified).
-- **Random suggestion**: `random.choice` for song selection — simple and adequate for the use case.
+- **Random suggestion**: `random.choice` over the distinct candidate song ids, not over `Played`
+  rows — drawing over rows weighted each song by how often it was played, so the same favourites
+  kept coming back. The repository returns only the ids, then fetches the one drawn play, so
+  the full play history is never loaded into memory. The picker is injected into `SongService`
+  so tests can see exactly what the draw was offered.
+- **Stateless "don't repeat"**: the server keeps no memory of past suggestions; the app sends
+  what it already showed in `exclude`. `fixed` carries `Played.id` (it pins a tone too) while
+  `exclude` carries `Song.id` (any play of that song is unwanted).
 - **View history lives in `songs`, not a new app**: `Hymn` lives here and the constitution forbids features importing from each other. The service catalogue was briefly duplicated here for the same reason, then moved to `core.ChurchService` in feature 007 so both features could share one source of truth.
 - **`Played` vs `HymnalViewEvent`**: intentionally separate. `Played` is the official Sunday repertoire (`Song`, manual, admin). `HymnalViewEvent` is passive usage telemetry (`Hymn`, automatic, app). They coexist and never share models.
 - **AllowAny + throttle on ingest**: this is the only *write* endpoint open to unauthenticated clients. Most members use the hymnal without logging in, so requiring auth would collect a biased and largely empty history. Compensating controls: throttling, a required `device_id`, the `client_event_id` idempotency key, and strict per-event validation. The data carries nothing sensitive.

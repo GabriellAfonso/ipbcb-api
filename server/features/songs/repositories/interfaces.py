@@ -32,12 +32,14 @@ class SongRepository(Protocol):
 
     def get_played_by_ids(self, ids: list[int]) -> dict[int, Played]: ...
 
-    def get_eligible_plays(
+    def get_candidate_song_ids(
         self,
         position: int,
         before: date,
         exclude_song_ids: set[int],
-    ) -> QuerySet[Played]: ...
+    ) -> list[int]: ...
+
+    def get_latest_play(self, song_id: int, position: int) -> Played | None: ...
 
     def get_songs_in_bulk(self, ids: set[int]) -> dict[int, Song]: ...
 

@@ -3,6 +3,7 @@
 Named classes rather than inline stubs, per CLAUDE.md §10.
 """
 
+from collections.abc import Sequence
 from datetime import date, datetime
 from typing import Any
 from uuid import UUID
@@ -234,6 +235,27 @@ class BlindUsageSongRepository(SongRepositoryImpl):
         return super().get_song_usage(song_id)
 
 
+class RecordingSongPicker:
+    """``SongPicker`` that records every candidate list it is offered.
+
+    Picks the first candidate unless ``choose`` (song id) is among them, so a test controls
+    the draw without randomness.
+
+    >>> RecordingSongPicker(choose=7)([3, 7])
+    7
+    """
+
+    def __init__(self, choose: int | None = None) -> None:
+        self.choose = choose
+        self.offers: list[list[int]] = []
+
+    def __call__(self, candidates: Sequence[int]) -> int:
+        self.offers.append(list(candidates))
+        if self.choose is not None and self.choose in candidates:
+            return self.choose
+        return candidates[0]
+
+
 def _unused(name: str) -> NotImplementedError:
     return NotImplementedError(f"FakeSongRepository.{name} is not used by these tests")
 
@@ -250,11 +272,16 @@ class FakeSongRepository:
     """
 
     def __init__(
-        self, songs: dict[int, Song] | None = None, usage: dict[int, SongUsage] | None = None
+        self,
+        songs: dict[int, Song] | None = None,
+        usage: dict[int, SongUsage] | None = None,
+        plays: list[Played] | None = None,
     ) -> None:
         self.songs = dict(songs or {})
         # Songs missing here are free: no plays, on no setlist.
         self.usage = dict(usage or {})
+        # Unsaved Played rows the suggestion queries read.
+        self.plays = list(plays or [])
         self.calls: list[str] = []
 
     def get_song_by_id(self, song_id: int) -> Song | None:
@@ -273,15 +300,29 @@ class FakeSongRepository:
         raise _unused("top_tones")
 
     def get_recent_song_ids(self, since: date) -> list[int]:
-        raise _unused("get_recent_song_ids")
+        return [p.song_id for p in self.plays if p.date >= since and p.song_id is not None]
 
     def get_played_by_ids(self, ids: list[int]) -> dict[int, Played]:
-        raise _unused("get_played_by_ids")
+        return {p.id: p for p in self.plays if p.id in ids}
 
-    def get_eligible_plays(
+    def get_candidate_song_ids(
         self, position: int, before: date, exclude_song_ids: set[int]
-    ) -> QuerySet[Played]:
-        raise _unused("get_eligible_plays")
+    ) -> list[int]:
+        self.calls.append("get_candidate_song_ids")
+        return sorted(
+            {
+                p.song_id
+                for p in self.plays
+                if p.position == position
+                and p.date < before
+                and p.song_id is not None
+                and p.song_id not in exclude_song_ids
+            }
+        )
+
+    def get_latest_play(self, song_id: int, position: int) -> Played | None:
+        matches = [p for p in self.plays if p.song_id == song_id and p.position == position]
+        return max(matches, key=lambda p: (p.date, p.id), default=None)
 
     def get_songs_in_bulk(self, ids: set[int]) -> dict[int, Song]:
         raise _unused("get_songs_in_bulk")

@@ -1,5 +1,6 @@
 import random
 from collections import defaultdict
+from collections.abc import Callable, Sequence
 from datetime import date, timedelta
 from typing import Any, NamedTuple
 
@@ -22,6 +23,10 @@ from features.songs.models.song import Played, Song
 from features.songs.repositories.interfaces import SongRepository
 
 
+# Draws one song id from the candidates. Injected so tests can see what the draw was offered.
+SongPicker = Callable[[Sequence[int]], int]
+
+
 class SuggestedPlay(NamedTuple):
     played: Played
     position: int
@@ -39,8 +44,10 @@ def _pair_changed(song: Song, title: str, artist: str) -> bool:
 
 
 class SongService:
-    def __init__(self, repository: SongRepository) -> None:
+    def __init__(self, repository: SongRepository, pick_song: SongPicker = random.choice) -> None:
+        # random.choice is not used for anything security-related (bandit B311).
         self._repository = repository
+        self._pick_song = pick_song
 
     def list_all_songs(self) -> QuerySet[Song]:
         return self._repository.list_all_songs()
@@ -131,43 +138,53 @@ class SongService:
     def suggest_songs(
         self,
         fixed_by_position: dict[int, int] | None = None,
+        excluded_by_position: dict[int, set[int]] | None = None,
     ) -> list[SuggestedPlay]:
-        """Suggest songs for positions 1-4, respecting pinned positions.
+        """Suggest songs for positions 1-4, respecting pinned positions and exclusions.
 
-        >>> service.suggest_songs({1: 42})  # pin position 1 to Played id=42
+        ``fixed_by_position`` maps a position to a Played id; ``excluded_by_position`` maps a
+        position to Song ids the app already showed there.
+
+        >>> service.suggest_songs({1: 42}, {3: {12, 34}})
         [SuggestedPlay(played=..., position=1), ...]
         """
         fixed_by_position = fixed_by_position or {}
-        three_months_ago = (now() - timedelta(days=90)).date()
-        used_song_ids: set[int] = set()
-        result: list[SuggestedPlay] = []
-
-        recent_song_ids = set(self._repository.get_recent_song_ids(three_months_ago))
-
-        if fixed_by_position:
-            fixed_plays, used_song_ids = self._resolve_fixed(fixed_by_position)
-            result.extend(fixed_plays)
-
-        for position in range(1, 5):
-            if position in fixed_by_position:
-                continue
-            play = self._pick_for_position(
-                position,
-                three_months_ago,
-                recent_song_ids | used_song_ids,
-            )
-            if play:
-                if play.song_id is not None:
-                    used_song_ids.add(play.song_id)
-                result.append(SuggestedPlay(played=play, position=position))
-
+        before = (now() - timedelta(days=90)).date()
+        result, used_song_ids = self._resolve_fixed(fixed_by_position)
+        # Songs played recently and songs already on this Sunday are blocked for every
+        # position and, unlike ``exclude``, never lifted by the fallback.
+        blocked_song_ids = used_song_ids | set(self._repository.get_recent_song_ids(before))
+        free_positions = [p for p in range(1, 5) if p not in fixed_by_position]
+        result += self._draw_positions(
+            free_positions, before, blocked_song_ids, excluded_by_position or {}
+        )
         result.sort(key=lambda x: x.position)
         return result
+
+    def _draw_positions(
+        self,
+        positions: list[int],
+        before: date,
+        blocked_song_ids: set[int],
+        excluded_by_position: dict[int, set[int]],
+    ) -> list[SuggestedPlay]:
+        """Draw each position in order; a drawn song is blocked for the later ones."""
+        drawn: list[SuggestedPlay] = []
+        for position in positions:
+            excluded = excluded_by_position.get(position, set())
+            play = self._pick_for_position(position, before, blocked_song_ids, excluded)
+            if play is None or play.song_id is None:
+                continue
+            blocked_song_ids.add(play.song_id)
+            drawn.append(SuggestedPlay(played=play, position=position))
+        return drawn
 
     def _resolve_fixed(
         self,
         fixed_by_position: dict[int, int],
     ) -> tuple[list[SuggestedPlay], set[int]]:
+        if not fixed_by_position:
+            return [], set()
         fixed_ids = list(set(fixed_by_position.values()))
         fixed_by_id = self._repository.get_played_by_ids(fixed_ids)
         result: list[SuggestedPlay] = []
@@ -187,12 +204,26 @@ class SongService:
         self,
         position: int,
         before: date,
-        exclude_song_ids: set[int],
+        blocked_song_ids: set[int],
+        excluded_song_ids: set[int],
     ) -> Played | None:
-        qs = self._repository.get_eligible_plays(position, before, exclude_song_ids)
-        if not qs.exists():
+        """Draw a song for the position and return its latest play there.
+
+        When ``excluded_song_ids`` empties the pool, draw again without it: the app sees
+        the reset because a song it already showed comes back (no flag in the response).
+        """
+        song_id = self._draw_song(position, before, blocked_song_ids | excluded_song_ids)
+        if song_id is None and excluded_song_ids:
+            song_id = self._draw_song(position, before, blocked_song_ids)
+        if song_id is None:
             return None
-        return random.choice(list(qs))  # nosec B311
+        return self._repository.get_latest_play(song_id, position)
+
+    def _draw_song(self, position: int, before: date, exclude_song_ids: set[int]) -> int | None:
+        candidates = self._repository.get_candidate_song_ids(position, before, exclude_song_ids)
+        if not candidates:
+            return None
+        return self._pick_song(candidates)
 
     def list_chord_charts(self) -> QuerySet[ChordChart]:
         CHORD_CHART_VIEWS_COUNTER.inc()
