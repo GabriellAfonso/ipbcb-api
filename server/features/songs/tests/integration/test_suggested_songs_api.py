@@ -5,6 +5,7 @@ from django.utils.timezone import now
 from rest_framework.test import APIClient
 
 from features.songs.models import Song, Played
+from features.songs.repositories.song_repository import SongRepositoryImpl
 
 
 URL = "/api/suggested-songs/"
@@ -81,3 +82,63 @@ class TestSuggestedSongsAPI:
         assert resp.status_code == 200
         positions = [s["position"] for s in resp.data]
         assert positions == sorted(positions)
+
+    def test_exclude_skips_the_song_in_its_position(self, client: APIClient) -> None:
+        plays = _create_old_plays()
+        other = Song.objects.create(title="Other", artist="Artist")
+        Played.objects.create(song=other, tone="A", position=3, date=_old_date())
+        resp = client.get(URL, {"exclude": f"3:{plays[2].song_id},1:{other.pk}"})
+        assert resp.status_code == 200
+        by_position = {s["position"]: s["song"]["id"] for s in resp.data}
+        assert by_position == {
+            1: plays[0].song_id,
+            2: plays[1].song_id,
+            3: other.pk,
+            4: plays[3].song_id,
+        }
+
+    def test_exhausted_exclude_falls_back_to_the_full_pool(self, client: APIClient) -> None:
+        plays = _create_old_plays()
+        resp = client.get(URL, {"exclude": f"3:{plays[2].song_id}"})
+        assert resp.status_code == 200
+        pos3 = next(s for s in resp.data if s["position"] == 3)
+        assert pos3["id"] == plays[2].id
+
+
+@pytest.mark.django_db
+class TestSuggestionQueries:
+    def test_candidates_hold_each_song_once(self) -> None:
+        busy = Song.objects.create(title="Busy", artist="A")
+        rare = Song.objects.create(title="Rare", artist="A")
+        for _ in range(12):
+            Played.objects.create(song=busy, tone="G", position=3, date=_old_date())
+        Played.objects.create(song=rare, tone="G", position=3, date=_old_date())
+        Played.objects.create(song=None, tone="G", position=3, date=_old_date())
+        cutoff = (now() - timedelta(days=90)).date()
+
+        candidates = SongRepositoryImpl().get_candidate_song_ids(3, cutoff, set())
+
+        assert candidates == sorted([busy.pk, rare.pk])
+
+    def test_candidates_drop_excluded_and_recent_plays(self) -> None:
+        recent, excluded, kept, other = (p.song for p in _create_old_plays())
+        assert recent and excluded and kept and other
+        Played.objects.create(song=recent, tone="G", position=3, date=_recent_date())
+        Played.objects.create(song=excluded, tone="G", position=3, date=_old_date())
+        Played.objects.create(song=other, tone="G", position=3, date=_old_date())
+        cutoff = (now() - timedelta(days=90)).date()
+
+        candidates = SongRepositoryImpl().get_candidate_song_ids(3, cutoff, {excluded.pk})
+
+        # The recent play is after the cutoff; the service blocks that song separately.
+        assert candidates == sorted([kept.pk, other.pk])
+
+    def test_latest_play_is_the_newest_in_that_position(self) -> None:
+        song = Song.objects.create(title="Song", artist="A")
+        Played.objects.create(
+            song=song, tone="C", position=3, date=_old_date() - timedelta(days=60)
+        )
+        latest = Played.objects.create(song=song, tone="D", position=3, date=_old_date())
+        Played.objects.create(song=song, tone="E", position=1, date=_recent_date())
+
+        assert SongRepositoryImpl().get_latest_play(song.pk, 3) == latest
