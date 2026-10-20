@@ -11,6 +11,7 @@ O detalhe completo fica nas specs (`specs/{domínio}/spec.md`).
 | [Músicas](features/songs.md)             | repertório, setlist, cifras, letras, hinário   |
 | [Galeria](features/gallery.md)           | álbuns, fotos, lixeira, marcação de membros    |
 | [Bíblia](features/bible.md)              | texto bíblico em várias versões                |
+| [Doutrina](features/doctrine.md)         | catecismos e Confissão de Fé de Westminster    |
 | [Arquivos de mídia](features/media.md)   | quem pode abrir cada imagem enviada            |
 
 Documentação interativa da API (gerada pelo código): `/ipbcb/api/schema/swagger-ui/`.
