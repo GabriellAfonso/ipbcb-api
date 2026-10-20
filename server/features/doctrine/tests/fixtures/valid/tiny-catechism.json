@@ -1,0 +1,40 @@
+{
+  "slug": "tiny-catechism",
+  "title": "Catecismo de Teste",
+  "kind": "catechism",
+  "position": 1,
+  "questions": [
+    {
+      "number": 1,
+      "question": "Qual é o fim principal do homem?",
+      "answer": "O fim principal do homem é glorificar a Deus, e gozá-lo para sempre.",
+      "proof_texts": [
+        {
+          "printed": "Rm 11.36",
+          "reference": {"book": "Rm", "chapter": 11, "verses": [{"start": 36, "end": 36}]}
+        },
+        {
+          "printed": "Lc 24.27, 44",
+          "reference": {
+            "book": "Lc",
+            "chapter": 24,
+            "verses": [{"start": 27, "end": 27}, {"start": 44, "end": 44}]
+          }
+        },
+        {"printed": "Sl 86-8", "reference": null}
+      ]
+    },
+    {
+      "number": 2,
+      "question": "Que regra Deus nos deu?",
+      "answer": "A Palavra de Deus.",
+      "proof_texts": [
+        {"printed": "Sl 23", "reference": {"book": "Sl", "chapter": 23, "verses": []}},
+        {
+          "printed": "1Tm 3.16",
+          "reference": {"book": "1Tn", "chapter": 3, "verses": [{"start": 16, "end": 16}]}
+        }
+      ]
+    }
+  ]
+}

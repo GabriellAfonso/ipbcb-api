@@ -1,0 +1,31 @@
+{
+  "slug": "tiny-confession",
+  "title": "Confissão de Teste",
+  "kind": "confession",
+  "position": 2,
+  "chapters": [
+    {
+      "number": 1,
+      "title": "DA ESCRITURA SAGRADA",
+      "paragraphs": [
+        {"number": 1, "text": "Ainda que a luz da natureza manifeste a bondade de Deus."},
+        {
+          "number": 2,
+          "text": "Sob o nome de Escritura Sagrada estão contidos os livros seguintes:",
+          "lists": [
+            {"heading": "O Velho Testamento", "items": ["Gênesis", "Êxodo"]},
+            {"heading": "O Novo Testamento", "items": ["Mateus", "Marcos"]}
+          ],
+          "text_after": "Todos os quais foram dados por inspiração de Deus."
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "title": "DE DEUS E DA SANTÍSSIMA TRINDADE",
+      "paragraphs": [
+        {"number": 1, "text": "Há um só Deus vivo e verdadeiro."}
+      ]
+    }
+  ]
+}
