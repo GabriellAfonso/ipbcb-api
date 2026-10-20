@@ -22,6 +22,8 @@ from core.repositories.worship_repository import WorshipMembershipRepositoryImpl
 from core.time.clock import SystemClock
 from features.bible.repositories import BibleRepositoryImpl
 from features.bible.services import BibleService
+from features.doctrine.repositories import DoctrineRepositoryImpl
+from features.doctrine.services import DoctrineService
 from features.gallery.imaging.pillow_image_processor import PillowImageProcessor
 from features.gallery.repositories.album_repository import AlbumRepositoryImpl
 from features.gallery.repositories.gallery_file_storage import DefaultStorageGalleryFileStorage
@@ -86,6 +88,7 @@ class Container(containers.DeclarativeContainer):
             "features.accounts.views.devices",
             "features.accounts.views.profile",
             "features.bible.views",
+            "features.doctrine.views",
             "features.gallery.admin",
             "features.gallery.management.commands.generate_photo_thumbnails",
             "features.gallery.management.commands.purge_gallery_trash",
@@ -153,6 +156,9 @@ class Container(containers.DeclarativeContainer):
 
     bible_repository = providers.Singleton(BibleRepositoryImpl)
     bible_service = providers.Factory(BibleService, bible_repository=bible_repository)
+
+    doctrine_repository = providers.Singleton(DoctrineRepositoryImpl)
+    doctrine_service = providers.Factory(DoctrineService, doctrine_repository=doctrine_repository)
 
     clock = providers.Singleton(SystemClock)
 

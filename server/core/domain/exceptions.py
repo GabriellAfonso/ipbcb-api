@@ -49,6 +49,17 @@ class BibleVersionNotFound(NotFoundError):
         return {"version": self.version}
 
 
+class DoctrineDocumentNotFoundError(NotFoundError):
+    """Raised when no doctrine document has the requested slug (lookup is case-sensitive)."""
+
+    def __init__(self, slug: str) -> None:
+        super().__init__(f"Doctrine document not found: '{slug}'")
+        self.slug = slug
+
+    def extra_context(self) -> dict[str, object]:
+        return {"slug": self.slug}
+
+
 class UsernameAlreadyExistsError(ConflictError):
     def __init__(self, username: str) -> None:
         super().__init__(f"Username already exists: '{username}'")

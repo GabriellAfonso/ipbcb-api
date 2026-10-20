@@ -23,6 +23,7 @@ urlpatterns = [
     path("", include("features.members.urls")),
     path("", include("features.gallery.urls")),
     path("", include("features.bible.urls")),
+    path("", include("features.doctrine.urls")),
     path("", include("features.media.urls")),
 ]
 
