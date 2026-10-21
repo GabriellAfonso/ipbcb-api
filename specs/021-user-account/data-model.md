@@ -14,7 +14,8 @@ No schema change and no migration. This feature reads and deletes existing rows.
 | `members.Member` | — | never touched; loses its `profile` reverse link |
 
 References kept with author cleared (`SET_NULL`, existing): gallery `Photo.uploaded_by`,
-`PhotoTag.tagged_by`, `TrashEntry.deleted_by`; events `Event.created_by`; members
+`PhotoTag.tagged_by`, `TrashEntry.deleted_by`; events `Event.created_by`, `Event.updated_by`;
+members
 `MemberChangeLog.editor`; songs `Setlist.saved_by`, `HymnalViewEvent.user`. Django admin
 `LogEntry.user` cascades (accepted, spec).
 

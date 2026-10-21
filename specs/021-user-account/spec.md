@@ -316,6 +316,7 @@ characters; remove a photo and check the file is gone.
 | gallery `PhotoTag.tagged_by` | author | kept, cleared |
 | gallery `TrashEntry.deleted_by` | author | kept, cleared |
 | events `Event.created_by` | author | kept, cleared |
+| events `Event.updated_by` | last editor | kept, cleared |
 | members `MemberChangeLog.editor` | author | kept, cleared |
 | songs `Setlist.saved_by` | author | kept, cleared |
 | songs `HymnalViewEvent.user` | viewer | kept, cleared (becomes anonymous) |

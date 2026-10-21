@@ -204,7 +204,7 @@ All under the base path `/ipbcb/` (e.g. `/ipbcb/api/auth/login/`).
 | groups / user permissions links | deleted |
 | Django admin `LogEntry` | deleted (cascade; accepted — superusers cannot delete themselves) |
 | SimpleJWT `OutstandingToken` | kept without owner, blacklisted first |
-| gallery `Photo.uploaded_by`, `PhotoTag.tagged_by`, `TrashEntry.deleted_by`; events `Event.created_by`; members `MemberChangeLog.editor`; songs `Setlist.saved_by`, `HymnalViewEvent.user` | kept, author cleared (`SET_NULL`) |
+| gallery `Photo.uploaded_by`, `PhotoTag.tagged_by`, `TrashEntry.deleted_by`; events `Event.created_by`, `Event.updated_by`; members `MemberChangeLog.editor`; songs `Setlist.saved_by`, `HymnalViewEvent.user` | kept, author cleared (`SET_NULL`) |
 | `members.Member` linked by `Profile.member` | kept untouched; only the link goes |
 
 A new FK to the user must choose explicitly between these behaviours and be added here.
