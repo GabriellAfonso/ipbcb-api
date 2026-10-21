@@ -1,5 +1,7 @@
 from typing import Any, TypedDict
+from zoneinfo import ZoneInfo
 
+from django.utils.timezone import localtime
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.request import Request
@@ -8,9 +10,39 @@ from features.accounts.models.profile import Profile
 from features.accounts.validators import USERNAME_RULE_MESSAGE, is_valid_username
 from features.accounts.models.user import User
 from core.application.dtos.access_dtos import AccessGrantsDTO
+from core.application.dtos.account_dtos import AccountDeletionDTO, PasswordChangeDTO
 from core.application.dtos.auth_dtos import RegisterDTO
 from core.application.dtos.worship_dtos import WorshipFlagsDTO
 from core.domain.access import ROLE_DISPLAY_NAMES, Scope
+
+
+# Named, not taken from settings.TIME_ZONE: the contract fixes the zone of `date_joined`
+# (specs/021-user-account), whatever the server runs in.
+CHURCH_TIME_ZONE = ZoneInfo("America/Sao_Paulo")
+
+_REQUIRED_MESSAGES = {
+    "blank": _("Este campo não pode ficar em branco."),
+    "required": _("Este campo é obrigatório."),
+}
+PASSWORDS_DIFFER_MESSAGE = _("As senhas não coincidem.")
+
+
+def password_field(*, allow_blank: bool = False) -> serializers.CharField:
+    """The password rule of registration and password change: at least 6 characters, nothing
+    else (constitution: no complexity validators). One definition so the two cannot drift.
+
+    >>> password_field().min_length
+    6
+    """
+    return serializers.CharField(
+        write_only=True,
+        min_length=6,
+        allow_blank=allow_blank,
+        error_messages={
+            "min_length": _("A senha precisa ter ao menos 6 caracteres."),
+            **_REQUIRED_MESSAGES,
+        },
+    )
 
 
 class RegisterData(TypedDict):
@@ -53,30 +85,12 @@ class RegisterSerializer(serializers.Serializer[RegisterData]):
             "required": _("Este campo é obrigatório."),
         },
     )
-    password = serializers.CharField(
-        write_only=True,
-        min_length=6,
-        error_messages={
-            "min_length": _("A senha precisa ter ao menos 6 caracteres."),
-            "blank": _("Este campo não pode ficar em branco."),
-            "required": _("Este campo é obrigatório."),
-        },
-    )
-    password_confirm = serializers.CharField(
-        write_only=True,
-        required=True,
-        allow_blank=True,
-        min_length=6,
-        error_messages={
-            "min_length": _("A senha precisa ter ao menos 6 caracteres."),
-            "blank": _("Este campo não pode ficar em branco."),
-            "required": _("Este campo é obrigatório."),
-        },
-    )
+    password = password_field()
+    password_confirm = password_field(allow_blank=True)
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
         if data.get("password") != data.get("password_confirm"):
-            raise serializers.ValidationError({"password_confirm": [_("As senhas não coincidem.")]})
+            raise serializers.ValidationError({"password_confirm": [PASSWORDS_DIFFER_MESSAGE]})
         return data
 
     def create_dto(self) -> RegisterDTO:
@@ -106,6 +120,45 @@ class TokenSerializer(serializers.Serializer[Any]):
     refresh = serializers.CharField(read_only=True)
 
 
+class PasswordChangeSerializer(serializers.Serializer[Any]):
+    """``POST api/me/password/`` (specs/021-user-account/contracts/account-api.md)."""
+
+    # No length rule on the current password: it only has to match, and an old account may
+    # predate the 6-character minimum.
+    current_password = serializers.CharField(
+        write_only=True, trim_whitespace=False, error_messages={**_REQUIRED_MESSAGES}
+    )
+    new_password = password_field()
+    new_password_confirm = password_field(allow_blank=True)
+
+    def validate(self, data: dict[str, Any]) -> dict[str, Any]:
+        if data.get("new_password") != data.get("new_password_confirm"):
+            raise serializers.ValidationError({"new_password_confirm": [PASSWORDS_DIFFER_MESSAGE]})
+        return data
+
+    def create_dto(self) -> PasswordChangeDTO:
+        return PasswordChangeDTO(
+            current_password=self.validated_data["current_password"],
+            new_password=self.validated_data["new_password"],
+        )
+
+
+class AccountDeletionSerializer(serializers.Serializer[Any]):
+    """``POST api/me/delete/``. Both fields optional here: which one is required depends on the
+    account, which only the service knows (research R-05)."""
+
+    password = serializers.CharField(
+        write_only=True, required=False, allow_blank=True, trim_whitespace=False
+    )
+    id_token = serializers.CharField(write_only=True, required=False, allow_blank=True)
+
+    def create_dto(self) -> AccountDeletionDTO:
+        return AccountDeletionDTO(
+            password=self.validated_data.get("password") or None,
+            id_token=self.validated_data.get("id_token") or None,
+        )
+
+
 class ProfileSerializer(serializers.ModelSerializer[Profile]):
     """Profile plus the caller's panel roles and levels. The view passes an ``AccessGrantsDTO``
     as ``context["access_grants"]``; shapes in
@@ -120,6 +173,10 @@ class ProfileSerializer(serializers.ModelSerializer[Profile]):
     # Worship ministry flags (spec 017 US4), from ``context["worship_flags"]``.
     is_worship_member = serializers.SerializerMethodField()
     can_save_setlist = serializers.SerializerMethodField()
+    # Account fields for the app's account screen (specs/021-user-account FR-001).
+    username = serializers.CharField(source="user.username", read_only=True)
+    has_password = serializers.SerializerMethodField()
+    date_joined = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
@@ -132,6 +189,9 @@ class ProfileSerializer(serializers.ModelSerializer[Profile]):
             "member_id",
             "is_worship_member",
             "can_save_setlist",
+            "username",
+            "has_password",
+            "date_joined",
         ]
         read_only_fields = [
             "is_member",
@@ -141,7 +201,36 @@ class ProfileSerializer(serializers.ModelSerializer[Profile]):
             "member_id",
             "is_worship_member",
             "can_save_setlist",
+            "username",
+            "has_password",
+            "date_joined",
         ]
+        # The model allows a blank name (a profile is created before anyone names it); an edit
+        # does not. DRF trims first, so a whitespace-only name is blank too.
+        extra_kwargs = {
+            "name": {
+                "allow_blank": False,
+                "error_messages": {
+                    **_REQUIRED_MESSAGES,
+                    "max_length": _("O nome pode ter no máximo 100 caracteres."),
+                },
+            }
+        }
+
+    def get_has_password(self, obj: Profile) -> bool:
+        """The account's password, never the way it signed in: Google sign-in also enters an
+        account that has one.
+
+        >>> serializer.get_has_password(profile)
+        True
+        """
+        return obj.user.has_usable_password()
+
+    def get_date_joined(self, obj: Profile) -> str:
+        """>>> serializer.get_date_joined(profile)
+        '2025-03-14'
+        """
+        return localtime(obj.user.date_joined, CHURCH_TIME_ZONE).date().isoformat()
 
     def _access_grants(self) -> AccessGrantsDTO:
         # No silent default: a view that forgot to pass the grants would tell the app the user

@@ -5,9 +5,12 @@ from django.conf import settings
 
 from features.accounts.repositories.avatar_downloader import HttpAvatarDownloader
 from features.accounts.repositories.profile_repository import ProfileRepositoryImpl
+from features.accounts.repositories.refresh_token_repository import RefreshTokenRepositoryImpl
 from features.accounts.repositories.user_repository import UserRepositoryImpl
+from features.accounts.services.account_deletion_service import AccountDeletionService
 from features.accounts.services.google_auth_service import GoogleAuthService
 from features.accounts.services.login_service import LoginService
+from features.accounts.services.password_change_service import PasswordChangeService
 from features.accounts.services.profile_service import ProfileService
 from features.accounts.services.refresh_service import RefreshService
 from features.accounts.services.register_service import RegisterService
@@ -90,6 +93,8 @@ class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         modules=[
             "core.http.permissions",
+            "features.accounts.views.account",
+            "features.accounts.views.account_deletion_page",
             "features.accounts.views.auth",
             "features.accounts.views.devices",
             "features.accounts.views.profile",
@@ -161,6 +166,20 @@ class Container(containers.DeclarativeContainer):
         avatar_downloader=avatar_downloader,
     )
     profile_service = providers.Factory(ProfileService, profile_repository=profile_repository)
+
+    # Account self-service (specs/021-user-account).
+    refresh_token_repository = providers.Factory(RefreshTokenRepositoryImpl)
+    password_change_service = providers.Factory(
+        PasswordChangeService,
+        user_repository=user_repository,
+        refresh_token_repository=refresh_token_repository,
+    )
+    account_deletion_service = providers.Factory(
+        AccountDeletionService,
+        user_repository=user_repository,
+        refresh_token_repository=refresh_token_repository,
+        google_resolver=google_auth_service,
+    )
 
     bible_repository = providers.Singleton(BibleRepositoryImpl)
     bible_service = providers.Factory(BibleService, bible_repository=bible_repository)

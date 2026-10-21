@@ -58,6 +58,19 @@ class UserRepositoryImpl(UserRepository):
     def username_exists(self, username: str) -> bool:
         return User.objects.filter(username=username).exists()
 
+    def set_password(self, user: User, raw_password: str) -> None:
+        """>>> repo.set_password(user, "nova-senha")"""
+        user.set_password(raw_password)
+        user.save(update_fields=["password"])
+
+    def delete(self, user: User) -> None:
+        """Profile and device tokens cascade; the profile's ``post_delete`` signal removes the
+        photo file; authored content keeps its row with the author cleared.
+
+        >>> repo.delete(user)
+        """
+        user.delete()
+
     def generate_unique_username(self, base: str) -> str:
         username = base
         counter = 1

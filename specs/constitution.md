@@ -58,7 +58,11 @@ Rules that no domain can break. These apply globally across the entire system.
   church service catalogue was needed by both `schedule` and `songs`.
 - Views never access repositories — only services
 - Services never import HTTP objects (`request`, `HttpResponse`).
-  **One standing exception: `LoginService.login()` receives the `request`.**
+  **One standing exception: `LoginService` receives the `request`** — in `login()`,
+  `authenticate_credentials()` and `verify_password()`, the three places that check a password
+  (sign-in, the account-deletion web page, and the re-checks of password change and account
+  deletion, `specs/021-user-account` R-01). Any other service that needs a password checked
+  receives a `PasswordCheck` callable built by its view, never the request.
   `django-axes` records the client address and user agent of each failed attempt, and its
   authentication backend raises `AxesBackendRequestParameterRequired` when
   `django.contrib.auth.authenticate()` is called without one — so the choice is not "pure service
@@ -154,7 +158,12 @@ Rules that no domain can break. These apply globally across the entire system.
 
 ## Deployment
 - Base path `/ipbcb/` behind nginx — never hardcode absolute URLs
-- Single client: Android app (`ipbcb-app`) — no web frontend
+- Single client: Android app (`ipbcb-app`) — no web frontend. **One exception:** the public
+  account-deletion page `/ipbcb/conta/excluir/`, because Google Play requires account deletion
+  through a web link as well as in the app (`specs/021-user-account`). It is a plain Django
+  view so the CSRF middleware protects it, its input goes through DRF serializers, it is
+  throttled with the `login` scope and its password check is under the lockout. No other page
+  may be added without amending this rule.
 
 ### Settings selection
 Production running dev settings is silent — it boots normally, just without HSTS,

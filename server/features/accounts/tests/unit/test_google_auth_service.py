@@ -221,3 +221,36 @@ def test_non_image_avatar_saves_nothing_and_logs_in(
 
     assert result == FAKE_TOKEN_DTO
     mock_profile_repo.save_photo.assert_not_called()
+
+
+VERIFY_PATH = "features.accounts.services.google_auth_service.id_token.verify_oauth2_token"
+
+
+class TestResolveExistingAccount:
+    """specs/021-user-account R-04: the confirmation step of account deletion."""
+
+    def test_returns_the_account_the_token_signs_into(
+        self, service: GoogleAuthService, mock_user_repo: MagicMock
+    ) -> None:
+        account = MagicMock()
+        mock_user_repo.get_by_email.return_value = account
+        with patch(VERIFY_PATH, return_value=FAKE_IDINFO):
+            assert service.resolve_existing_account("fake-token") is account
+        mock_user_repo.get_by_email.assert_called_once_with("user@gmail.com")
+
+    def test_never_creates_an_account(
+        self, service: GoogleAuthService, mock_user_repo: MagicMock
+    ) -> None:
+        with patch(VERIFY_PATH, return_value=FAKE_IDINFO):
+            assert service.resolve_existing_account("fake-token") is None
+        mock_user_repo.create_google_user.assert_not_called()
+
+    def test_invalid_token_raises_like_sign_in(self, service: GoogleAuthService) -> None:
+        with patch(VERIFY_PATH, side_effect=ValueError("bad")):
+            with pytest.raises(InvalidGoogleTokenError):
+                service.resolve_existing_account("fake-token")
+
+    def test_unverified_email_raises_like_sign_in(self, service: GoogleAuthService) -> None:
+        with patch(VERIFY_PATH, return_value={**FAKE_IDINFO, "email_verified": False}):
+            with pytest.raises(UnverifiedGoogleEmailError):
+                service.resolve_existing_account("fake-token")

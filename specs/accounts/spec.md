@@ -1,6 +1,6 @@
 # Accounts Domain Spec
 
-Manages user identity, authentication, and profile. Single entry point for who the user is and how they prove it.
+Manages user identity, authentication, profile, password change and account deletion. Single entry point for who the user is and how they prove it.
 
 ---
 
@@ -56,6 +56,8 @@ Manages user identity, authentication, and profile. Single entry point for who t
 | `RegisterDTO` | username, password, first_name, last_name | Register flow |
 | `LoginDTO` | username, password | Login flow |
 | `TokenDTO` | access, refresh (optional) | All auth responses |
+| `PasswordChangeDTO` | current_password, new_password | Password change |
+| `AccountDeletionDTO` | password (optional), id_token (optional) | Account deletion |
 
 All inherit from `StrictBaseModel`. Username normalized (strip + lowercase) via field_validator.
 
@@ -126,11 +128,17 @@ All under the base path `/ipbcb/` (e.g. `/ipbcb/api/auth/login/`).
 - Also returns `is_worship_member` (the linked member belongs to the ministry named "Louvor") and
   `can_save_setlist` (`is_worship_member` and `manage` on `songs`), computed on every read; the
   ETag changes with them (`specs/017-sunday-setlist-push/`)
+- Also returns `username`, `has_password` (`user.has_usable_password()` — the **account's**
+  password, never how this session signed in) and `date_joined` (`"YYYY-MM-DD"`, the account's
+  creation date in `America/Sao_Paulo`) (`specs/021-user-account/`)
 
 ### PATCH `api/me/profile/`
 - **Authenticated**
 - Updatable: `name` only (is_member, photo_url, roles, permissions, member_id,
-  is_worship_member, can_save_setlist are read-only; a `member_id` sent is ignored)
+  is_worship_member, can_save_setlist, username, has_password, date_joined are read-only; a
+  value sent for them is ignored)
+- `name`: trimmed; blank or whitespace-only → 400 ("Este campo não pode ficar em branco.");
+  more than 100 characters → 400 ("O nome pode ter no máximo 100 caracteres.")
 - Returns: updated profile (200)
 
 ### POST `api/me/profile/photo/`
@@ -149,6 +157,57 @@ All under the base path `/ipbcb/` (e.g. `/ipbcb/api/auth/login/`).
 - **Authenticated**
 - Removes photo from profile and disk
 - Returns: 204
+
+---
+
+### POST `api/me/password/`
+- **Authenticated**, throttled (scope: `login`), under failed-attempt lockout
+- Input: `current_password`, `new_password`, `new_password_confirm` — the new password follows
+  the registration rule (≥ 6 characters, confirmation equal), same messages
+- Only for an account with a usable password; otherwise 409 `PASSWORD_NOT_SET`
+- Wrong current password: 400 `INVALID_PASSWORD` (never 401 — the session is still valid)
+- On success every refresh token of the account is blacklisted and every access token issued
+  before stops working (`CHECK_REVOKE_TOKEN`), **the caller's included**; the response is a new
+  pair (`TokenDTO`, 200) built from the user after the change. The app must switch to it.
+- Contract: `specs/021-user-account/contracts/account-api.md`
+
+### POST `api/me/delete/`
+- **Authenticated**, throttled (scope: `login`); `POST` because the secret travels in the body
+- Input: `{"password"}` for an account with a password, `{"id_token"}` (fresh Google token) for
+  one without. The other field is ignored; the missing one is a 400 naming the method
+- A Google token confirms only if it passes sign-in's verification and resolves, through the
+  same `get_by_email` lookup, to **this** account (403 `GOOGLE_ACCOUNT_MISMATCH` otherwise; a
+  token failing verification is 400 `INVALID_GOOGLE_TOKEN`)
+- Superusers: 409 `ACCOUNT_DELETION_BLOCKED`, checked first. The Admin role does not block
+- Immediate, in one transaction: refresh tokens blacklisted, then the user deleted. Returns 204
+
+### GET/POST `conta/excluir/` (web page)
+- **Public** HTML page in pt-BR, the Play Store's "delete account" link
+  (`/ipbcb/conta/excluir/` in production). The constitution's one exception to "no web frontend"
+- Plain Django view: CSRF by the middleware, `never_cache`, input through DRF serializers,
+  POST throttled with the `login` budget per client address
+- `method=password`: username + password + confirmation; the sign-in counts against the
+  lockout. A wrong username or password gets one generic message. Locked out → 429 page
+- `method=google`: the Google Identity Services button (client `GOOGLE_CLIENT_ID`, shown only
+  when it is set) hands a credential to the form. Only for accounts without a password; an
+  account with one is told to use username and password
+- Same effects as `api/me/delete/`; superusers are refused
+- Sets `Cross-Origin-Opener-Policy: same-origin-allow-popups` and `Referrer-Policy:
+  strict-origin-when-cross-origin`, which the Google button needs
+
+### What deleting an account removes and keeps
+
+| Reference | On deletion |
+|-----------|-------------|
+| `Profile` (and its photo file, by the `post_delete` signal) | deleted |
+| `core.DeviceToken` | deleted |
+| groups / user permissions links | deleted |
+| Django admin `LogEntry` | deleted (cascade; accepted — superusers cannot delete themselves) |
+| SimpleJWT `OutstandingToken` | kept without owner, blacklisted first |
+| gallery `Photo.uploaded_by`, `PhotoTag.tagged_by`, `TrashEntry.deleted_by`; events `Event.created_by`; members `MemberChangeLog.editor`; songs `Setlist.saved_by`, `HymnalViewEvent.user` | kept, author cleared (`SET_NULL`) |
+| `members.Member` linked by `Profile.member` | kept untouched; only the link goes |
+
+A new FK to the user must choose explicitly between these behaviours and be added here.
 
 ---
 
@@ -194,7 +253,11 @@ Never logged, never shown in the Django admin. Contract in
     validation as a user upload. A rejected avatar is logged and never blocks the login
 8. Profile auto-created on user creation (via signal) and on profile access (via get_or_create)
 9. Old profile photos deleted from filesystem when replaced or profile deleted
-10. All auth endpoints share `login` throttle scope
+10. All auth endpoints share `login` throttle scope — password change, account deletion and the
+    deletion web page included
+10b. Every rule about passwords looks at the **account** (`has_usable_password()`), never at
+     how the session signed in: Google sign-in also enters an account that has a password
+10c. Account deletion is immediate, with no grace period and no recovery
 10a. Deactivation is `User.is_active` only. SimpleJWT checks it on every authenticated
      request (`CHECK_USER_IS_ACTIVE`), so it covers endpoints guarded by plain
      `IsAuthenticated` as well — which a permission class could not. `Profile.active`
@@ -211,7 +274,11 @@ Never logged, never shown in the Django admin. Contract in
     - Changing the user's password revokes **every** token that user holds, on every
       device, access tokens included and immediately (`CHECK_REVOKE_TOKEN`, which puts a
       hash of the password in each token and checks it per request). This is the answer
-      to a lost or stolen device
+      to a lost or stolen device. `CHECK_REVOKE_TOKEN` only runs when an access token
+      authenticates, and refresh rebuilds from the user, so `api/me/password/` also
+      blacklists every refresh token (`RefreshTokenRepository.revoke_all`). A password
+      changed in the Django admin blacklists nothing, so an old refresh token can still
+      mint a working pair — open item in `tasks.md`
     - `User.is_active = False` blocks the account entirely (`CHECK_USER_IS_ACTIVE`,
       on by default)
 13. Enabling `CHECK_REVOKE_TOKEN` invalidates every access token issued before it: those
@@ -243,6 +310,13 @@ Never logged, never shown in the Django admin. Contract in
 | Username taken between the check and the insert (register race) | 409 | `UsernameAlreadyExistsError` |
 | Passwords don't match | 400 | Validation error on password_confirm field |
 | No file in photo upload | 400 | "Nenhuma foto enviada." |
+| Blank or > 100-character name (profile PATCH) | 400 | `VALIDATION_ERROR` on `name` |
+| Wrong password confirming a change or a deletion | 400 | `INVALID_PASSWORD` "Senha incorreta." |
+| Password change on an account without password | 409 | `PASSWORD_NOT_SET` "Esta conta não tem senha." |
+| Deletion without the confirmation this account uses | 400 | `VALIDATION_ERROR` "Esta conta tem senha: confirme com a senha." / "Esta conta não tem senha: confirme com o Google." |
+| Google confirmation token fails verification | 400 | `INVALID_GOOGLE_TOKEN` |
+| Google confirmation token of another account (or none) | 403 | `GOOGLE_ACCOUNT_MISMATCH` |
+| Superuser asks for deletion | 409 | `ACCOUNT_DELETION_BLOCKED` |
 
 A missing profile is never an error: every profile read and write goes through
 `get_or_create`, so there is no "profile not found" exception.
@@ -260,7 +334,22 @@ MeProfileAPIView   -> ProfileService     -> ProfileRepository
                    -> AccessService, WorshipAccessService (core) for roles and worship flags
 ProfilePhotoAPIView -> ProfileService    -> ProfileRepository
 DeviceToken*APIView -> DeviceTokenService (core)
+PasswordChangeAPIView -> PasswordChangeService -> UserRepository, RefreshTokenRepository
+                      -> LoginService.verify_password (as a PasswordCheck)
+AccountDeletionAPIView -> AccountDeletionService -> UserRepository, RefreshTokenRepository,
+                                                    GoogleAuthService.resolve_existing_account
+                       -> LoginService.verify_password (as a PasswordCheck)
+AccountDeletionPageView -> LoginService.authenticate_credentials, AccountDeletionService
 ```
+
+- Password checks: `LoginService` is the only place that calls `authenticate()`, so every check
+  is under django-axes. `PasswordChangeService` and `AccountDeletionService` receive a
+  `PasswordCheck` callable from the view and decide when it runs (a Google-only account or a
+  superuser is refused before any password is checked).
+- Account exceptions in `core/domain/account_exceptions.py`, DTOs in
+  `core/application/dtos/account_dtos.py`.
+- The web page renders its own lockout message and marks the response with
+  `core.http.lockout.mark_renders_own_lockout`, so `AxesMiddleware` does not swap it for JSON.
 
 - Repositories: `UserRepository` and `ProfileRepository` (Protocols in
   `repositories/interfaces.py`, ORM implementations next to them). The only ORM access.
@@ -286,4 +375,5 @@ DeviceToken*APIView -> DeviceTokenService (core)
    `User.objects` so a taken username is a field-level 400. Kept on purpose; `RegisterService`
    re-checks and raises `UsernameAlreadyExistsError` (409) for the race.
 2. **`LoginService` receives the `HttpRequest`.** The constitution's one named exception, see
-   `POST api/auth/login/`.
+   `POST api/auth/login/`; widened to `authenticate_credentials()` and `verify_password()` by
+   `specs/021-user-account` R-01.

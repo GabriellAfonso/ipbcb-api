@@ -1,6 +1,8 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenBlacklistView
 
+from features.accounts.views.account import AccountDeletionAPIView, PasswordChangeAPIView
+from features.accounts.views.account_deletion_page import AccountDeletionPageView
 from features.accounts.views.auth import GoogleLoginAPI, LoginAPI, RefreshAPI, RegisterAPI
 from features.accounts.views.devices import (
     DeviceTokenRegisterAPIView,
@@ -25,4 +27,8 @@ urlpatterns = [
         DeviceTokenUnregisterAPIView.as_view(),
         name="device_unregister",
     ),
+    path("api/me/password/", PasswordChangeAPIView.as_view(), name="password_change"),
+    path("api/me/delete/", AccountDeletionAPIView.as_view(), name="account_delete"),
+    # Public web page for the Play Store's "delete account" link (specs/021-user-account).
+    path("conta/excluir/", AccountDeletionPageView.as_view(), name="account_deletion_page"),
 ]

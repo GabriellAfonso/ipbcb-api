@@ -39,6 +39,23 @@ class UserRepository(Protocol):
         """Gera username único a partir de base, adicionando sufixo numérico se necessário."""
         ...
 
+    def set_password(self, user: User, raw_password: str) -> None:
+        """Hash and store a new password. Every token carrying the old hash stops working."""
+        ...
+
+    def delete(self, user: User) -> None:
+        """Delete the account; the database cascades and SET_NULLs do the rest
+        (specs/021-user-account, references table)."""
+        ...
+
+
+class RefreshTokenRepository(Protocol):
+    """The record of issued refresh tokens (SimpleJWT ``token_blacklist``)."""
+
+    def revoke_all(self, user_id: UUID) -> int:
+        """Blacklist every refresh token of the user not blacklisted yet; return how many."""
+        ...
+
 
 class AvatarDownloader(Protocol):
     """Fetches a remote avatar image, so services never call an HTTP client directly

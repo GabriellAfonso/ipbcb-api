@@ -23,6 +23,9 @@ from core.http.exceptions import build_canonical_error
 
 ACCOUNT_LOCKED_ERROR_CODE: Final = "ACCOUNT_LOCKED"
 
+# Set on a response that already tells a locked-out person, in its own format, to wait.
+_RENDERS_OWN_LOCKOUT_ATTR: Final = "renders_own_lockout"
+
 # User-facing, so Portuguese — it reaches the Android app and the admin login page.
 _PERMANENT_LOCKOUT_DETAIL: Final = (
     "Muitas tentativas de login. Peça a um administrador para liberar o acesso."
@@ -67,9 +70,16 @@ def axes_lockout_response(
     not send. ``cooloff_seconds`` is included so the app can count down instead of
     hardcoding the window.
 
+    A response marked with ``mark_renders_own_lockout`` is returned unchanged: an HTML page
+    answering with JSON would show raw text to the person locked out.
+
     >>> axes_lockout_response(request).status_code
     429
     """
+    if original_response is not None and getattr(
+        original_response, _RENDERS_OWN_LOCKOUT_ATTR, False
+    ):
+        return original_response
     cool_off = get_cool_off(request)
     seconds = int(cool_off.total_seconds()) if cool_off else None
     body = build_canonical_error(
@@ -79,6 +89,30 @@ def axes_lockout_response(
     )
     status: int = settings.AXES_HTTP_RESPONSE_CODE
     return JsonResponse(body, status=status)
+
+
+def mark_renders_own_lockout(response: HttpResponse) -> HttpResponse:
+    """Keep ``response`` when django-axes would replace it with the JSON lockout. For a page
+    that renders the lockout message itself (the account-deletion page,
+    specs/021-user-account R-08); the API and the admin keep the JSON.
+
+    >>> mark_renders_own_lockout(render(request, "page.html", status=429)).status_code
+    429
+    """
+    setattr(response, _RENDERS_OWN_LOCKOUT_ATTR, True)
+    return response
+
+
+def lockout_cooloff_minutes(request: HttpRequest) -> Optional[int]:
+    """Minutes left of the lockout window, for a page that words the wait itself.
+
+    >>> lockout_cooloff_minutes(request)
+    30
+    """
+    cool_off = get_cool_off(request)
+    if cool_off is None:
+        return None
+    return max(1, round(float(cool_off.total_seconds()) / 60))
 
 
 def _lockout_detail(cooloff_seconds: Optional[int]) -> str:

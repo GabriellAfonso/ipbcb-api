@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Excluir conta — IPB Castelo Branco</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f5f5f4; color: #1c1917; margin: 0; }
+    main { max-width: 32rem; margin: 2rem auto; padding: 1.5rem; background: #fff;
+           border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    h1 { font-size: 1.4rem; margin-top: 0; }
+    h2 { font-size: 1.05rem; margin-top: 1.5rem; }
+    label { display: block; margin: .75rem 0 .25rem; font-weight: 600; }
+    input[type=text], input[type=password] { width: 100%; box-sizing: border-box; padding: .6rem;
+           border: 1px solid #a8a29e; border-radius: 8px; font-size: 1rem; }
+    .check { display: flex; gap: .5rem; align-items: flex-start; font-weight: 400; }
+    button { margin-top: 1rem; width: 100%; padding: .75rem; font-size: 1rem; border: 0;
+             border-radius: 8px; background: #b91c1c; color: #fff; cursor: pointer; }
+    .error { background: #fee2e2; color: #7f1d1d; padding: .75rem; border-radius: 8px; }
+    .ok { background: #dcfce7; color: #14532d; padding: .75rem; border-radius: 8px; }
+    .muted { color: #57534e; font-size: .9rem; }
+    hr { border: 0; border-top: 1px solid #e7e5e4; margin: 1.5rem 0; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Excluir conta do app IPB Castelo Branco</h1>
+
+  {% if state == "done" %}
+    <p class="ok">Sua conta foi excluída. Os dados pessoais dela foram apagados.</p>
+    <p class="muted">Se quiser voltar a usar o app, basta criar uma nova conta.</p>
+  {% elif state == "locked" %}
+    <p class="error">Muitas tentativas com senha errada.
+      {% if cooloff_minutes %}Tente novamente em {{ cooloff_minutes }} minutos.{% else %}Peça a um administrador para liberar o acesso.{% endif %}</p>
+  {% elif state == "throttled" %}
+    <p class="error">Muitas tentativas em pouco tempo. Aguarde um minuto e tente novamente.</p>
+  {% else %}
+    <p>A exclusão é imediata e não pode ser desfeita.</p>
+    <h2>O que é apagado</h2>
+    <ul>
+      <li>Sua conta (usuário, e-mail e senha) e seu perfil (nome e foto).</li>
+      <li>Os registros de notificação dos seus aparelhos.</li>
+      <li>Todas as sessões abertas no app.</li>
+    </ul>
+    <h2>O que é mantido</h2>
+    <ul>
+      <li>O cadastro da igreja (rol de membros), que é da igreja e não da conta.</li>
+      <li>Fotos, eventos e escalas publicados para a igreja, sem indicar quem publicou.</li>
+    </ul>
+
+    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+
+    <h2>Entrar com usuário e senha</h2>
+    <form method="post" action="{% url 'account_deletion_page' %}">
+      {% csrf_token %}
+      <input type="hidden" name="method" value="password">
+      <label for="username">Usuário</label>
+      <input type="text" id="username" name="username" autocomplete="username" autocapitalize="none" required>
+      <label for="password">Senha</label>
+      <input type="password" id="password" name="password" autocomplete="current-password" required>
+      <label class="check"><input type="checkbox" name="confirm" required>
+        Entendo que minha conta será excluída para sempre.</label>
+      <button type="submit">Excluir minha conta</button>
+    </form>
+
+    {% if google_client_id %}
+      <hr>
+      <h2>Conta criada com o Google (sem senha)</h2>
+      <p class="muted">Use esta opção apenas se você entra no app pelo botão do Google e nunca criou uma senha.</p>
+      <div id="g_id_onload" data-client_id="{{ google_client_id }}"
+           data-callback="onGoogleCredential" data-auto_prompt="false"></div>
+      <div class="g_id_signin" data-type="standard" data-text="signin_with" data-locale="pt-BR"></div>
+      <form method="post" action="{% url 'account_deletion_page' %}" id="google-form" hidden>
+        {% csrf_token %}
+        <input type="hidden" name="method" value="google">
+        <input type="hidden" name="credential" id="google-credential">
+        <p class="ok">Conta Google confirmada.</p>
+        <label class="check"><input type="checkbox" name="confirm" required>
+          Entendo que minha conta será excluída para sempre.</label>
+        <button type="submit">Excluir minha conta</button>
+      </form>
+      <script>
+        function onGoogleCredential(response) {
+          document.getElementById("google-credential").value = response.credential;
+          document.getElementById("google-form").hidden = false;
+        }
+      </script>
+      <script src="https://accounts.google.com/gsi/client" async></script>
+    {% endif %}
+  {% endif %}
+</main>
+</body>
+</html>

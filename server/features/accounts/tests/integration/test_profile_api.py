@@ -1,5 +1,7 @@
 import io
 import tempfile
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import IO
 
 import pytest
@@ -267,3 +269,92 @@ def test_every_panel_role_owns_events(role: Role) -> None:
     # specs/020-church-events FR-014: the three roles run events together, deleting included.
     client, _ = make_role_client(role)
     assert client.get(PROFILE_URL).data["permissions"]["events"] == "owner"
+
+
+# ---------------------------------------------------------------------------
+# Account fields and name rules (specs/021-user-account US4, US5)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.django_db
+class TestAccountFields:
+    def test_password_account(self) -> None:
+        user = make_user(username="ana", password="testpass123")
+        data = make_auth_client(user).get(PROFILE_URL).data
+        assert data["username"] == "ana"
+        assert data["has_password"] is True
+
+    def test_google_only_account_has_no_password(self) -> None:
+        user = make_user(username="gabi")
+        user.set_unusable_password()
+        user.save()
+        assert make_auth_client(user).get(PROFILE_URL).data["has_password"] is False
+
+    def test_date_joined_is_the_church_calendar_day(self) -> None:
+        # 01:30 UTC on 15 March is still 14 March in São Paulo (UTC-3).
+        user = make_user(username="ana")
+        user.date_joined = datetime(2025, 3, 15, 1, 30, tzinfo=UTC)
+        user.save()
+        assert make_auth_client(user).get(PROFILE_URL).data["date_joined"] == "2025-03-14"
+
+    def test_patch_ignores_the_account_fields(self) -> None:
+        user = make_user(username="ana", password="testpass123")
+        response = make_auth_client(user).patch(
+            PROFILE_URL,
+            {
+                "name": "Ana",
+                "username": "hacker",
+                "has_password": False,
+                "date_joined": "2000-01-01",
+            },
+            format="json",
+        )
+        assert response.status_code == 200
+        assert response.data["username"] == "ana"
+        assert response.data["has_password"] is True
+        user.refresh_from_db()
+        assert user.username == "ana"
+
+
+@pytest.mark.django_db
+class TestNameRules:
+    def test_name_is_trimmed(self) -> None:
+        user = make_user(username="ana")
+        response = make_auth_client(user).patch(
+            PROFILE_URL, {"name": "  Ana Souza  "}, format="json"
+        )
+        assert response.data["name"] == "Ana Souza"
+
+    @pytest.mark.parametrize("name", ["", "   "])
+    def test_blank_name_is_refused(self, name: str) -> None:
+        user = make_user(username="ana")
+        response = make_auth_client(user).patch(PROFILE_URL, {"name": name}, format="json")
+        assert response.status_code == 400
+        assert response.data["field_errors"]["name"] == ["Este campo não pode ficar em branco."]
+
+    def test_name_over_100_characters_is_refused(self) -> None:
+        user = make_user(username="ana")
+        response = make_auth_client(user).patch(PROFILE_URL, {"name": "a" * 101}, format="json")
+        assert response.status_code == 400
+        assert response.data["field_errors"]["name"] == [
+            "O nome pode ter no máximo 100 caracteres."
+        ]
+
+    def test_name_of_100_characters_is_accepted(self) -> None:
+        user = make_user(username="ana")
+        response = make_auth_client(user).patch(PROFILE_URL, {"name": "a" * 100}, format="json")
+        assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_delete_photo_removes_the_file() -> None:
+    with override_settings(MEDIA_ROOT=tempfile.mkdtemp()):
+        user = make_user(username="delfile")
+        client = make_auth_client(user)
+        client.post(PHOTO_URL, {"photo": _create_image_file()}, format="multipart")
+        user.profile.refresh_from_db()
+        path = Path(user.profile.photo.path)
+        assert path.exists()
+
+        assert client.delete(PHOTO_URL).status_code == 204
+        assert not path.exists()

@@ -48,6 +48,20 @@ class GoogleAuthService:
         LOGIN_COUNTER.labels(result="success", login_type="google").inc()
         return get_tokens_for_user(user)
 
+    def resolve_existing_account(self, token: str) -> User | None:
+        """Return the account a Google token signs into, without creating one or touching the
+        photo — the confirmation step of account deletion (specs/021-user-account R-04).
+
+        Same verification and same lookup as sign-in, so "the same account" means exactly the
+        account this token would open. Raises ``InvalidGoogleTokenError`` or
+        ``UnverifiedGoogleEmailError`` like sign-in.
+
+        >>> service.resolve_existing_account("eyJhbGciOi...")
+        <User: ana>
+        """
+        google_user = self._verify_token(token)
+        return self._user_repo.get_by_email(google_user.email)
+
     def _verify_token(self, token: str) -> GoogleUserDTO:
         try:
             idinfo = id_token.verify_oauth2_token(  # type: ignore[no-untyped-call]

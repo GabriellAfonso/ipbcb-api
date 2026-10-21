@@ -46,3 +46,11 @@
 - [x] `except Exception` on Google user creation replaced by the repository translating
       `IntegrityError` into `GoogleUserCreationError` (chained)
 - [x] `ProfileNotFoundError` removed: nothing raised it
+
+## Open
+
+- [ ] A password changed outside `api/me/password/` (Django admin, `changepassword`) does not
+      blacklist the account's refresh tokens, and `RefreshService` does not compare the
+      refresh token's `hash_password` claim, so an old refresh token still mints a working pair.
+      Either check the claim in `RefreshService` or revoke on the `password` field change.
+      Found while planning `specs/021-user-account` (research R-03); out of its scope.
