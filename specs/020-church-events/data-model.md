@@ -14,6 +14,7 @@
 | `image_path` | CharField(255), unique | no | storage name `events/{uuid}.jpg` |
 | `visibility` | CharField(10), choices `public`/`members` | no | default `public` |
 | `created_by` | FK `AUTH_USER_MODEL`, `SET_NULL` | yes | set on create, never changed |
+| `updated_by` | FK `AUTH_USER_MODEL`, `SET_NULL` | yes | NULL on create; the caller of every successful PATCH (`events/0002`) |
 | `created_at` | DateTimeField(auto_now_add) | no | |
 | `updated_at` | DateTimeField(auto_now) | no | |
 
@@ -24,7 +25,8 @@
   last day ≥ today in `America/Sao_Paulo`, queried as
   `end_date >= today OR (end_date IS NULL AND start_date >= today)`.
 
-No change history, no soft delete. Deleting a user keeps their events (`created_by` → NULL).
+No change history, no soft delete. Deleting a user keeps their events (`created_by` and
+`updated_by` → NULL).
 
 ## Domain (`features/events/domain/`)
 
@@ -41,8 +43,9 @@ No change history, no soft delete. Deleting a user keeps their events (`created_
 
 ## DTOs (`features/events/dtos.py`, Pydantic)
 
-- `EventCreatorDTO`: `id: UUID`, `name: str`.
-- `EventRecordDTO`: every column but `created_by`'s FK id → `created_by: EventCreatorDTO | None`;
+- `EventAuthorDTO`: `id: UUID`, `name: str` — the creator or the last editor.
+- `EventRecordDTO`: every column but the user FK ids → `created_by` and `updated_by`, each
+  `EventAuthorDTO | None`;
   `image_path` (the view builds the absolute URL).
 - `EventCreateDTO`: `title`, `start_date`, `end_date | None`, `start_time | None`,
   `location | None`, `description | None`, `visibility` (default public). Validators strip text
@@ -73,9 +76,10 @@ shape.
   `get_active(event_id, today, include_members) -> EventRecordDTO | None`,
   `list_all(status, today) -> list[EventRecordDTO]`, `get(event_id) -> EventRecordDTO | None`,
   `create(dto, image_path, creator_id) -> EventRecordDTO`,
-  `update(event_id, changes, image_path | None) -> EventRecordDTO`,
+  `update(event_id, changes, image_path | None, editor_id) -> EventRecordDTO` (sets
+  `updated_by` even when `changes` is empty),
   `delete(event_id) -> None` (the service reads the image path first and removes the file).
-  `select_related("created_by__profile")` — no query per row.
+  `select_related("created_by__profile", "updated_by__profile")` — no query per row.
 - `EventImageStorage` protocol + `DefaultStorageEventImageStorage`: `save(content) -> str`,
   `delete(name)`, `url(name)`.
 - `EventImageLookupImpl` (implements media's `EventImageLookup`):
@@ -87,7 +91,7 @@ shape.
   `get_visible(event_id, include_members)`, `list_for_management(status_raw)`,
   `get_for_management(event_id)`, `image_url_path(image_path)` (so views never touch storage).
 - `EventWriteService`: `create_event(dto, image, creator_id)`,
-  `update_event(event_id, dto, image | None)`, `delete_event(event_id)`.
+  `update_event(event_id, dto, image | None, editor_id)`, `delete_event(event_id)`.
 - `EventImagePreparer`: validates the upload (R-04) and returns the JPEG bytes. Depends on
   `ImageProcessor` (core).
 

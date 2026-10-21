@@ -153,13 +153,16 @@ The public resource plus:
 
 ```json
 {
-  "created_by": { "id": 3, "name": "Ana Paula" },
+  "created_by": { "id": "5b0e…-uuid", "name": "Ana Paula" },
+  "updated_by": { "id": "a71d…-uuid", "name": "Beatriz" },
   "created_at": "2026-10-21T13:02:11Z",
   "updated_at": "2026-10-22T09:40:00Z"
 }
 ```
 
-`created_by` is `null` when the creating account no longer exists.
+`created_by` is `null` when the creating account no longer exists. `updated_by` — same shape —
+is who made the last successful edit: `null` for an event never edited and when that account no
+longer exists.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -231,7 +234,7 @@ image; it appears in the public list immediately with a JPEG image within 1920 �
 
 1. **Given** a Mídia user, **When** they create an event with `title`, `start_date` and a 16:9
    image, **Then** the answer is `201` with the management resource, `visibility` `public`, every
-   optional field `null`, and `created_by` set to them.
+   optional field `null`, `created_by` set to them and `updated_by` `null`.
 2. **Given** a 4000 × 2250 PNG, **When** it is uploaded, **Then** the stored image is a JPEG of
    1920 × 1080; **given** a 1280 × 720 JPEG, **Then** it is stored at 1280 × 720.
 3. **Given** an image of 1600 × 1000 (ratio 1.6), **When** it is uploaded, **Then** the answer is
@@ -263,8 +266,8 @@ and a new one is returned. DELETE it; it disappears from both lists and its imag
 
 **Acceptance Scenarios**:
 
-1. **Given** an event, **When** a `PATCH` changes only `location`, **Then** only `location` and
-   `updated_at` change and the `image_url` is the same.
+1. **Given** an event, **When** a `PATCH` changes only `location`, **Then** only `location`,
+   `updated_at` and `updated_by` change and the `image_url` is the same.
 2. **Given** an event, **When** a `PATCH` carries a new image, **Then** the image is validated
    like on creation, the response has a new `image_url`, and the previous image file is removed.
 3. **Given** a `PATCH` whose new image is invalid, **When** it is sent, **Then** the answer is
@@ -282,6 +285,10 @@ and a new one is returned. DELETE it; it disappears from both lists and its imag
    answer is `403`.
 9. **Given** a nonexistent id, **When** it is read, edited or deleted through management,
    **Then** the answer is `404`.
+10. **Given** an event created by one user, **When** another user's `PATCH` succeeds — even one
+    that sends no field — **Then** `updated_by` is that user and `created_by` is unchanged; a
+    refused `PATCH` leaves `updated_by` as it was; once the editor's account is deleted,
+    `updated_by` is `null` and the event stays.
 
 ---
 
@@ -348,8 +355,10 @@ value and compare.
   optional `start_time` (hour and minute), an optional `location` (at most 200 characters), an
   optional `description` (long text), a required image, and a `visibility` of `public` (default)
   or `members`.
-- **FR-002**: An event MUST record who created it, when, and when it was last changed. These
-  fields are set by the system, never from input.
+- **FR-002**: An event MUST record who created it, when, who last edited it, and when it was
+  last changed. These fields are set by the system, never from input. Every successful edit
+  records its caller as the last editor, even one that sends no field; an event never edited has
+  no last editor.
 - **FR-003**: Blank or whitespace-only `location` and `description` MUST be stored as absent and
   returned as `null`.
 - **FR-004**: The date rule (`end_date` ≥ `start_date`) MUST be checked on the resulting event for
@@ -430,8 +439,8 @@ value and compare.
 ### Key Entities
 
 - **Event**: title, start date, optional end date, optional start time, optional location,
-  optional description, image, visibility, creator, creation and update timestamps. Active or
-  past is derived, never stored.
+  optional description, image, visibility, creator, last editor, creation and update
+  timestamps. Active or past is derived, never stored.
 - **Event image**: one re-encoded JPEG per event, under `events/`, replaced as a whole.
 - **Scope `events`** (existing, reserved by 012): now backed by endpoints; all three roles hold
   `owner`.
@@ -462,7 +471,7 @@ value and compare.
 - **`start_time` is a time of day only**, without time zone; it is read as São Paulo local time.
 - **Membership is `Profile.is_member`**, read on each request; a revoked member loses the members
   events on the next request, cached images included (media revalidation).
-- **No change history** for events beyond `created_by`/`created_at`/`updated_at`.
+- **No change history** for events beyond `created_by`/`updated_by`/`created_at`/`updated_at`.
 - **Implementation choices recorded for planning, not decided here**: a new `features/events`
   app; image processing behind the existing image-processing interface used by the gallery; the
   `events/` rule added to the media access service with an anonymous path; public endpoints with

@@ -74,7 +74,8 @@ Missing/invalid token → `401`; no level → `403 PERMISSION_DENIED`. Responses
 - Any subset of the POST fields; `image` optional. Sending `end_date=""`, `start_time=""`,
   `location=""` or `description=""` clears it. `title` and `start_date` cannot be cleared.
 - Date rule checked on the resulting event.
-- `200`: `EventRecord`. A new image yields a new `image_url`; the old URL then answers `404`.
+- `200`: `EventRecord`, `updated_by` set to the caller. A new image yields a new `image_url`;
+  the old URL then answers `404`.
 - `400` as POST; `404` when missing.
 
 ### `DELETE api/admin/events/{id}/` — `owner`
@@ -88,12 +89,16 @@ Missing/invalid token → `401`; no level → `403 PERMISSION_DENIED`. Responses
 ```json
 {
   "created_by": { "id": "5b0e…-uuid", "name": "Ana Paula" },
+  "updated_by": { "id": "a71d…-uuid", "name": "Beatriz" },
   "created_at": "2026-10-21T13:02:11Z",
   "updated_at": "2026-10-22T09:40:00Z"
 }
 ```
 
 `created_by` is `null` when the account is gone; `name` is the profile name (may be `""`).
+`updated_by` has the same shape: the user of the last successful `PATCH` — any `200`, even one
+that sent no field — `null` until the first edit and when that account is gone. A refused `PATCH`
+leaves it unchanged. `EventPublic` never carries either.
 
 ## Media: `GET /ipbcb/media/events/{file}.jpg`
 

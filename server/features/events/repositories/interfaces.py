@@ -35,9 +35,14 @@ class EventRepository(Protocol):
         ...
 
     def update(
-        self, event_id: int, changes: Mapping[str, object], image_path: str | None
+        self,
+        event_id: int,
+        changes: Mapping[str, object],
+        image_path: str | None,
+        editor_id: UUID,
     ) -> EventRecordDTO:
-        """Apply ``changes`` (field name → new value) and, when given, the new image path."""
+        """Apply ``changes`` (field name → new value) and, when given, the new image path, and
+        record ``editor_id`` as the last editor — even when ``changes`` is empty."""
         ...
 
     def delete(self, event_id: int) -> None:

@@ -38,6 +38,15 @@ class Event(models.Model):
         on_delete=models.SET_NULL,
         related_name="+",
     )
+    # Who last edited it: set on every successful PATCH, NULL until the first one. SET_NULL like
+    # created_by, so deleting the account keeps the event.
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

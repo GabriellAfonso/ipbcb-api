@@ -9,8 +9,9 @@ from core.application.dtos.strict_base import StrictBaseModel
 from features.events.domain.event_enums import EventVisibility
 
 
-class EventCreatorDTO(BaseModel):
-    """Who created an event, as the panel shows it. ``name`` is the profile name, maybe ""."""
+class EventAuthorDTO(BaseModel):
+    """Who created or last edited an event, as the panel shows it. ``name`` is the profile
+    name, maybe ""."""
 
     id: UUID
     name: str
@@ -28,7 +29,8 @@ class EventRecordDTO(BaseModel):
     description: str | None
     image_path: str
     visibility: EventVisibility
-    created_by: EventCreatorDTO | None
+    created_by: EventAuthorDTO | None
+    updated_by: EventAuthorDTO | None
     created_at: datetime
     updated_at: datetime
 

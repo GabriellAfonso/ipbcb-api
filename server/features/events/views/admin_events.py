@@ -116,7 +116,8 @@ class AdminEventDetailAPIView(APIView):
         # Only the keys the app sent are in validated_data, so model_fields_set tells
         # "leave alone" from "clear".
         dto = EventPatchDTO.model_validate(_validated_fields(request, partial=True))
-        record = write_service.update_event(event_id, dto, _uploaded_image(request))
+        editor_id = cast(UUID, request.user.pk)
+        record = write_service.update_event(event_id, dto, _uploaded_image(request), editor_id)
         return Response(record_body(request, event_service, record), status=status.HTTP_200_OK)
 
     @extend_schema(responses={204: None})

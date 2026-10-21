@@ -33,13 +33,14 @@ class EventPublicSerializer(serializers.Serializer[Any]):
         return str(self.context["request"].build_absolute_uri(url_path))
 
 
-class EventCreatorSerializer(serializers.Serializer[Any]):
+class EventAuthorSerializer(serializers.Serializer[Any]):
     id = serializers.UUIDField()
     name = serializers.CharField(allow_blank=True)
 
 
 class EventRecordSerializer(EventPublicSerializer):
-    created_by = EventCreatorSerializer(allow_null=True)
+    created_by = EventAuthorSerializer(allow_null=True)
+    updated_by = EventAuthorSerializer(allow_null=True)
     created_at = serializers.DateTimeField()
     updated_at = serializers.DateTimeField()
 

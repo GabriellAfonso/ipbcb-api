@@ -9,7 +9,7 @@ from uuid import UUID
 from core.domain.exceptions import EventNotFoundError, ImageProcessingError
 from features.events.domain.event_dates import last_day
 from features.events.domain.event_enums import EventStatusFilter, EventVisibility
-from features.events.dtos import EventCreateDTO, EventCreatorDTO, EventRecordDTO
+from features.events.dtos import EventAuthorDTO, EventCreateDTO, EventRecordDTO
 
 CREATED_AT = datetime(2026, 10, 21, 12, 0, tzinfo=timezone.utc)
 
@@ -46,6 +46,7 @@ class FakeEventRepository:
             "image_path": f"events/{event_id}.jpg",
             "visibility": EventVisibility.PUBLIC,
             "created_by": None,
+            "updated_by": None,
             "created_at": CREATED_AT,
             "updated_at": CREATED_AT,
         }
@@ -72,18 +73,23 @@ class FakeEventRepository:
 
     def create(self, event: EventCreateDTO, image_path: str, creator_id: UUID) -> EventRecordDTO:
         self._maybe_fail()
-        creator = EventCreatorDTO(id=creator_id, name="Criador")
+        creator = EventAuthorDTO(id=creator_id, name="Criador")
         return self.add(**event.model_dump(), image_path=image_path, created_by=creator)
 
     def update(
-        self, event_id: int, changes: Mapping[str, object], image_path: str | None
+        self,
+        event_id: int,
+        changes: Mapping[str, object],
+        image_path: str | None,
+        editor_id: UUID,
     ) -> EventRecordDTO:
         self._maybe_fail()
         current = self.records.get(event_id)
         if current is None:
             raise EventNotFoundError(event_id)
         image = {"image_path": image_path} if image_path else {}
-        updated = current.model_copy(update={**changes, **image})
+        editor = EventAuthorDTO(id=editor_id, name="Editor")
+        updated = current.model_copy(update={**changes, **image, "updated_by": editor})
         self.records[event_id] = updated
         return updated
 

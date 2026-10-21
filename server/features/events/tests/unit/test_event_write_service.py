@@ -86,7 +86,9 @@ class TestUpdate:
         setup = _Setup()
         event = setup.repo.add(location="Salão", description="Texto")
 
-        updated = setup.service.update_event(event.id, EventPatchDTO(location="Templo"), None)
+        updated = setup.service.update_event(
+            event.id, EventPatchDTO(location="Templo"), None, uuid4()
+        )
 
         assert updated.location == "Templo"
         assert updated.description == "Texto"
@@ -96,7 +98,7 @@ class TestUpdate:
         setup = _Setup()
         event = setup.repo.add()
 
-        updated = setup.service.update_event(event.id, EventPatchDTO(), _poster())
+        updated = setup.service.update_event(event.id, EventPatchDTO(), _poster(), uuid4())
 
         assert updated.image_path != event.image_path
         assert setup.storage.deleted == [event.image_path]
@@ -106,7 +108,9 @@ class TestUpdate:
         event = setup.repo.add(location="Salão")
 
         with pytest.raises(EventImageInvalidError):
-            setup.service.update_event(event.id, EventPatchDTO(location="Templo"), _poster())
+            setup.service.update_event(
+                event.id, EventPatchDTO(location="Templo"), _poster(), uuid4()
+            )
         assert setup.repo.records[event.id] == event
         assert setup.storage.deleted == []
 
@@ -116,7 +120,7 @@ class TestUpdate:
         setup.repo.fail_next_write = True
 
         with pytest.raises(RuntimeError):
-            setup.service.update_event(event.id, EventPatchDTO(), _poster())
+            setup.service.update_event(event.id, EventPatchDTO(), _poster(), uuid4())
         assert setup.storage.files == {}
         assert event.image_path not in setup.storage.deleted
 
@@ -125,19 +129,21 @@ class TestUpdate:
         event = setup.repo.add(start_date=date(2026, 11, 10))
 
         with pytest.raises(EventDatesInvalidError):
-            setup.service.update_event(event.id, EventPatchDTO(end_date=date(2026, 11, 8)), None)
+            setup.service.update_event(
+                event.id, EventPatchDTO(end_date=date(2026, 11, 8)), None, uuid4()
+            )
 
     def test_clearing_end_date_makes_a_one_day_event(self) -> None:
         setup = _Setup()
         event = setup.repo.add(end_date=date(2026, 11, 16))
 
-        updated = setup.service.update_event(event.id, EventPatchDTO(end_date=None), None)
+        updated = setup.service.update_event(event.id, EventPatchDTO(end_date=None), None, uuid4())
 
         assert updated.end_date is None
 
     def test_missing_event_is_not_found(self) -> None:
         with pytest.raises(EventNotFoundError):
-            _Setup().service.update_event(99, EventPatchDTO(title="X"), None)
+            _Setup().service.update_event(99, EventPatchDTO(title="X"), None, uuid4())
 
 
 class TestDelete:

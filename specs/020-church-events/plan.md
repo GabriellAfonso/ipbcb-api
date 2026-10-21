@@ -58,8 +58,8 @@ indexed lookup
 | No endpoint bypasses auth unless explicitly marked public | Public list/detail are `AllowAny`, declared public in spec FR-008 and `specs/events/spec.md`. Management views `IsAuthenticated` + `scope_permission(Scope.EVENTS)` |
 | Media served only through the access check, default deny | Still true. `events/` is a new rule in the same check; it admits anonymous callers **only** for public event images. **Amendment** of the constitution's Media section (spec FR-025) — see Complexity Tracking |
 | Input validated before storage | DRF serializers for fields; `EventImagePreparer` for the file by decoded content; Pydantic DTOs into the service |
-| ORM only, no queries in loops | `EventRepositoryImpl` only; `select_related("created_by__profile")` |
-| Features never import each other | Image processor moved to `core/files/imaging` (R-01); media ↔ events through a port wired in `config/di.py` (R-05). Events read the creator's name by ORM relation, no `features.accounts` import |
+| ORM only, no queries in loops | `EventRepositoryImpl` only; `select_related("created_by__profile", "updated_by__profile")` |
+| Features never import each other | Image processor moved to `core/files/imaging` (R-01); media ↔ events through a port wired in `config/di.py` (R-05). Events read the creator's and last editor's names by ORM relation, no `features.accounts` import |
 | Views → Services → Repositories | Views call `EventService` / `EventWriteService` only |
 | Services never import HTTP objects | Views pass streams and DTOs; services raise domain exceptions |
 | DI via container; DTOs not dicts | New providers in `config/di.py`; Pydantic DTOs (data-model.md) |

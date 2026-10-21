@@ -45,11 +45,12 @@ class EventWriteService:
             raise
 
     def update_event(
-        self, event_id: int, patch: EventPatchDTO, image: IO[bytes] | None
+        self, event_id: int, patch: EventPatchDTO, image: IO[bytes] | None, editor_id: UUID
     ) -> EventRecordDTO:
         """Apply the sent fields and, when given, a new image; the old image file goes after.
+        ``editor_id`` becomes ``updated_by`` on any successful edit, even one that sends nothing.
 
-        >>> service.update_event(12, EventPatchDTO(location="Templo"), None).location
+        >>> service.update_event(12, EventPatchDTO(location="Templo"), None, user_id).location
         'Templo'
         """
         current = self._existing(event_id)
@@ -57,8 +58,8 @@ class EventWriteService:
         ensure_dates_ordered(*patch.resulting_dates(current.start_date, current.end_date))
         changes = patch.changes()
         if image is None:
-            return self._repository.update(event_id, changes, None)
-        return self._update_with_image(current, changes, image)
+            return self._repository.update(event_id, changes, None, editor_id)
+        return self._update_with_image(current, changes, image, editor_id)
 
     def delete_event(self, event_id: int) -> None:
         """Remove the event for good, then its image file.
@@ -70,11 +71,15 @@ class EventWriteService:
         self._storage.delete(current.image_path)
 
     def _update_with_image(
-        self, current: EventRecordDTO, changes: dict[str, object], image: IO[bytes]
+        self,
+        current: EventRecordDTO,
+        changes: dict[str, object],
+        image: IO[bytes],
+        editor_id: UUID,
     ) -> EventRecordDTO:
         new_path = self._storage.save(self._preparer.prepare(image))
         try:
-            updated = self._repository.update(current.id, changes, new_path)
+            updated = self._repository.update(current.id, changes, new_path, editor_id)
         except Exception:
             self._storage.delete(new_path)
             raise

@@ -2,11 +2,12 @@ from collections.abc import Mapping
 from datetime import date
 from uuid import UUID
 
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.db.models import F, Q, QuerySet
 
 from core.domain.exceptions import EventNotFoundError
 from features.events.domain.event_enums import EventStatusFilter, EventVisibility
-from features.events.dtos import EventCreateDTO, EventCreatorDTO, EventRecordDTO
+from features.events.dtos import EventAuthorDTO, EventCreateDTO, EventRecordDTO
 from features.events.models.event import Event
 
 # Public order: soonest first; an all-day event (no time) before timed ones on the same date.
@@ -14,9 +15,10 @@ _PUBLIC_ORDER = ("start_date", F("start_time").asc(nulls_first=True), "id")
 _MANAGEMENT_ORDER = ("-start_date", F("start_time").desc(nulls_last=True), "-id")
 
 
-def _with_creator() -> QuerySet[Event]:
-    # The creator's profile name is shown to the panel; joined so a list is one query.
-    return Event.objects.select_related("created_by__profile")
+def _with_authors() -> QuerySet[Event]:
+    # The creator's and last editor's profile names are shown to the panel; joined so a list is
+    # one query.
+    return Event.objects.select_related("created_by__profile", "updated_by__profile")
 
 
 def _still_active(today: date) -> Q:
@@ -26,7 +28,7 @@ def _still_active(today: date) -> Q:
 
 
 def _active(today: date, include_members: bool) -> QuerySet[Event]:
-    events = _with_creator().filter(_still_active(today))
+    events = _with_authors().filter(_still_active(today))
     if include_members:
         return events
     return events.filter(visibility=EventVisibility.PUBLIC.value)
@@ -50,7 +52,7 @@ class EventRepositoryImpl:
         return _to_record(event) if event else None
 
     def list_all(self, status: EventStatusFilter, today: date) -> list[EventRecordDTO]:
-        events = _with_creator()
+        events = _with_authors()
         if status is EventStatusFilter.ACTIVE:
             events = events.filter(_still_active(today))
         elif status is EventStatusFilter.PAST:
@@ -58,7 +60,7 @@ class EventRepositoryImpl:
         return [_to_record(event) for event in events.order_by(*_MANAGEMENT_ORDER)]
 
     def get(self, event_id: int) -> EventRecordDTO | None:
-        event = _with_creator().filter(pk=event_id).first()
+        event = _with_authors().filter(pk=event_id).first()
         return _to_record(event) if event else None
 
     def create(self, event: EventCreateDTO, image_path: str, creator_id: UUID) -> EventRecordDTO:
@@ -68,7 +70,11 @@ class EventRepositoryImpl:
         return self._reloaded(created.pk)
 
     def update(
-        self, event_id: int, changes: Mapping[str, object], image_path: str | None
+        self,
+        event_id: int,
+        changes: Mapping[str, object],
+        image_path: str | None,
+        editor_id: UUID,
     ) -> EventRecordDTO:
         event = Event.objects.filter(pk=event_id).first()
         if event is None:
@@ -77,6 +83,7 @@ class EventRepositoryImpl:
             setattr(event, field_name, value)
         if image_path is not None:
             event.image_path = image_path
+        event.updated_by_id = editor_id
         event.save()
         return self._reloaded(event_id)
 
@@ -84,7 +91,7 @@ class EventRepositoryImpl:
         Event.objects.filter(pk=event_id).delete()
 
     def _reloaded(self, event_id: int) -> EventRecordDTO:
-        # Read back with the creator joined, so the answer has the same shape as a read.
+        # Read back with the authors joined, so the answer has the same shape as a read.
         record = self.get(event_id)
         if record is None:
             raise EventNotFoundError(event_id)
@@ -102,16 +109,16 @@ def _to_record(event: Event) -> EventRecordDTO:
         description=event.description,
         image_path=event.image_path,
         visibility=EventVisibility(event.visibility),
-        created_by=_creator_of(event),
+        created_by=_author_of(event.created_by),
+        updated_by=_author_of(event.updated_by),
         created_at=event.created_at,
         updated_at=event.updated_at,
     )
 
 
-def _creator_of(event: Event) -> EventCreatorDTO | None:
-    creator = event.created_by
-    if creator is None:
+def _author_of(user: AbstractBaseUser | None) -> EventAuthorDTO | None:
+    if user is None:
         return None
     # A user without a profile row has no name to show, not an error.
-    profile = getattr(creator, "profile", None)
-    return EventCreatorDTO(id=creator.pk, name=getattr(profile, "name", "") or "")
+    profile = getattr(user, "profile", None)
+    return EventAuthorDTO(id=user.pk, name=getattr(profile, "name", "") or "")

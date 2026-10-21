@@ -89,13 +89,15 @@ class TestWrites:
     def test_update_applies_changes_and_image(self, make_event: MakeEvent) -> None:
         event = make_event()
 
-        record = REPOSITORY.update(event.pk, {"location": "Templo"}, "events/new.jpg")
+        record = REPOSITORY.update(
+            event.pk, {"location": "Templo"}, "events/new.jpg", make_user(username="bia").pk
+        )
 
         assert (record.location, record.image_path) == ("Templo", "events/new.jpg")
 
     def test_update_missing_raises(self) -> None:
         with pytest.raises(EventNotFoundError):
-            REPOSITORY.update(999, {}, None)
+            REPOSITORY.update(999, {}, None, make_user(username="bia").pk)
 
     def test_delete_removes_the_row(self, make_event: MakeEvent) -> None:
         event = make_event()

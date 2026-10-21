@@ -21,6 +21,7 @@ Introduced by `specs/020-church-events/` (design, research, contract agreed with
 | `image_path` | required, unique; `events/{uuid}.jpg` |
 | `visibility` | `public` (default) or `members` |
 | `created_by` | user, `SET_NULL`; set on create, never changed |
+| `updated_by` | user, `SET_NULL`; null on create, set to the caller on every successful PATCH |
 | `created_at`, `updated_at` | automatic |
 
 No soft delete, no history. Past events are kept indefinitely; only a delete removes one.
@@ -58,8 +59,8 @@ Every read answers with `ETag` / `304` and `Cache-Control: private, no-store` +
 
 ### Management resource
 
-Public resource plus `created_by` (`{id, name}` or `null`), `created_at`, `updated_at`. The list
-is `{"events": [...]}`.
+Public resource plus `created_by` and `updated_by` (each `{id, name}` or `null`), `created_at`,
+`updated_at`. The list is `{"events": [...]}`.
 
 ---
 
