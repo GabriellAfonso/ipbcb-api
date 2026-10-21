@@ -28,7 +28,7 @@ from features.gallery.dtos.gallery_dtos import (
     ThumbnailBackfillReport,
     UploadResult,
 )
-from features.gallery.imaging.interfaces import ImageProcessor
+from core.files.imaging.interfaces import ImageProcessor
 from features.gallery.repositories.interfaces import (
     AlbumRepository,
     GalleryFileStorage,

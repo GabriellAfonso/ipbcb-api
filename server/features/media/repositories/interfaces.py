@@ -15,6 +15,17 @@ class MediaFileRepository(Protocol):
         ...
 
 
+class EventImageLookup(Protocol):
+    """Which audience an ``events/`` file has. Declared here, implemented by the events feature
+    and wired in ``config/di.py``, so neither feature imports the other
+    (specs/020-church-events research R-05)."""
+
+    def is_public_event_image(self, relative_path: str) -> bool | None:
+        """True for a public event's image, False for a members event's, None when the file is
+        no event's image."""
+        ...
+
+
 class TrashedMediaLookup(Protocol):
     """Whether a stored file belongs to a trashed gallery item. Declared here, implemented by
     the gallery and wired in ``config/di.py``, so neither feature imports the other

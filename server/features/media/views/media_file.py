@@ -1,5 +1,5 @@
 from dependency_injector.wiring import Provide, inject
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
@@ -12,13 +12,24 @@ from config.di import Container
 from core.domain.access import Level, Scope
 from core.http.permissions import IsMemberUser, scope_permission
 from features.accounts.validators import profile_photo_folder
-from features.media.domain.media_rules import first_segment
+from features.media.domain.media_rules import admits_anonymous, first_segment
 from features.media.dtos.media_dtos import MediaFile, MediaViewer
 from features.media.services.media_access_service import MediaAccessService
 
 
 # `owner` on `gallery` for a GET: whoever can see the trash can see its files (spec 014 FR-026).
 _GalleryOwner = scope_permission(Scope.GALLERY, {"GET": Level.OWNER, "HEAD": Level.OWNER})
+
+
+class IsAuthenticatedOrEventImage(BasePermission):
+    """Authenticated callers, plus anonymous ones asking for a file under ``events/`` — public
+    event images load without an account (specs/020-church-events R-05). An invalid token is
+    still ``401``: DRF authenticates before any permission runs."""
+
+    def has_permission(self, request: Request, view: APIView) -> bool:
+        if request.user and request.user.is_authenticated:
+            return True
+        return admits_anonymous(view.kwargs.get("requested_path", ""))
 
 
 class MediaFileAPIView(APIView):
@@ -28,7 +39,7 @@ class MediaFileAPIView(APIView):
     translates the caller into a ``MediaViewer`` and the decision into an HTTP response.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrEventImage]
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = "media"
     http_method_names = ["get", "head"]
@@ -45,6 +56,9 @@ class MediaFileAPIView(APIView):
         return self._file_response(media_file, media_access_service)
 
     def _viewer(self, request: Request, is_gallery: bool) -> MediaViewer:
+        if not request.user.is_authenticated:
+            # Only reachable for events/ (IsAuthenticatedOrEventImage): no flags, no own folder.
+            return MediaViewer(is_member=False, can_view_members=False)
         # The same permission classes every other endpoint uses, so the flags are read one way.
         return MediaViewer(
             is_member=IsMemberUser().has_permission(request, self),

@@ -15,6 +15,10 @@ from core.domain.exceptions import MediaPathRejectedError
 class MediaAudience(Enum):
     MEMBER = "member"
     MEMBERS_SCOPE = "members_scope"
+    # Decided per file by its event's visibility: anyone for a public event, members for a
+    # members event (specs/020-church-events FR-019). The only audience that admits anonymous
+    # callers.
+    EVENT_VISIBILITY = "event_visibility"
 
 
 class MediaAccessOutcome(Enum):
@@ -37,6 +41,8 @@ FOLDER_RULES: Mapping[str, MediaAudience] = MappingProxyType(
         # Member photos: readable with `view` on the `members` scope — Admin and Liderança,
         # never Mídia (specs/012-feature-role-permissions FR-017).
         "members": MediaAudience.MEMBERS_SCOPE,
+        # Event images: public ones even without a token (spec 020).
+        "events": MediaAudience.EVENT_VISIBILITY,
     }
 )
 
@@ -79,6 +85,23 @@ def is_own_profile_file(path: str, own_profile_folder: str | None) -> bool:
         return False
     segments = path.split("/")
     return len(segments) >= 3 and segments[0] == "profiles" and segments[1] == own_profile_folder
+
+
+# The one folder a caller without a token may ask for; every other folder answers 401 to them
+# before its path is even validated (specs/009 FR-002, specs/020 research R-05).
+ANONYMOUS_FOLDER = "events"
+
+
+def admits_anonymous(requested_path: str) -> bool:
+    """Whether an unauthenticated request for ``requested_path`` may reach the access check.
+    Only the folder name is read here; the full path is validated afterwards as for anyone.
+
+    >>> admits_anonymous("events/8c41.jpg")
+    True
+    >>> admits_anonymous("gallery/retiro/x.jpg")
+    False
+    """
+    return first_segment(requested_path) == ANONYMOUS_FOLDER
 
 
 def first_segment(path: str) -> str:

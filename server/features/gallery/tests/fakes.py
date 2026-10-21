@@ -1,5 +1,5 @@
 """Named fakes for the gallery's external I/O (CLAUDE.md §10). Each implements a Protocol from
-``features.gallery.imaging.interfaces`` or ``features.gallery.repositories.interfaces``."""
+``core.files.imaging.interfaces`` or ``features.gallery.repositories.interfaces``."""
 
 import io
 from collections.abc import Iterator, Mapping, Sequence
@@ -63,6 +63,15 @@ class FakeImageProcessor:
 
     def capture_date(self, source: IO[bytes]) -> date | None:
         return self.taken_on
+
+    def upright_dimensions(self, source: IO[bytes]) -> tuple[int, int]:
+        return self.size
+
+    def fitted_jpeg(
+        self, source: IO[bytes], max_width: int, max_height: int, quality: int
+    ) -> bytes:
+        # The gallery never fits images to a box; present only to satisfy the protocol.
+        raise AssertionError("The gallery does not use fitted_jpeg.")
 
     def _fail_if_asked(self, source: IO[bytes]) -> None:
         if _filename(source) in self.failing_names:

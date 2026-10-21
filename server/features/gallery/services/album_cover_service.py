@@ -7,7 +7,7 @@ from django.db import transaction
 from core.domain.exceptions import AlbumNotFoundError, ValidationError
 from core.files.image_validation import detect_image_extension
 from features.gallery.domain.image_limits import DERIVATIVE_JPEG_QUALITY, ensure_within_pixel_limit
-from features.gallery.imaging.interfaces import ImageProcessor
+from core.files.imaging.interfaces import ImageProcessor
 from features.gallery.repositories.interfaces import AlbumRepository, GalleryFileStorage
 from features.gallery.services.cover_change_tracker import CoverChangeTracker
 

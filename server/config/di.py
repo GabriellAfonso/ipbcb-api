@@ -24,7 +24,13 @@ from features.bible.repositories import BibleRepositoryImpl
 from features.bible.services import BibleService
 from features.doctrine.repositories import DoctrineRepositoryImpl
 from features.doctrine.services import DoctrineService
-from features.gallery.imaging.pillow_image_processor import PillowImageProcessor
+from core.files.imaging.pillow_image_processor import PillowImageProcessor
+from features.events.repositories.event_image_lookup import EventImageLookupImpl
+from features.events.repositories.event_image_storage import DefaultStorageEventImageStorage
+from features.events.repositories.event_repository import EventRepositoryImpl
+from features.events.services.event_image_preparer import EventImagePreparer
+from features.events.services.event_service import EventService
+from features.events.services.event_write_service import EventWriteService
 from features.gallery.repositories.album_repository import AlbumRepositoryImpl
 from features.gallery.repositories.gallery_file_storage import DefaultStorageGalleryFileStorage
 from features.gallery.repositories.deletion_mark_repository import DeletionMarkRepositoryImpl
@@ -89,6 +95,8 @@ class Container(containers.DeclarativeContainer):
             "features.accounts.views.profile",
             "features.bible.views",
             "features.doctrine.views",
+            "features.events.views.admin_events",
+            "features.events.views.public_events",
             "features.gallery.admin",
             "features.gallery.management.commands.generate_photo_thumbnails",
             "features.gallery.management.commands.purge_gallery_trash",
@@ -216,6 +224,20 @@ class Container(containers.DeclarativeContainer):
         clock=clock,
     )
 
+    # Church events (specs/020-church-events). Shares the image processor with the gallery.
+    event_repository = providers.Factory(EventRepositoryImpl)
+    event_image_storage = providers.Factory(DefaultStorageEventImageStorage)
+    event_image_preparer = providers.Factory(EventImagePreparer, image_processor=image_processor)
+    event_service = providers.Factory(
+        EventService, repository=event_repository, image_storage=event_image_storage, clock=clock
+    )
+    event_write_service = providers.Factory(
+        EventWriteService,
+        repository=event_repository,
+        image_storage=event_image_storage,
+        image_preparer=event_image_preparer,
+    )
+
     song_repository = providers.Factory(SongRepositoryImpl)
     hymnal_repository = providers.Factory(HymnalRepositoryImpl)
     hymnal_history_repository = providers.Factory(HymnalHistoryRepositoryImpl)
@@ -299,11 +321,13 @@ class Container(containers.DeclarativeContainer):
     media_file_repository = providers.Factory(
         FileSystemMediaRepository, root=providers.Callable(_media_root)
     )
-    # The gallery implements the media check's port; wired here so neither feature imports the
-    # other (specs/014-gallery-trash-sync research R-05).
+    # The gallery and events implement the media check's ports; wired here so no feature imports
+    # another (specs/014-gallery-trash-sync research R-05, specs/020-church-events R-05).
     gallery_trashed_file_lookup = providers.Factory(GalleryTrashedFileLookup)
+    event_image_lookup = providers.Factory(EventImageLookupImpl)
     media_access_service = providers.Factory(
         MediaAccessService,
         repository=media_file_repository,
         trashed_lookup=gallery_trashed_file_lookup,
+        event_image_lookup=event_image_lookup,
     )

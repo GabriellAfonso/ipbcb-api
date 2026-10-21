@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     "features.gallery",
     "features.bible",
     "features.doctrine",
+    "features.events",
 ]
 
 MIDDLEWARE = [

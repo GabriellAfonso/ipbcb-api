@@ -35,3 +35,16 @@ class FakeTrashedMediaLookup:
     def is_trashed(self, relative_path: str) -> bool:
         self.asked.append(relative_path)
         return relative_path in self.trashed
+
+
+class FakeEventImageLookup:
+    """Event image paths with their visibility (True public, False members), and every path
+    asked about (specs/020-church-events research R-05)."""
+
+    def __init__(self, images: dict[str, bool] | None = None) -> None:
+        self.images = images or {}
+        self.asked: list[str] = []
+
+    def is_public_event_image(self, relative_path: str) -> bool | None:
+        self.asked.append(relative_path)
+        return self.images.get(relative_path)

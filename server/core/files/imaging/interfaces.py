@@ -20,6 +20,26 @@ class ImageProcessor(Protocol):
         """
         ...
 
+    def upright_dimensions(self, source: IO[bytes]) -> tuple[int, int]:
+        """(width, height) as displayed: swapped when the EXIF orientation turns the image by
+        90 degrees. Header only, no pixel decode (specs/020-church-events R-03).
+
+        >>> processor.upright_dimensions(open("portrait_tagged_rotate_90.jpg", "rb"))
+        (3024, 4032)
+        """
+        ...
+
+    def fitted_jpeg(
+        self, source: IO[bytes], max_width: int, max_height: int, quality: int
+    ) -> bytes:
+        """JPEG fitting inside ``max_width`` x ``max_height``, aspect kept, never upscaled,
+        upright, alpha flattened on white (specs/020-church-events R-02).
+
+        >>> processor.fitted_jpeg(open("poster.png", "rb"), 1920, 1080, 85)[:2]
+        b'\\xff\\xd8'
+        """
+        ...
+
     def bounded_jpeg(self, source: IO[bytes], longest_side: int, quality: int) -> bytes:
         """JPEG whose longest side is at most ``longest_side``, aspect kept, never upscaled.
 

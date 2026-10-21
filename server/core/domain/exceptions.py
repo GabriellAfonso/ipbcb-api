@@ -30,6 +30,13 @@ from core.domain.gallery_exceptions import (
     UploadedPhotoTrashedError as UploadedPhotoTrashedError,
     ClientUploadIdTakenError as ClientUploadIdTakenError,
 )
+from core.domain.event_exceptions import (
+    EventNotFoundError as EventNotFoundError,
+    EventImageInvalidError as EventImageInvalidError,
+    EventImageMissingError as EventImageMissingError,
+    EventDatesInvalidError as EventDatesInvalidError,
+    EventStatusFilterError as EventStatusFilterError,
+)
 from core.domain.setlist_exceptions import (
     NotWorshipMemberError as NotWorshipMemberError,
     SetlistDateNotSundayError as SetlistDateNotSundayError,

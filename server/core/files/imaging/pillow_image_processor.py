@@ -1,6 +1,7 @@
-"""Pillow implementation of ``ImageProcessor`` — the only gallery module that imports Pillow for
-derivatives (specs/013-gallery-write-api/research.md R-04). Validation of uploads stays in
-``core.files.image_validation``."""
+"""Pillow implementation of ``ImageProcessor`` — the only module that imports Pillow for
+derivatives (specs/013-gallery-write-api/research.md R-04). Moved here from the gallery so events
+share it without a cross-feature import (specs/020-church-events R-01). Validation of uploads
+stays in ``core.files.image_validation``."""
 
 import io
 from collections.abc import Callable, Iterator
@@ -15,6 +16,9 @@ from core.domain.exceptions import ImageProcessingError
 _EXIF_IFD = 0x8769
 _DATE_TIME_ORIGINAL = 0x9003
 _DATE_TIME = 0x0132
+_ORIENTATION = 0x0112
+# EXIF orientations 5-8 rotate the image by 90 degrees, so width and height swap on display.
+_QUARTER_TURN_ORIENTATIONS = frozenset({5, 6, 7, 8})
 _EXIF_DATE_FORMAT = "%Y:%m:%d %H:%M:%S"
 _DECODE_ERRORS = (
     UnidentifiedImageError,
@@ -36,6 +40,19 @@ class PillowImageProcessor:
 
     def dimensions(self, source: IO[bytes]) -> tuple[int, int]:
         return self._with_image(source, lambda image: image.size)
+
+    def upright_dimensions(self, source: IO[bytes]) -> tuple[int, int]:
+        return self._with_image(source, _displayed_size)
+
+    def fitted_jpeg(
+        self, source: IO[bytes], max_width: int, max_height: int, quality: int
+    ) -> bytes:
+        def build(image: Image.Image) -> bytes:
+            prepared = _flatten(image, max(max_width, max_height))
+            prepared.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
+            return _to_jpeg(prepared, quality)
+
+        return self._with_image(source, build)
 
     def bounded_jpeg(self, source: IO[bytes], longest_side: int, quality: int) -> bytes:
         def build(image: Image.Image) -> bytes:
@@ -87,6 +104,14 @@ def _flatten(image: Image.Image, target: int) -> Image.Image:
     background = Image.new("RGB", rgba.size, (255, 255, 255))
     background.paste(rgba, mask=rgba.getchannel("A"))
     return background
+
+
+def _displayed_size(image: Image.Image) -> tuple[int, int]:
+    """Header size as shown after the EXIF orientation is applied; no pixel decode."""
+    width, height = image.size
+    if image.getexif().get(_ORIENTATION) in _QUARTER_TURN_ORIENTATIONS:
+        return height, width
+    return width, height
 
 
 def _has_alpha(image: Image.Image) -> bool:

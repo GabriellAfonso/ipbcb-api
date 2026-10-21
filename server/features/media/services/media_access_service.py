@@ -19,11 +19,16 @@ from features.media.domain.media_rules import (
     validate_media_path,
 )
 from features.media.dtos.media_dtos import MediaFile, MediaViewer
-from features.media.repositories.interfaces import MediaFileRepository, TrashedMediaLookup
+from features.media.repositories.interfaces import (
+    EventImageLookup,
+    MediaFileRepository,
+    TrashedMediaLookup,
+)
 
 logger = logging.getLogger(__name__)
 
 GALLERY_FOLDER = "gallery"
+EVENTS_FOLDER = "events"
 
 _MediaDecisionError = (
     MediaPathRejectedError,
@@ -48,12 +53,19 @@ class MediaAccessService:
     then look for the file — so a caller outside the folder's audience cannot learn whether a
     file exists there. Design in ``specs/009-protected-media-access/``. Under ``gallery/``, a
     file whose photo or album is in the trash is refused to members before the existence check
-    (``specs/014-gallery-trash-sync/``).
+    (``specs/014-gallery-trash-sync/``). Under ``events/``, the file's event decides: anyone for
+    a public event, members for a members event, ``404`` otherwise (``specs/020-church-events/``).
     """
 
-    def __init__(self, repository: MediaFileRepository, trashed_lookup: TrashedMediaLookup) -> None:
+    def __init__(
+        self,
+        repository: MediaFileRepository,
+        trashed_lookup: TrashedMediaLookup,
+        event_image_lookup: EventImageLookup,
+    ) -> None:
         self._repository = repository
         self._trashed = trashed_lookup
+        self._event_images = event_image_lookup
 
     def authorize(self, requested_path: str, viewer: MediaViewer) -> MediaFile:
         """Return the file to serve, or raise a media domain exception. Logs one decision.
@@ -84,6 +96,8 @@ class MediaAccessService:
             raise MediaFolderNotRuledError(path)
         if folder == GALLERY_FOLDER:
             self._check_gallery_file(path, viewer)
+        elif folder == EVENTS_FOLDER:
+            self._check_event_image(path, viewer)
         elif not _viewer_may_read(path, viewer, audience):
             raise MediaAccessDeniedError(folder)
         return self._located_file(path)
@@ -100,6 +114,13 @@ class MediaAccessService:
             raise MediaFileTrashedError(path)
         if not trashed and not viewer.is_member:
             raise MediaAccessDeniedError(GALLERY_FOLDER)
+
+    def _check_event_image(self, path: str, viewer: MediaViewer) -> None:
+        """A members event's image is ``404`` to a non-member, exactly like a file that is no
+        event's image: whoever may not see the event must not learn it exists (spec 020 FR-010)."""
+        is_public = self._event_images.is_public_event_image(path)
+        if is_public is None or (not is_public and not viewer.is_member):
+            raise MediaFileNotFoundError(path)
 
     def _located_file(self, path: str) -> MediaFile:
         absolute_path = self._repository.locate(path)

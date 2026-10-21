@@ -14,6 +14,7 @@ from features.media.dtos.media_dtos import MediaViewer
 from features.media.services.media_access_service import MediaAccessService
 from features.media.tests.fakes import (
     FAKE_MEDIA_ROOT,
+    FakeEventImageLookup,
     FakeMediaFileRepository,
     FakeTrashedMediaLookup,
 )
@@ -30,10 +31,14 @@ NON_MEMBER_OWNER = MediaViewer(
 
 
 def _service(
-    repository: FakeMediaFileRepository, lookup: FakeTrashedMediaLookup | None = None
+    repository: FakeMediaFileRepository,
+    lookup: FakeTrashedMediaLookup | None = None,
+    event_images: FakeEventImageLookup | None = None,
 ) -> MediaAccessService:
     return MediaAccessService(
-        repository=repository, trashed_lookup=lookup or FakeTrashedMediaLookup()
+        repository=repository,
+        trashed_lookup=lookup or FakeTrashedMediaLookup(),
+        event_image_lookup=event_images or FakeEventImageLookup(),
     )
 
 
@@ -221,3 +226,53 @@ class TestTrashedGalleryFiles:
             _service(repository, lookup).authorize(GALLERY_FILE, MEMBER)
         record = _decision_records(caplog)[-1]
         assert (record.__dict__["folder"], record.__dict__["outcome"]) == ("gallery", "trashed")
+
+
+PUBLIC_EVENT_FILE = "events/8c41.jpg"
+MEMBERS_EVENT_FILE = "events/77aa.jpg"
+ANONYMOUS = MediaViewer(is_member=False, can_view_members=False)
+
+
+class TestEventImages:
+    """specs/020-church-events FR-019: the file's event decides who reads it."""
+
+    def _service(self) -> tuple[MediaAccessService, FakeMediaFileRepository]:
+        files = {PUBLIC_EVENT_FILE: b"p", MEMBERS_EVENT_FILE: b"m", "events/orphan.jpg": b"o"}
+        repository = FakeMediaFileRepository(files)
+        lookup = FakeEventImageLookup({PUBLIC_EVENT_FILE: True, MEMBERS_EVENT_FILE: False})
+        return _service(repository, event_images=lookup), repository
+
+    @pytest.mark.parametrize("viewer", [ANONYMOUS, NON_MEMBER, MEMBER])
+    def test_public_event_image_is_readable_by_anyone(self, viewer: MediaViewer) -> None:
+        service, _ = self._service()
+
+        assert service.authorize(PUBLIC_EVENT_FILE, viewer).content_type == "image/jpeg"
+
+    def test_members_event_image_is_readable_by_members(self) -> None:
+        service, _ = self._service()
+
+        assert service.authorize(MEMBERS_EVENT_FILE, MEMBER).relative_path == MEMBERS_EVENT_FILE
+
+    @pytest.mark.parametrize("viewer", [ANONYMOUS, NON_MEMBER])
+    def test_members_event_image_is_not_found_for_others_without_a_file_lookup(
+        self, viewer: MediaViewer
+    ) -> None:
+        service, repository = self._service()
+
+        with pytest.raises(MediaFileNotFoundError):
+            service.authorize(MEMBERS_EVENT_FILE, viewer)
+        assert repository.located == []
+
+    def test_file_of_no_event_is_not_found_even_for_members(self) -> None:
+        service, _ = self._service()
+
+        with pytest.raises(MediaFileNotFoundError):
+            service.authorize("events/orphan.jpg", BOTH)
+
+    def test_traversal_is_rejected_before_the_event_lookup(self) -> None:
+        lookup = FakeEventImageLookup()
+        service = _service(FakeMediaFileRepository(), event_images=lookup)
+
+        with pytest.raises(MediaPathRejectedError):
+            service.authorize("events/../members/x.jpg", MEMBER)
+        assert lookup.asked == []
