@@ -11,7 +11,13 @@ from config.di import Container
 from core.application.access_service import AccessService
 from core.application.worship_access_service import WorshipAccessService
 from core.application.dtos.access_dtos import AccessGrantsDTO
-from core.domain.access import Level, Scope, required_level, validate_overrides
+from core.domain.access import (
+    Level,
+    Scope,
+    has_member_access,
+    required_level,
+    validate_overrides,
+)
 from core.domain.exceptions import NotWorshipMemberError
 
 
@@ -22,24 +28,24 @@ def _profile_of(request: Request) -> object | None:
     That exception subclasses ``AttributeError``, so ``getattr`` with a default absorbs it —
     but only if the lookup happens inside ``getattr``, not as its first argument.
 
-    >>> getattr(_profile_of(request), "is_member", False)
+    >>> getattr(_profile_of(request), "member_access", False)
     """
     return getattr(request.user, "profile", None)
 
 
-class IsMemberUser(permissions.BasePermission):
-    """
-    Permite acesso apenas a usuários que possuem um perfil com is_member = True.
+class HasMemberAccess(permissions.BasePermission):
+    """Member content: the profile's ``member_access`` flag, or an Admin/Liderança role
+    (``core.domain.access.has_member_access``, specs/022-access-requests). The roles are read only
+    when the flag is off, so a flagged member costs no query.
     """
 
     message = "Disponível apenas para membros."
 
     def has_permission(self, request: Request, view: APIView) -> bool:
-        return bool(
-            request.user
-            and request.user.is_authenticated
-            and getattr(_profile_of(request), "is_member", False)
-        )
+        if not (request.user and request.user.is_authenticated):
+            return False
+        flag = bool(getattr(_profile_of(request), "member_access", False))
+        return flag or has_member_access(flag, _grants_for(request.user.pk).roles)
 
 
 @inject

@@ -1,7 +1,7 @@
 from rest_framework.permissions import BasePermission, IsAuthenticated
 
 from core.domain.access import Scope
-from core.http.permissions import IsMemberUser, scope_permission
+from core.http.permissions import HasMemberAccess, scope_permission
 
 _READ_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
 _GalleryWrite = scope_permission(Scope.GALLERY)
@@ -14,8 +14,8 @@ def member_read_gallery_write_permissions(method: str) -> list[BasePermission]:
     members out (specs/013-gallery-write-api research R-07).
 
     >>> member_read_gallery_write_permissions("GET")
-    [<IsMemberUser>]
+    [<HasMemberAccess>]
     """
     if method.upper() in _READ_METHODS:
-        return [IsMemberUser()]
+        return [HasMemberAccess()]
     return [IsAuthenticated(), _GalleryWrite()]

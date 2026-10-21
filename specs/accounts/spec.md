@@ -1,6 +1,7 @@
 # Accounts Domain Spec
 
-Manages user identity, authentication, profile, password change and account deletion. Single entry point for who the user is and how they prove it.
+Manages user identity, authentication, profile, password change, account deletion, member
+access and access requests ("Perfis"). Single entry point for who the user is and how they prove it.
 
 ---
 
@@ -27,19 +28,40 @@ Manages user identity, authentication, profile, password change and account dele
   The random name is defence in depth, not collision avoidance: if an nginx edit ever
   re-published the media directory, a deterministic name would again let anyone fetch any
   member's photo from a URL built out of their username.
-- `is_member`: bool, default false
+- `member_access`: bool, default false. The gate on member content (roll, birthdays, schedule,
+  gallery, members-only events and media). Renamed from `is_member` by hand-written migration
+  `accounts/0006` (`specs/022-access-requests` R-01). The **effective** access is this flag
+  **or** an Admin/Liderança role (`core.domain.access.has_member_access`, permission
+  `HasMemberAccess`); Mídia alone does not count. Set by approving an `access` request or in
+  the Django admin; cleared by "revoke access".
+- `access_requests_blocked`: bool, default false. Set by leaders in "Perfis"; a blocked
+  account cannot create access requests.
 - `member`: OneToOne -> `members.Member`, nullable, `SET_NULL`, `related_name="profile"`. Links
   the account to its record on the church roll, so the app can offer "photos of me" (gallery tag
   filter, `specs/015-gallery-member-tags/`). Unique: a member has at most one profile. Set and
-  changed **only in the Django admin**, whose profile form searches members by name
-  (autocomplete); linking a member that already has a profile is a form error and nothing is
-  saved. No endpoint creates, changes or removes it, and nothing links automatically. Deleting
-  the member leaves the profile unlinked. Independent of `is_member`: neither sets, clears or
+  changed by leaders only: in the Django admin, whose profile form searches members by name
+  (autocomplete), or with `PATCH api/admin/profiles/{user_id}/` (`specs/022-access-requests`);
+  linking a member that already has a profile is refused and nothing is saved. Nothing links
+  automatically. Deleting
+  the member leaves the profile unlinked. Independent of `member_access`: neither sets, clears or
   checks the other.
 - Roles (Admin, Liderança, Mídia) are **not** on the profile: they are the account's Django
   groups, assigned in the Django admin only. What each role can manage is in
   `specs/012-feature-role-permissions/`. The old `is_admin` flag was converted into the Admin
   role and removed there.
+
+### AccessRequest (`specs/022-access-requests`)
+- `user`: FK -> User, `CASCADE`, `related_name="access_requests"`
+- `type`: `access` | `data_correction`
+- `message`: text, nullable, ≤ 1000 characters after trim; required for `data_correction`
+- `status`: `pending` | `approved` | `denied` (default `pending`). `approved` on a
+  `data_correction` means "resolved"
+- `decided_by`: FK -> User, nullable, `SET_NULL`; `decided_at`: datetime, nullable
+- `denial_reason`: text, nullable, ≤ 500 characters after trim
+- `created_at`: datetime
+- At most one `pending` request per (user, type) — conditional unique constraint
+- Read-only in the Django admin (decisions go through "Perfis", which also sets the flag and
+  notifies)
 
 ### Signals (current behavior)
 - **post_save User (created)**: auto-creates Profile with `name = "{first_name} {last_name}".strip().title()`
@@ -118,7 +140,8 @@ All under the base path `/ipbcb/` (e.g. `/ipbcb/api/auth/login/`).
 
 ### GET `api/me/profile/`
 - **Authenticated**
-- Returns: name, is_member, photo_url, `roles` (`[{id, name}]`), `permissions` (every
+- Returns: name, is_member, member_access, access_status, access_requests_blocked,
+  data_correction_pending, photo_url, `roles` (`[{id, name}]`), `permissions` (every
   scope as a key, level `view`/`manage`/`owner` or `null`) and `member_id` (the linked member's
   id, or `null`). Shape in `specs/012-feature-role-permissions/contracts/profile-api.md`;
   `member_id` added by `specs/015-gallery-member-tags/`
@@ -131,10 +154,17 @@ All under the base path `/ipbcb/` (e.g. `/ipbcb/api/auth/login/`).
 - Also returns `username`, `has_password` (`user.has_usable_password()` — the **account's**
   password, never how this session signed in) and `date_joined` (`"YYYY-MM-DD"`, the account's
   creation date in `America/Sao_Paulo`) (`specs/021-user-account/`)
+- Also returns (`specs/022-access-requests/`): `member_access` — the **effective** access (flag
+  or Admin/Liderança role); `is_member` — same value, deprecated, kept for at least two app
+  versions; `access_status` — `granted` | `pending` (an `access` request is pending) | `none`;
+  `access_requests_blocked`; `data_correction_pending`. Roll data is **never** here: the app
+  writes this response to disk, so the account's roll record is served by
+  `GET api/me/member/` (members domain)
 
 ### PATCH `api/me/profile/`
 - **Authenticated**
-- Updatable: `name` only (is_member, photo_url, roles, permissions, member_id,
+- Updatable: `name` only (is_member, member_access, access_status, access_requests_blocked,
+  data_correction_pending, photo_url, roles, permissions, member_id,
   is_worship_member, can_save_setlist, username, has_password, date_joined are read-only; a
   value sent for them is ignored)
 - `name`: trimmed; blank or whitespace-only → 400 ("Este campo não pode ficar em branco.");
@@ -206,8 +236,43 @@ All under the base path `/ipbcb/` (e.g. `/ipbcb/api/auth/login/`).
 | SimpleJWT `OutstandingToken` | kept without owner, blacklisted first |
 | gallery `Photo.uploaded_by`, `PhotoTag.tagged_by`, `TrashEntry.deleted_by`; events `Event.created_by`, `Event.updated_by`; members `MemberChangeLog.editor`; songs `Setlist.saved_by`, `HymnalViewEvent.user` | kept, author cleared (`SET_NULL`) |
 | `members.Member` linked by `Profile.member` | kept untouched; only the link goes |
+| `AccessRequest.user` | deleted (cascade) |
+| `AccessRequest.decided_by` | kept, decider cleared (`SET_NULL`) |
 
 A new FK to the user must choose explicitly between these behaviours and be added here.
+
+---
+
+### POST `api/me/access-requests/`
+- **Authenticated**. Body `{"type": "access" | "data_correction", "message"?}` → `201` with the
+  request (`id, type, message, status, created_at, decided_by, decided_at, denial_reason`)
+- Refusals, in this order: blocked → 403 `ACCESS_REQUESTS_BLOCKED` ("Pedidos de acesso
+  indisponíveis. Fale com a liderança."); `access` with effective access → 409
+  `MEMBER_ACCESS_ALREADY_GRANTED`; same type pending → 409 `ACCESS_REQUEST_PENDING`; any request
+  in the last rolling 24 h (any type, any status) → 429 `ACCESS_REQUEST_RATE_LIMITED` with
+  `retry_after_seconds`. The 24 h rule reads the table, it is not a DRF throttle
+- Push `access_request_created` (`request_id`, `request_type`) to every active account with
+  `manage` on `profiles`, except the requester
+
+### "Perfis" — `api/admin/profiles/…` (scope `profiles`)
+- Admin `owner`, Liderança `manage`, Mídia none. GET `view`, POST/PATCH `manage`
+- `GET api/admin/profiles/?status=pending|all` → `{"accounts": [...]}`: `pending` = accounts with
+  a pending request, oldest pending first; `all` (default) = every active account by name. Each
+  account: `id, name, username, photo_url, member_access` (the **stored** flag),
+  `access_via_role, access_requests_blocked, member {id, name} | null, date_joined,
+  pending_requests`. Never the e-mail
+- `GET api/admin/profiles/{user_id}/` → the account plus `requests` (history, newest first)
+- `PATCH api/admin/profiles/{user_id}/` `{access_requests_blocked?, member_id?}` — block/unblock,
+  link/unlink the roll (unknown member 400 on `member_id`; member linked elsewhere 409
+  `MEMBER_ALREADY_LINKED`; unknown fields 400). No push
+- `POST api/admin/profiles/{user_id}/revoke-access/` — clears the flag. No push
+- `POST api/admin/profiles/requests/{id}/approve/` — `access`: sets the flag; `data_correction`:
+  only closes it. Push `access_request_approved` to the requester
+- `POST api/admin/profiles/requests/{id}/deny/` `{reason?}` (≤ 500) — push
+  `access_request_denied` with `reason` when given
+- Deciding a request that is not pending → 409 `ACCESS_REQUEST_NOT_PENDING`; unknown → 404.
+  Every write answers the account detail
+- Contract: `specs/022-access-requests/contracts/access-api.md`
 
 ---
 
@@ -296,6 +361,13 @@ Never logged, never shown in the Django admin. Contract in
 
 ---
 
+15a. Member access is decided in one place, `core.domain.access.has_member_access(flag, roles)`:
+     the flag or an Admin/Liderança role. A role never requires it and it never grants a level.
+     No e-mail is read, shown or accepted by any access-request or "Perfis" endpoint (Google
+     sign-in links accounts by e-mail)
+
+---
+
 ## Errors
 
 | Situation | Status | Message |
@@ -317,6 +389,15 @@ Never logged, never shown in the Django admin. Contract in
 | Google confirmation token fails verification | 400 | `INVALID_GOOGLE_TOKEN` |
 | Google confirmation token of another account (or none) | 403 | `GOOGLE_ACCOUNT_MISMATCH` |
 | Superuser asks for deletion | 409 | `ACCOUNT_DELETION_BLOCKED` |
+| Access request while blocked | 403 | `ACCESS_REQUESTS_BLOCKED` |
+| `access` request with access already | 409 | `MEMBER_ACCESS_ALREADY_GRANTED` |
+| Same type already pending | 409 | `ACCESS_REQUEST_PENDING` |
+| Second request inside 24 h | 429 | `ACCESS_REQUEST_RATE_LIMITED` (+ `retry_after_seconds`) |
+| `data_correction` without message | 400 | `VALIDATION_ERROR` on `message` |
+| Deciding a decided request | 409 | `ACCESS_REQUEST_NOT_PENDING` |
+| Linking a member linked elsewhere | 409 | `MEMBER_ALREADY_LINKED` |
+| Linking an unknown member | 400 | `VALIDATION_ERROR` on `member_id` |
+| Unknown `status` filter on "Perfis" | 400 | `VALIDATION_ERROR` on `status` |
 
 A missing profile is never an error: every profile read and write goes through
 `get_or_create`, so there is no "profile not found" exception.
@@ -340,6 +421,11 @@ AccountDeletionAPIView -> AccountDeletionService -> UserRepository, RefreshToken
                                                     GoogleAuthService.resolve_existing_account
                        -> LoginService.verify_password (as a PasswordCheck)
 AccountDeletionPageView -> LoginService.authenticate_credentials, AccountDeletionService
+MeAccessRequestAPIView -> AccessRequestService -> AccessRequestRepository,
+                         ManagedAccountRepository, AccessService, PushService (core)
+AdminProfile*APIView / AdminAccessRequest*APIView -> ProfileManagementService
+                         -> AccessRequestRepository, ManagedAccountRepository, PushService
+MeProfileAPIView      -> AccessRequestService.access_state (member-access fields)
 ```
 
 - Password checks: `LoginService` is the only place that calls `authenticate()`, so every check

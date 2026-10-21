@@ -69,7 +69,7 @@ Public resource plus `created_by` and `updated_by` (each `{id, name}` or `null`)
 1. **Public list**: active events visible to the caller, by `start_date` ascending, then
    `start_time` ascending with no time first, then id. No limit, no pagination.
 2. **Visibility**: no token or a non-member (including a user with no profile row) sees only
-   `public` events; a member (`Profile.is_member`) also sees `members` events. Roles grant
+   `public` events; a caller with member access (`Profile.member_access`, or an Admin/Liderança role — `specs/022-access-requests`) also sees `members` events. Roles grant
    nothing on the public endpoints.
 3. **Hidden is missing**: a past event, or a `members` event for a non-member, answers `404` on
    the public detail and on its image, with the same body as an id that never existed.
@@ -114,7 +114,7 @@ Messages are Portuguese and name the received value and the expected shape.
 ## Architecture
 
 ```
-PublicEventListAPIView / PublicEventDetailAPIView      AllowAny + IsMemberUser flag
+PublicEventListAPIView / PublicEventDetailAPIView      AllowAny + HasMemberAccess flag
 AdminEventListAPIView / AdminEventDetailAPIView        IsAuthenticated + scope_permission(EVENTS)
   -> EventService            reads; "today" from Clock in São Paulo
   -> EventWriteService       create / update / delete; file cleanup

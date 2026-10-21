@@ -3,14 +3,24 @@ from pathlib import Path
 from dependency_injector import containers, providers
 from django.conf import settings
 
+from features.accounts.repositories.access_request_repository import (
+    AccessRequestRepositoryImpl,
+)
 from features.accounts.repositories.avatar_downloader import HttpAvatarDownloader
+from features.accounts.repositories.managed_account_repository import (
+    ManagedAccountRepositoryImpl,
+)
 from features.accounts.repositories.profile_repository import ProfileRepositoryImpl
 from features.accounts.repositories.refresh_token_repository import RefreshTokenRepositoryImpl
 from features.accounts.repositories.user_repository import UserRepositoryImpl
+from features.accounts.services.access_request_service import AccessRequestService
 from features.accounts.services.account_deletion_service import AccountDeletionService
 from features.accounts.services.google_auth_service import GoogleAuthService
 from features.accounts.services.login_service import LoginService
 from features.accounts.services.password_change_service import PasswordChangeService
+from features.accounts.services.profile_management_service import (
+    ProfileManagementService,
+)
 from features.accounts.services.profile_service import ProfileService
 from features.accounts.services.refresh_service import RefreshService
 from features.accounts.services.register_service import RegisterService
@@ -93,7 +103,9 @@ class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         modules=[
             "core.http.permissions",
+            "features.accounts.views.access_requests",
             "features.accounts.views.account",
+            "features.accounts.views.admin_profiles",
             "features.accounts.views.account_deletion_page",
             "features.accounts.views.auth",
             "features.accounts.views.devices",
@@ -123,6 +135,7 @@ class Container(containers.DeclarativeContainer):
             "features.songs.views.songs",
             "features.members.views.birthdays",
             "features.members.views.members",
+            "features.members.views.own_member",
             "features.members.views.admin_members",
             "features.members.views.admin_member_photo",
             "features.members.views.admin_member_history",
@@ -188,6 +201,25 @@ class Container(containers.DeclarativeContainer):
     doctrine_service = providers.Factory(DoctrineService, doctrine_repository=doctrine_repository)
 
     clock = providers.Singleton(SystemClock)
+
+    # Member access and access requests (specs/022-access-requests).
+    access_request_repository = providers.Factory(AccessRequestRepositoryImpl)
+    managed_account_repository = providers.Factory(ManagedAccountRepositoryImpl)
+    access_request_service = providers.Factory(
+        AccessRequestService,
+        request_repository=access_request_repository,
+        account_repository=managed_account_repository,
+        role_directory=access_service,
+        push_notifier=push_service,
+        clock=clock,
+    )
+    profile_management_service = providers.Factory(
+        ProfileManagementService,
+        request_repository=access_request_repository,
+        account_repository=managed_account_repository,
+        push_notifier=push_service,
+        clock=clock,
+    )
 
     gallery_repository = providers.Factory(GalleryRepositoryImpl, clock=clock)
     album_repository = providers.Factory(AlbumRepositoryImpl, clock=clock)

@@ -10,10 +10,10 @@ class MediaViewer(StrictBaseModel):
     HTTP request. ``own_profile_folder`` is the caller's folder under ``profiles/``, so the
     owner can read their own photo without being a member.
 
-    >>> MediaViewer(is_member=True, can_view_members=False, own_profile_folder="ana.paula")
+    >>> MediaViewer(member_access=True, can_view_members=False, own_profile_folder="ana.paula")
     """
 
-    is_member: bool
+    member_access: bool
     can_view_members: bool
     own_profile_folder: str | None = None
     # `owner` on `gallery`: may read the files of trashed gallery items (spec 014 FR-026).

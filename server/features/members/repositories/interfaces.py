@@ -12,6 +12,7 @@ from features.members.dtos import (
     MemberRecordDTO,
     MemberSummaryDTO,
     NamedRefDTO,
+    OwnMemberRecordDTO,
 )
 
 
@@ -23,6 +24,8 @@ class MemberRepository(Protocol):
     def list_birthdays_by_month_range(
         self, start_month: int, end_month: int
     ) -> list[BirthdayDTO]: ...
+
+    def get_own_record(self, user_id: UUID) -> OwnMemberRecordDTO | None: ...
 
 
 class MemberRosterRepository(Protocol):

@@ -1,6 +1,7 @@
 from collections.abc import Collection
+from uuid import UUID
 
-from features.members.dtos import BirthdayDTO, MemberDTO
+from features.members.dtos import BirthdayDTO, MemberDTO, OwnMemberRecordDTO
 from features.members.models.member import Member
 
 
@@ -26,6 +27,22 @@ class MemberRepositoryImpl:
         """
         qs = Member.objects.order_by("name", "id").values_list("id", "name")
         return [MemberDTO(id=pk, name=name) for pk, name in qs]
+
+    def get_own_record(self, user_id: UUID) -> OwnMemberRecordDTO | None:
+        """The roll record linked to the account ``user_id``, whatever its validity, or None.
+        Reached through the profile's reverse lookup by string, so members never imports
+        accounts.
+
+        >>> repo.get_own_record(ana.pk).ministries
+        ['Infantil', 'Louvor']
+        """
+        member = (
+            Member.objects.select_related("role")
+            .prefetch_related("ministries")
+            .filter(profile__user_id=user_id)
+            .first()
+        )
+        return _own_record(member) if member else None
 
     def existing_ids(self, member_ids: Collection[int]) -> set[int]:
         """The ids among ``member_ids`` that name a member, in one query.
@@ -59,3 +76,17 @@ class MemberRepositoryImpl:
             for name, gender, month, day in qs
             if month is not None and day is not None
         ]
+
+
+def _own_record(member: Member) -> OwnMemberRecordDTO:
+    return OwnMemberRecordDTO(
+        id=member.pk,
+        name=member.name,
+        role=member.role.name if member.role else None,
+        ministries=sorted(ministry.name for ministry in member.ministries.all()),
+        birth_day=member.birth_day,
+        birth_month=member.birth_month,
+        birth_year=member.birth_year,
+        baptism_date=member.baptism_date,
+        gender=member.gender,
+    )

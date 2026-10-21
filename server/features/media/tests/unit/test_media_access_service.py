@@ -22,11 +22,11 @@ from features.media.tests.fakes import (
 GALLERY_FILE = "gallery/retiro-2025/IMG_0042.jpg"
 PROFILE_FILE = "profiles/ana.paula/6f1c2d.png"
 
-MEMBER = MediaViewer(is_member=True, can_view_members=False)
-NON_MEMBER = MediaViewer(is_member=False, can_view_members=False)
-BOTH = MediaViewer(is_member=True, can_view_members=True)
+MEMBER = MediaViewer(member_access=True, can_view_members=False)
+NON_MEMBER = MediaViewer(member_access=False, can_view_members=False)
+BOTH = MediaViewer(member_access=True, can_view_members=True)
 NON_MEMBER_OWNER = MediaViewer(
-    is_member=False, can_view_members=False, own_profile_folder="ana.paula"
+    member_access=False, can_view_members=False, own_profile_folder="ana.paula"
 )
 
 
@@ -122,8 +122,8 @@ class TestMembersFolder:
     @pytest.mark.parametrize(
         "viewer",
         [
-            MediaViewer(is_member=False, can_view_members=True),
-            MediaViewer(is_member=True, can_view_members=True),
+            MediaViewer(member_access=False, can_view_members=True),
+            MediaViewer(member_access=True, can_view_members=True),
         ],
     )
     def test_members_scope_viewer_gets_media_file(self, viewer: MediaViewer) -> None:
@@ -170,8 +170,8 @@ class TestProfileOwner:
             )
 
 
-GALLERY_OWNER_MEMBER = MediaViewer(is_member=True, can_view_members=False, can_own_gallery=True)
-GALLERY_OWNER_ONLY = MediaViewer(is_member=False, can_view_members=False, can_own_gallery=True)
+GALLERY_OWNER_MEMBER = MediaViewer(member_access=True, can_view_members=False, can_own_gallery=True)
+GALLERY_OWNER_ONLY = MediaViewer(member_access=False, can_view_members=False, can_own_gallery=True)
 
 
 class TestTrashedGalleryFiles:
@@ -230,7 +230,7 @@ class TestTrashedGalleryFiles:
 
 PUBLIC_EVENT_FILE = "events/8c41.jpg"
 MEMBERS_EVENT_FILE = "events/77aa.jpg"
-ANONYMOUS = MediaViewer(is_member=False, can_view_members=False)
+ANONYMOUS = MediaViewer(member_access=False, can_view_members=False)
 
 
 class TestEventImages:

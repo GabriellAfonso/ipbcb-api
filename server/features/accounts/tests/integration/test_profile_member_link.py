@@ -46,6 +46,10 @@ class TestProfileResource:
         assert set(data) == {
             "name",
             "is_member",
+            "member_access",
+            "access_status",
+            "access_requests_blocked",
+            "data_correction_pending",
             "photo_url",
             "roles",
             "permissions",
@@ -99,12 +103,12 @@ class TestProfileResource:
     @pytest.mark.parametrize("is_member", [True, False])
     def test_is_member_is_independent_of_the_link(self, is_member: bool) -> None:
         user = make_user(username=f"flag_{is_member}")
-        user.profile.is_member = is_member
+        user.profile.member_access = is_member
         user.profile.save()
         _link(user, _member())
 
         user.profile.refresh_from_db()
-        assert user.profile.is_member is is_member
+        assert user.profile.member_access is is_member
 
 
 @pytest.mark.django_db

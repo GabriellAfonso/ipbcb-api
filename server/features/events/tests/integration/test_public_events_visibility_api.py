@@ -21,8 +21,9 @@ def _ids(client: APIClient) -> list[int]:
 
 
 def _non_member_callers() -> list[APIClient]:
-    owner_client, _ = make_role_client(Role.ADMIN, username="admin_not_member")
-    return [APIClient(), make_auth_client(make_user(username="visitor")), owner_client]
+    # Mídia: a panel role that does not imply member access (specs/022-access-requests FR-002).
+    media_client, _ = make_role_client(Role.MEDIA, username="media_not_member")
+    return [APIClient(), make_auth_client(make_user(username="visitor")), media_client]
 
 
 def test_member_sees_members_events_in_public_order(make_event: MakeEvent) -> None:

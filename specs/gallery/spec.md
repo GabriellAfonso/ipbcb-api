@@ -16,8 +16,7 @@ Write API introduced by `specs/013-gallery-write-api/`; trash, purge and change 
 
 ## Permissions
 
-- **Reads** (`GET`) of the gallery itself and the change feed require membership: `IsMemberUser`
-  (`Profile.is_member`).
+- **Reads** (`GET`) of the gallery itself and the change feed require member access (`Profile.member_access`, or an Admin/Liderança role — `specs/022-access-requests`): `HasMemberAccess`.
 - **Writes** require scope `gallery` (`specs/012-feature-role-permissions/`) at the method's
   default level: `manage` for `POST`/`PUT`/`PATCH`, `owner` for `DELETE`.
 - **Trash** (`GET /api/gallery/trash/`) and **restore** (`POST …/restore/`) require `owner` on
@@ -346,7 +345,7 @@ name then id, `[]` when untagged.
 
 The files behind these URLs are readable only by members: `/ipbcb/media/gallery/...` goes
 through the authenticated media access check (`specs/009-protected-media-access/`), which
-requires the same `Profile.is_member` as the endpoints listing them. Holding the URL is not
+requires the same member access as the endpoints listing them. Holding the URL is not
 enough — the request must carry the member's JWT. Covers and thumbnails live under `gallery/`
 too, so the same rule covers them.
 

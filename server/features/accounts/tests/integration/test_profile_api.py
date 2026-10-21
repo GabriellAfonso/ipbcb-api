@@ -101,7 +101,7 @@ def test_patch_profile_writes_through_the_service(di_container: Container) -> No
     assert response.data["name"] == "Via Serviço"
     assert recording.updates == [{"name": "Via Serviço"}]
     user.profile.refresh_from_db()
-    assert user.profile.is_member is False
+    assert user.profile.member_access is False
 
 
 @pytest.mark.django_db
@@ -196,6 +196,7 @@ ALL_SCOPES = [
     "gallery",
     "events",
     "notices",
+    "profiles",
     "reports.hymnal_history",
 ]
 LEADER_PERMISSIONS = {
@@ -205,6 +206,7 @@ LEADER_PERMISSIONS = {
     "gallery": "owner",
     "events": "owner",
     "notices": "manage",
+    "profiles": "manage",
     "reports.hymnal_history": "view",
 }
 

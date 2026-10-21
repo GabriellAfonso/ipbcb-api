@@ -55,3 +55,13 @@ class PermissionDeniedError(DomainError):
     """
 
     error_code: str = "PERMISSION_DENIED"
+
+
+class RateLimitedError(DomainError):
+    """Raised when a domain rule limits how often an operation may run (a 429). Not a DRF
+    throttle: the limit is a business rule over stored data (specs/022-access-requests R-04).
+
+    >>> raise RateLimitedError("One request per 24 hours.")
+    """
+
+    error_code: str = "RATE_LIMITED"

@@ -20,12 +20,16 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     name = models.CharField(max_length=100, blank=True)
     photo = models.ImageField(upload_to=profile_photo_path, null=True, blank=True)
-    is_member = models.BooleanField(default=False)
-    # The account's record on the church roll, for the app's "photos of me". Set by hand in the
-    # Django admin only: no endpoint writes it and nothing matches names automatically, since a
+    # Gate on member content (renamed from is_member, specs/022-access-requests). The effective
+    # access also counts the Admin and Liderança roles: core.domain.access.has_member_access.
+    member_access = models.BooleanField(default=False)
+    # Set by leaders in "Perfis": a blocked account cannot create access requests.
+    access_requests_blocked = models.BooleanField(default=False)
+    # The account's record on the church roll, for the app's "photos of me". Set by leaders only
+    # (Django admin, or "Perfis" since spec 022) and nothing matches names automatically, since a
     # wrong link would show someone else's photos as "mine". One-to-one, so a member has at most
-    # one profile; independent of is_member (specs/015-gallery-member-tags FR-001–FR-005). Named,
-    # not imported, so accounts never imports the members feature.
+    # one profile; independent of member_access (specs/015-gallery-member-tags FR-001–FR-005).
+    # Named, not imported, so accounts never imports the members feature.
     member = models.OneToOneField(
         "members.Member",
         null=True,

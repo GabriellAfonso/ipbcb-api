@@ -9,6 +9,7 @@ from core.domain.base_exceptions import (
     ValidationError as ValidationError,
     AuthenticationError as AuthenticationError,
     PermissionDeniedError as PermissionDeniedError,
+    RateLimitedError as RateLimitedError,
 )
 from core.domain.gallery_exceptions import (
     AlbumNotFoundError as AlbumNotFoundError,
@@ -44,6 +45,20 @@ from core.domain.account_exceptions import (
     InvalidGoogleConfirmationError as InvalidGoogleConfirmationError,
     GoogleAccountMismatchError as GoogleAccountMismatchError,
     AccountDeletionBlockedError as AccountDeletionBlockedError,
+)
+from core.domain.access_request_exceptions import (
+    AccessRequestsBlockedError as AccessRequestsBlockedError,
+    MemberAccessAlreadyGrantedError as MemberAccessAlreadyGrantedError,
+    AccessRequestPendingError as AccessRequestPendingError,
+    AccessRequestRateLimitedError as AccessRequestRateLimitedError,
+    AccessRequestMessageRequiredError as AccessRequestMessageRequiredError,
+    AccessRequestNotFoundError as AccessRequestNotFoundError,
+    AccessRequestNotPendingError as AccessRequestNotPendingError,
+    ManagedAccountNotFoundError as ManagedAccountNotFoundError,
+    RollMemberNotFoundError as RollMemberNotFoundError,
+    RollMemberAlreadyLinkedError as RollMemberAlreadyLinkedError,
+    MemberNotLinkedError as MemberNotLinkedError,
+    ProfileStatusFilterError as ProfileStatusFilterError,
 )
 from core.domain.setlist_exceptions import (
     NotWorshipMemberError as NotWorshipMemberError,

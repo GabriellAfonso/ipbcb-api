@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.di import Container
-from core.http.permissions import IsMemberUser
+from core.http.permissions import HasMemberAccess
 from features.gallery.serializers.feed_serializers import ChangeFeedSerializer
 from features.gallery.services.gallery_change_feed_service import GalleryChangeFeedService
 
@@ -15,7 +15,7 @@ class GalleryChangesAPIView(APIView):
     app's sync for good (specs/014-gallery-trash-sync, Edge Cases)."""
 
     serializer_class = ChangeFeedSerializer
-    permission_classes = [IsMemberUser]
+    permission_classes = [HasMemberAccess]
 
     @inject
     def get(

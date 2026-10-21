@@ -196,7 +196,7 @@ class TestMembersFolder:
     def test_media_role_gets_403_even_as_member(self, write_media: WriteMedia) -> None:
         write_media(MEMBERS_FILE)
         client, user = make_role_client(Role.MEDIA)
-        user.profile.is_member = True
+        user.profile.member_access = True
         user.profile.save()
         assert client.get(media_url(MEMBERS_FILE)).status_code == 403
 
@@ -224,7 +224,7 @@ class TestDefaultDeny:
     ) -> None:
         write_media(relative_path)
         client, user = make_admin_client()
-        user.profile.is_member = True
+        user.profile.member_access = True
         user.profile.save()
         response = client.get(media_url(relative_path))
         assert response.status_code == 404

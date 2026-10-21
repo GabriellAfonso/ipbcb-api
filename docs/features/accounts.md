@@ -16,6 +16,12 @@ da conta e celulares registrados para receber notificações.
 - Excluir a própria conta: no app (com a senha, ou com o Google se a conta não tem senha) e
   pela página web `conta/excluir/` (exigência da Google Play)
 - Registrar e remover o celular para notificações push (FCM)
+- Acesso de membro (`member_access`, antigo `is_member`): libera rol, aniversários, escala,
+  galeria e eventos de membros. Admin e Liderança têm acesso sempre, mesmo sem a marcação
+- Pedidos à liderança: "Pedir acesso" e "Solicitar correção" dos dados do rol (1 pedido por
+  dia, 1 pendente por tipo); liderança recebe push e responde em "Perfis"
+- "Perfis" (contas do app, diferente de "Membros" = rol): aprovar/negar pedidos, revogar
+  acesso, bloquear pedidos, vincular a conta a um membro do rol
 
 ## Quem acessa
 
@@ -23,7 +29,8 @@ da conta e celulares registrados para receber notificações.
 |---------------|---------------------------------------------------------|
 | Qualquer um   | cadastro, login, renovar, sair, página de exclusão      |
 | Logado        | próprio perfil, foto, senha, exclusão e celulares       |
-| Django admin  | cargos, "é membro", vínculo com membro                  |
+| Admin, Liderança | "Perfis": pedidos, revogar acesso, bloquear, vincular ao rol |
+| Django admin  | cargos, acesso de membro, vínculo com membro            |
 
 ## Endpoints
 
@@ -39,13 +46,23 @@ POST   api/me/password/
 POST   api/me/delete/
 POST   api/me/devices/
 POST   api/me/devices/unregister/
+POST   api/me/access-requests/
+GET    api/admin/profiles/?status=pending|all
+GET    api/admin/profiles/{user_id}/      PATCH
+POST   api/admin/profiles/{user_id}/revoke-access/
+POST   api/admin/profiles/requests/{id}/approve/
+POST   api/admin/profiles/requests/{id}/deny/
 GET    conta/excluir/                     POST   (página HTML, não é API)
 ```
 
 ## Atenção
 
-- Cargos (Admin, Liderança, Mídia), "é membro" e o vínculo conta ↔ membro só mudam pelo
-  **Django admin**. Nenhum endpoint altera isso.
+- Cargos (Admin, Liderança, Mídia) só mudam pelo **Django admin**. Acesso de membro e vínculo
+  conta ↔ membro mudam pelo Django admin ou por "Perfis".
+- `GET api/me/profile/` manda `is_member` **e** `member_access` (mesmo valor) por compatibilidade
+  com versões antigas do app. Remover `is_member` numa feature futura.
+- Nenhum endpoint de pedidos ou "Perfis" lê, mostra ou aceita e-mail (o login Google vincula
+  contas pelo e-mail).
 - Sair (`logout`) invalida só o refresh; o access continua valendo até expirar (até 60 min).
   Para derrubar todas as sessões de alguém, troque a senha da pessoa.
 - O app precisa chamar `devices/unregister/` **antes** do `logout`.

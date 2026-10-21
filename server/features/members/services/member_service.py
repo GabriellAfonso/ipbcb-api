@@ -1,4 +1,7 @@
-from features.members.dtos import BirthdayDTO, MemberDTO
+from uuid import UUID
+
+from core.domain.exceptions import MemberNotLinkedError
+from features.members.dtos import BirthdayDTO, MemberDTO, OwnMemberRecordDTO
 from features.members.repositories.interfaces import MemberRepository
 
 
@@ -21,3 +24,14 @@ class MemberService:
         [BirthdayDTO(name='Alice', birth_month=1, birth_day=5), ...]
         """
         return self._repository.list_birthdays_by_month_range(start_month, end_month)
+
+    def get_own_record(self, user_id: UUID) -> OwnMemberRecordDTO:
+        """The caller's own roll record (specs/022-access-requests FR-023).
+
+        >>> service.get_own_record(ana.pk).role
+        'Diaconisa'
+        """
+        record = self._repository.get_own_record(user_id)
+        if record is None:
+            raise MemberNotLinkedError()
+        return record

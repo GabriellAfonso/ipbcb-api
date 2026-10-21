@@ -1,9 +1,20 @@
+from datetime import datetime
 from typing import IO, Optional, Protocol
 
 from features.accounts.models.profile import Profile
 from features.accounts.models.user import User
 from core.application.dtos.auth_dtos import RegisterDTO
 from uuid import UUID
+
+from features.accounts.domain.access_requests import AccessRequestType
+from features.accounts.dtos import (
+    AccessDecisionDTO,
+    AccessRequestCreateDTO,
+    AccessRequestRecordDTO,
+    AccountAccessFlagsDTO,
+    ManagedAccountDTO,
+    ManagedAccountPatchDTO,
+)
 
 
 class UserRepository(Protocol):
@@ -84,4 +95,60 @@ class ProfileRepository(Protocol):
 
     def update(self, profile: Profile, **fields: object) -> Profile:
         """Atualiza campos do perfil."""
+        ...
+
+
+class AccessRequestRepository(Protocol):
+    """Persistence of access requests (specs/022-access-requests). The only ORM access to them."""
+
+    def latest_created_at(self, user_id: UUID) -> datetime | None:
+        """When the account last made a request of any type and status, or None."""
+        ...
+
+    def pending_types(self, user_id: UUID) -> set[AccessRequestType]:
+        """Types the account has a pending request of."""
+        ...
+
+    def create(self, user_id: UUID, request: AccessRequestCreateDTO) -> AccessRequestRecordDTO:
+        """Insert a pending request; ``AccessRequestPendingError`` when one of the same type is
+        already pending (the store's unique constraint)."""
+        ...
+
+    def get(self, request_id: int) -> AccessRequestRecordDTO | None:
+        """One request, or None."""
+        ...
+
+    def decide(self, request_id: int, decision: AccessDecisionDTO) -> AccessRequestRecordDTO:
+        """Move a pending request to ``decision.status``; ``AccessRequestNotPendingError`` when it
+        is no longer pending, ``AccessRequestNotFoundError`` when it does not exist."""
+        ...
+
+    def list_for_user(self, user_id: UUID) -> list[AccessRequestRecordDTO]:
+        """The account's requests, newest first."""
+        ...
+
+
+class ManagedAccountRepository(Protocol):
+    """App accounts as "Perfis" reads and changes them. Reaches the roll only by string lookups."""
+
+    def access_flags(self, user_id: UUID) -> AccountAccessFlagsDTO:
+        """The profile's stored flags; both False for an account without a profile row."""
+        ...
+
+    def list_accounts(self, pending_only: bool) -> list[ManagedAccountDTO]:
+        """Active accounts with their pending requests: those with a pending request, oldest
+        pending first, or every one by name."""
+        ...
+
+    def get_account(self, user_id: UUID) -> ManagedAccountDTO | None:
+        """One active account with its pending requests, or None."""
+        ...
+
+    def set_member_access(self, user_id: UUID, value: bool) -> None:
+        """Store the member-access flag."""
+        ...
+
+    def update(self, user_id: UUID, patch: ManagedAccountPatchDTO) -> None:
+        """Apply the fields set in ``patch``; ``RollMemberNotFoundError`` for an unknown member,
+        ``RollMemberAlreadyLinkedError`` for one linked to another account."""
         ...

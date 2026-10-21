@@ -44,7 +44,12 @@ class PushService:
             return PushSendReport(failed=len(tokens), aborted=True)
 
     def _finish(self, message: PushMessage, outcome: PushOutcome) -> PushOutcome:
-        fields = {"push_type": message.type.value, "push_date": message.date.isoformat()}
+        # Ids and dates only: never the reason, which is free text (specs/022-access-requests).
+        fields: dict[str, object] = {"push_type": message.type.value}
+        if message.date is not None:
+            fields["push_date"] = message.date.isoformat()
+        if message.request_id is not None:
+            fields["push_request_id"] = message.request_id
         if outcome.disabled:
             logger.warning("push_disabled", extra={**fields, "devices": outcome.devices})
             return outcome

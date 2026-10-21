@@ -1,7 +1,7 @@
 """Every gallery endpoint x every kind of caller (specs/013-gallery-write-api FR-001-FR-003,
 SC-007).
 
-Reads need membership only. Writes need a level on ``gallery``; Admin, Liderança and Mídia all
+Reads need member access (the flag, or Admin/Liderança). Writes need a level on ``gallery``; Admin, Liderança and Mídia all
 hold ``owner``, so every write — ``DELETE`` of a cover included — is open to the three roles and
 closed to a member without a role. Permission is checked before existence, so the write rows use
 ids that do not exist: an allowed caller gets past the permission (404/400), a refused one 403.
@@ -87,9 +87,16 @@ class TestReads:
         assert _member().get(url.format(album=album.pk)).status_code == 200
 
     @pytest.mark.parametrize("url", READS)
-    @pytest.mark.parametrize("caller", ["anonymous", "non_member", *ROLE_CALLERS])
+    @pytest.mark.parametrize("caller", ["admin", "leader"])
+    def test_leadership_reads_without_the_flag(self, url: str, caller: str) -> None:
+        # Admin and Liderança imply member access (specs/022-access-requests FR-002).
+        album = Album.objects.create(name="Retiros")
+        assert ROLE_CALLERS[caller]().get(url.format(album=album.pk)).status_code == 200
+
+    @pytest.mark.parametrize("url", READS)
+    @pytest.mark.parametrize("caller", ["anonymous", "non_member", "media"])
     def test_others_cannot_read(self, url: str, caller: str) -> None:
-        # A role never grants membership (spec 012 FR-011).
+        # Mídia alone never grants member access (specs/022-access-requests FR-002).
         album = Album.objects.create(name="Retiros")
         make = {"anonymous": _anonymous, "non_member": _non_member, **ROLE_CALLERS}[caller]
         expected = 401 if caller == "anonymous" else 403

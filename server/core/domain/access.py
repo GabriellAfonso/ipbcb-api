@@ -25,6 +25,23 @@ ROLE_DISPLAY_NAMES: Mapping[Role, str] = MappingProxyType(
 )
 
 
+# Roles that carry member access without the profile flag (specs/022-access-requests R-02). There
+# is no member role: the app opens the panel for any role, so one would open it to every member.
+MEMBER_ACCESS_ROLES: frozenset[Role] = frozenset({Role.ADMIN, Role.LEADER})
+
+
+def has_member_access(flag: bool, roles: Collection[Role]) -> bool:
+    """Whether an account reaches member content: its ``member_access`` flag, or a leadership
+    role. Mídia alone does not count.
+
+    >>> has_member_access(False, [Role.LEADER])
+    True
+    >>> has_member_access(False, [Role.MEDIA])
+    False
+    """
+    return flag or not MEMBER_ACCESS_ROLES.isdisjoint(roles)
+
+
 class Scope(StrEnum):
     """A feature area of the panel. The value is the wire name. Reports get one scope each
     (``reports.<name>``) so each report can be released to different roles."""
@@ -35,6 +52,9 @@ class Scope(StrEnum):
     GALLERY = "gallery"
     EVENTS = "events"
     NOTICES = "notices"
+    # App accounts and their access requests ("Perfis", specs/022-access-requests) — distinct
+    # from ``members``, the church roll.
+    PROFILES = "profiles"
     REPORTS_HYMNAL_HISTORY = "reports.hymnal_history"
 
 

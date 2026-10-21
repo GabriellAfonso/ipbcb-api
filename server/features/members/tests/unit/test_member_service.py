@@ -1,4 +1,6 @@
-from features.members.dtos import BirthdayDTO, MemberDTO
+from uuid import UUID
+
+from features.members.dtos import BirthdayDTO, MemberDTO, OwnMemberRecordDTO
 from features.members.services.member_service import MemberService
 
 
@@ -15,6 +17,9 @@ class FakeMemberRepository:
         self.last_start_month = start_month
         self.last_end_month = end_month
         return self._birthdays
+
+    def get_own_record(self, user_id: UUID) -> OwnMemberRecordDTO | None:
+        return None
 
 
 class TestMemberService:

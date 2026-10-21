@@ -20,6 +20,7 @@ EXPECTED_ROLE_CODENAMES = {
         "gallery__owner",
         "events__owner",
         "notices__manage",
+        "profiles__manage",
         "reports_hymnal_history__view",
     },
     "media": {
@@ -51,10 +52,10 @@ class TestPanelRolesSeed:
 
     def test_permission_rows_exist_once_each(self) -> None:
         codenames = [p.codename for p in _panel_permissions()]
-        assert len(codenames) == 21
-        assert len(set(codenames)) == 21
+        assert len(codenames) == 24
+        assert len(set(codenames)) == 24
 
     def test_migrating_again_changes_nothing(self) -> None:
         call_command("migrate", verbosity=0)
         assert _role_codenames() == EXPECTED_ROLE_CODENAMES
-        assert len(_panel_permissions()) == 21
+        assert len(_panel_permissions()) == 24

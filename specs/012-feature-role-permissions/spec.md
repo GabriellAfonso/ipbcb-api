@@ -75,7 +75,9 @@ Each entry is a deliberate exception to the method default, with its reason.
 | `Role.LEADER` | Liderança            |
 | `Role.MEDIA`  | Mídia                |
 
-- There is **no** member role. Membership stays the `Profile.is_member` flag. Membership and
+- There is **no** member role. Member access stays the `Profile.member_access` flag (renamed
+  from `is_member` by `specs/022-access-requests`), and the Admin and Liderança roles imply
+  it (a role still never requires it, and it still never grants a level). Membership and
   roles are orthogonal: a role never requires membership, and membership never grants a role.
 - A user may hold several roles; their permissions are the **union** (highest level per scope).
 - The media role's identifier collides with the `features/media` feature, so code always refers
@@ -91,6 +93,7 @@ Each entry is a deliberate exception to the method default, with its reason.
 | `gallery`                | owner | owner  | owner  |
 | `events`                 | owner | owner  | owner  |
 | `notices`                | owner | manage | manage |
+| `profiles`               | owner | manage | —      |
 | `reports.hymnal_history` | owner | view   | view   |
 
 "—" = no access at all to that scope's management endpoints, not even read.
@@ -219,6 +222,21 @@ Added by feature 020 (`specs/020-church-events/`). Admin, Liderança and Mídia 
 
 `GET api/events/` and `GET api/events/{id}/` are public (membership adds members-only events),
 outside this classification.
+
+### profiles
+
+Added by feature 022 (`specs/022-access-requests/`): app accounts and their access requests
+("Perfis"), distinct from `members` (the roll). Liderança gets `manage` by data migration
+`core/0010_profiles_scope_for_leader.py`; Mídia nothing.
+
+| Method | Endpoint                                              | Scope      | Level  | Why     |
+|--------|-------------------------------------------------------|------------|--------|---------|
+| GET    | `api/admin/profiles/`                                 | `profiles` | view   | default |
+| GET    | `api/admin/profiles/{user_id}/`                       | `profiles` | view   | default |
+| PATCH  | `api/admin/profiles/{user_id}/`                       | `profiles` | manage | default — block requests, link to the roll |
+| POST   | `api/admin/profiles/{user_id}/revoke-access/`         | `profiles` | manage | default |
+| POST   | `api/admin/profiles/requests/{request_id}/approve/`   | `profiles` | manage | default |
+| POST   | `api/admin/profiles/requests/{request_id}/deny/`      | `profiles` | manage | default |
 
 ### gallery reads
 

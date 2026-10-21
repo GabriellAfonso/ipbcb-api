@@ -19,6 +19,7 @@ from core.domain.exceptions import (
     DomainError,
     NotFoundError,
     PermissionDeniedError,
+    RateLimitedError,
     ValidationError,
 )
 
@@ -30,6 +31,7 @@ _DOMAIN_STATUS_MAP: dict[type[DomainError], int] = {
     ConflictError: status.HTTP_409_CONFLICT,
     AuthenticationError: status.HTTP_401_UNAUTHORIZED,
     PermissionDeniedError: status.HTTP_403_FORBIDDEN,
+    RateLimitedError: status.HTTP_429_TOO_MANY_REQUESTS,
 }
 
 

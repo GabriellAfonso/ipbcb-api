@@ -10,7 +10,7 @@ from django.http import FileResponse, HttpResponse, HttpResponseBase
 
 from config.di import Container
 from core.domain.access import Level, Scope
-from core.http.permissions import IsMemberUser, scope_permission
+from core.http.permissions import HasMemberAccess, scope_permission
 from features.accounts.validators import profile_photo_folder
 from features.media.domain.media_rules import admits_anonymous, first_segment
 from features.media.dtos.media_dtos import MediaFile, MediaViewer
@@ -58,10 +58,10 @@ class MediaFileAPIView(APIView):
     def _viewer(self, request: Request, is_gallery: bool) -> MediaViewer:
         if not request.user.is_authenticated:
             # Only reachable for events/ (IsAuthenticatedOrEventImage): no flags, no own folder.
-            return MediaViewer(is_member=False, can_view_members=False)
+            return MediaViewer(member_access=False, can_view_members=False)
         # The same permission classes every other endpoint uses, so the flags are read one way.
         return MediaViewer(
-            is_member=IsMemberUser().has_permission(request, self),
+            member_access=HasMemberAccess().has_permission(request, self),
             # GET/HEAD only, so the required level is "view" (specs/012 FR-017).
             can_view_members=scope_permission(Scope.MEMBERS)().has_permission(request, self),
             own_profile_folder=profile_photo_folder(request.user.username, str(request.user.pk)),

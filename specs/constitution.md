@@ -7,15 +7,17 @@ Rules that no domain can break. These apply globally across the entire system.
 - Permission class `IsAuthenticated` on every authenticated view
 - No endpoint bypasses auth unless explicitly marked public
 - Every management endpoint declares exactly one **scope** (`members`, `schedule`, `songs`,
-  `gallery`, `events`, `notices`, `reports.<name>`) through
+  `gallery`, `events`, `notices`, `profiles`, `reports.<name>`) through
   `core.http.permissions.scope_permission`. The required level comes from the method — `GET`
   `view`, `POST`/`PUT`/`PATCH` `manage`, `DELETE` `owner` — or from a per-endpoint override,
   which may only raise it. The one exception is a method the endpoint names in `lowered=`,
   which must be listed in `specs/012-feature-role-permissions/spec.md` (Lowered overrides) with
   its reason. Levels come from **roles** alone (Admin, Liderança, Mídia — Django
   groups); Admin is `owner` of every scope in code. The superuser flag, `is_staff`, direct user
-  permissions and other groups grant nothing in the panel. Church membership (`is_member`) is a
-  separate axis and never grants a level. Design and role matrix in
+  permissions and other groups grant nothing in the panel. Member access (`Profile.member_access`,
+  renamed from `is_member`) is a separate axis and never grants a level; the other way round,
+  the Admin and Liderança roles imply member access (`core.domain.access.has_member_access`,
+  `specs/022-access-requests`). There is no member role. Design and role matrix in
   `specs/012-feature-role-permissions/`.
 - Every path that checks a password is behind failed-attempt lockout (`django-axes`), the API
   login and the Django admin login alike. DRF throttles do not reach the admin — it is a plain

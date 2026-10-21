@@ -1,4 +1,4 @@
-from typing import cast
+from typing import NamedTuple, cast
 
 from dependency_injector.wiring import inject, Provide
 from rest_framework import status
@@ -8,8 +8,10 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from features.accounts.models.profile import Profile
 from features.accounts.models.user import User
 from features.accounts.serializers.serializers import ProfileSerializer
+from features.accounts.services.access_request_service import AccessRequestService
 from features.accounts.services.profile_service import ProfileService
 from config.di import Container
 from core.application.access_service import AccessService
@@ -67,12 +69,13 @@ class MeProfileAPIView(APIView):
         profile_service: ProfileService = Provide[Container.profile_service],
         access_service: AccessService = Provide[Container.access_service],
         worship_access_service: WorshipAccessService = Provide[Container.worship_access_service],
+        access_request_service: AccessRequestService = Provide[Container.access_request_service],
     ) -> Response:
         user = cast(User, request.user)
         profile = profile_service.get_profile(user)
+        services = _ContextServices(access_service, worship_access_service, access_request_service)
         serializer = ProfileSerializer(
-            profile,
-            context=_serializer_context(request, user, access_service, worship_access_service),
+            profile, context=_serializer_context(request, user, profile, services)
         )
         data = serializer.data
         return _not_modified_or_response(request, data, private=True)
@@ -84,9 +87,12 @@ class MeProfileAPIView(APIView):
         profile_service: ProfileService = Provide[Container.profile_service],
         access_service: AccessService = Provide[Container.access_service],
         worship_access_service: WorshipAccessService = Provide[Container.worship_access_service],
+        access_request_service: AccessRequestService = Provide[Container.access_request_service],
     ) -> Response:
         user = cast(User, request.user)
-        context = _serializer_context(request, user, access_service, worship_access_service)
+        profile = profile_service.get_profile(user)
+        services = _ContextServices(access_service, worship_access_service, access_request_service)
+        context = _serializer_context(request, user, profile, services)
         # The serializer only validates; the write goes through the service like every other
         # one. Read-only fields never reach validated_data, so only `name` can be written.
         serializer = ProfileSerializer(data=request.data, partial=True, context=context)
@@ -95,22 +101,29 @@ class MeProfileAPIView(APIView):
         return Response(ProfileSerializer(profile, context=context).data, status=status.HTTP_200_OK)
 
 
+class _ContextServices(NamedTuple):
+    access: AccessService
+    worship: WorshipAccessService
+    access_requests: AccessRequestService
+
+
 def _serializer_context(
-    request: Request,
-    user: User,
-    access_service: AccessService,
-    worship_access_service: WorshipAccessService,
+    request: Request, user: User, profile: Profile, services: _ContextServices
 ) -> dict[str, object]:
     """The profile carries the caller's panel roles, so the app decides from one read whether
-    to show the panel (specs/012-feature-role-permissions US4), and the worship flags, so it
-    knows whether to offer setlist screens (specs/017-sunday-setlist-push US4).
+    to show the panel (specs/012-feature-role-permissions US4), the worship flags, so it
+    knows whether to offer setlist screens (specs/017-sunday-setlist-push US4), and the member
+    access state, so it knows which screens to lock (specs/022-access-requests FR-004).
 
-    >>> _serializer_context(request, user, access_service, worship)["access_grants"].roles
+    >>> _serializer_context(request, user, profile, services)["access_grants"].roles
     [<Role.LEADER: 'leader'>]
     """
-    grants = access_service.grants_for(user.pk)
+    grants = services.access.grants_for(user.pk)
     return {
         "request": request,
         "access_grants": grants,
-        "worship_flags": worship_access_service.flags_for(user.pk, grants),
+        "worship_flags": services.worship.flags_for(user.pk, grants),
+        "member_access_state": services.access_requests.access_state(
+            user.pk, profile.member_access, grants.roles
+        ),
     }

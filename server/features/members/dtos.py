@@ -20,6 +20,21 @@ class BirthdayDTO(BaseModel):
     birth_day: int
 
 
+class OwnMemberRecordDTO(BaseModel):
+    """An account's own roll record, as its profile shows it (specs/022-access-requests FR-023).
+    Names only for role and ministries; no status, photo or history."""
+
+    id: int
+    name: str
+    role: str | None
+    ministries: list[str]
+    birth_day: int | None
+    birth_month: int | None
+    birth_year: int | None
+    baptism_date: date | None
+    gender: str | None
+
+
 class NamedRefDTO(BaseModel):
     """A status, role or ministry as the app shows it: id to send back, name to display."""
 

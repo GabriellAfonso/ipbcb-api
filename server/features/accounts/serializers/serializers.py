@@ -14,6 +14,7 @@ from core.application.dtos.account_dtos import AccountDeletionDTO, PasswordChang
 from core.application.dtos.auth_dtos import RegisterDTO
 from core.application.dtos.worship_dtos import WorshipFlagsDTO
 from core.domain.access import ROLE_DISPLAY_NAMES, Scope
+from features.accounts.dtos import MemberAccessStateDTO
 
 
 # Named, not taken from settings.TIME_ZONE: the contract fixes the zone of `date_joined`
@@ -177,12 +178,23 @@ class ProfileSerializer(serializers.ModelSerializer[Profile]):
     username = serializers.CharField(source="user.username", read_only=True)
     has_password = serializers.SerializerMethodField()
     date_joined = serializers.SerializerMethodField()
+    # Member access (specs/022-access-requests FR-004), from ``context["member_access_state"]``.
+    # ``is_member`` is the old name of ``member_access``, kept with the same value for the app
+    # versions that still read it.
+    member_access = serializers.SerializerMethodField()
+    is_member = serializers.SerializerMethodField()
+    access_status = serializers.SerializerMethodField()
+    data_correction_pending = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
         fields = [
             "name",
             "is_member",
+            "member_access",
+            "access_status",
+            "access_requests_blocked",
+            "data_correction_pending",
             "photo_url",
             "roles",
             "permissions",
@@ -195,6 +207,10 @@ class ProfileSerializer(serializers.ModelSerializer[Profile]):
         ]
         read_only_fields = [
             "is_member",
+            "member_access",
+            "access_status",
+            "access_requests_blocked",
+            "data_correction_pending",
             "photo_url",
             "roles",
             "permissions",
@@ -231,6 +247,43 @@ class ProfileSerializer(serializers.ModelSerializer[Profile]):
         '2025-03-14'
         """
         return localtime(obj.user.date_joined, CHURCH_TIME_ZONE).date().isoformat()
+
+    def _member_access_state(self) -> MemberAccessStateDTO:
+        # Same guard as _access_grants: a silent False would lock a leader out of every
+        # member screen in the app without any error.
+        state = self.context.get("member_access_state")
+        if not isinstance(state, MemberAccessStateDTO):
+            raise KeyError(
+                f"ProfileSerializer needs context['member_access_state'] as MemberAccessStateDTO, "
+                f"got {type(state).__name__}."
+            )
+        return state
+
+    def get_member_access(self, obj: Profile) -> bool:
+        """The effective access — flag or leadership role — not the stored flag.
+
+        >>> serializer.get_member_access(leader_profile)
+        True
+        """
+        return self._member_access_state().member_access
+
+    def get_is_member(self, obj: Profile) -> bool:
+        """>>> serializer.get_is_member(profile) == serializer.get_member_access(profile)
+        True
+        """
+        return self._member_access_state().member_access
+
+    def get_access_status(self, obj: Profile) -> str:
+        """>>> serializer.get_access_status(profile)
+        'pending'
+        """
+        return self._member_access_state().access_status.value
+
+    def get_data_correction_pending(self, obj: Profile) -> bool:
+        """>>> serializer.get_data_correction_pending(profile)
+        False
+        """
+        return self._member_access_state().data_correction_pending
 
     def _access_grants(self) -> AccessGrantsDTO:
         # No silent default: a view that forgot to pass the grants would tell the app the user

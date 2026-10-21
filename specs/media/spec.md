@@ -45,7 +45,7 @@ trash lookup and the event image lookup below.
 
 | First segment | Who may read |
 |---|---|
-| `gallery`  | members (`Profile.is_member`). A file of a trashed photo or album: only `owner` on `gallery`, `404` to anyone else |
+| `gallery`  | member access (`Profile.member_access`, or an Admin/Liderança role). A file of a trashed photo or album: only `owner` on `gallery`, `404` to anyone else |
 | `profiles` | members (any profile), or the photo's owner, member or not |
 | `members`  | `view` on `members` (Admin, Liderança), membership not required |
 | `events`   | decided by the file's event: a `public` event's image — anyone, with or without a token; a `members` event's image — members only; anyone else, and any file that is no event's image — `404` |
@@ -108,7 +108,7 @@ All in `core/domain/exceptions.py`, mapped by the project's exception handler.
 ## Architecture
 
 ```
-MediaFileAPIView                       builds MediaViewer from IsMemberUser,
+MediaFileAPIView                       builds MediaViewer from HasMemberAccess,
   -> MediaAccessService                scope_permission(MEMBERS), scope_permission(GALLERY, owner)
       -> media_rules (pure)            path validation, folder rules, content type
       -> MediaFileRepository (Protocol) <- FilesystemMediaRepository

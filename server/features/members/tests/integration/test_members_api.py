@@ -39,7 +39,7 @@ class TestMemberListAPIView:
 
     def test_media_role_with_membership_returns_200(self) -> None:
         client, user = make_role_client(Role.MEDIA)
-        user.profile.is_member = True
+        user.profile.member_access = True
         user.profile.save()
         assert client.get(ENDPOINT).status_code == 200
 

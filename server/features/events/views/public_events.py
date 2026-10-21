@@ -13,16 +13,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.di import Container
-from core.http.permissions import IsMemberUser
+from core.http.permissions import HasMemberAccess
 from core.http.utils import _not_modified_or_response
 from features.events.serializers import EventPublicSerializer
 from features.events.services.event_service import EventService
 from features.events.views.responses import public_body, public_list_body
 
 
-def _is_member(request: Request, view: APIView) -> bool:
+def _has_member_access(request: Request, view: APIView) -> bool:
     # The same check the media view uses, so "member" means one thing everywhere.
-    return IsMemberUser().has_permission(request, view)
+    return HasMemberAccess().has_permission(request, view)
 
 
 class PublicEventListAPIView(APIView):
@@ -35,7 +35,7 @@ class PublicEventListAPIView(APIView):
         request: Request,
         event_service: EventService = Provide[Container.event_service],
     ) -> Response:
-        records = event_service.list_visible(include_members=_is_member(request, self))
+        records = event_service.list_visible(include_members=_has_member_access(request, self))
         body = public_list_body(request, event_service, records)
         return _not_modified_or_response(request, body, private=True)
 
@@ -51,6 +51,8 @@ class PublicEventDetailAPIView(APIView):
         event_id: int,
         event_service: EventService = Provide[Container.event_service],
     ) -> Response:
-        record = event_service.get_visible(event_id, include_members=_is_member(request, self))
+        record = event_service.get_visible(
+            event_id, include_members=_has_member_access(request, self)
+        )
         body = public_body(request, event_service, record)
         return _not_modified_or_response(request, body, private=True)

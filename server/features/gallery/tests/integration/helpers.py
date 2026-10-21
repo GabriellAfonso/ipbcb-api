@@ -40,7 +40,7 @@ def text_file(name: str = "notes.jpg") -> io.BytesIO:
 def gallery_manager(role: Role = Role.MEDIA, username: str = "media_manager") -> APIClient:
     """A role holder who is also a member, so the same client can write and read back."""
     client, user = make_role_client(role, username=username)
-    user.profile.is_member = True
+    user.profile.member_access = True
     user.profile.save()
     return client
 

@@ -11,13 +11,13 @@ from config.di import Container
 from core.domain.access import Scope
 from core.domain.exceptions import ValidationError
 from core.http.parsing import require_int, require_object_body
-from core.http.permissions import IsMemberUser, scope_permission
+from core.http.permissions import HasMemberAccess, scope_permission
 from core.http.utils import _not_modified_or_response
 from features.schedule.services.schedule_service import ScheduleService
 
 
 class CurrentMonthlyScheduleAPI(APIView):
-    permission_classes = [IsMemberUser]
+    permission_classes = [HasMemberAccess]
 
     @staticmethod
     @inject

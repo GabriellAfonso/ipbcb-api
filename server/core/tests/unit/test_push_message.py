@@ -10,4 +10,31 @@ def test_data_values_are_strings() -> None:
 
 
 def test_wire_types() -> None:
-    assert {t.value for t in PushMessageType} == {"setlist_saved", "confirm_plays"}
+    assert {t.value for t in PushMessageType} == {
+        "setlist_saved",
+        "confirm_plays",
+        "access_request_created",
+        "access_request_approved",
+        "access_request_denied",
+    }
+
+
+def test_request_message_carries_only_the_fields_set() -> None:
+    message = PushMessage(
+        type=PushMessageType.ACCESS_REQUEST_DENIED, request_id=41, request_type="access"
+    )
+    assert message.as_data() == {
+        "type": "access_request_denied",
+        "request_id": "41",
+        "request_type": "access",
+    }
+
+
+def test_denial_reason_reaches_the_payload() -> None:
+    message = PushMessage(
+        type=PushMessageType.ACCESS_REQUEST_DENIED,
+        request_id=41,
+        request_type="access",
+        reason="Procure o pastor.",
+    )
+    assert message.as_data()["reason"] == "Procure o pastor."

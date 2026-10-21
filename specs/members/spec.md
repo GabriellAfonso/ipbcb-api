@@ -108,7 +108,7 @@ Management DTOs (`NamedRefDTO`, `MemberSummaryDTO`, `MemberRecordDTO`, `MemberCr
 ## Endpoints
 
 ### GET `api/members/`
-- `IsAuthenticated` + (`IsMemberUser` **or** `view` on scope `schedule`). The second branch is
+- `IsAuthenticated` + (`HasMemberAccess` **or** `view` on scope `schedule`). The second branch is
   for the schedule screen: it lists members to roster, and a role holder who manages the
   schedule (Admin, Liderança) is not necessarily flagged as a member. Mídia, without
   `schedule`, still needs membership (`specs/012-feature-role-permissions/`, FR-031).
@@ -116,13 +116,24 @@ Management DTOs (`NamedRefDTO`, `MemberSummaryDTO`, `MemberRecordDTO`, `MemberCr
   name
 
 ### GET `api/members/birthdays/?month=M` or `?month=M-M`
-- `IsAuthenticated` + `IsMemberUser`
+- `IsAuthenticated` + `HasMemberAccess`
 - `month`: single month (`7`) or inclusive range (`1-6`), each 1-12, start <= end
 - Returns `{"birthdays": [{"name", "gender", "birth_month", "birth_day"}]}`, valid profiles
   with both `birth_day` and `birth_month` set and the month in the range, ordered by month then
   day. Members with only a year, or no birth information, never appear. 29/02 is shown as day
   29 in every year.
 - Invalid `month`: 400
+
+### GET `api/me/member/` (`specs/022-access-requests` FR-023)
+- `IsAuthenticated` only: the caller's **own** record, the one its profile is linked to
+  (`Profile.member`), valid or not, with or without member access
+- Returns `{"id", "name", "role", "ministries", "birth_day", "birth_month", "birth_year",
+  "baptism_date", "gender"}` — `role` and `ministries` as names (ministries sorted)
+- `Cache-Control: private, no-store`, `Vary: Authorization`, **no ETag**: the app keeps it in
+  memory only. Never part of `api/me/profile/`, which the app writes to disk
+- No linked record: 404 `MEMBER_NOT_LINKED`
+- The record is found by `profile__user_id` (reverse lookup by string): members never imports
+  accounts
 
 ### Management endpoints
 
@@ -198,13 +209,14 @@ responses are private: `Cache-Control: private, no-store`, `Vary: Authorization`
 | Invalid `month` | 400 | `VALIDATION_ERROR` |
 | Invalid write body or photo | 400 | `VALIDATION_ERROR` |
 | Unknown member id | 404 | `NOT_FOUND` |
+| `api/me/member/` without a linked record | 404 | `MEMBER_NOT_LINKED` |
 
 ---
 
 ## Architecture
 
 ```
-MemberListAPIView / MemberBirthdaysAPIView
+MemberListAPIView / MemberBirthdaysAPIView / OwnMemberAPIView
   -> MemberService
     -> MemberRepository (Protocol) <- MemberRepositoryImpl (ORM)
 ```

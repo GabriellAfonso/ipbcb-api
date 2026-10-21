@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.di import Container
-from core.http.permissions import IsMemberUser
+from core.http.permissions import HasMemberAccess
 from features.members.serializers.birthday_serializer import (
     BirthdayQueryParamSerializer,
     BirthdayResponseSerializer,
@@ -15,7 +15,7 @@ from features.members.services.member_service import MemberService
 
 
 class MemberBirthdaysAPIView(APIView):
-    permission_classes = [IsAuthenticated, IsMemberUser]
+    permission_classes = [IsAuthenticated, HasMemberAccess]
 
     @inject
     def get(

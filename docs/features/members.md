@@ -18,7 +18,8 @@ gerenciam o cadastro completo, com histórico de alterações.
 
 | Quem      | O quê                                      |
 |-----------|--------------------------------------------|
-| Membro    | lista + aniversários                       |
+| Membro    | lista + aniversários (acesso de membro, ou Admin/Liderança) |
+| Logado    | o próprio registro do rol (`api/me/member/`) |
 | Liderança | gestão completa, menos apagar              |
 | Admin     | tudo                                       |
 | Mídia     | só nomes, para marcar pessoas nas fotos    |
@@ -28,6 +29,7 @@ gerenciam o cadastro completo, com histórico de alterações.
 ```
 GET    api/members/
 GET    api/members/birthdays/?month=7   ou   ?month=1-6
+GET    api/me/member/                     (próprio registro; nunca em cache)
 GET    api/admin/members/                 POST
 GET    api/admin/members/{id}/            PATCH   DELETE
 PUT    api/admin/members/{id}/photo/      DELETE

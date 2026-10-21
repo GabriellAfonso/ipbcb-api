@@ -17,7 +17,7 @@ from core.http.parsing import (
     require_int_list,
     require_object_body,
 )
-from core.http.permissions import IsMemberUser, scope_permission
+from core.http.permissions import HasMemberAccess, scope_permission
 from features.gallery.dtos.gallery_dtos import PhotoChanges, UploadResult
 from features.gallery.serializers.serializers import (
     PhotoOrderSerializer,
@@ -99,7 +99,7 @@ class AlbumPhotoListAPIView(APIView):
     """Photos directly in one album; 404 for an unknown album."""
 
     serializer_class = PhotoSerializer
-    permission_classes = [IsMemberUser]
+    permission_classes = [HasMemberAccess]
 
     @inject
     def get(

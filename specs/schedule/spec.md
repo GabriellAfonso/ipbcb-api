@@ -89,7 +89,7 @@ Prefixed with the base path (`/ipbcb/`).
 
 The current month's rota, grouped by service.
 
-- **Auth**: `IsMemberUser`
+- **Auth**: `HasMemberAccess` (flag or Admin/Liderança)
 - **Response**: `200` with ETag support (304 if unchanged)
 - **Body**:
   ```json

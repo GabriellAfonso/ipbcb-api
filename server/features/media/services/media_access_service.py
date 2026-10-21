@@ -105,21 +105,21 @@ class MediaAccessService:
     def _check_gallery_file(self, path: str, viewer: MediaViewer) -> None:
         """Membership, plus the trash rule of spec 014: a trashed item's file is ``404`` to a
         member and readable with ``owner``. Callers who are both, or neither, need no lookup."""
-        if viewer.is_member and viewer.can_own_gallery:
+        if viewer.member_access and viewer.can_own_gallery:
             return
-        if not (viewer.is_member or viewer.can_own_gallery):
+        if not (viewer.member_access or viewer.can_own_gallery):
             raise MediaAccessDeniedError(GALLERY_FOLDER)
         trashed = self._trashed.is_trashed(path)
         if trashed and not viewer.can_own_gallery:
             raise MediaFileTrashedError(path)
-        if not trashed and not viewer.is_member:
+        if not trashed and not viewer.member_access:
             raise MediaAccessDeniedError(GALLERY_FOLDER)
 
     def _check_event_image(self, path: str, viewer: MediaViewer) -> None:
         """A members event's image is ``404`` to a non-member, exactly like a file that is no
         event's image: whoever may not see the event must not learn it exists (spec 020 FR-010)."""
         is_public = self._event_images.is_public_event_image(path)
-        if is_public is None or (not is_public and not viewer.is_member):
+        if is_public is None or (not is_public and not viewer.member_access):
             raise MediaFileNotFoundError(path)
 
     def _located_file(self, path: str) -> MediaFile:
@@ -149,4 +149,4 @@ def _viewer_may_read(path: str, viewer: MediaViewer, audience: MediaAudience) ->
 def _viewer_in_audience(viewer: MediaViewer, audience: MediaAudience) -> bool:
     if audience is MediaAudience.MEMBERS_SCOPE:
         return viewer.can_view_members
-    return viewer.is_member
+    return viewer.member_access

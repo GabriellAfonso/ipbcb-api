@@ -19,6 +19,8 @@ LEADER_CODENAMES = {
     # Raised from manage by core/0008 (specs/020-church-events FR-014).
     "events__owner",
     "notices__manage",
+    # Added by core/0010 (specs/022-access-requests FR-011).
+    "profiles__manage",
     "reports_hymnal_history__view",
 }
 

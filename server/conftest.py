@@ -53,7 +53,7 @@ def make_admin_client() -> tuple[APIClient, User]:
 def make_member_client() -> tuple[APIClient, User]:
     """Return (client, user) for a member user."""
     user = make_user(username="member_user", password="memberpass123")  # nosec B106
-    user.profile.is_member = True
+    user.profile.member_access = True
     user.profile.save()
     return make_auth_client(user), user
 

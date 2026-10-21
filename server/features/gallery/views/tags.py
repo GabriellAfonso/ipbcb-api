@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from config.di import Container
 from core.domain.access import Level, Scope
 from core.http.parsing import require_object_body
-from core.http.permissions import IsMemberUser, scope_permission
+from core.http.permissions import HasMemberAccess, scope_permission
 from core.http.utils import _not_modified_or_response
 from features.gallery.dtos.tag_dtos import PhotoMembersReplace, PhotoTagsBulkChange
 from features.gallery.serializers.serializers import MemberRefSerializer, PhotoSerializer
@@ -91,7 +91,7 @@ class TaggedMembersAPIView(APIView):
     """``GET`` the members tagged in at least one live photo, with how many."""
 
     serializer_class = TaggedMemberSerializer
-    permission_classes = [IsMemberUser]
+    permission_classes = [HasMemberAccess]
 
     @inject
     def get(

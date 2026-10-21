@@ -1,4 +1,4 @@
-from datetime import date
+import datetime as dt
 
 from pydantic import ConfigDict
 
@@ -7,21 +7,35 @@ from core.domain.push import PushMessageType
 
 
 class PushMessage(StrictBaseModel):
-    """One data message: what happened and for which Sunday. Carries nothing else — no song,
-    member or user data (spec 017 FR-011).
+    """One data message: what happened and what it is about — a Sunday (``date``) or an access
+    request (``request_id``, ``request_type``). Carries no song, member or user data (spec 017
+    FR-011). The one free text is a denial ``reason``, written by a leader to the person who
+    receives it (specs/022-access-requests R-05). Only the fields set reach the payload.
 
-    >>> PushMessage(type=PushMessageType.SETLIST_SAVED, date=date(2026, 10, 4)).as_data()
+    >>> PushMessage(type=PushMessageType.SETLIST_SAVED, date=dt.date(2026, 10, 4)).as_data()
     {'type': 'setlist_saved', 'date': '2026-10-04'}
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     type: PushMessageType
-    date: date
+    # Module-qualified: a field named "date" with a None default shadows the type in the class
+    # namespace while pydantic evaluates the annotation.
+    date: dt.date | None = None
+    request_id: int | None = None
+    request_type: str | None = None
+    reason: str | None = None
 
     def as_data(self) -> dict[str, str]:
         """The FCM ``data`` payload, whose values must all be strings."""
-        return {"type": self.type.value, "date": self.date.isoformat()}
+        data = {"type": self.type.value}
+        if self.date is not None:
+            data["date"] = self.date.isoformat()
+        for key in ("request_id", "request_type", "reason"):
+            value = getattr(self, key)
+            if value is not None:
+                data[key] = str(value)
+        return data
 
 
 class PushSendReport(StrictBaseModel):

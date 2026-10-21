@@ -99,6 +99,7 @@ _ALL_SCOPES = [
     "gallery",
     "events",
     "notices",
+    "profiles",
     "reports.hymnal_history",
 ]
 ROLE_LEVELS: dict[Role, dict[str, Level]] = {
@@ -110,6 +111,7 @@ ROLE_LEVELS: dict[Role, dict[str, Level]] = {
         "gallery": Level.OWNER,
         "events": Level.OWNER,
         "notices": Level.MANAGE,
+        "profiles": Level.MANAGE,
         "reports.hymnal_history": Level.VIEW,
     },
     Role.MEDIA: {
