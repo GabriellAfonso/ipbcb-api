@@ -201,7 +201,7 @@ LEADER_PERMISSIONS = {
     "schedule": "manage",
     "songs": "manage",
     "gallery": "owner",
-    "events": "manage",
+    "events": "owner",
     "notices": "manage",
     "reports.hymnal_history": "view",
 }
@@ -259,3 +259,11 @@ class TestProfileRoles:
         user.groups.add(Group.objects.get(name=Role.LEADER.value))
         response = client.get(PROFILE_URL, HTTP_IF_NONE_MATCH=etag)
         assert response.status_code == 200
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("role", [Role.ADMIN, Role.LEADER, Role.MEDIA])
+def test_every_panel_role_owns_events(role: Role) -> None:
+    # specs/020-church-events FR-014: the three roles run events together, deleting included.
+    client, _ = make_role_client(role)
+    assert client.get(PROFILE_URL).data["permissions"]["events"] == "owner"

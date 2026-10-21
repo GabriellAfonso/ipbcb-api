@@ -84,6 +84,12 @@ ENDPOINTS: list[tuple[str, str, str, Level]] = [
     ("PUT", f"/api/photos/{MISSING_ID}/members/", "gallery", Level.MANAGE),
     ("POST", "/api/photos/members/", "gallery", Level.MANAGE),
     ("GET", "/api/gallery/taggable-members/", "gallery", Level.MANAGE),
+    # events (specs/020-church-events)
+    ("GET", "/api/admin/events/", "events", Level.VIEW),
+    ("POST", "/api/admin/events/", "events", Level.MANAGE),
+    ("GET", f"/api/admin/events/{MISSING_ID}/", "events", Level.VIEW),
+    ("PATCH", f"/api/admin/events/{MISSING_ID}/", "events", Level.MANAGE),
+    ("DELETE", f"/api/admin/events/{MISSING_ID}/", "events", Level.OWNER),
 ]
 
 _ALL_SCOPES = [
@@ -102,13 +108,13 @@ ROLE_LEVELS: dict[Role, dict[str, Level]] = {
         "schedule": Level.MANAGE,
         "songs": Level.MANAGE,
         "gallery": Level.OWNER,
-        "events": Level.MANAGE,
+        "events": Level.OWNER,
         "notices": Level.MANAGE,
         "reports.hymnal_history": Level.VIEW,
     },
     Role.MEDIA: {
         "gallery": Level.OWNER,
-        "events": Level.MANAGE,
+        "events": Level.OWNER,
         "notices": Level.MANAGE,
         "reports.hymnal_history": Level.VIEW,
     },
@@ -173,8 +179,11 @@ def test_anonymous_is_401(row: tuple[str, str, str, Level]) -> None:
 
 @pytest.mark.django_db
 def test_leader_gets_403_on_every_delete() -> None:
-    # Outside `gallery`, where Liderança holds owner since feature 013 (spec 012 SC-002).
-    deletes = [row for row in ENDPOINTS if row[0] == "DELETE" and row[2] != "gallery"]
+    # Outside `gallery` and `events`, where Liderança holds owner since features 013 and 020
+    # (spec 012 SC-002).
+    deletes = [
+        row for row in ENDPOINTS if row[0] == "DELETE" and row[2] not in ("gallery", "events")
+    ]
     assert deletes, "the classification lists DELETE endpoints"
     client, _ = make_role_client(Role.LEADER)
     for method, url, _, _ in deletes:

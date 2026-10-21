@@ -4,6 +4,7 @@ from core.domain.exceptions import MediaPathRejectedError
 
 from features.media.domain.media_rules import (
     MediaAudience,
+    admits_anonymous,
     audience_for_folder,
     content_type_for,
     first_segment,
@@ -19,6 +20,9 @@ class TestAudienceForFolder:
 
     def test_members_folder_can_view_memberss_only(self) -> None:
         assert audience_for_folder("members") is MediaAudience.MEMBERS_SCOPE
+
+    def test_events_folder_is_decided_by_the_event(self) -> None:
+        assert audience_for_folder("events") is MediaAudience.EVENT_VISIBILITY
 
     @pytest.mark.parametrize("folder", ["reports", "gallery-old", "Gallery", "", "logo.png"])
     def test_unruled_folders_have_no_audience(self, folder: str) -> None:
@@ -108,3 +112,16 @@ class TestIsOwnProfileFile:
     )
     def test_anything_else_is_not_owned(self, path: str, own_folder: str | None) -> None:
         assert is_own_profile_file(path, own_folder) is False
+
+
+class TestAdmitsAnonymous:
+    @pytest.mark.parametrize("path", ["events/8c41.jpg", "events/../members/x.jpg", "events/"])
+    def test_only_the_events_folder(self, path: str) -> None:
+        # The full path is validated later, for anonymous and authenticated callers alike.
+        assert admits_anonymous(path) is True
+
+    @pytest.mark.parametrize(
+        "path", ["gallery/a/x.jpg", "profiles/ana/x.png", "members/x.jpg", "events-old/x.jpg", ""]
+    )
+    def test_every_other_folder_needs_a_login(self, path: str) -> None:
+        assert admits_anonymous(path) is False

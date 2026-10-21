@@ -16,7 +16,8 @@ LEADER_CODENAMES = {
     "songs__manage",
     # Raised from manage by core/0006 (specs/013-gallery-write-api FR-003).
     "gallery__owner",
-    "events__manage",
+    # Raised from manage by core/0008 (specs/020-church-events FR-014).
+    "events__owner",
     "notices__manage",
     "reports_hymnal_history__view",
 }

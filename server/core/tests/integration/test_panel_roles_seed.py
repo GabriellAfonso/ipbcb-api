@@ -1,5 +1,6 @@
 """Migrations 0005 and 0006 seed the three roles with the spec 012 matrix (spec FR-025, US1
-scenario 5), with `gallery` raised to `owner` for Liderança and Mídia by feature 013.
+scenario 5), with `gallery` raised to `owner` for Liderança and Mídia by feature 013 and
+`events` by feature 020 (migration 0008).
 
 The test database is built by running every migration, so what it holds is what a fresh
 deploy holds. The expected table is written here, not imported from application code, so a
@@ -17,13 +18,13 @@ EXPECTED_ROLE_CODENAMES = {
         "schedule__manage",
         "songs__manage",
         "gallery__owner",
-        "events__manage",
+        "events__owner",
         "notices__manage",
         "reports_hymnal_history__view",
     },
     "media": {
         "gallery__owner",
-        "events__manage",
+        "events__owner",
         "notices__manage",
         "reports_hymnal_history__view",
     },
