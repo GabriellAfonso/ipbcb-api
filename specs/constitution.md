@@ -103,10 +103,15 @@ Rules that no domain can break. These apply globally across the entire system.
   does not follow a later reassignment — the mismatch is silent.
 
 ### Media
-- Every file under `MEDIA_ROOT` is served only through the authenticated access check in
-  `features/media` (`/ipbcb/media/<path>`). Access is decided by the first path segment, with
-  **default deny**: a folder without a rule is unreadable by everyone, Admin included, so a
-  new upload location fails closed until a rule and a spec change are written for it.
+- Every file under `MEDIA_ROOT` is served only through the access check in `features/media`
+  (`/ipbcb/media/<path>`). Access is decided by the first path segment, with **default deny**:
+  a folder without a rule is unreadable by everyone, Admin included, so a new upload location
+  fails closed until a rule and a spec change are written for it.
+- The check requires authentication for every folder except `events/`: the image of a public
+  church event is readable without a token, because visitors without an account see the home
+  carousel (`specs/020-church-events/`, Complexity Tracking). A members event's image stays
+  members-only, and the path rules below apply unchanged. No other folder may be opened to
+  anonymous callers without amending this rule.
 - The path is validated, never normalized: any empty, `.` or `..` segment, backslash, `%` or
   control character is rejected, and the file must resolve inside `MEDIA_ROOT`. The checked
   string is the served string.

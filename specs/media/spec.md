@@ -2,18 +2,20 @@
 
 Serves user-uploaded files under `MEDIA_ROOT` only to callers allowed to read them. The public
 URL stays `/ipbcb/media/<path>`; the backend decides by caller and top-level folder, and nginx
-streams the bytes. Nothing under `MEDIA_ROOT` is public.
+streams the bytes. Nothing under `MEDIA_ROOT` is public, except the image of a public church
+event, readable without a token (`events/`, below).
 
 Introduced by `specs/009-protected-media-access/` (design, research, deploy order with the app
 and nginx); folder audiences moved to roles by `specs/012-feature-role-permissions/`; trashed
-gallery files by `specs/014-gallery-trash-sync/`.
+gallery files by `specs/014-gallery-trash-sync/`; event images, the first rule open to callers
+without a token, by `specs/020-church-events/`.
 
 ---
 
 ## Data Models
 
-None. Access is decided by folder and caller, never by a database record — except the one
-gallery trash lookup below.
+None. Access is decided by folder and caller, never by a database record — except the gallery
+trash lookup and the event image lookup below.
 
 ---
 
@@ -21,8 +23,11 @@ gallery trash lookup below.
 
 ### GET / HEAD `/ipbcb/media/<path>`
 
-- `IsAuthenticated` (JWT, or session for the Django admin). Other methods: `405`.
-- Throttle scope `media`, `3000/hour` per user, separate from the API quota.
+- `IsAuthenticatedOrEventImage`: authenticated (JWT, or session for the Django admin), or any
+  caller when the first path segment is `events`. Authentication runs first, so an invalid or
+  expired token is `401` on every path, `events/` included. Other methods: `405`.
+- Throttle scope `media`, `3000/hour` per user (per IP for anonymous callers), separate from
+  the API quota.
 - Allowed, production: `200`, empty body, `X-Accel-Redirect: /ipbcb/protected-media/<path>`
   (percent-encoded), `Content-Type` from the extension (see rule 6). nginx streams the file and
   answers `304` on revalidation.
@@ -43,6 +48,7 @@ gallery trash lookup below.
 | `gallery`  | members (`Profile.is_member`). A file of a trashed photo or album: only `owner` on `gallery`, `404` to anyone else |
 | `profiles` | members (any profile), or the photo's owner, member or not |
 | `members`  | `view` on `members` (Admin, Liderança), membership not required |
+| `events`   | decided by the file's event: a `public` event's image — anyone, with or without a token; a `members` event's image — members only; anyone else, and any file that is no event's image — `404` |
 | anything else, or no folder | nobody — `404` (default deny) |
 
 Rules live in `FOLDER_RULES` (`features/media/domain/media_rules.py`). A new upload folder is
@@ -53,7 +59,7 @@ unreadable until a rule is added there.
 ## Business Rules
 
 1. **Order of checks**: authentication, path validation, folder rule, caller's permission, (for
-   `gallery/`) trash lookup, file existence. A caller outside a folder's audience gets `403`
+   `gallery/`) trash lookup, (for `events/`) event lookup, file existence. A caller outside a folder's audience gets `403`
    whether or not the file exists.
 2. **Path validation never rewrites the path**: the string checked is the string sent to nginx.
    Rejected (`404`, no redirect): fewer than two segments; an empty, `.` or `..` segment (even
@@ -68,6 +74,11 @@ unreadable until a rule is added there.
    one indexed lookup from the stored name to its photo or album row. Skipped for a caller who
    is both member and `owner` on `gallery`. A non-member with `owner` reads trashed files only.
    A file no row references keeps the plain member rule.
+5a. **Event images** (`EventImageLookup`, implemented by events, wired in `config/di.py`): one
+   query on the unique `Event.image_path` returns public / members / none. Members-only and
+   orphan files answer `404` exactly like a missing file, so a non-member never learns a
+   members event exists (specs/020-church-events FR-010). The anonymous viewer has no
+   membership, no scope and no profile folder.
 6. **Content type** from a fixed allow-list by extension (`jpg`/`jpeg`, `png`, `webp`, `gif`),
    otherwise `application/octet-stream` — never Django's default `text/html`.
 7. **Logging**: one `media_access` line per decision with `folder` and `outcome` (`allowed`,
@@ -80,11 +91,12 @@ unreadable until a rule is added there.
 
 | Scenario | Status | Domain exception |
 |---|---|---|
-| Not authenticated / invalid token | 401 | — (DRF) |
+| Not authenticated (any folder but `events/`) / invalid token | 401 | — (DRF) |
 | Caller outside the folder's audience | 403 | `MediaAccessDeniedError` |
 | Rejected path | 404 | `MediaPathRejectedError` |
 | Folder without a rule | 404 | `MediaFolderNotRuledError` |
 | File missing, not regular, or outside `MEDIA_ROOT` | 404 | `MediaFileNotFoundError` |
+| `events/` file of a members event (non-member) or of no event | 404 | `MediaFileNotFoundError` |
 | Trashed gallery file, caller without `owner` | 404 | `MediaFileTrashedError` |
 | Method other than GET/HEAD | 405 | — |
 | Throttled | 429 | — |
@@ -101,6 +113,7 @@ MediaFileAPIView                       builds MediaViewer from IsMemberUser,
       -> media_rules (pure)            path validation, folder rules, content type
       -> MediaFileRepository (Protocol) <- FilesystemMediaRepository
       -> TrashedMediaLookup (Protocol)  <- implemented in features/gallery
+      -> EventImageLookup (Protocol)    <- implemented in features/events
 ```
 
 DTOs: `MediaViewer` (what the service knows about the caller), `MediaFile` (the authorized file).

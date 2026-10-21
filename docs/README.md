@@ -12,6 +12,7 @@ O detalhe completo fica nas specs (`specs/{domínio}/spec.md`).
 | [Galeria](features/gallery.md)           | álbuns, fotos, lixeira, marcação de membros    |
 | [Bíblia](features/bible.md)              | texto bíblico em várias versões                |
 | [Doutrina](features/doctrine.md)         | catecismos e Confissão de Fé de Westminster    |
+| [Eventos](features/events.md)            | eventos da igreja no carrossel da tela inicial |
 | [Arquivos de mídia](features/media.md)   | quem pode abrir cada imagem enviada            |
 
 Documentação interativa da API (gerada pelo código): `/ipbcb/api/schema/swagger-ui/`.

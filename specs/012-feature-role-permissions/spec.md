@@ -89,7 +89,7 @@ Each entry is a deliberate exception to the method default, with its reason.
 | `schedule`               | owner | manage | —      |
 | `songs`                  | owner | manage | —      |
 | `gallery`                | owner | owner  | owner  |
-| `events`                 | owner | manage | manage |
+| `events`                 | owner | owner  | owner  |
 | `notices`                | owner | manage | manage |
 | `reports.hymnal_history` | owner | view   | view   |
 
@@ -97,14 +97,17 @@ Each entry is a deliberate exception to the method default, with its reason.
 
 - **ADMIN is owner of every scope, including scopes added later**, decided in code and never
   read from stored permissions. Adding a scope can therefore never lock the administrator out.
-- **LEADER can do everything except delete**, in every scope but `gallery`. No `DELETE` is
-  allowed to a leader outside `gallery`, member deletion included. On `gallery` Leader is `owner`
-  (feature 013, below).
+- **LEADER can do everything except delete**, in every scope but `gallery` and `events`. No
+  `DELETE` is allowed to a leader outside them, member deletion included. On `gallery` (feature
+  013) and `events` (feature 020) Leader is `owner`.
 - **Reports are scopes of their own**, one per report (`reports.<name>`), so each report can be
   released to different roles. The hymnal history report is not sensitive and is readable by
   every role that reaches the panel. Writing its configuration requires `owner`.
-- **`events` and `notices`** are future features. This feature only reserves their scopes and
-  who will hold them; it creates no data or endpoints for them.
+- **`notices`** is a future feature. This feature only reserves its scope and who will hold
+  it; it creates no data or endpoints for it.
+- **`events`**: endpoints in `specs/020-church-events/`. Feature 020 raised LEADER and MEDIA from
+  `manage` to `owner` (data migration `core/0008_events_owner_for_leader_media.py`): the three
+  roles run the events together, deleting included.
 - **`gallery`**: write endpoints in `specs/013-gallery-write-api/`. Feature 013 raised LEADER
   and MEDIA from `manage` to `owner` on this scope (data migration
   `core/0006_gallery_owner_for_leader_media.py`), so the three roles can remove album covers and,
@@ -202,6 +205,23 @@ and Mídia all hold `owner` here.
 | POST   | `api/photos/members/`                        | `gallery` | manage | default — bulk tag changes   |
 | GET    | `api/gallery/taggable-members/`              | `gallery` | manage | override — names of every member for the tag picker; the Mídia exception of User Story 3 |
 
+### events
+
+Added by feature 020 (`specs/020-church-events/`). Admin, Liderança and Mídia all hold `owner`.
+
+| Method | Endpoint                     | Scope    | Level  | Why                                  |
+|--------|------------------------------|----------|--------|--------------------------------------|
+| GET    | `api/admin/events/`          | `events` | view   | default — every event, past included |
+| POST   | `api/admin/events/`          | `events` | manage | default                              |
+| GET    | `api/admin/events/{id}/`     | `events` | view   | default                              |
+| PATCH  | `api/admin/events/{id}/`     | `events` | manage | default                              |
+| DELETE | `api/admin/events/{id}/`     | `events` | owner  | default — permanent, image included  |
+
+`GET api/events/` and `GET api/events/{id}/` are public (membership adds members-only events),
+outside this classification.
+
+### gallery reads
+
 The gallery reads (`GET api/albums/`, `GET api/photos/`, `GET api/albums/{id}/photos/`, with or
 without the `member_id` filter), the change feed (`GET api/gallery/changes/`) and the
 tagged-member list (`GET api/gallery/tagged-members/`) are member endpoints (`is_member`), outside
@@ -237,8 +257,8 @@ profile; the first can reach every management endpoint with every method, the se
 ### User Story 2 - Leader manages everything but cannot delete (Priority: P1)
 
 A church leader manages members, the monthly schedule and songs, and reads the hymnal report.
-Nothing they do outside the gallery can delete data (on `gallery` they are `owner` since
-feature 013).
+Nothing they do outside the gallery and events can delete data (they are `owner` on `gallery`
+since feature 013 and on `events` since feature 020).
 
 **Why this priority**: The safety tier is the main motivation of the feature.
 
@@ -338,7 +358,7 @@ reflects it.
   (Before this feature it meant "not an admin", because the flag lived on the profile.)
 - **Unauthenticated request** to a management endpoint: `401`, as today (authentication is
   checked before permission).
-- **Two roles**: union, never intersection. Leader + Media on `events` is `manage`.
+- **Two roles**: union, never intersection. Leader + Media on `notices` is `manage`.
 - **Method not implemented by an endpoint** (e.g. `DELETE` on the member list): `405` for a user
   with enough level on the scope; a user without any level on the scope gets `403` first and
   learns nothing about the endpoint.
@@ -379,7 +399,7 @@ reflects it.
 - **FR-008**: The Admin role MUST be `owner` of every scope, present or future, without relying
   on any stored permission.
 - **FR-009**: The Leader role MUST NOT hold `owner` on any scope except `gallery` (raised by
-  feature 013).
+  feature 013) and `events` (raised by feature 020).
 - **FR-010**: A user's level on a scope MUST be the highest level any of their roles gives.
 - **FR-011**: Membership (`is_member`) MUST NOT grant any role or level, and holding a role MUST
   NOT require membership.
@@ -477,7 +497,7 @@ Decided with the requester; recorded, not to be re-raised.
 - **SC-001**: 100% of the users who managed the panel before the deploy can still perform every
   action they could before, with no manual step after deploy.
 - **SC-002**: 0 delete operations succeed for a user holding only the Leader role, across every
-  classified endpoint outside scope `gallery`.
+  classified endpoint outside scopes `gallery` and `events`.
 - **SC-003**: A user holding only the Media role gets 0 records from the membership roll and 0
   member photos; the tag picker (feature 015) gives them names and ids only, no other field.
 - **SC-004**: For every combination of role (Admin, Leader, Media, none) × scope × method in the
@@ -512,7 +532,7 @@ Decided with the requester; recorded, not to be re-raised.
 
 ## Out of Scope
 
-- The events and notices features. (Gallery write endpoints: feature 013.)
+- The notices feature. (Gallery write endpoints: feature 013; events: feature 020.)
 - Assigning roles from the app.
 - Change history or audit outside members.
 - Android app changes (separate repository).

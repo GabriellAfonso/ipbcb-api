@@ -21,6 +21,12 @@ bytes." (full request, including the decided behaviour and required tests, in th
 > and stay readable with `owner` on `gallery`, decided by one indexed database lookup. FR-005,
 > FR-009, the orphan-files edge case and the "No database lookup" assumption are updated.
 
+> **`events/` added by `specs/020-church-events/`.** The image of a public church event is
+> readable without a token — visitors see the home carousel before creating an account; a
+> members event's image only by members; any other `events/` file is `404`. Decided by one
+> indexed lookup of the file's event. It is the one folder whose rule does not require
+> authentication: FR-002, FR-005 and FR-009 are updated. An invalid token is still `401`.
+
 ## Overview
 
 Every file under `MEDIA_ROOT` is public today. nginx serves `location /ipbcb/media/` with an
@@ -251,7 +257,8 @@ anonymous caller.
 - **FR-002**: The access check MUST authenticate the caller the same way as every other
   protected endpoint (JWT via the project's standard `IsAuthenticated`). An unauthenticated
   or invalid-token request MUST get `401` in the canonical `{"error_code", "detail"}` shape,
-  before the path is examined.
+  before the path is examined. **Exception (spec 020):** a request with no credentials whose
+  first path segment is `events` goes on to the full check; an invalid token is still `401`.
 
 **Path handling**
 
@@ -275,6 +282,7 @@ anonymous caller.
   | `gallery`     | members; files of trashed items only with `owner` on `gallery` (spec 014) | `Profile.is_member`; trash state of the file's row |
   | `profiles`    | members (any profile), or the photo's owner | `Profile.is_member`; owner by folder |
   | `members`     | `view` on `members` (Admin, Liderança) | role groups (spec 012) |
+  | `events`      | public event's image: anyone, no token needed; members event's image: members; otherwise `404` (spec 020) | `Event.visibility` of the row whose `image_path` is the file |
   | anything else | nobody               | —                       |
 
 - **FR-005a**: The owner exception applies to `profiles/` only. A caller owns
@@ -295,7 +303,9 @@ anonymous caller.
   (spec 014):** one indexed lookup tells whether the file belongs to a trashed photo or album;
   such a file is `404` to a caller without `owner` on `gallery`. The lookup runs after the
   folder rule and the permission check and before the existence check, and is skipped for a
-  caller who is both a member and an owner.
+  caller who is both a member and an owner. **Exception, `events/` (spec 020):** one indexed
+  lookup gives the visibility of the file's event; a file of no event, or of a members event
+  for a non-member, is `404`.
 
 **Delivery**
 
