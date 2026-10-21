@@ -55,8 +55,9 @@ class TestReads:
         self, make_event: MakeEvent, django_assert_num_queries: DjangoAssertNumQueries
     ) -> None:
         user = make_user(username="ana")
+        editor = make_user(username="bia")
         for _ in range(3):
-            Event.objects.filter(pk=make_event().pk).update(created_by=user)
+            Event.objects.filter(pk=make_event().pk).update(created_by=user, updated_by=editor)
 
         with django_assert_num_queries(1):
             REPOSITORY.list_all(EventStatusFilter.ALL, TODAY)
@@ -74,6 +75,7 @@ class TestWrites:
 
         assert record.created_by is not None
         assert (record.created_by.id, record.created_by.name) == (user.pk, "Ana Paula")
+        assert record.updated_by is None
 
     def test_deleted_creator_leaves_the_event(self, make_event: MakeEvent) -> None:
         user = make_user(username="ana")
@@ -85,6 +87,26 @@ class TestWrites:
         reloaded = REPOSITORY.get(record.id)
 
         assert reloaded is not None and reloaded.created_by is None
+
+    def test_update_records_the_editor_with_profile_name(self, make_event: MakeEvent) -> None:
+        editor = make_user(username="bia")
+        editor.profile.name = "Beatriz"
+        editor.profile.save()
+
+        record = REPOSITORY.update(make_event().pk, {}, None, editor.pk)
+
+        assert record.updated_by is not None
+        assert (record.updated_by.id, record.updated_by.name) == (editor.pk, "Beatriz")
+
+    def test_deleted_editor_leaves_the_event(self, make_event: MakeEvent) -> None:
+        editor = make_user(username="bia")
+        record = REPOSITORY.update(make_event().pk, {"location": "Templo"}, None, editor.pk)
+        editor.delete()
+
+        reloaded = REPOSITORY.get(record.id)
+
+        assert reloaded is not None and reloaded.updated_by is None
+        assert reloaded.location == "Templo"
 
     def test_update_applies_changes_and_image(self, make_event: MakeEvent) -> None:
         event = make_event()

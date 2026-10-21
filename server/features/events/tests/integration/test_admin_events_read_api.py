@@ -67,7 +67,7 @@ def test_detail_shows_past_members_event_to_a_non_member_manager(
 
     assert response.status_code == 200
     assert response.data["visibility"] == "members"
-    assert set(response.data) >= {"created_by", "created_at", "updated_at"}
+    assert set(response.data) >= {"created_by", "updated_by", "created_at", "updated_at"}
 
 
 def test_responses_are_private(seeded: dict[str, Event]) -> None:

@@ -7,7 +7,7 @@ from typing import Any
 import pytest
 from rest_framework.test import APIClient
 
-from conftest import make_role_client
+from conftest import make_role_client, make_user
 from core.domain.access import Role, Scope
 from features.events.domain.event_enums import EventVisibility
 from features.events.models.event import Event
@@ -41,6 +41,57 @@ def test_patch_changes_only_the_sent_field(make_event: MakeEvent) -> None:
     assert response.data["location"] == "Templo"
     assert response.data["description"] == "Texto"
     assert response.data["image_url"].endswith(event.image_path)
+
+
+def test_patch_records_the_editor_not_the_creator(make_event: MakeEvent) -> None:
+    event = make_event()
+    Event.objects.filter(pk=event.pk).update(created_by=make_user(username="creator"))
+    client, editor = make_role_client(Role.LEADER, username="editor")
+    editor.profile.name = "Beatriz"
+    editor.profile.save()
+
+    response = client.patch(admin_detail_url(event.pk), {"location": "Templo"}, format="multipart")
+
+    assert response.status_code == 200
+    assert response.data["updated_by"] == {"id": str(editor.pk), "name": "Beatriz"}
+    assert response.data["created_by"]["id"] != str(editor.pk)
+    assert client.get(admin_detail_url(event.pk)).data["updated_by"]["id"] == str(editor.pk)
+
+
+def test_patch_that_sends_nothing_still_records_the_editor(make_event: MakeEvent) -> None:
+    client, editor = make_role_client(Role.MEDIA, username="editor")
+
+    response = client.patch(admin_detail_url(make_event().pk), {}, format="multipart")
+
+    assert response.status_code == 200
+    assert response.data["updated_by"]["id"] == str(editor.pk)
+
+
+def test_refused_patch_leaves_updated_by_alone(make_event: MakeEvent) -> None:
+    event = make_event()
+
+    assert _patch(event.pk, title="").status_code == 400
+    event.refresh_from_db()
+    assert event.updated_by is None
+
+
+def test_deleted_editor_becomes_null(make_event: MakeEvent) -> None:
+    event = make_event()
+    client, editor = make_role_client(Role.MEDIA, username="editor")
+    client.patch(admin_detail_url(event.pk), {"location": "Templo"}, format="multipart")
+    editor.delete()
+
+    response = _client(Role.ADMIN).get(admin_detail_url(event.pk))
+
+    assert response.data["updated_by"] is None
+
+
+def test_public_resource_never_shows_updated_by(make_event: MakeEvent) -> None:
+    event = make_event()
+    _patch(event.pk, location="Templo")
+
+    assert "updated_by" not in APIClient().get(public_detail_url(event.pk)).data
+    assert "updated_by" not in APIClient().get(PUBLIC_URL).data[0]
 
 
 def test_new_image_gets_a_new_url_and_the_old_file_is_removed(

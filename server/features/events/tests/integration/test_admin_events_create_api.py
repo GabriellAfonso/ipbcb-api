@@ -47,6 +47,7 @@ def test_minimal_create_is_public_with_nulls_and_creator(media_root: Path) -> No
     assert body["visibility"] == "public"
     assert [body[k] for k in ("end_date", "start_time", "location", "description")] == [None] * 4
     assert body["created_by"]["id"] == str(user.pk)
+    assert body["updated_by"] is None
     assert APIClient().get(PUBLIC_URL).data[0]["id"] == body["id"]
 
 

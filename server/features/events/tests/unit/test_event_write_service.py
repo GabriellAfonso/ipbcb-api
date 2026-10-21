@@ -46,6 +46,7 @@ class TestCreate:
 
         assert record.image_path in setup.storage.files
         assert record.created_by is not None and record.created_by.id == creator
+        assert record.updated_by is None
 
     def test_without_image_is_refused(self) -> None:
         with pytest.raises(EventImageMissingError):
@@ -144,6 +145,17 @@ class TestUpdate:
     def test_missing_event_is_not_found(self) -> None:
         with pytest.raises(EventNotFoundError):
             _Setup().service.update_event(99, EventPatchDTO(title="X"), None, uuid4())
+
+    @pytest.mark.parametrize("with_image", [False, True])
+    def test_records_the_editor(self, with_image: bool) -> None:
+        setup = _Setup()
+        event = setup.repo.add()
+        editor = uuid4()
+        image = _poster() if with_image else None
+
+        updated = setup.service.update_event(event.id, EventPatchDTO(), image, editor)
+
+        assert updated.updated_by is not None and updated.updated_by.id == editor
 
 
 class TestDelete:
