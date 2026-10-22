@@ -76,7 +76,7 @@ editing it directly. The repository holds no PDFs, no ingestion code and no revi
 | `kind` | `"catechism" \| "confession"` | Decides whether the document has `questions` or `chapters` |
 | `position` | `int` | Order in the document list; unique across files |
 | `questions[]` | `number`, `question`, `answer`, `proof_texts[]` | Catechisms only; numbered 1..N |
-| `proof_texts[]` | `printed`, `reference` | One per `;`-separated segment, in printed order |
+| `proof_texts[]` | `printed`, `reference` | One per passage, in printed order: a `;`-separated segment citing several chapters or books is split into one entry per passage |
 | `reference` | `book`, `chapter`, `verses[]` or `null` | `book` is a Bible-domain `abbrev`; `verses: []` = whole chapter; spans are inclusive `{start, end}` |
 | `chapters[]` | `number`, `title`, `paragraphs[]` | Confession only; numbered 1..N |
 | `paragraphs[]` | `number`, `text`, optional `lists[]`, optional `text_after` | Numbered 1..N per chapter; only 1.2 has `lists`/`text_after` |
@@ -118,19 +118,26 @@ Full contract: [`specs/019-doctrine-documents/contracts/doctrine-api.md`](../019
 1. Doctrine data is **read-only** — no create, update or delete through the API or the admin.
 2. Text is stored and served **as published**. Source defects (e.g. "DA SAGRADAS ESCRITURAS") are
    corrected only by a person editing the JSON.
-3. Every proof text keeps its `printed` text. A `reference` exists only when the printed text means
-   it with certainty: comparisons, malformed ranges ("Sl 86-8"), mixed separators and cross-chapter
-   ranges stay printed-only. A segment without a book takes the book of the previous segment in
-   the same question ("61.3" after "Is 60.21").
-4. `reference.book` is exactly the Bible domain's `abbrev` (1 Timothy is `1Tn`, though printed
+3. Every proof text keeps its `printed` text as published. A segment citing several passages
+   ("Mt 3.16-17, e 28.19", "1Co 2.9-10: 2Tm 3.15-17") is split into one proof text per passage;
+   each piece's `printed` is its part of the segment without the joining "e", "," or ":". A passage
+   without a book takes the book of the previous one in the same question ("61.3" after
+   "Is 60.21"), and one without a chapter takes the previous chapter too ("22-23" after "Ef 1.10").
+4. A `reference` exists only when the passage is certain. A printing error ("Jo 16.1314",
+   "Is 92.29", "1Re" for `1Rs`) gets the reference the 1647 English proof texts of the same
+   question confirm; the `printed` text keeps the error. When the original doesn't settle it, the
+   person reviewing the file picks the passage from the answer's wording ("Sl 86-8" is Sl 8.6-8,
+   for "domínio sobre as criaturas"). A cross-reference to another question or document stays
+   printed-only (`"reference": null`).
+5. `reference.book` is exactly the Bible domain's `abbrev` (1 Timothy is `1Tn`, though printed
    `1Tm`), and the chapter and verses exist in **every** Bible version served.
-5. All files are loaded **once at startup**, eagerly (`DoctrineConfig.ready()`). The server refuses
+6. All files are loaded **once at startup**, eagerly (`DoctrineConfig.ready()`). The server refuses
    to start if any file breaks a rule: schema, contiguous numbering, non-blank texts, slug equal to
    the file name, unique `position`. It never serves a partial set.
-6. Tests on the committed files check what startup doesn't: 107 / 196 / 33, the Confession 1.2
-   shape, and rule 4 against the Bible data files (read by path; the doctrine feature never imports
+7. Tests on the committed files check what startup doesn't: 107 / 196 / 33, the Confession 1.2
+   shape, and rule 5 against the Bible data files (read by path; the doctrine feature never imports
    the Bible feature).
-7. Endpoints are **public** and the responses are not marked private.
+8. Endpoints are **public** and the responses are not marked private.
 
 ## Errors
 

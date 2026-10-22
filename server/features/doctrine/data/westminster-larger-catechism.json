@@ -82,8 +82,30 @@
           }
         },
         {
-          "printed": "1Co 2.9-10: 2Tm 3.15-17",
-          "reference": null
+          "printed": "1Co 2.9-10",
+          "reference": {
+            "book": "1Co",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 9,
+                "end": 10
+              }
+            ]
+          }
+        },
+        {
+          "printed": "2Tm 3.15-17",
+          "reference": {
+            "book": "2Tm",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 15,
+                "end": 17
+              }
+            ]
+          }
         }
       ]
     },
@@ -246,8 +268,30 @@
           }
         },
         {
-          "printed": "At 10.43 e 26.22",
-          "reference": null
+          "printed": "At 10.43",
+          "reference": {
+            "book": "At",
+            "chapter": 10,
+            "verses": [
+              {
+                "start": 43,
+                "end": 43
+              }
+            ]
+          }
+        },
+        {
+          "printed": "26.22",
+          "reference": {
+            "book": "At",
+            "chapter": 26,
+            "verses": [
+              {
+                "start": 22,
+                "end": 22
+              }
+            ]
+          }
         },
         {
           "printed": "Rm 16.25-27",
@@ -315,12 +359,43 @@
           }
         },
         {
-          "printed": "Rm 15.4: At 20.32",
-          "reference": null
+          "printed": "Rm 15.4",
+          "reference": {
+            "book": "Rm",
+            "chapter": 15,
+            "verses": [
+              {
+                "start": 4,
+                "end": 4
+              }
+            ]
+          }
+        },
+        {
+          "printed": "At 20.32",
+          "reference": {
+            "book": "At",
+            "chapter": 20,
+            "verses": [
+              {
+                "start": 32,
+                "end": 32
+              }
+            ]
+          }
         },
         {
           "printed": "Jo 16.1314",
-          "reference": null
+          "reference": {
+            "book": "Jo",
+            "chapter": 16,
+            "verses": [
+              {
+                "start": 13,
+                "end": 14
+              }
+            ]
+          }
         }
       ]
     },
@@ -513,8 +588,38 @@
           }
         },
         {
-          "printed": "145.3 e 139.1, 2, 7",
-          "reference": null
+          "printed": "145.3",
+          "reference": {
+            "book": "Sl",
+            "chapter": 145,
+            "verses": [
+              {
+                "start": 3,
+                "end": 3
+              }
+            ]
+          }
+        },
+        {
+          "printed": "139.1, 2, 7",
+          "reference": {
+            "book": "Sl",
+            "chapter": 139,
+            "verses": [
+              {
+                "start": 1,
+                "end": 1
+              },
+              {
+                "start": 2,
+                "end": 2
+              },
+              {
+                "start": 7,
+                "end": 7
+              }
+            ]
+          }
         },
         {
           "printed": "Ml 2.6",
@@ -615,8 +720,30 @@
       "answer": "Há um só Deus, o Deus vivo e verdadeiro.",
       "proof_texts": [
         {
-          "printed": "Dt 6.4: Jr 10.10",
-          "reference": null
+          "printed": "Dt 6.4",
+          "reference": {
+            "book": "Dt",
+            "chapter": 6,
+            "verses": [
+              {
+                "start": 4,
+                "end": 4
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Jr 10.10",
+          "reference": {
+            "book": "Jr",
+            "chapter": 10,
+            "verses": [
+              {
+                "start": 10,
+                "end": 10
+              }
+            ]
+          }
         },
         {
           "printed": "1Co 8.4",
@@ -639,12 +766,43 @@
       "answer": "Há três pessoas na Divindade: o Pai, o Filho e o Espírito Santo; estas três pessoas são um só Deus verdadeiro e eterno, da mesma substância, iguais em poder e glória, embora distintas pelas suas propriedades pessoais.",
       "proof_texts": [
         {
-          "printed": "Mt 3.16-17, e 28.19",
-          "reference": null
+          "printed": "Mt 3.16-17",
+          "reference": {
+            "book": "Mt",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 16,
+                "end": 17
+              }
+            ]
+          }
+        },
+        {
+          "printed": "28.19",
+          "reference": {
+            "book": "Mt",
+            "chapter": 28,
+            "verses": [
+              {
+                "start": 19,
+                "end": 19
+              }
+            ]
+          }
         },
         {
           "printed": "2Co 13.14",
-          "reference": null
+          "reference": {
+            "book": "2Co",
+            "chapter": 13,
+            "verses": [
+              {
+                "start": 13,
+                "end": 13
+              }
+            ]
+          }
         },
         {
           "printed": "Jo 10.30",
@@ -680,8 +838,30 @@
           }
         },
         {
-          "printed": "Jo 1.14 e 15.26",
-          "reference": null
+          "printed": "Jo 1.14",
+          "reference": {
+            "book": "Jo",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 14,
+                "end": 14
+              }
+            ]
+          }
+        },
+        {
+          "printed": "15.26",
+          "reference": {
+            "book": "Jo",
+            "chapter": 15,
+            "verses": [
+              {
+                "start": 26,
+                "end": 26
+              }
+            ]
+          }
         },
         {
           "printed": "Gl 4.6",
@@ -895,7 +1075,16 @@
         },
         {
           "printed": "2Co 13.14",
-          "reference": null
+          "reference": {
+            "book": "2Co",
+            "chapter": 13,
+            "verses": [
+              {
+                "start": 13,
+                "end": 13
+              }
+            ]
+          }
         }
       ]
     },
@@ -1073,7 +1262,16 @@
         },
         {
           "printed": "Mt 11.2526",
-          "reference": null
+          "reference": {
+            "book": "Mt",
+            "chapter": 11,
+            "verses": [
+              {
+                "start": 25,
+                "end": 26
+              }
+            ]
+          }
         }
       ]
     },
@@ -1214,8 +1412,30 @@
           }
         },
         {
-          "printed": "Mt 25.31, e 24.36",
-          "reference": null
+          "printed": "Mt 25.31",
+          "reference": {
+            "book": "Mt",
+            "chapter": 25,
+            "verses": [
+              {
+                "start": 31,
+                "end": 31
+              }
+            ]
+          }
+        },
+        {
+          "printed": "24.36",
+          "reference": {
+            "book": "Mt",
+            "chapter": 24,
+            "verses": [
+              {
+                "start": 36,
+                "end": 36
+              }
+            ]
+          }
         },
         {
           "printed": "1Pe 1.12",
@@ -1231,8 +1451,30 @@
           }
         },
         {
-          "printed": "2Ts 1.7, Sl 91.11-12",
-          "reference": null
+          "printed": "2Ts 1.7",
+          "reference": {
+            "book": "2Ts",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 7,
+                "end": 7
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Sl 91.11-12",
+          "reference": {
+            "book": "Sl",
+            "chapter": 91,
+            "verses": [
+              {
+                "start": 11,
+                "end": 12
+              }
+            ]
+          }
         },
         {
           "printed": "Mt 13.39",
@@ -1281,8 +1523,47 @@
       "answer": "Depois de ter feito todas as mais criaturas, Deus criou o homem, macho e fêmea; formou-o do pó, e a mulher da costela do homem; dotou-os de almas viventes, racionais e imortais; fê-los conforme à sua própria imagem, em conhecimento, retidão e santidade, tendo a lei de Deus escrita em seus corações e poder para a cumprir, com domínio sobre as criaturas, contudo sujeitos a cair.",
       "proof_texts": [
         {
-          "printed": "Gn 1.7, e 2.7, 32 e 1.26",
-          "reference": null
+          "printed": "Gn 1.7",
+          "reference": {
+            "book": "Gn",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 27,
+                "end": 27
+              }
+            ]
+          }
+        },
+        {
+          "printed": "2.7, 32",
+          "reference": {
+            "book": "Gn",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 7,
+                "end": 7
+              },
+              {
+                "start": 22,
+                "end": 22
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1.26",
+          "reference": {
+            "book": "Gn",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 26,
+                "end": 26
+              }
+            ]
+          }
         },
         {
           "printed": "Mt 19.4",
@@ -1351,11 +1632,55 @@
         },
         {
           "printed": "Rm 2.1415",
-          "reference": null
+          "reference": {
+            "book": "Rm",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 14,
+                "end": 15
+              }
+            ]
+          }
         },
         {
-          "printed": "Gn 3.6, e 1.28, 3.1-19",
-          "reference": null
+          "printed": "Gn 3.6",
+          "reference": {
+            "book": "Gn",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 6,
+                "end": 6
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1.28",
+          "reference": {
+            "book": "Gn",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 28,
+                "end": 28
+              }
+            ]
+          }
+        },
+        {
+          "printed": "3.1-19",
+          "reference": {
+            "book": "Gn",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 1,
+                "end": 19
+              }
+            ]
+          }
         }
       ]
     },
@@ -1392,7 +1717,16 @@
         },
         {
           "printed": "Is 92.29",
-          "reference": null
+          "reference": {
+            "book": "Is",
+            "chapter": 28,
+            "verses": [
+              {
+                "start": 29,
+                "end": 29
+              }
+            ]
+          }
         },
         {
           "printed": "Ne 9.6",
@@ -1591,8 +1925,82 @@
       "answer": "A providência de Deus para com o homem no estado em que ele foi criado consistiu em colocá-lo no Paraíso, designando-o para o cultivar, dando-lhe liberdade para comer do fruto da terra; pondo as criaturas sob o seu domínio; e ordenando o matrimônio para o seu auxílio; em conceder-lhe comunhão com Deus, instituindo o dia de descanso, entrando em um pacto de vida com ele, sob a condição de obediência pessoal, perfeita e perpétua, da qual a árvore da vida era um penhor, e proibindo-lhe comer da árvore da ciência do bem e do mal sob pena de morte.",
       "proof_texts": [
         {
-          "printed": "Gn 1.28, e 21.15-16, e 1.26, e 3.8, e 2.3, Êx 20.11",
-          "reference": null
+          "printed": "Gn 1.28",
+          "reference": {
+            "book": "Gn",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 28,
+                "end": 28
+              }
+            ]
+          }
+        },
+        {
+          "printed": "21.15-16",
+          "reference": {
+            "book": "Gn",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 15,
+                "end": 16
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1.26",
+          "reference": {
+            "book": "Gn",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 26,
+                "end": 26
+              }
+            ]
+          }
+        },
+        {
+          "printed": "3.8",
+          "reference": {
+            "book": "Gn",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 8,
+                "end": 8
+              }
+            ]
+          }
+        },
+        {
+          "printed": "2.3",
+          "reference": {
+            "book": "Gn",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 3,
+                "end": 3
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Êx 20.11",
+          "reference": {
+            "book": "Êx",
+            "chapter": 20,
+            "verses": [
+              {
+                "start": 11,
+                "end": 11
+              }
+            ]
+          }
         },
         {
           "printed": "Gl 3.12",
@@ -1768,8 +2176,47 @@
       "answer": "O pecado desse estado em que o homem caiu consiste na culpa do primeiro pecado de Adão, na falta de retidão na qual este foi criado e na corrupção da sua natureza pela qual se tornou inteiramente indisposto, incapaz e oposto a todo o bem espiritual e inclinado a todo o mal, e isso continuamente: o que geralmente se chama pecado original, do qual precedem todas as transgressões atuais.",
       "proof_texts": [
         {
-          "printed": "Rm 5.12, 19 e 5.6, e 3.10-12",
-          "reference": null
+          "printed": "Rm 5.12, 19",
+          "reference": {
+            "book": "Rm",
+            "chapter": 5,
+            "verses": [
+              {
+                "start": 12,
+                "end": 12
+              },
+              {
+                "start": 19,
+                "end": 19
+              }
+            ]
+          }
+        },
+        {
+          "printed": "5.6",
+          "reference": {
+            "book": "Rm",
+            "chapter": 5,
+            "verses": [
+              {
+                "start": 6,
+                "end": 6
+              }
+            ]
+          }
+        },
+        {
+          "printed": "3.10-12",
+          "reference": {
+            "book": "Rm",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 10,
+                "end": 12
+              }
+            ]
+          }
         },
         {
           "printed": "Ef 2.3",
@@ -2137,8 +2584,34 @@
           }
         },
         {
-          "printed": "Mc 9.47-48: Lc 16.24, 26",
-          "reference": null
+          "printed": "Mc 9.47-48",
+          "reference": {
+            "book": "Mc",
+            "chapter": 9,
+            "verses": [
+              {
+                "start": 47,
+                "end": 48
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Lc 16.24, 26",
+          "reference": {
+            "book": "Lc",
+            "chapter": 16,
+            "verses": [
+              {
+                "start": 24,
+                "end": 24
+              },
+              {
+                "start": 26,
+                "end": 26
+              }
+            ]
+          }
         },
         {
           "printed": "Ap 14.11",
@@ -2175,11 +2648,46 @@
         },
         {
           "printed": "Gl 3:1",
-          "reference": null
+          "reference": {
+            "book": "Gl",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 10,
+                "end": 10
+              },
+              {
+                "start": 12,
+                "end": 12
+              }
+            ]
+          }
         },
         {
-          "printed": "Tt 3.4-7, e 1.2",
-          "reference": null
+          "printed": "Tt 3.4-7",
+          "reference": {
+            "book": "Tt",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 4,
+                "end": 7
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1.2",
+          "reference": {
+            "book": "Tt",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 2,
+                "end": 2
+              }
+            ]
+          }
         }
       ]
     },
@@ -2215,8 +2723,17 @@
           }
         },
         {
-          "printed": "e 59.21",
-          "reference": null
+          "printed": "59.21",
+          "reference": {
+            "book": "Is",
+            "chapter": 59,
+            "verses": [
+              {
+                "start": 21,
+                "end": 21
+              }
+            ]
+          }
         }
       ]
     },
@@ -2240,11 +2757,42 @@
         },
         {
           "printed": "Is 4.3-6",
-          "reference": null
+          "reference": {
+            "book": "Is",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 3,
+                "end": 6
+              }
+            ]
+          }
         },
         {
-          "printed": "Jo 3.26, 6.27",
-          "reference": null
+          "printed": "Jo 3.26",
+          "reference": {
+            "book": "Jo",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 16,
+                "end": 16
+              }
+            ]
+          }
+        },
+        {
+          "printed": "6.27",
+          "reference": {
+            "book": "Jo",
+            "chapter": 6,
+            "verses": [
+              {
+                "start": 27,
+                "end": 27
+              }
+            ]
+          }
         },
         {
           "printed": "Tt 2.5",
@@ -2273,8 +2821,30 @@
           }
         },
         {
-          "printed": "Jo 3.36, 1.2",
-          "reference": null
+          "printed": "Jo 3.36",
+          "reference": {
+            "book": "Jo",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 36,
+                "end": 36
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1.2",
+          "reference": {
+            "book": "Jo",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 12,
+                "end": 12
+              }
+            ]
+          }
         },
         {
           "printed": "Pv 1.23",
@@ -2468,8 +3038,30 @@
           }
         },
         {
-          "printed": "Rm 4.11, 1Co 5.7",
-          "reference": null
+          "printed": "Rm 4.11",
+          "reference": {
+            "book": "Rm",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 11,
+                "end": 11
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1Co 5.7",
+          "reference": {
+            "book": "1Co",
+            "chapter": 5,
+            "verses": [
+              {
+                "start": 7,
+                "end": 7
+              }
+            ]
+          }
         },
         {
           "printed": "Hb 11.13",
@@ -2607,8 +3199,30 @@
           }
         },
         {
-          "printed": "Jo 1.1 e 10.30",
-          "reference": null
+          "printed": "Jo 1.1",
+          "reference": {
+            "book": "Jo",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 1,
+                "end": 1
+              }
+            ]
+          }
+        },
+        {
+          "printed": "10.30",
+          "reference": {
+            "book": "Jo",
+            "chapter": 10,
+            "verses": [
+              {
+                "start": 30,
+                "end": 30
+              }
+            ]
+          }
         },
         {
           "printed": "Fl 2.6",
@@ -2739,8 +3353,30 @@
           }
         },
         {
-          "printed": "Hb 4.15, e 7.26",
-          "reference": null
+          "printed": "Hb 4.15",
+          "reference": {
+            "book": "Hb",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 15,
+                "end": 15
+              }
+            ]
+          }
+        },
+        {
+          "printed": "7.26",
+          "reference": {
+            "book": "Hb",
+            "chapter": 7,
+            "verses": [
+              {
+                "start": 26,
+                "end": 26
+              }
+            ]
+          }
         }
       ]
     },
@@ -2934,8 +3570,30 @@
           }
         },
         {
-          "printed": "Gl 4.4, Rm 5.19",
-          "reference": null
+          "printed": "Gl 4.4",
+          "reference": {
+            "book": "Gl",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 4,
+                "end": 4
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Rm 5.19",
+          "reference": {
+            "book": "Rm",
+            "chapter": 5,
+            "verses": [
+              {
+                "start": 19,
+                "end": 19
+              }
+            ]
+          }
         },
         {
           "printed": "Hb 2.4",
@@ -2951,8 +3609,30 @@
           }
         },
         {
-          "printed": "e 7.24-25, e 4.15-16",
-          "reference": null
+          "printed": "7.24-25",
+          "reference": {
+            "book": "Hb",
+            "chapter": 7,
+            "verses": [
+              {
+                "start": 24,
+                "end": 25
+              }
+            ]
+          }
+        },
+        {
+          "printed": "4.15-16",
+          "reference": {
+            "book": "Hb",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 15,
+                "end": 16
+              }
+            ]
+          }
         },
         {
           "printed": "Gl 4.5",
@@ -2975,8 +3655,34 @@
       "answer": "Era necessário que o Mediador, que havia de reconciliar o homem com Deus, fosse Deus e homem e isto em uma só pessoa, para que as obras próprias de cada natureza fossem aceitas por Deus a nosso favor e que nós confiássemos nelas como as obras da pessoa inteira.",
       "proof_texts": [
         {
-          "printed": "Mt 1.21, 23 e 3.17",
-          "reference": null
+          "printed": "Mt 1.21, 23",
+          "reference": {
+            "book": "Mt",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 21,
+                "end": 21
+              },
+              {
+                "start": 23,
+                "end": 23
+              }
+            ]
+          }
+        },
+        {
+          "printed": "3.17",
+          "reference": {
+            "book": "Mt",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 17,
+                "end": 17
+              }
+            ]
+          }
         },
         {
           "printed": "1Pe 2.6",
@@ -3045,8 +3751,30 @@
           }
         },
         {
-          "printed": "Sl 45.7, Jo 6.27",
-          "reference": null
+          "printed": "Sl 45.7",
+          "reference": {
+            "book": "Sl",
+            "chapter": 45,
+            "verses": [
+              {
+                "start": 7,
+                "end": 7
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Jo 6.27",
+          "reference": {
+            "book": "Jo",
+            "chapter": 6,
+            "verses": [
+              {
+                "start": 27,
+                "end": 27
+              }
+            ]
+          }
         },
         {
           "printed": "At 3.22",
@@ -3197,8 +3925,47 @@
       "answer": "Cristo exerce as funções de sacerdote oferecendo-se a si mesmo uma vez em sacrifício sem mácula, a Deus, para ser a reconciliação pelos pecados do seu povo e fazendo contínua intercessão por ele.",
       "proof_texts": [
         {
-          "printed": "Hb 9.14, 28, e 2.17, e 7.35",
-          "reference": null
+          "printed": "Hb 9.14, 28",
+          "reference": {
+            "book": "Hb",
+            "chapter": 9,
+            "verses": [
+              {
+                "start": 14,
+                "end": 14
+              },
+              {
+                "start": 28,
+                "end": 28
+              }
+            ]
+          }
+        },
+        {
+          "printed": "2.17",
+          "reference": {
+            "book": "Hb",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 17,
+                "end": 17
+              }
+            ]
+          }
+        },
+        {
+          "printed": "7.35",
+          "reference": {
+            "book": "Hb",
+            "chapter": 7,
+            "verses": [
+              {
+                "start": 25,
+                "end": 25
+              }
+            ]
+          }
         }
       ]
     },
@@ -3286,8 +4053,30 @@
           }
         },
         {
-          "printed": "Ap 22.12, e 3.19",
-          "reference": null
+          "printed": "Ap 22.12",
+          "reference": {
+            "book": "Ap",
+            "chapter": 22,
+            "verses": [
+              {
+                "start": 12,
+                "end": 12
+              }
+            ]
+          }
+        },
+        {
+          "printed": "3.19",
+          "reference": {
+            "book": "Ap",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 19,
+                "end": 19
+              }
+            ]
+          }
         },
         {
           "printed": "Rm 8.37-39",
@@ -3316,8 +4105,30 @@
           }
         },
         {
-          "printed": "Rm 14.11, e 8.28",
-          "reference": null
+          "printed": "Rm 14.11",
+          "reference": {
+            "book": "Rm",
+            "chapter": 14,
+            "verses": [
+              {
+                "start": 11,
+                "end": 11
+              }
+            ]
+          }
+        },
+        {
+          "printed": "8.28",
+          "reference": {
+            "book": "Rm",
+            "chapter": 8,
+            "verses": [
+              {
+                "start": 28,
+                "end": 28
+              }
+            ]
+          }
         },
         {
           "printed": "2Ts 1.8",
@@ -3387,7 +4198,20 @@
       "proof_texts": [
         {
           "printed": "1Jo 1.14, 18",
-          "reference": null
+          "reference": {
+            "book": "Jo",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 14,
+                "end": 14
+              },
+              {
+                "start": 18,
+                "end": 18
+              }
+            ]
+          }
         },
         {
           "printed": "Lc 2.7",
@@ -3495,8 +4319,30 @@
       "answer": "Cristo humilhou-se na sua morte porque, tendo sido traído por Judas, abandonado pelos seus discípulos, escarnecido e rejeitado pelo mundo, condenado por Pilatos e atormentado pelos seus perseguidores, tendo também lutado com os terrores da morte e os poderes das trevas, tendo sentido e suportado o peso da ira de Deus, Ele deu a sua vida como oferta pelo pecado, sofrendo a penosa, vergonhosa e maldita morte da cruz.",
       "proof_texts": [
         {
-          "printed": "Mt 27.4, e 26.56",
-          "reference": null
+          "printed": "Mt 27.4",
+          "reference": {
+            "book": "Mt",
+            "chapter": 27,
+            "verses": [
+              {
+                "start": 4,
+                "end": 4
+              }
+            ]
+          }
+        },
+        {
+          "printed": "26.56",
+          "reference": {
+            "book": "Mt",
+            "chapter": 26,
+            "verses": [
+              {
+                "start": 56,
+                "end": 56
+              }
+            ]
+          }
         },
         {
           "printed": "Is 53.3",
@@ -3669,8 +4515,30 @@
           }
         },
         {
-          "printed": "Ef 4.10, e 1.20",
-          "reference": null
+          "printed": "Ef 4.10",
+          "reference": {
+            "book": "Ef",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 10,
+                "end": 10
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1.20",
+          "reference": {
+            "book": "Ef",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 20,
+                "end": 20
+              }
+            ]
+          }
         },
         {
           "printed": "At 1.11",
@@ -3758,12 +4626,56 @@
           }
         },
         {
-          "printed": "Jo 2.19, e 10.18",
-          "reference": null
+          "printed": "Jo 2.19",
+          "reference": {
+            "book": "Jo",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 19,
+                "end": 19
+              }
+            ]
+          }
         },
         {
-          "printed": "Rm 1.4 e 8.3334",
-          "reference": null
+          "printed": "10.18",
+          "reference": {
+            "book": "Jo",
+            "chapter": 10,
+            "verses": [
+              {
+                "start": 18,
+                "end": 18
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Rm 1.4",
+          "reference": {
+            "book": "Rm",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 4,
+                "end": 4
+              }
+            ]
+          }
+        },
+        {
+          "printed": "8.3334",
+          "reference": {
+            "book": "Rm",
+            "chapter": 8,
+            "verses": [
+              {
+                "start": 33,
+                "end": 34
+              }
+            ]
+          }
         },
         {
           "printed": "Hb 2.14",
@@ -3907,8 +4819,34 @@
           }
         },
         {
-          "printed": "Hb 6.20: Ef 4.8, 10",
-          "reference": null
+          "printed": "Hb 6.20",
+          "reference": {
+            "book": "Hb",
+            "chapter": 6,
+            "verses": [
+              {
+                "start": 20,
+                "end": 20
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Ef 4.8, 10",
+          "reference": {
+            "book": "Ef",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 8,
+                "end": 8
+              },
+              {
+                "start": 10,
+                "end": 10
+              }
+            ]
+          }
         },
         {
           "printed": "At 1.9",
@@ -4085,8 +5023,30 @@
       "answer": "Cristo faz a sua intercessão apresentando-se em nossa natureza continuamente perante o Pai no céu, pelo mérito da sua obediência e sacrifício cumpridos na terra, declarando ser a Sua vontade que seja aplicado a todos os crentes respondendo a todas acusações contra eles; adquirindo-lhes paz de consciência, não obstante as faltas diárias, dando-lhes acesso com confiança ao trono da graça e aceitação das suas pessoas e serviços.",
       "proof_texts": [
         {
-          "printed": "Hb 9.24 e 1.3",
-          "reference": null
+          "printed": "Hb 9.24",
+          "reference": {
+            "book": "Hb",
+            "chapter": 9,
+            "verses": [
+              {
+                "start": 24,
+                "end": 24
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1.3",
+          "reference": {
+            "book": "Hb",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 3,
+                "end": 3
+              }
+            ]
+          }
         },
         {
           "printed": "Jo 17.9, 20, 24",
@@ -4110,8 +5070,30 @@
           }
         },
         {
-          "printed": "Rm 5.1-2, 1Jo 2.1-2",
-          "reference": null
+          "printed": "Rm 5.1-2",
+          "reference": {
+            "book": "Rm",
+            "chapter": 5,
+            "verses": [
+              {
+                "start": 1,
+                "end": 2
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1Jo 2.1-2",
+          "reference": {
+            "book": "1Jo",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 1,
+                "end": 2
+              }
+            ]
+          }
         },
         {
           "printed": "Hb 4.16",
@@ -4128,7 +5110,16 @@
         },
         {
           "printed": "Ef 11.6",
-          "reference": null
+          "reference": {
+            "book": "Ef",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 6,
+                "end": 6
+              }
+            ]
+          }
         },
         {
           "printed": "1Pe 2.5",
@@ -4177,8 +5168,30 @@
           }
         },
         {
-          "printed": "Lc 9.26, 1Ts 4.16",
-          "reference": null
+          "printed": "Lc 9.26",
+          "reference": {
+            "book": "Lc",
+            "chapter": 9,
+            "verses": [
+              {
+                "start": 26,
+                "end": 26
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1Ts 4.16",
+          "reference": {
+            "book": "1Ts",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 16,
+                "end": 16
+              }
+            ]
+          }
         },
         {
           "printed": "At 17.31",
@@ -4280,8 +5293,34 @@
       "answer": "A redenção é aplicada e eficazmente comunicada a todos aqueles para quem Cristo a adquiriu, os quais são nesta vida habilitados pelo Espírito Santo a crer em Cristo conforme o Evangelho.",
       "proof_texts": [
         {
-          "printed": "Jo 6.37, 39 e 10.15-16",
-          "reference": null
+          "printed": "Jo 6.37, 39",
+          "reference": {
+            "book": "Jo",
+            "chapter": 6,
+            "verses": [
+              {
+                "start": 37,
+                "end": 37
+              },
+              {
+                "start": 39,
+                "end": 39
+              }
+            ]
+          }
+        },
+        {
+          "printed": "10.15-16",
+          "reference": {
+            "book": "Jo",
+            "chapter": 10,
+            "verses": [
+              {
+                "start": 15,
+                "end": 16
+              }
+            ]
+          }
         },
         {
           "printed": "Ef 2.8",
@@ -4356,8 +5395,30 @@
           }
         },
         {
-          "printed": "Jo 3.18, e 8.24",
-          "reference": null
+          "printed": "Jo 3.18",
+          "reference": {
+            "book": "Jo",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 18,
+                "end": 18
+              }
+            ]
+          }
+        },
+        {
+          "printed": "8.24",
+          "reference": {
+            "book": "Jo",
+            "chapter": 8,
+            "verses": [
+              {
+                "start": 24,
+                "end": 24
+              }
+            ]
+          }
         },
         {
           "printed": "1Co 1.21",
@@ -4373,8 +5434,30 @@
           }
         },
         {
-          "printed": "Rm 3.20, e 2.14-15",
-          "reference": null
+          "printed": "Rm 3.20",
+          "reference": {
+            "book": "Rm",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 20,
+                "end": 20
+              }
+            ]
+          }
+        },
+        {
+          "printed": "2.14-15",
+          "reference": {
+            "book": "Rm",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 14,
+                "end": 15
+              }
+            ]
+          }
         },
         {
           "printed": "Jo 4.22",
@@ -4516,7 +5599,16 @@
       "proof_texts": [
         {
           "printed": "Is 4.5-6",
-          "reference": null
+          "reference": {
+            "book": "Is",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 5,
+                "end": 6
+              }
+            ]
+          }
         },
         {
           "printed": "Mt 16.18",
@@ -4618,11 +5710,42 @@
         },
         {
           "printed": "22-23",
-          "reference": null
+          "reference": {
+            "book": "Ef",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 22,
+                "end": 23
+              }
+            ]
+          }
         },
         {
-          "printed": "Jo 11.52 e 10.16",
-          "reference": null
+          "printed": "Jo 11.52",
+          "reference": {
+            "book": "Jo",
+            "chapter": 11,
+            "verses": [
+              {
+                "start": 52,
+                "end": 52
+              }
+            ]
+          }
+        },
+        {
+          "printed": "10.16",
+          "reference": {
+            "book": "Jo",
+            "chapter": 10,
+            "verses": [
+              {
+                "start": 16,
+                "end": 16
+              }
+            ]
+          }
         }
       ]
     },
@@ -4819,12 +5942,43 @@
           }
         },
         {
-          "printed": "e 6.2, Jo 6.44",
-          "reference": null
+          "printed": "6.2",
+          "reference": {
+            "book": "2Co",
+            "chapter": 6,
+            "verses": [
+              {
+                "start": 2,
+                "end": 2
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Jo 6.44",
+          "reference": {
+            "book": "Jo",
+            "chapter": 6,
+            "verses": [
+              {
+                "start": 44,
+                "end": 44
+              }
+            ]
+          }
         },
         {
           "printed": "2Ts 2.1314",
-          "reference": null
+          "reference": {
+            "book": "2Ts",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 13,
+                "end": 14
+              }
+            ]
+          }
         },
         {
           "printed": "At 26.18",
@@ -4886,12 +6040,56 @@
       "answer": "Todos os eleitos, e somente eles, são eficazmente chamados; ainda que outros o possam ser, e multas vezes são exteriormente chamados pelo ministério da palavra e tenham algumas operações comuns do Espírito, contudo, pela sua negligência e desprezo voluntário da graça que é oferecida, são justamente deixados na sua incredulidade e nunca vêm sinceramente a Jesus Cristo.",
       "proof_texts": [
         {
-          "printed": "At 13.48, e 2.47",
-          "reference": null
+          "printed": "At 13.48",
+          "reference": {
+            "book": "At",
+            "chapter": 13,
+            "verses": [
+              {
+                "start": 48,
+                "end": 48
+              }
+            ]
+          }
         },
         {
-          "printed": "Mt 22.14, e 13.20-21",
-          "reference": null
+          "printed": "2.47",
+          "reference": {
+            "book": "At",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 47,
+                "end": 47
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Mt 22.14",
+          "reference": {
+            "book": "Mt",
+            "chapter": 22,
+            "verses": [
+              {
+                "start": 14,
+                "end": 14
+              }
+            ]
+          }
+        },
+        {
+          "printed": "13.20-21",
+          "reference": {
+            "book": "Mt",
+            "chapter": 13,
+            "verses": [
+              {
+                "start": 20,
+                "end": 21
+              }
+            ]
+          }
         },
         {
           "printed": "Sl 81.11-12",
@@ -4973,8 +6171,30 @@
       "answer": "Justificação é um ato da livre graça de Deus para com os pecadores, no qual Ele os perdoa, aceita e considera justas as suas pessoas diante dEle, não por qualquer coisa neles operada, nem por eles feita mas unicamente pela perfeita obediência e plena satisfação de Cristo, a eles imputadas por Deus e recebidas só pela fé.",
       "proof_texts": [
         {
-          "printed": "Rm 3.22-25, e 4.5",
-          "reference": null
+          "printed": "Rm 3.22-25",
+          "reference": {
+            "book": "Rm",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 22,
+                "end": 25
+              }
+            ]
+          }
+        },
+        {
+          "printed": "4.5",
+          "reference": {
+            "book": "Rm",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 5,
+                "end": 5
+              }
+            ]
+          }
         },
         {
           "printed": "2Co 5.19, 21",
@@ -5007,8 +6227,64 @@
           }
         },
         {
-          "printed": "Rm 3.24, 25, 28, e 5.17-19, e 4.6-8, e 5.1",
-          "reference": null
+          "printed": "Rm 3.24, 25, 28",
+          "reference": {
+            "book": "Rm",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 24,
+                "end": 24
+              },
+              {
+                "start": 25,
+                "end": 25
+              },
+              {
+                "start": 28,
+                "end": 28
+              }
+            ]
+          }
+        },
+        {
+          "printed": "5.17-19",
+          "reference": {
+            "book": "Rm",
+            "chapter": 5,
+            "verses": [
+              {
+                "start": 17,
+                "end": 19
+              }
+            ]
+          }
+        },
+        {
+          "printed": "4.6-8",
+          "reference": {
+            "book": "Rm",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 6,
+                "end": 8
+              }
+            ]
+          }
+        },
+        {
+          "printed": "5.1",
+          "reference": {
+            "book": "Rm",
+            "chapter": 5,
+            "verses": [
+              {
+                "start": 1,
+                "end": 1
+              }
+            ]
+          }
         },
         {
           "printed": "At 10.43",
@@ -5139,8 +6415,30 @@
           }
         },
         {
-          "printed": "Ef 2.8, e 1.7",
-          "reference": null
+          "printed": "Ef 2.8",
+          "reference": {
+            "book": "Ef",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 8,
+                "end": 8
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1.7",
+          "reference": {
+            "book": "Ef",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 7,
+                "end": 7
+              }
+            ]
+          }
         }
       ]
     },
@@ -5237,7 +6535,16 @@
         },
         {
           "printed": "Ef 10.43",
-          "reference": null
+          "reference": {
+            "book": "At",
+            "chapter": 10,
+            "verses": [
+              {
+                "start": 43,
+                "end": 43
+              }
+            ]
+          }
         },
         {
           "printed": "Fl 3.9",
@@ -5286,8 +6593,30 @@
           }
         },
         {
-          "printed": "Rm 3.28, e 4.5",
-          "reference": null
+          "printed": "Rm 3.28",
+          "reference": {
+            "book": "Rm",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 28,
+                "end": 28
+              }
+            ]
+          }
+        },
+        {
+          "printed": "4.5",
+          "reference": {
+            "book": "Rm",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 5,
+                "end": 5
+              }
+            ]
+          }
         },
         {
           "printed": "Jo 1.12",
@@ -5349,8 +6678,30 @@
           }
         },
         {
-          "printed": "Gl 4.4-5: Jo 1.12",
-          "reference": null
+          "printed": "Gl 4.4-5",
+          "reference": {
+            "book": "Gl",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 4,
+                "end": 5
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Jo 1.12",
+          "reference": {
+            "book": "Jo",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 12,
+                "end": 12
+              }
+            ]
+          }
         },
         {
           "printed": "2Co 6.18",
@@ -5640,8 +6991,30 @@
           }
         },
         {
-          "printed": "At 11.18, 20.21",
-          "reference": null
+          "printed": "At 11.18",
+          "reference": {
+            "book": "At",
+            "chapter": 11,
+            "verses": [
+              {
+                "start": 18,
+                "end": 18
+              }
+            ]
+          }
+        },
+        {
+          "printed": "20.21",
+          "reference": {
+            "book": "At",
+            "chapter": 20,
+            "verses": [
+              {
+                "start": 21,
+                "end": 21
+              }
+            ]
+          }
         },
         {
           "printed": "Ez 18.30, 32",
@@ -5674,12 +7047,47 @@
           }
         },
         {
-          "printed": "Ez 36.31 e 16.61, 63",
-          "reference": null
+          "printed": "Ez 36.31",
+          "reference": {
+            "book": "Ez",
+            "chapter": 36,
+            "verses": [
+              {
+                "start": 31,
+                "end": 31
+              }
+            ]
+          }
+        },
+        {
+          "printed": "16.61, 63",
+          "reference": {
+            "book": "Ez",
+            "chapter": 16,
+            "verses": [
+              {
+                "start": 61,
+                "end": 61
+              },
+              {
+                "start": 63,
+                "end": 63
+              }
+            ]
+          }
         },
         {
           "printed": "Sl 130.34",
-          "reference": null
+          "reference": {
+            "book": "Sl",
+            "chapter": 130,
+            "verses": [
+              {
+                "start": 3,
+                "end": 4
+              }
+            ]
+          }
         },
         {
           "printed": "Jl 2.12-13",
@@ -5735,7 +7143,16 @@
         },
         {
           "printed": "1Re 8.47-48",
-          "reference": null
+          "reference": {
+            "book": "1Rs",
+            "chapter": 8,
+            "verses": [
+              {
+                "start": 47,
+                "end": 48
+              }
+            ]
+          }
         },
         {
           "printed": "Ez 14.6",
@@ -5801,8 +7218,30 @@
       "answer": "Ainda que a santificação seja inseparavelmente unida com a justificação, contudo elas diferem nisto: na justificação Deus imputa a justiça de Cristo, e na santificação o seu Espírito infunde a graça e dá forças para a exercer. Na justificação o pecado é perdoado, na santificação ele é subjugado; aquela liberta a todos os crentes igualmente da ira vingadora de Deus, e isto perfeitamente nesta vida, de modo que eles nunca mais caem na condenação; esta não é igual em todos os crentes e nesta vida não é perfeita em crente algum, mas vai crescendo para a perfeição.",
       "proof_texts": [
         {
-          "printed": "1Co 6.11, e 1.30",
-          "reference": null
+          "printed": "1Co 6.11",
+          "reference": {
+            "book": "1Co",
+            "chapter": 6,
+            "verses": [
+              {
+                "start": 11,
+                "end": 11
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1.30",
+          "reference": {
+            "book": "1Co",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 30,
+                "end": 30
+              }
+            ]
+          }
         },
         {
           "printed": "Rm 4.6, 8",
@@ -5835,8 +7274,38 @@
           }
         },
         {
-          "printed": "Rm 6.6, 14, e 8.1, 33-34",
-          "reference": null
+          "printed": "Rm 6.6, 14",
+          "reference": {
+            "book": "Rm",
+            "chapter": 6,
+            "verses": [
+              {
+                "start": 6,
+                "end": 6
+              },
+              {
+                "start": 14,
+                "end": 14
+              }
+            ]
+          }
+        },
+        {
+          "printed": "8.1, 33-34",
+          "reference": {
+            "book": "Rm",
+            "chapter": 8,
+            "verses": [
+              {
+                "start": 1,
+                "end": 1
+              },
+              {
+                "start": 33,
+                "end": 34
+              }
+            ]
+          }
         },
         {
           "printed": "Hb 5.12-14",
@@ -6056,8 +7525,30 @@
           }
         },
         {
-          "printed": "1Jo 3.9, e 2.27",
-          "reference": null
+          "printed": "1Jo 3.9",
+          "reference": {
+            "book": "1Jo",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 9,
+                "end": 9
+              }
+            ]
+          }
+        },
+        {
+          "printed": "2.27",
+          "reference": {
+            "book": "1Jo",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 27,
+                "end": 27
+              }
+            ]
+          }
         },
         {
           "printed": "Jr 32.40",
@@ -6145,8 +7636,42 @@
           }
         },
         {
-          "printed": "1Jo 4.13, 16 e 3.14, 18-21, 24",
-          "reference": null
+          "printed": "1Jo 4.13, 16",
+          "reference": {
+            "book": "1Jo",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 13,
+                "end": 13
+              },
+              {
+                "start": 16,
+                "end": 16
+              }
+            ]
+          }
+        },
+        {
+          "printed": "3.14, 18-21, 24",
+          "reference": {
+            "book": "1Jo",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 14,
+                "end": 14
+              },
+              {
+                "start": 18,
+                "end": 21
+              },
+              {
+                "start": 24,
+                "end": 24
+              }
+            ]
+          }
         },
         {
           "printed": "Hb 6.11-12",
@@ -6234,8 +7759,60 @@
           }
         },
         {
-          "printed": "Sl 77.7-9, e 22.1 e 31.22, e 73.13-15, 23",
-          "reference": null
+          "printed": "Sl 77.7-9",
+          "reference": {
+            "book": "Sl",
+            "chapter": 77,
+            "verses": [
+              {
+                "start": 7,
+                "end": 9
+              }
+            ]
+          }
+        },
+        {
+          "printed": "22.1",
+          "reference": {
+            "book": "Sl",
+            "chapter": 22,
+            "verses": [
+              {
+                "start": 1,
+                "end": 1
+              }
+            ]
+          }
+        },
+        {
+          "printed": "31.22",
+          "reference": {
+            "book": "Sl",
+            "chapter": 31,
+            "verses": [
+              {
+                "start": 22,
+                "end": 22
+              }
+            ]
+          }
+        },
+        {
+          "printed": "73.13-15, 23",
+          "reference": {
+            "book": "Sl",
+            "chapter": 73,
+            "verses": [
+              {
+                "start": 13,
+                "end": 15
+              },
+              {
+                "start": 23,
+                "end": 23
+              }
+            ]
+          }
         },
         {
           "printed": "1Jo 3.9",
@@ -6252,7 +7829,16 @@
         },
         {
           "printed": "Is 54.711",
-          "reference": null
+          "reference": {
+            "book": "Is",
+            "chapter": 54,
+            "verses": [
+              {
+                "start": 7,
+                "end": 11
+              }
+            ]
+          }
         }
       ]
     },
@@ -6373,8 +7959,30 @@
           }
         },
         {
-          "printed": "Rm 5.1-2 e 14.17",
-          "reference": null
+          "printed": "Rm 5.1-2",
+          "reference": {
+            "book": "Rm",
+            "chapter": 5,
+            "verses": [
+              {
+                "start": 1,
+                "end": 2
+              }
+            ]
+          }
+        },
+        {
+          "printed": "14.17",
+          "reference": {
+            "book": "Rm",
+            "chapter": 14,
+            "verses": [
+              {
+                "start": 17,
+                "end": 17
+              }
+            ]
+          }
         },
         {
           "printed": "Gn 4.13",
@@ -6538,8 +8146,30 @@
           }
         },
         {
-          "printed": "Lc 16.25, e 23.45",
-          "reference": null
+          "printed": "Lc 16.25",
+          "reference": {
+            "book": "Lc",
+            "chapter": 16,
+            "verses": [
+              {
+                "start": 25,
+                "end": 25
+              }
+            ]
+          }
+        },
+        {
+          "printed": "23.45",
+          "reference": {
+            "book": "Lc",
+            "chapter": 23,
+            "verses": [
+              {
+                "start": 43,
+                "end": 43
+              }
+            ]
+          }
         },
         {
           "printed": "Fl 1.23",
@@ -6579,8 +8209,34 @@
           }
         },
         {
-          "printed": "Ap 7.13, 14, e 19.8",
-          "reference": null
+          "printed": "Ap 7.13, 14",
+          "reference": {
+            "book": "Ap",
+            "chapter": 7,
+            "verses": [
+              {
+                "start": 13,
+                "end": 13
+              },
+              {
+                "start": 14,
+                "end": 14
+              }
+            ]
+          }
+        },
+        {
+          "printed": "19.8",
+          "reference": {
+            "book": "Ap",
+            "chapter": 19,
+            "verses": [
+              {
+                "start": 8,
+                "end": 8
+              }
+            ]
+          }
         },
         {
           "printed": "2Co 5.8",
@@ -6692,7 +8348,16 @@
         },
         {
           "printed": "1Re 2.10",
-          "reference": null
+          "reference": {
+            "book": "1Rs",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 10,
+                "end": 10
+              }
+            ]
+          }
         },
         {
           "printed": "Jo 11.11",
@@ -6767,8 +8432,30 @@
           }
         },
         {
-          "printed": "1Co 15.51-53: 1Ts 4.15-17",
-          "reference": null
+          "printed": "1Co 15.51-53",
+          "reference": {
+            "book": "1Co",
+            "chapter": 15,
+            "verses": [
+              {
+                "start": 51,
+                "end": 53
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1Ts 4.15-17",
+          "reference": {
+            "book": "1Ts",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 15,
+                "end": 17
+              }
+            ]
+          }
         },
         {
           "printed": "1Co 15.21-23, 42-44",
@@ -6874,7 +8561,20 @@
         },
         {
           "printed": "Mt 36.42, 44",
-          "reference": null
+          "reference": {
+            "book": "Mt",
+            "chapter": 24,
+            "verses": [
+              {
+                "start": 42,
+                "end": 42
+              },
+              {
+                "start": 44,
+                "end": 44
+              }
+            ]
+          }
         }
       ]
     },
@@ -6884,8 +8584,30 @@
       "answer": "No dia do juízo os ímpios serão postos à mão esquerda de Cristo, e sob clara evidência e plena convicção das suas próprias consciências terão pronunciada contra si a terrível, porém justa, sentença de condenação; então serão excluídos da presença favorável de Deus e da gloriosa comunhão com Cristo, com e seus santos, e com todos os santos anjos e lançados no inferno, para serem punidos com tormentos indizíveis, do corpo e da alma, com o diabo e seus anjos para sempre.",
       "proof_texts": [
         {
-          "printed": "Mt 25.23, e 22.12",
-          "reference": null
+          "printed": "Mt 25.23",
+          "reference": {
+            "book": "Mt",
+            "chapter": 25,
+            "verses": [
+              {
+                "start": 23,
+                "end": 23
+              }
+            ]
+          }
+        },
+        {
+          "printed": "22.12",
+          "reference": {
+            "book": "Mt",
+            "chapter": 22,
+            "verses": [
+              {
+                "start": 12,
+                "end": 12
+              }
+            ]
+          }
         },
         {
           "printed": "Lc 19.22",
@@ -6951,8 +8673,30 @@
           }
         },
         {
-          "printed": "Mt 25.33, e 10.32",
-          "reference": null
+          "printed": "Mt 25.33",
+          "reference": {
+            "book": "Mt",
+            "chapter": 25,
+            "verses": [
+              {
+                "start": 33,
+                "end": 33
+              }
+            ]
+          }
+        },
+        {
+          "printed": "10.32",
+          "reference": {
+            "book": "Mt",
+            "chapter": 10,
+            "verses": [
+              {
+                "start": 32,
+                "end": 32
+              }
+            ]
+          }
         },
         {
           "printed": "1Co 6.2-3",
@@ -7129,8 +8873,34 @@
           }
         },
         {
-          "printed": "Rm 10.5, e 2.14, 15",
-          "reference": null
+          "printed": "Rm 10.5",
+          "reference": {
+            "book": "Rm",
+            "chapter": 10,
+            "verses": [
+              {
+                "start": 5,
+                "end": 5
+              }
+            ]
+          }
+        },
+        {
+          "printed": "2.14, 15",
+          "reference": {
+            "book": "Rm",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 14,
+                "end": 14
+              },
+              {
+                "start": 15,
+                "end": 15
+              }
+            ]
+          }
         },
         {
           "printed": "Gn 2.17",
@@ -7370,8 +9140,46 @@
           }
         },
         {
-          "printed": "Rm 3.9, 20, 23 e 7.7, 9, 13",
-          "reference": null
+          "printed": "Rm 3.9, 20, 23",
+          "reference": {
+            "book": "Rm",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 9,
+                "end": 9
+              },
+              {
+                "start": 20,
+                "end": 20
+              },
+              {
+                "start": 23,
+                "end": 23
+              }
+            ]
+          }
+        },
+        {
+          "printed": "7.7, 9, 13",
+          "reference": {
+            "book": "Rm",
+            "chapter": 7,
+            "verses": [
+              {
+                "start": 7,
+                "end": 7
+              },
+              {
+                "start": 9,
+                "end": 9
+              },
+              {
+                "start": 13,
+                "end": 13
+              }
+            ]
+          }
         },
         {
           "printed": "Gl 3.21-22",
@@ -7457,8 +9265,34 @@
       "answer": "Embora os que são regenerados e crentes em Cristo sejam libertados da lei moral, como pacto de obras, de modo que nem são justificados nem condenados por ela; contudo, além da utilidade geral desta lei comum a eles e a todos os homens é ela de utilidade especial para lhes mostrar quanto devem a Cristo por cumpri-la e sofrer a maldição dela, em lugar e para bem deles, e assim provocálos a uma gratidão maior e a manifestar esta gratidão por maior cuidado da sua parte em conformarem-se a esta lei, como regra de sua obediência.",
       "proof_texts": [
         {
-          "printed": "Rm 6.14 e 7.4, 6",
-          "reference": null
+          "printed": "Rm 6.14",
+          "reference": {
+            "book": "Rm",
+            "chapter": 6,
+            "verses": [
+              {
+                "start": 14,
+                "end": 14
+              }
+            ]
+          }
+        },
+        {
+          "printed": "7.4, 6",
+          "reference": {
+            "book": "Rm",
+            "chapter": 7,
+            "verses": [
+              {
+                "start": 4,
+                "end": 4
+              },
+              {
+                "start": 6,
+                "end": 6
+              }
+            ]
+          }
         },
         {
           "printed": "Gl 4.4-5",
@@ -7474,8 +9308,47 @@
           }
         },
         {
-          "printed": "Rm 3.20 e 8.1, 34 e 7.24-25",
-          "reference": null
+          "printed": "Rm 3.20",
+          "reference": {
+            "book": "Rm",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 20,
+                "end": 20
+              }
+            ]
+          }
+        },
+        {
+          "printed": "8.1, 34",
+          "reference": {
+            "book": "Rm",
+            "chapter": 8,
+            "verses": [
+              {
+                "start": 1,
+                "end": 1
+              },
+              {
+                "start": 34,
+                "end": 34
+              }
+            ]
+          }
+        },
+        {
+          "printed": "7.24-25",
+          "reference": {
+            "book": "Rm",
+            "chapter": 7,
+            "verses": [
+              {
+                "start": 24,
+                "end": 25
+              }
+            ]
+          }
         },
         {
           "printed": "Gl 3.13-14",
@@ -7530,8 +9403,30 @@
           }
         },
         {
-          "printed": "Rm 7.22 e 12.2",
-          "reference": null
+          "printed": "Rm 7.22",
+          "reference": {
+            "book": "Rm",
+            "chapter": 7,
+            "verses": [
+              {
+                "start": 22,
+                "end": 22
+              }
+            ]
+          }
+        },
+        {
+          "printed": "12.2",
+          "reference": {
+            "book": "Rm",
+            "chapter": 12,
+            "verses": [
+              {
+                "start": 2,
+                "end": 2
+              }
+            ]
+          }
         },
         {
           "printed": "Tt 2.11-14",
@@ -7652,12 +9547,43 @@
           }
         },
         {
-          "printed": "Mt 22.37-39 e 12.36-37",
-          "reference": null
+          "printed": "Mt 22.37-39",
+          "reference": {
+            "book": "Mt",
+            "chapter": 22,
+            "verses": [
+              {
+                "start": 37,
+                "end": 39
+              }
+            ]
+          }
+        },
+        {
+          "printed": "12.36-37",
+          "reference": {
+            "book": "Mt",
+            "chapter": 12,
+            "verses": [
+              {
+                "start": 36,
+                "end": 37
+              }
+            ]
+          }
         },
         {
           "printed": "Cl 3:5",
-          "reference": null
+          "reference": {
+            "book": "Cl",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 5,
+                "end": 5
+              }
+            ]
+          }
         },
         {
           "printed": "1Tm 6.10",
@@ -7738,8 +9664,30 @@
           }
         },
         {
-          "printed": "Êx 20.12, Pv 30.17",
-          "reference": null
+          "printed": "Êx 20.12",
+          "reference": {
+            "book": "Êx",
+            "chapter": 20,
+            "verses": [
+              {
+                "start": 12,
+                "end": 12
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Pv 30.17",
+          "reference": {
+            "book": "Pv",
+            "chapter": 30,
+            "verses": [
+              {
+                "start": 17,
+                "end": 17
+              }
+            ]
+          }
         },
         {
           "printed": "Jr 18.7-8",
@@ -8027,8 +9975,30 @@
           }
         },
         {
-          "printed": "Êx 3.14 e 6.13",
-          "reference": null
+          "printed": "Êx 3.14",
+          "reference": {
+            "book": "Êx",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 14,
+                "end": 14
+              }
+            ]
+          }
+        },
+        {
+          "printed": "6.13",
+          "reference": {
+            "book": "Êx",
+            "chapter": 6,
+            "verses": [
+              {
+                "start": 3,
+                "end": 3
+              }
+            ]
+          }
         },
         {
           "printed": "At 17.24, 28",
@@ -8074,8 +10044,30 @@
           }
         },
         {
-          "printed": "Lc 1.74-75 1Pe 1.15-18",
-          "reference": null
+          "printed": "Lc 1.74-75",
+          "reference": {
+            "book": "Lc",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 74,
+                "end": 75
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1Pe 1.15-18",
+          "reference": {
+            "book": "1Pe",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 15,
+                "end": 18
+              }
+            ]
+          }
         }
       ]
     },
@@ -8372,12 +10364,30 @@
           }
         },
         {
-          "printed": "e 37.4",
-          "reference": null
+          "printed": "37.4",
+          "reference": {
+            "book": "Sl",
+            "chapter": 37,
+            "verses": [
+              {
+                "start": 4,
+                "end": 4
+              }
+            ]
+          }
         },
         {
-          "printed": "e 12.11",
-          "reference": null
+          "printed": "12.11",
+          "reference": {
+            "book": "Rm",
+            "chapter": 12,
+            "verses": [
+              {
+                "start": 11,
+                "end": 11
+              }
+            ]
+          }
         },
         {
           "printed": "Rm 12.11",
@@ -8609,7 +10619,20 @@
         },
         {
           "printed": "At17.23, 29",
-          "reference": null
+          "reference": {
+            "book": "At",
+            "chapter": 17,
+            "verses": [
+              {
+                "start": 23,
+                "end": 23
+              },
+              {
+                "start": 29,
+                "end": 29
+              }
+            ]
+          }
         },
         {
           "printed": "Is 40.18",
@@ -8729,8 +10752,17 @@
           }
         },
         {
-          "printed": "e 4.1",
-          "reference": null
+          "printed": "4.1",
+          "reference": {
+            "book": "1Jo",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 1,
+                "end": 1
+              }
+            ]
+          }
         },
         {
           "printed": "Hb 3.12",
@@ -8941,8 +10973,30 @@
           }
         },
         {
-          "printed": "Ap 3.1 e 3.16",
-          "reference": null
+          "printed": "Ap 3.1",
+          "reference": {
+            "book": "Ap",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 1,
+                "end": 1
+              }
+            ]
+          }
+        },
+        {
+          "printed": "3.16",
+          "reference": {
+            "book": "Ap",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 16,
+                "end": 16
+              }
+            ]
+          }
         },
         {
           "printed": "Ez 14.5",
@@ -9180,7 +11234,16 @@
         },
         {
           "printed": "Hb 1.16",
-          "reference": null
+          "reference": {
+            "book": "Hc",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 16,
+                "end": 16
+              }
+            ]
+          }
         }
       ]
     },
@@ -9204,7 +11267,16 @@
         },
         {
           "printed": "1Cr 28.29",
-          "reference": null
+          "reference": {
+            "book": "1Cr",
+            "chapter": 28,
+            "verses": [
+              {
+                "start": 9,
+                "end": 9
+              }
+            ]
+          }
         }
       ]
     },
@@ -9351,8 +11423,43 @@
           }
         },
         {
-          "printed": "Mt 28.19 e 16.18 e 18.15-17",
-          "reference": null
+          "printed": "Mt 28.19",
+          "reference": {
+            "book": "Mt",
+            "chapter": 28,
+            "verses": [
+              {
+                "start": 19,
+                "end": 19
+              }
+            ]
+          }
+        },
+        {
+          "printed": "16.18",
+          "reference": {
+            "book": "Mt",
+            "chapter": 16,
+            "verses": [
+              {
+                "start": 18,
+                "end": 18
+              }
+            ]
+          }
+        },
+        {
+          "printed": "18.15-17",
+          "reference": {
+            "book": "Mt",
+            "chapter": 18,
+            "verses": [
+              {
+                "start": 15,
+                "end": 17
+              }
+            ]
+          }
         },
         {
           "printed": "1Co 12.28",
@@ -9561,12 +11668,56 @@
           }
         },
         {
-          "printed": "1Re 11.33 e 12.23",
-          "reference": null
+          "printed": "1Re 11.33",
+          "reference": {
+            "book": "1Rs",
+            "chapter": 11,
+            "verses": [
+              {
+                "start": 33,
+                "end": 33
+              }
+            ]
+          }
         },
         {
-          "printed": "Dt 12.30-32 e 4.1516",
-          "reference": null
+          "printed": "12.23",
+          "reference": {
+            "book": "1Rs",
+            "chapter": 12,
+            "verses": [
+              {
+                "start": 33,
+                "end": 33
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Dt 12.30-32",
+          "reference": {
+            "book": "Dt",
+            "chapter": 12,
+            "verses": [
+              {
+                "start": 30,
+                "end": 32
+              }
+            ]
+          }
+        },
+        {
+          "printed": "4.1516",
+          "reference": {
+            "book": "Dt",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 15,
+                "end": 16
+              }
+            ]
+          }
         },
         {
           "printed": "At 17.29",
@@ -9630,7 +11781,16 @@
         },
         {
           "printed": "1Re 18.26-28",
-          "reference": null
+          "reference": {
+            "book": "1Rs",
+            "chapter": 18,
+            "verses": [
+              {
+                "start": 26,
+                "end": 28
+              }
+            ]
+          }
         },
         {
           "printed": "At 17.22",
@@ -9690,7 +11850,16 @@
         },
         {
           "printed": "Sl 104.39",
-          "reference": null
+          "reference": {
+            "book": "Sl",
+            "chapter": 106,
+            "verses": [
+              {
+                "start": 39,
+                "end": 39
+              }
+            ]
+          }
         },
         {
           "printed": "Mt 15.9",
@@ -9758,8 +11927,30 @@
           }
         },
         {
-          "printed": "1Sm 13.12 e 15.21",
-          "reference": null
+          "printed": "1Sm 13.12",
+          "reference": {
+            "book": "1Sm",
+            "chapter": 13,
+            "verses": [
+              {
+                "start": 12,
+                "end": 12
+              }
+            ]
+          }
+        },
+        {
+          "printed": "15.21",
+          "reference": {
+            "book": "1Sm",
+            "chapter": 15,
+            "verses": [
+              {
+                "start": 21,
+                "end": 21
+              }
+            ]
+          }
         },
         {
           "printed": "At 8.18-19",
@@ -9788,12 +11979,60 @@
           }
         },
         {
-          "printed": "Ml 3.8 e 1.7, 13",
-          "reference": null
+          "printed": "Ml 3.8",
+          "reference": {
+            "book": "Ml",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 8,
+                "end": 8
+              }
+            ]
+          }
         },
         {
-          "printed": "Mt 22.5 e 23.13",
-          "reference": null
+          "printed": "1.7, 13",
+          "reference": {
+            "book": "Ml",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 7,
+                "end": 7
+              },
+              {
+                "start": 13,
+                "end": 13
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Mt 22.5",
+          "reference": {
+            "book": "Mt",
+            "chapter": 22,
+            "verses": [
+              {
+                "start": 5,
+                "end": 5
+              }
+            ]
+          }
+        },
+        {
+          "printed": "23.13",
+          "reference": {
+            "book": "Mt",
+            "chapter": 23,
+            "verses": [
+              {
+                "start": 13,
+                "end": 13
+              }
+            ]
+          }
         },
         {
           "printed": "At 13.45",
@@ -9830,7 +12069,16 @@
         },
         {
           "printed": "Sl 14.11",
-          "reference": null
+          "reference": {
+            "book": "Sl",
+            "chapter": 45,
+            "verses": [
+              {
+                "start": 11,
+                "end": 11
+              }
+            ]
+          }
         },
         {
           "printed": "Ap 15.3-4",
@@ -10975,7 +13223,20 @@
         },
         {
           "printed": "Lc 23.5456",
-          "reference": null
+          "reference": {
+            "book": "Lc",
+            "chapter": 23,
+            "verses": [
+              {
+                "start": 54,
+                "end": 54
+              },
+              {
+                "start": 56,
+                "end": 56
+              }
+            ]
+          }
         }
       ]
     },
@@ -11272,8 +13533,30 @@
           }
         },
         {
-          "printed": "Ne 13.15-23, Jr 17.21-23",
-          "reference": null
+          "printed": "Ne 13.15-23",
+          "reference": {
+            "book": "Ne",
+            "chapter": 13,
+            "verses": [
+              {
+                "start": 15,
+                "end": 23
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Jr 17.21-23",
+          "reference": {
+            "book": "Jr",
+            "chapter": 17,
+            "verses": [
+              {
+                "start": 21,
+                "end": 23
+              }
+            ]
+          }
         }
       ]
     },
@@ -11505,7 +13788,20 @@
         },
         {
           "printed": "Pv 31.38, 29",
-          "reference": null
+          "reference": {
+            "book": "Pv",
+            "chapter": 31,
+            "verses": [
+              {
+                "start": 28,
+                "end": 28
+              },
+              {
+                "start": 29,
+                "end": 29
+              }
+            ]
+          }
         },
         {
           "printed": "Lv 19.32",
@@ -12652,8 +14948,42 @@
           }
         },
         {
-          "printed": "1Sm 25.32, 33, Pv 1.10, 11, 15",
-          "reference": null
+          "printed": "1Sm 25.32, 33",
+          "reference": {
+            "book": "1Sm",
+            "chapter": 25,
+            "verses": [
+              {
+                "start": 32,
+                "end": 32
+              },
+              {
+                "start": 33,
+                "end": 33
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Pv 1.10, 11, 15",
+          "reference": {
+            "book": "Pv",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 10,
+                "end": 10
+              },
+              {
+                "start": 11,
+                "end": 11
+              },
+              {
+                "start": 15,
+                "end": 15
+              }
+            ]
+          }
         },
         {
           "printed": "1Rs 21.9, 10, 19",
@@ -12905,8 +15235,38 @@
           }
         },
         {
-          "printed": "1Co 13.4, 5, 1Sm 19.4, 5",
-          "reference": null
+          "printed": "1Co 13.4, 5",
+          "reference": {
+            "book": "1Co",
+            "chapter": 13,
+            "verses": [
+              {
+                "start": 4,
+                "end": 4
+              },
+              {
+                "start": 5,
+                "end": 5
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1Sm 19.4, 5",
+          "reference": {
+            "book": "1Sm",
+            "chapter": 19,
+            "verses": [
+              {
+                "start": 4,
+                "end": 4
+              },
+              {
+                "start": 5,
+                "end": 5
+              }
+            ]
+          }
         },
         {
           "printed": "Rm 13.10",
@@ -13421,8 +15781,30 @@
           }
         },
         {
-          "printed": "1Pe 3.2, 1Co 7.2",
-          "reference": null
+          "printed": "1Pe 3.2",
+          "reference": {
+            "book": "1Pe",
+            "chapter": 3,
+            "verses": [
+              {
+                "start": 2,
+                "end": 2
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1Co 7.2",
+          "reference": {
+            "book": "1Co",
+            "chapter": 7,
+            "verses": [
+              {
+                "start": 2,
+                "end": 2
+              }
+            ]
+          }
         },
         {
           "printed": "Mt 5.28",
@@ -13486,7 +15868,16 @@
         },
         {
           "printed": "I Co 5.9",
-          "reference": null
+          "reference": {
+            "book": "1Co",
+            "chapter": 5,
+            "verses": [
+              {
+                "start": 9,
+                "end": 9
+              }
+            ]
+          }
         },
         {
           "printed": "1Tm 2.9",
@@ -15669,8 +18060,30 @@
           }
         },
         {
-          "printed": "Fp 2.4, 1Tm 1.5",
-          "reference": null
+          "printed": "Fp 2.4",
+          "reference": {
+            "book": "Fp",
+            "chapter": 2,
+            "verses": [
+              {
+                "start": 4,
+                "end": 4
+              }
+            ]
+          }
+        },
+        {
+          "printed": "1Tm 1.5",
+          "reference": {
+            "book": "1Tn",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 5,
+                "end": 5
+              }
+            ]
+          }
         }
       ]
     },
@@ -16021,7 +18434,16 @@
         },
         {
           "printed": "Tg 12.47",
-          "reference": null
+          "reference": {
+            "book": "Lc",
+            "chapter": 12,
+            "verses": [
+              {
+                "start": 47,
+                "end": 48
+              }
+            ]
+          }
         },
         {
           "printed": "Jo 3.10",
@@ -17599,7 +20021,16 @@
         },
         {
           "printed": "Tg 1.21.22",
-          "reference": null
+          "reference": {
+            "book": "Tg",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 21,
+                "end": 22
+              }
+            ]
+          }
         },
         {
           "printed": "1Pe 2.2",
@@ -18927,7 +21358,16 @@
         },
         {
           "printed": "Rm 6.24",
-          "reference": null
+          "reference": {
+            "book": "Rm",
+            "chapter": 6,
+            "verses": [
+              {
+                "start": 2,
+                "end": 4
+              }
+            ]
+          }
         },
         {
           "printed": "Gl 3.26, 27",
@@ -19359,7 +21799,20 @@
         },
         {
           "printed": "2Co 30.18, 19",
-          "reference": null
+          "reference": {
+            "book": "2Cr",
+            "chapter": 30,
+            "verses": [
+              {
+                "start": 18,
+                "end": 18
+              },
+              {
+                "start": 19,
+                "end": 19
+              }
+            ]
+          }
         }
       ]
     },
@@ -19680,8 +22133,30 @@
           }
         },
         {
-          "printed": "Zc 12.10¸Sl 63.1",
-          "reference": null
+          "printed": "Zc 12.10",
+          "reference": {
+            "book": "Zc",
+            "chapter": 12,
+            "verses": [
+              {
+                "start": 10,
+                "end": 10
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Sl 63.1",
+          "reference": {
+            "book": "Sl",
+            "chapter": 63,
+            "verses": [
+              {
+                "start": 1,
+                "end": 1
+              }
+            ]
+          }
         },
         {
           "printed": "Gl 2.20",
@@ -20017,7 +22492,16 @@
         },
         {
           "printed": "Mc 28.19",
-          "reference": null
+          "reference": {
+            "book": "Mt",
+            "chapter": 28,
+            "verses": [
+              {
+                "start": 19,
+                "end": 19
+              }
+            ]
+          }
         },
         {
           "printed": "Rm 4.11",
@@ -20500,7 +22984,16 @@
       "proof_texts": [
         {
           "printed": "1Jo 14.6",
-          "reference": null
+          "reference": {
+            "book": "Jo",
+            "chapter": 14,
+            "verses": [
+              {
+                "start": 6,
+                "end": 6
+              }
+            ]
+          }
         },
         {
           "printed": "1Tm 2.5",

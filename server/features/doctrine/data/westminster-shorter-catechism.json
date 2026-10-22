@@ -220,8 +220,43 @@
           }
         },
         {
-          "printed": "Hb 1:1 comparado com Lc 1.1-4 e Jo 20.30-31",
-          "reference": null
+          "printed": "Hb 1:1",
+          "reference": {
+            "book": "Hb",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 1,
+                "end": 1
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Lc 1.1-4",
+          "reference": {
+            "book": "Lc",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 1,
+                "end": 4
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Jo 20.30-31",
+          "reference": {
+            "book": "Jo",
+            "chapter": 20,
+            "verses": [
+              {
+                "start": 30,
+                "end": 31
+              }
+            ]
+          }
         }
       ]
     },
@@ -381,8 +416,30 @@
           }
         },
         {
-          "printed": "Gn 17.1, Ap 4.8",
-          "reference": null
+          "printed": "Gn 17.1",
+          "reference": {
+            "book": "Gn",
+            "chapter": 17,
+            "verses": [
+              {
+                "start": 1,
+                "end": 1
+              }
+            ]
+          }
+        },
+        {
+          "printed": "Ap 4.8",
+          "reference": {
+            "book": "Ap",
+            "chapter": 4,
+            "verses": [
+              {
+                "start": 8,
+                "end": 8
+              }
+            ]
+          }
         },
         {
           "printed": "Êx 34.6-7",
@@ -895,7 +952,16 @@
         },
         {
           "printed": "Sl 86-8",
-          "reference": null
+          "reference": {
+            "book": "Sl",
+            "chapter": 8,
+            "verses": [
+              {
+                "start": 6,
+                "end": 8
+              }
+            ]
+          }
         }
       ]
     },
@@ -2712,7 +2778,16 @@
       "proof_texts": [
         {
           "printed": "Mt 22-37-40",
-          "reference": null
+          "reference": {
+            "book": "Mt",
+            "chapter": 22,
+            "verses": [
+              {
+                "start": 37,
+                "end": 40
+              }
+            ]
+          }
         }
       ]
     },
@@ -2872,7 +2947,16 @@
         },
         {
           "printed": "Sl 8.11",
-          "reference": null
+          "reference": {
+            "book": "Sl",
+            "chapter": 81,
+            "verses": [
+              {
+                "start": 11,
+                "end": 11
+              }
+            ]
+          }
         }
       ]
     },
@@ -3094,7 +3178,16 @@
       "proof_texts": [
         {
           "printed": "Sl 29,2",
-          "reference": null
+          "reference": {
+            "book": "Sl",
+            "chapter": 29,
+            "verses": [
+              {
+                "start": 2,
+                "end": 2
+              }
+            ]
+          }
         },
         {
           "printed": "Ap 15.3-4",
@@ -3210,7 +3303,16 @@
       "proof_texts": [
         {
           "printed": "Êx 20. 8.11",
-          "reference": null
+          "reference": {
+            "book": "Êx",
+            "chapter": 20,
+            "verses": [
+              {
+                "start": 8,
+                "end": 11
+              }
+            ]
+          }
         }
       ]
     },
@@ -3418,7 +3520,16 @@
       "proof_texts": [
         {
           "printed": "Êx 31. 15-16",
-          "reference": null
+          "reference": {
+            "book": "Êx",
+            "chapter": 31,
+            "verses": [
+              {
+                "start": 15,
+                "end": 16
+              }
+            ]
+          }
         },
         {
           "printed": "Lv 23.3",
@@ -4021,7 +4132,16 @@
         },
         {
           "printed": "3Jo 12",
-          "reference": null
+          "reference": {
+            "book": "3Jo",
+            "chapter": 1,
+            "verses": [
+              {
+                "start": 12,
+                "end": 12
+              }
+            ]
+          }
         },
         {
           "printed": "Pv 14.5, 25",
@@ -5079,7 +5199,16 @@
         },
         {
           "printed": "31-32",
-          "reference": null
+          "reference": {
+            "book": "1Co",
+            "chapter": 11,
+            "verses": [
+              {
+                "start": 31,
+                "end": 32
+              }
+            ]
+          }
         },
         {
           "printed": "Rm 6.17-18",
