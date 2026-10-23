@@ -10,11 +10,13 @@ from core.domain.access import MEMBER_ACCESS_ROLES
 from core.domain.exceptions import RollMemberAlreadyLinkedError, RollMemberNotFoundError
 from features.accounts.domain.access_requests import AccessRequestStatus
 from features.accounts.dtos import (
+    AccessGrantDTO,
     AccessRequestRecordDTO,
     AccountAccessFlagsDTO,
     LinkedMemberDTO,
     ManagedAccountDTO,
     ManagedAccountPatchDTO,
+    PersonRefDTO,
 )
 from features.accounts.models.access_request import AccessRequest
 from features.accounts.models.profile import Profile
@@ -26,13 +28,13 @@ _LEADERSHIP_GROUPS = [role.value for role in MEMBER_ACCESS_ROLES]
 
 
 def _accounts() -> QuerySet[User]:
-    """Active accounts with what "Perfis" shows, in one query: the profile and its roll link
-    joined, the leadership role and the oldest pending request annotated."""
+    """Active accounts with what "Perfis" shows, in one query: the profile, its roll link and its
+    granting leader joined, the leadership role and the oldest pending request annotated."""
     leadership = Group.objects.filter(user=OuterRef("pk"), name__in=_LEADERSHIP_GROUPS)
     oldest_pending = Min("access_requests__created_at", filter=Q(access_requests__status=_PENDING))
     return (
         User.objects.filter(is_active=True)
-        .select_related("profile__member")
+        .select_related("profile__member", "profile__access_granted_by__profile")
         .annotate(access_via_role=Exists(leadership), oldest_pending=oldest_pending)
     )
 
@@ -66,8 +68,17 @@ class ManagedAccountRepositoryImpl:
         found = _accounts().filter(pk=user_id).first()
         return self._with_pending([found])[0] if found else None
 
-    def set_member_access(self, user_id: UUID, value: bool) -> None:
-        Profile.objects.update_or_create(user_id=user_id, defaults={"member_access": value})
+    def grant_member_access(self, user_id: UUID, grant: AccessGrantDTO) -> None:
+        granted = {
+            "member_access": True,
+            "access_granted_by_id": grant.granted_by,
+            "access_granted_at": grant.granted_at,
+        }
+        Profile.objects.update_or_create(user_id=user_id, defaults=granted)
+
+    def revoke_member_access(self, user_id: UUID) -> None:
+        revoked = {"member_access": False, "access_granted_by": None, "access_granted_at": None}
+        Profile.objects.update_or_create(user_id=user_id, defaults=revoked)
 
     def update(self, user_id: UUID, patch: ManagedAccountPatchDTO) -> None:
         fields: dict[str, object] = {}
@@ -115,10 +126,21 @@ def _to_account(account: User, pending: list[AccessRequestRecordDTO]) -> Managed
         member_access=bool(profile and profile.member_access),
         access_via_role=bool(getattr(account, "access_via_role", False)),
         access_requests_blocked=bool(profile and profile.access_requests_blocked),
+        access_granted_by=_granter(profile),
+        access_granted_at=profile.access_granted_at if profile else None,
         member=_linked_member(profile),
         date_joined=account.date_joined,
         pending_requests=pending,
     )
+
+
+def _granter(profile: Profile | None) -> PersonRefDTO | None:
+    leader = profile.access_granted_by if profile else None
+    if leader is None:
+        return None
+    # A leader without a profile row has no name to show, not an error.
+    leader_profile = getattr(leader, "profile", None)
+    return PersonRefDTO(id=leader.pk, name=getattr(leader_profile, "name", "") or "")
 
 
 def _linked_member(profile: Profile | None) -> LinkedMemberDTO | None:

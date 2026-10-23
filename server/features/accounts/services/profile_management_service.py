@@ -3,7 +3,11 @@ from uuid import UUID
 from django.db import transaction
 
 from core.application.dtos.push_dtos import PushMessage
-from core.domain.exceptions import ManagedAccountNotFoundError, ProfileStatusFilterError
+from core.domain.exceptions import (
+    AccessRequestNotPendingError,
+    ManagedAccountNotFoundError,
+    ProfileStatusFilterError,
+)
 from core.domain.push import PushMessageType
 from core.time.clock import Clock
 from features.accounts.domain.access_requests import (
@@ -14,6 +18,7 @@ from features.accounts.domain.access_requests import (
 )
 from features.accounts.dtos import (
     AccessDecisionDTO,
+    AccessGrantDTO,
     AccessRequestRecordDTO,
     ManagedAccountDTO,
     ManagedAccountDetailDTO,
@@ -46,8 +51,8 @@ def parse_list_filter(raw: str | None) -> ProfileListFilter:
 
 
 class ProfileManagementService:
-    """ "Perfis": leaders see app accounts, decide their requests, revoke access, block requests
-    and link accounts to the roll (specs/022-access-requests US2, US3). The scope check is the
+    """ "Perfis": leaders see app accounts, decide their requests, grant and revoke access, block
+    requests and link accounts to the roll (specs/022-access-requests US2, US3). The scope check is the
     view's; nothing here knows roles.
     """
 
@@ -83,8 +88,9 @@ class ProfileManagementService:
         return ManagedAccountDetailDTO(**account.model_dump(), requests=history)
 
     def approve(self, request_id: int, leader_id: UUID) -> ManagedAccountDetailDTO:
-        """Approve a pending request: an ``access`` one sets the flag, a ``data_correction`` one
-        is only closed. The requester is notified after the commit.
+        """Approve a pending request: an ``access`` one sets the flag (recording the grant unless
+        the flag was already set, FR-017b), a ``data_correction`` one is only closed. The
+        requester is notified after the commit.
 
         >>> service.approve(41, leader.pk).member_access
         True
@@ -93,7 +99,7 @@ class ProfileManagementService:
         with transaction.atomic():
             record = self._requests.decide(request_id, decision)
             if record.type is AccessRequestType.ACCESS:
-                self._accounts.set_member_access(record.user_id, True)
+                self._grant_unless_flagged(record.user_id, leader_id)
         return self._notified(record)
 
     def deny(self, request_id: int, leader_id: UUID, reason: str | None) -> ManagedAccountDetailDTO:
@@ -106,14 +112,36 @@ class ProfileManagementService:
         record = self._requests.decide(request_id, decision)
         return self._notified(record)
 
+    def grant_access(self, user_id: UUID, leader_id: UUID) -> ManagedAccountDetailDTO:
+        """Set the stored flag without a request (spec FR-017a). A pending ``access`` request is
+        approved by the same leader; the account gets the approval push after the commit. An
+        account already flagged is left alone, with no push.
+
+        >>> service.grant_access(ana.pk, leader.pk).access_granted_by.id == leader.pk
+        True
+        """
+        account = self.get_account(user_id)
+        if account.member_access:
+            return account
+        with transaction.atomic():
+            approved = self._approve_pending_access(user_id, leader_id)
+            self._accounts.grant_member_access(user_id, self._grant(leader_id))
+        message = PushMessage(
+            type=PushMessageType.ACCESS_REQUEST_APPROVED,
+            request_id=approved.id if approved else None,
+            request_type=AccessRequestType.ACCESS.value,
+        )
+        self._push.notify({user_id}, message)
+        return self.get_account(user_id)
+
     def revoke_access(self, user_id: UUID) -> ManagedAccountDetailDTO:
-        """Clear the stored flag. No push (spec FR-017).
+        """Clear the stored flag and its grant record. No push (spec FR-017).
 
         >>> service.revoke_access(ana.pk).member_access
         False
         """
         self.get_account(user_id)
-        self._accounts.set_member_access(user_id, False)
+        self._accounts.revoke_member_access(user_id)
         return self.get_account(user_id)
 
     def update_account(
@@ -127,6 +155,27 @@ class ProfileManagementService:
         self.get_account(user_id)
         self._accounts.update(user_id, patch)
         return self.get_account(user_id)
+
+    def _grant(self, leader_id: UUID) -> AccessGrantDTO:
+        return AccessGrantDTO(granted_by=leader_id, granted_at=self._clock.now())
+
+    def _grant_unless_flagged(self, user_id: UUID, leader_id: UUID) -> None:
+        # Approving for an account flagged another way keeps the earlier grant record.
+        if not self._accounts.access_flags(user_id).member_access:
+            self._accounts.grant_member_access(user_id, self._grant(leader_id))
+
+    def _approve_pending_access(
+        self, user_id: UUID, leader_id: UUID
+    ) -> AccessRequestRecordDTO | None:
+        request_id = self._requests.pending_id(user_id, AccessRequestType.ACCESS)
+        if request_id is None:
+            return None
+        decision = self._decision(AccessRequestStatus.APPROVED, leader_id, None)
+        try:
+            return self._requests.decide(request_id, decision)
+        except AccessRequestNotPendingError:
+            # Another leader decided it a moment ago: the grant stands, their decision too.
+            return None
 
     def _decision(
         self, status: AccessRequestStatus, leader_id: UUID, reason: str | None

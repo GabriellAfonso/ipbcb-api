@@ -23,6 +23,13 @@ class Profile(models.Model):
     # Gate on member content (renamed from is_member, specs/022-access-requests). The effective
     # access also counts the Admin and Liderança roles: core.domain.access.has_member_access.
     member_access = models.BooleanField(default=False)
+    # Who set member_access from "Perfis" (approval or direct grant) and when; cleared on revoke.
+    # Empty for flags set in the Django admin or before the record existed. SET_NULL: deleting the
+    # leader's account keeps the grant.
+    access_granted_by = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+    )
+    access_granted_at = models.DateTimeField(null=True, blank=True)
     # Set by leaders in "Perfis": a blocked account cannot create access requests.
     access_requests_blocked = models.BooleanField(default=False)
     # The account's record on the church roll, for the app's "photos of me". Set by leaders only

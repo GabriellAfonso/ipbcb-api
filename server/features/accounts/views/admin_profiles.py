@@ -95,6 +95,23 @@ class AdminProfileDetailAPIView(APIView):
         return _detail_response(request, service.update_account(user_id, serializer.create_dto()))
 
 
+class AdminProfileGrantAccessAPIView(APIView):
+    """POST: set the stored member-access flag without a request; approval push to the account."""
+
+    permission_classes = [IsAuthenticated, _ProfilesPermission]
+
+    @extend_schema(request=None, responses=ManagedAccountDetailSerializer)
+    @inject
+    def post(
+        self,
+        request: Request,
+        user_id: UUID,
+        service: ProfileManagementService = Provide[Container.profile_management_service],
+    ) -> Response:
+        leader_id = cast(UUID, request.user.pk)
+        return _detail_response(request, service.grant_access(user_id, leader_id))
+
+
 class AdminProfileRevokeAccessAPIView(APIView):
     """POST: clear the stored member-access flag. No push."""
 

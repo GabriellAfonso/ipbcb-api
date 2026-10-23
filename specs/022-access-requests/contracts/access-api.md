@@ -111,6 +111,8 @@ POST/PATCH `manage`. GET responses are `private` with ETag.
   "member_access": false,
   "access_via_role": false,
   "access_requests_blocked": false,
+  "access_granted_by": { "id": "9c41…-uuid", "name": "Pr. João" },
+  "access_granted_at": "2026-10-22T14:03:00-03:00",
   "member": { "id": 12, "name": "Ana Souza" },
   "date_joined": "2025-03-14",
   "pending_requests": [ { "...": "request resource" } ]
@@ -118,7 +120,9 @@ POST/PATCH `manage`. GET responses are `private` with ETag.
 ```
 
 `member_access` here is the **stored flag**; `access_via_role` says Admin/Liderança grants it
-anyway (so revoking changes nothing for them). The detail adds `"requests": [...]`, the full
+anyway (so revoking changes nothing for them). `access_granted_by` / `access_granted_at` record
+who set the stored flag and when (approval or direct grant); both `null` when the flag is off, or
+when it was set in the Django admin or before the grant record existed. The detail adds `"requests": [...]`, the full
 history newest first. Request resource as in `POST api/me/access-requests/`, plus `decided_by`
 `{"id", "name"}` when decided.
 
@@ -141,9 +145,17 @@ Both optional; `member_id: null` removes the link. Returns the detail. Errors:
 `400 VALIDATION_ERROR` (`field_errors.member_id`, unknown member or unknown field),
 `409 MEMBER_ALREADY_LINKED`, `404`.
 
+### POST `api/admin/profiles/{user_id}/grant-access/`
+
+Sets the stored flag without a request and records the grant (caller, now). A pending `access`
+request of the account is approved by the caller in the same step. Push
+`access_request_approved` with `request_type` `access` to the account, plus `request_id` when a
+request was approved. Stored flag already set → nothing changes, no push. Returns the detail.
+Unknown id → 404.
+
 ### POST `api/admin/profiles/{user_id}/revoke-access/`
 
-Clears the stored flag. No push. Returns the detail.
+Clears the stored flag and the grant record. No push. Returns the detail.
 
 ### POST `api/admin/profiles/requests/{request_id}/approve/`
 
@@ -167,7 +179,7 @@ requester.
 | `type` | Extra keys | Recipients |
 |--------|------------|------------|
 | `access_request_created` | `request_id`, `request_type` | active accounts with `manage` on `profiles`, except the requester |
-| `access_request_approved` | `request_id`, `request_type` | the requester |
+| `access_request_approved` | `request_id` (absent on a direct grant with no pending request), `request_type` | the requester, or the account granted directly |
 | `access_request_denied` | `request_id`, `request_type`, `reason` (only when given) | the requester |
 
 ```json

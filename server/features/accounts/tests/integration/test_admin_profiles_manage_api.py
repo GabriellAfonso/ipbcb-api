@@ -10,11 +10,14 @@ from config.di import Container
 from conftest import make_auth_client, make_member_client, make_role_client, make_user
 from core.domain.access import Role
 from core.tests.fakes import FakePushSender
+from features.accounts.models.access_request import AccessRequest
+from features.accounts.models.user import User
 from features.accounts.tests.integration.access_helpers import (
     ME_REQUESTS_URL,
     PROFILE_URL,
     account_url,
     register_device,
+    tokens_messaged,
 )
 from features.members.models.member import Member
 
@@ -35,6 +38,54 @@ def leader() -> APIClient:
     return make_role_client(Role.LEADER, username="leader")[0]
 
 
+class TestGrant:
+    def test_grant_without_request_opens_content_and_pushes(
+        self, leader: APIClient, sender: FakePushSender
+    ) -> None:
+        user = make_user(username="ana")
+        client = make_auth_client(user)
+        register_device(user, "t-ana")
+        assert client.get(BIRTHDAYS_URL).status_code == 403
+
+        response = leader.post(account_url(user, "grant-access/"))
+
+        assert response.status_code == 200
+        assert response.data["member_access"] is True
+        leader_id = User.objects.get(username="leader").pk
+        assert response.data["access_granted_by"]["id"] == str(leader_id)
+        assert response.data["access_granted_at"] is not None
+        assert client.get(BIRTHDAYS_URL).status_code == 200
+        assert tokens_messaged(sender) == [
+            ({"t-ana"}, {"type": "access_request_approved", "request_type": "access"})
+        ]
+
+    def test_grant_approves_the_pending_request(
+        self, leader: APIClient, sender: FakePushSender
+    ) -> None:
+        user = make_user(username="ana")
+        make_auth_client(user).post(ME_REQUESTS_URL, {"type": "access"}, format="json")
+        request = AccessRequest.objects.get(user=user)
+
+        response = leader.post(account_url(user, "grant-access/"))
+
+        assert response.data["pending_requests"] == []
+        assert response.data["requests"][0]["status"] == "approved"
+        request.refresh_from_db()
+        assert request.decided_by is not None and request.decided_by.username == "leader"
+
+    def test_granted_account_is_unchanged(self, leader: APIClient, sender: FakePushSender) -> None:
+        member = make_member_client()[1]
+        response = leader.post(account_url(member, "grant-access/"))
+        assert response.data["member_access"] is True
+        assert response.data["access_granted_by"] is None
+        assert sender.calls == []
+
+    def test_view_only_is_refused(self) -> None:
+        media = make_role_client(Role.MEDIA, username="media")[0]
+        user = make_user(username="ana")
+        assert media.post(account_url(user, "grant-access/")).status_code == 403
+
+
 class TestRevoke:
     def test_revoked_member_loses_content_and_gets_no_push(
         self, leader: APIClient, sender: FakePushSender
@@ -47,6 +98,7 @@ class TestRevoke:
 
         assert response.status_code == 200
         assert response.data["member_access"] is False
+        assert response.data["access_granted_by"] is None
         assert member_client.get(BIRTHDAYS_URL).status_code == 403
         assert member_client.get(PROFILE_URL).data["access_status"] == "none"
         assert sender.calls == []

@@ -69,6 +69,12 @@ Paths below are relative to `server/` unless they start with `specs/`.
 - [X] T032 Full suite, mypy, `makemigrations --check` (quickstart.md)
 - [ ] T033 Verify the rename on a restored production dump and run the rollback (quickstart.md) — **manual, before deploy** (the forward/backward value check runs in `test_member_access_rename_migration.py` on the test database)
 
+## Phase 10: Direct grant (US3, FR-017a/b)
+
+- [X] T034 `Profile.access_granted_by` / `access_granted_at` (migration `accounts/0008`); grant record set on approval and direct grant, cleared on revoke (also in the Django admin)
+- [X] T035 `ProfileManagementService.grant_access` (approves the pending `access` request, approval push) and `POST api/admin/profiles/{user_id}/grant-access/`; `access_granted_by` / `access_granted_at` in the account resource
+- [X] T036 Tests: service on fakes, repository, API (no request, pending request, already flagged, Mídia refused, revoke clears the record)
+
 ## Dependencies
 
 - Phase 2 blocks everything. US1 needs T009–T013. US2/US3 need US1's repository and the push

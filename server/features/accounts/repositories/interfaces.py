@@ -9,6 +9,7 @@ from uuid import UUID
 from features.accounts.domain.access_requests import AccessRequestType
 from features.accounts.dtos import (
     AccessDecisionDTO,
+    AccessGrantDTO,
     AccessRequestCreateDTO,
     AccessRequestRecordDTO,
     AccountAccessFlagsDTO,
@@ -118,6 +119,10 @@ class AccessRequestRepository(Protocol):
         """One request, or None."""
         ...
 
+    def pending_id(self, user_id: UUID, kind: AccessRequestType) -> int | None:
+        """The id of the account's pending request of ``kind``, or None."""
+        ...
+
     def decide(self, request_id: int, decision: AccessDecisionDTO) -> AccessRequestRecordDTO:
         """Move a pending request to ``decision.status``; ``AccessRequestNotPendingError`` when it
         is no longer pending, ``AccessRequestNotFoundError`` when it does not exist."""
@@ -144,8 +149,12 @@ class ManagedAccountRepository(Protocol):
         """One active account with its pending requests, or None."""
         ...
 
-    def set_member_access(self, user_id: UUID, value: bool) -> None:
-        """Store the member-access flag."""
+    def grant_member_access(self, user_id: UUID, grant: AccessGrantDTO) -> None:
+        """Set the member-access flag and record who set it and when."""
+        ...
+
+    def revoke_member_access(self, user_id: UUID) -> None:
+        """Clear the member-access flag and its grant record."""
         ...
 
     def update(self, user_id: UUID, patch: ManagedAccountPatchDTO) -> None:

@@ -16,6 +16,7 @@ from core.domain.exceptions import (
 from features.accounts.domain.access_requests import AccessRequestStatus, AccessRequestType
 from features.accounts.dtos import (
     AccessDecisionDTO,
+    AccessGrantDTO,
     AccessRequestCreateDTO,
     AccessRequestRecordDTO,
     AccountAccessFlagsDTO,
@@ -79,6 +80,10 @@ class FakeAccessRequestRepository:
     def get(self, request_id: int) -> AccessRequestRecordDTO | None:
         return self.rows.get(request_id)
 
+    def pending_id(self, user_id: UUID, kind: AccessRequestType) -> int | None:
+        ids = [row.id for row in self._pending() if row.user_id == user_id and row.type is kind]
+        return ids[0] if ids else None
+
     def decide(self, request_id: int, decision: AccessDecisionDTO) -> AccessRequestRecordDTO:
         row = self.rows.get(request_id)
         if row is None:
@@ -127,8 +132,17 @@ class FakeManagedAccountRepository:
         account = self.accounts.get(user_id)
         return self._with_pending(account) if account else None
 
-    def set_member_access(self, user_id: UUID, value: bool) -> None:
-        self.accounts[user_id] = self.accounts[user_id].model_copy(update={"member_access": value})
+    def grant_member_access(self, user_id: UUID, grant: AccessGrantDTO) -> None:
+        granted = {
+            "member_access": True,
+            "access_granted_by": PersonRefDTO(id=grant.granted_by, name="Líder"),
+            "access_granted_at": grant.granted_at,
+        }
+        self.accounts[user_id] = self.accounts[user_id].model_copy(update=granted)
+
+    def revoke_member_access(self, user_id: UUID) -> None:
+        revoked = {"member_access": False, "access_granted_by": None, "access_granted_at": None}
+        self.accounts[user_id] = self.accounts[user_id].model_copy(update=revoked)
 
     def update(self, user_id: UUID, patch: ManagedAccountPatchDTO) -> None:
         self.patches.append((user_id, patch))

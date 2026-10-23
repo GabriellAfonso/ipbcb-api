@@ -57,7 +57,8 @@ class LinkedMemberDTO(BaseModel):
 
 class ManagedAccountDTO(BaseModel):
     """An app account as "Perfis" shows it. ``member_access`` is the stored flag;
-    ``access_via_role`` says a leadership role grants access anyway. No e-mail (spec FR-019)."""
+    ``access_via_role`` says a leadership role grants access anyway; ``access_granted_by`` /
+    ``access_granted_at`` record who set the flag and when (spec FR-017b). No e-mail (FR-019)."""
 
     id: UUID
     name: str
@@ -66,6 +67,8 @@ class ManagedAccountDTO(BaseModel):
     member_access: bool
     access_via_role: bool
     access_requests_blocked: bool
+    access_granted_by: PersonRefDTO | None = None
+    access_granted_at: datetime | None = None
     member: LinkedMemberDTO | None
     date_joined: datetime
     pending_requests: list[AccessRequestRecordDTO] = []
@@ -114,6 +117,17 @@ class AccessDecisionDTO(StrictBaseModel):
     decided_by: UUID
     decided_at: datetime
     denial_reason: str | None = None
+
+
+class AccessGrantDTO(StrictBaseModel):
+    """A leader setting an account's member-access flag (spec FR-017b).
+
+    >>> AccessGrantDTO(granted_by=leader_id, granted_at=now).granted_by == leader_id
+    True
+    """
+
+    granted_by: UUID
+    granted_at: datetime
 
 
 class AccountAccessFlagsDTO(StrictBaseModel):

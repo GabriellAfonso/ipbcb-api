@@ -6,6 +6,7 @@ from features.accounts.views.admin_profiles import (
     AdminAccessRequestApproveAPIView,
     AdminAccessRequestDenyAPIView,
     AdminProfileDetailAPIView,
+    AdminProfileGrantAccessAPIView,
     AdminProfileListAPIView,
     AdminProfileRevokeAccessAPIView,
 )
@@ -54,6 +55,11 @@ urlpatterns = [
         "api/admin/profiles/<uuid:user_id>/",
         AdminProfileDetailAPIView.as_view(),
         name="admin_profiles_detail",
+    ),
+    path(
+        "api/admin/profiles/<uuid:user_id>/grant-access/",
+        AdminProfileGrantAccessAPIView.as_view(),
+        name="admin_profiles_grant_access",
     ),
     path(
         "api/admin/profiles/<uuid:user_id>/revoke-access/",

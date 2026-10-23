@@ -94,11 +94,21 @@ class TestApprove:
         request = setup.requests.add(setup.ana, AccessRequestType.ACCESS)
         account = setup.service.approve(request.id, setup.leader)
         assert account.member_access is True
+        assert account.access_granted_by is not None
+        assert account.access_granted_by.id == setup.leader
+        assert account.access_granted_at == NOW
         assert account.requests[0].status is AccessRequestStatus.APPROVED
         assert account.requests[0].decided_at == NOW
         recipients, message = setup.push.sent[0]
         assert recipients == {setup.ana}
         assert message.type is PushMessageType.ACCESS_REQUEST_APPROVED
+
+    def test_access_for_a_flagged_account_keeps_the_earlier_grant(self, setup: Setup) -> None:
+        flagged = setup.account(member_access=True)
+        request = setup.requests.add(flagged, AccessRequestType.ACCESS)
+        account = setup.service.approve(request.id, setup.leader)
+        assert account.member_access is True
+        assert account.access_granted_by is None
 
     def test_correction_is_only_closed(self, setup: Setup) -> None:
         request = setup.requests.add(setup.ana, AccessRequestType.DATA_CORRECTION, message="x")
@@ -135,10 +145,50 @@ class TestDeny:
         assert "reason" not in setup.push.sent[0][1].as_data()
 
 
-class TestManage:
-    def test_revoke_clears_the_flag_without_push(self, setup: Setup) -> None:
+class TestGrant:
+    def test_sets_the_flag_records_the_leader_and_notifies(self, setup: Setup) -> None:
+        account = setup.service.grant_access(setup.ana, setup.leader)
+        assert account.member_access is True
+        assert account.access_granted_by is not None
+        assert account.access_granted_by.id == setup.leader
+        assert account.access_granted_at == NOW
+        recipients, message = setup.push.sent[0]
+        assert recipients == {setup.ana}
+        assert message.as_data() == {"type": "access_request_approved", "request_type": "access"}
+
+    def test_approves_the_pending_access_request(self, setup: Setup) -> None:
+        request = setup.requests.add(setup.ana, AccessRequestType.ACCESS)
+        account = setup.service.grant_access(setup.ana, setup.leader)
+        assert account.pending_requests == []
+        assert account.requests[0].status is AccessRequestStatus.APPROVED
+        assert setup.push.sent[0][1].request_id == request.id
+
+    def test_leaves_a_pending_correction_alone(self, setup: Setup) -> None:
+        setup.requests.add(setup.ana, AccessRequestType.DATA_CORRECTION, message="x")
+        account = setup.service.grant_access(setup.ana, setup.leader)
+        assert [r.type for r in account.pending_requests] == [AccessRequestType.DATA_CORRECTION]
+        assert setup.push.sent[0][1].request_id is None
+
+    def test_flagged_account_is_unchanged_without_push(self, setup: Setup) -> None:
         flagged = setup.account(member_access=True)
-        assert setup.service.revoke_access(flagged).member_access is False
+        account = setup.service.grant_access(flagged, setup.leader)
+        assert account.member_access is True
+        assert account.access_granted_by is None
+        assert setup.push.sent == []
+
+    def test_unknown_account(self, setup: Setup) -> None:
+        with pytest.raises(ManagedAccountNotFoundError):
+            setup.service.grant_access(uuid4(), setup.leader)
+
+
+class TestManage:
+    def test_revoke_clears_the_flag_and_grant_without_push(self, setup: Setup) -> None:
+        setup.service.grant_access(setup.ana, setup.leader)
+        setup.push.sent.clear()
+        account = setup.service.revoke_access(setup.ana)
+        assert account.member_access is False
+        assert account.access_granted_by is None
+        assert account.access_granted_at is None
         assert setup.push.sent == []
 
     def test_update_applies_the_patch_without_push(self, setup: Setup) -> None:

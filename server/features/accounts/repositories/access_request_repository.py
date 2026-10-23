@@ -58,6 +58,13 @@ class AccessRequestRepositoryImpl:
         found = _with_decider().filter(pk=request_id).first()
         return to_record(found) if found else None
 
+    def pending_id(self, user_id: UUID, kind: AccessRequestType) -> int | None:
+        return (
+            AccessRequest.objects.filter(user_id=user_id, type=kind.value, status=_PENDING)
+            .values_list("pk", flat=True)
+            .first()
+        )
+
     def decide(self, request_id: int, decision: AccessDecisionDTO) -> AccessRequestRecordDTO:
         # Conditional update: two leaders deciding at once cannot both win.
         updated = AccessRequest.objects.filter(pk=request_id, status=_PENDING).update(

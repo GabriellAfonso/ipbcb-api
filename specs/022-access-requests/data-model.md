@@ -7,6 +7,8 @@
 | `member_access` | bool, default false | Renamed from `is_member` (values kept, R-01). The stored flag; effective access also counts the Admin/Liderança roles |
 | `access_requests_blocked` | bool, default false | New. Leaders set it; a blocked account cannot create requests |
 | `member` | OneToOne → `members.Member`, nullable, `SET_NULL` | Unchanged; now also writable from "Perfis" |
+| `access_granted_by` | FK → User, nullable, `SET_NULL`, `related_name="+"` | New. The leader who set the stored flag (approval or direct grant); cleared on revoke |
+| `access_granted_at` | datetime, nullable | New. When the stored flag was set; cleared on revoke |
 
 ## AccessRequest (accounts) — new
 
@@ -29,6 +31,7 @@ name="access_request_one_pending_per_type")`. `Meta.ordering = ["-created_at", "
 
 ```
 pending ──approve──▶ approved   (access: sets Profile.member_access; data_correction: nothing)
+pending ──grant────▶ approved   (direct grant of the account approves its pending access request)
 pending ──deny─────▶ denied     (optional reason)
 approved / denied: final (deciding again → 409 ACCESS_REQUEST_NOT_PENDING)
 ```
@@ -49,7 +52,8 @@ approved / denied: final (deciding again → 409 ACCESS_REQUEST_NOT_PENDING)
 | `AccessRequestRecordDTO` | id, user_id, type, message, status, created_at, decided_by (`PersonRefDTO` \| None), decided_at, denial_reason |
 | `PersonRefDTO` | id (UUID), name |
 | `LinkedMemberDTO` | id, name |
-| `ManagedAccountDTO` | id, name, username, photo_path, member_access (flag), access_via_role, access_requests_blocked, member (`LinkedMemberDTO` \| None), date_joined, pending_requests |
+| `ManagedAccountDTO` | id, name, username, photo_path, member_access (flag), access_via_role, access_requests_blocked, access_granted_by (`PersonRefDTO` \| None), access_granted_at, member (`LinkedMemberDTO` \| None), date_joined, pending_requests |
+| `AccessGrantDTO` | granted_by (UUID), granted_at |
 | `ManagedAccountPatchDTO` | access_requests_blocked?, member_id? (`model_fields_set` tells absent from null) |
 | `MemberAccessStateDTO` | member_access, access_status, data_correction_pending |
 

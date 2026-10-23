@@ -1,5 +1,8 @@
+from typing import Any
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.http import HttpRequest
 
 from features.accounts.models.access_request import AccessRequest
 from features.accounts.models.profile import Profile
@@ -13,6 +16,16 @@ class ProfileAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     # check turns a second link to the same member into a form error (spec 015 FR-002).
     autocomplete_fields = ["member"]
     list_display = ("name", "user", "member_access", "access_requests_blocked", "member")
+    # The grant record is written by "Perfis" only; turning member_access on here records no
+    # grant (specs/022-access-requests FR-017b).
+    readonly_fields = ("access_granted_by", "access_granted_at")
+
+    def save_model(self, request: HttpRequest, obj: Profile, form: Any, change: bool) -> None:
+        # Turning the flag off here is a revoke: no grant record may outlive the flag.
+        if not obj.member_access:
+            obj.access_granted_by = None
+            obj.access_granted_at = None
+        super().save_model(request, obj, form, change)
 
 
 @admin.register(User)

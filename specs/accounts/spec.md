@@ -32,8 +32,11 @@ access and access requests ("Perfis"). Single entry point for who the user is an
   gallery, members-only events and media). Renamed from `is_member` by hand-written migration
   `accounts/0006` (`specs/022-access-requests` R-01). The **effective** access is this flag
   **or** an Admin/Liderança role (`core.domain.access.has_member_access`, permission
-  `HasMemberAccess`); Mídia alone does not count. Set by approving an `access` request or in
-  the Django admin; cleared by "revoke access".
+  `HasMemberAccess`); Mídia alone does not count. Set by approving an `access` request, by a
+  direct grant in "Perfis" or in the Django admin; cleared by "revoke access".
+- `access_granted_by` (FK → User, nullable, `SET_NULL`) and `access_granted_at` (datetime,
+  nullable): the grant record — who set `member_access` from "Perfis" and when. Cleared on
+  revoke; empty for flags set in the Django admin or before the record existed.
 - `access_requests_blocked`: bool, default false. Set by leaders in "Perfis"; a blocked
   account cannot create access requests.
 - `member`: OneToOne -> `members.Member`, nullable, `SET_NULL`, `related_name="profile"`. Links
@@ -259,13 +262,19 @@ A new FK to the user must choose explicitly between these behaviours and be adde
 - `GET api/admin/profiles/?status=pending|all` → `{"accounts": [...]}`: `pending` = accounts with
   a pending request, oldest pending first; `all` (default) = every active account by name. Each
   account: `id, name, username, photo_url, member_access` (the **stored** flag),
-  `access_via_role, access_requests_blocked, member {id, name} | null, date_joined,
+  `access_via_role, access_requests_blocked, access_granted_by {id, name} | null,
+  access_granted_at, member {id, name} | null, date_joined,
   pending_requests`. Never the e-mail
 - `GET api/admin/profiles/{user_id}/` → the account plus `requests` (history, newest first)
 - `PATCH api/admin/profiles/{user_id}/` `{access_requests_blocked?, member_id?}` — block/unblock,
   link/unlink the roll (unknown member 400 on `member_id`; member linked elsewhere 409
   `MEMBER_ALREADY_LINKED`; unknown fields 400). No push
-- `POST api/admin/profiles/{user_id}/revoke-access/` — clears the flag. No push
+- `POST api/admin/profiles/{user_id}/grant-access/` — sets the flag without a request and records
+  the grant; a pending `access` request is approved by the same leader. Push
+  `access_request_approved` (`request_type` `access`, `request_id` only when a request was
+  approved). Flag already set → no change, no push
+- `POST api/admin/profiles/{user_id}/revoke-access/` — clears the flag and the grant record. No
+  push
 - `POST api/admin/profiles/requests/{id}/approve/` — `access`: sets the flag; `data_correction`:
   only closes it. Push `access_request_approved` to the requester
 - `POST api/admin/profiles/requests/{id}/deny/` `{reason?}` (≤ 500) — push

@@ -91,6 +91,8 @@ class ManagedAccountSerializer(serializers.Serializer[Any]):
     member_access = serializers.BooleanField()
     access_via_role = serializers.BooleanField()
     access_requests_blocked = serializers.BooleanField()
+    access_granted_by = PersonRefSerializer(allow_null=True)
+    access_granted_at = serializers.DateTimeField(allow_null=True)
     member = LinkedMemberSerializer(allow_null=True)
     date_joined = serializers.SerializerMethodField()
     pending_requests = AccessRequestRecordSerializer(many=True)

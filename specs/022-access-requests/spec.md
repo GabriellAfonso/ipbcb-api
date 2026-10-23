@@ -155,14 +155,17 @@ gain member access; deny another with a reason; as Mídia, get 403 on every endp
 
 ### User Story 3 - Leaders manage an account's access and link (Priority: P2)
 
-From the account's detail a leader revokes member access, blocks or unblocks the account from
-making requests, and links the account to its record on the roll (or removes the link).
+From the account's detail a leader grants or revokes member access, blocks or unblocks the account
+from making requests, and links the account to its record on the roll (or removes the link).
+Granting needs no request: a leader who knows the person (an old member, someone just received)
+turns access on directly, like assigning a role, without making them find a locked screen first.
 
 **Why this priority**: the controls that keep the workflow from being abused and that replace the
 Django admin for daily work.
 
-**Independent Test**: revoke an account's access and see content endpoints refuse it, with no
-push; block it and see a request refused; link it to a member and see `member_id` in its `/me`;
+**Independent Test**: grant access to an account without a request and see content endpoints
+allow it, the granting leader recorded and the "Acesso liberado" push sent; revoke it and see
+content endpoints refuse it, with no push; block it and see a request refused; link it to a member and see `member_id` in its `/me`;
 link a second account to the same member and get a conflict.
 
 **Acceptance Scenarios**:
@@ -179,6 +182,14 @@ link a second account to the same member and get a conflict.
    the roll record is unchanged.
 6. **Given** a member id that does not exist, **When** a leader links to it, **Then** it is
    refused naming the field.
+7. **Given** an account without the stored flag and without a pending request, **When** a leader
+   grants access, **Then** the flag is set, the leader and the moment are recorded as the grant,
+   and the account gets the approval push.
+8. **Given** an account with a pending `access` request, **When** a leader grants access directly,
+   **Then** that request is approved by the same leader (it leaves Pendentes) and the push names
+   it.
+9. **Given** an account whose stored flag is already set, **When** a leader grants access,
+   **Then** nothing changes and no push is sent.
 
 ---
 
@@ -253,6 +264,12 @@ leader without the flag and an account with nothing.
   the answer is "not found".
 - An account deleted after deciding requests: those requests keep their decision with no decider.
 - An account is revoked while its `access` request is pending: the request stays pending.
+- A leader grants access directly while another leader denies the pending request at the same
+  moment: the grant still sets the flag; the request keeps the other leader's decision.
+- An account whose access comes only from a role is granted access: the flag is set (it keeps
+  access if the role is removed later) and the push is sent.
+- The flag set in the Django admin records no grant (granter and date stay empty), as do flags
+  set before this feature.
 - A blocked account with a pending request: the request can still be decided.
 - The account's roll record is deleted: the link becomes null and `api/me/member/` answers "no
   linked record".
@@ -305,7 +322,16 @@ leader without the flag and an account with nothing.
 - **FR-015**: Denying a pending request MUST record decider, date and an optional reason (at most
   500 characters, trimmed) and change nothing on the account.
 - **FR-016**: Deciding a request that is not pending MUST be refused as a conflict.
-- **FR-017**: Leaders MUST be able to revoke member access (clear the stored flag). No push.
+- **FR-017**: Leaders MUST be able to revoke member access (clear the stored flag and the grant
+  record). No push.
+- **FR-017a**: Leaders MUST be able to grant member access directly, without a request: it sets
+  the stored flag and records the grant (leader and moment); a pending `access` request of the
+  account is approved by the same leader in the same step. The account gets the approval push
+  (`request_type` `access`, with the request id when one was approved). Granting an
+  account whose stored flag is already set changes nothing and sends no push.
+- **FR-017b**: Every grant — approving an `access` request or granting directly — MUST record who
+  granted and when, shown with the stored flag in "Perfis". Approving an `access` request of an
+  account whose flag is already set keeps the earlier grant record.
 - **FR-018**: Leaders MUST be able to block and unblock an account's requests.
 - **FR-019**: Responses of "Perfis" MUST NOT include the account's e-mail, and no endpoint of this
   feature may accept an e-mail.
@@ -315,9 +341,10 @@ leader without the flag and an account with nothing.
 **Push**
 
 - **FR-021**: A new request MUST notify every active account with `manage` on `profiles` except the
-  requester; an approval and a denial MUST notify the requester (a denial with its reason, when
+  requester; an approval, a direct grant and a denial MUST notify the requester (a denial with its reason, when
   given). A revocation, a block and a link notify nobody. A push never fails the operation.
-- **FR-022**: Push payloads carry the message type, the request id and type, and — on a denial —
+- **FR-022**: Push payloads carry the message type, the request id (absent on a direct grant
+  with no pending request) and type, and — on a denial —
   the reason. No name, no roll field, no e-mail.
 
 **Roll data for the profile**
@@ -334,8 +361,8 @@ leader without the flag and an account with nothing.
 
 ### Key Entities
 
-- **Profile** (accounts): gains `member_access` (renamed from `is_member`) and
-  `access_requests_blocked`. `member` (roll link) becomes writable from the panel.
+- **Profile** (accounts): gains `member_access` (renamed from `is_member`),
+  `access_requests_blocked` and the grant record (`access_granted_by`, `access_granted_at`). `member` (roll link) becomes writable from the panel.
 - **AccessRequest** (accounts): account, type (`access` | `data_correction`), message (nullable),
   status (`pending` | `approved` | `denied`), decided by (nullable), decided at (nullable), denial
   reason (nullable), created at. At most one pending per (account, type).

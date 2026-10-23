@@ -93,6 +93,8 @@ class TestList:
             "member_access",
             "access_via_role",
             "access_requests_blocked",
+            "access_granted_by",
+            "access_granted_at",
             "member",
             "date_joined",
             "pending_requests",
