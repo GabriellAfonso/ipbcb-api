@@ -20,8 +20,8 @@ da conta e celulares registrados para receber notificações.
   galeria e eventos de membros. Admin e Liderança têm acesso sempre, mesmo sem a marcação
 - Pedidos à liderança: "Pedir acesso" e "Solicitar correção" dos dados do rol (1 pedido por
   dia, 1 pendente por tipo); liderança recebe push e responde em "Perfis"
-- "Perfis" (contas do app, diferente de "Membros" = rol): aprovar/negar pedidos, revogar
-  acesso, bloquear pedidos, vincular a conta a um membro do rol
+- "Perfis" (contas do app, diferente de "Membros" = rol): aprovar/negar pedidos, liberar
+  acesso direto (sem pedido; guarda quem liberou e quando) ou revogar, bloquear pedidos, vincular a conta a um membro do rol
 
 ## Quem acessa
 
@@ -29,7 +29,7 @@ da conta e celulares registrados para receber notificações.
 |---------------|---------------------------------------------------------|
 | Qualquer um   | cadastro, login, renovar, sair, página de exclusão      |
 | Logado        | próprio perfil, foto, senha, exclusão e celulares       |
-| Admin, Liderança | "Perfis": pedidos, revogar acesso, bloquear, vincular ao rol |
+| Admin, Liderança | "Perfis": pedidos, liberar/revogar acesso, bloquear, vincular ao rol |
 | Django admin  | cargos, acesso de membro, vínculo com membro            |
 
 ## Endpoints
@@ -49,6 +49,7 @@ POST   api/me/devices/unregister/
 POST   api/me/access-requests/
 GET    api/admin/profiles/?status=pending|all
 GET    api/admin/profiles/{user_id}/      PATCH
+POST   api/admin/profiles/{user_id}/grant-access/
 POST   api/admin/profiles/{user_id}/revoke-access/
 POST   api/admin/profiles/requests/{id}/approve/
 POST   api/admin/profiles/requests/{id}/deny/
