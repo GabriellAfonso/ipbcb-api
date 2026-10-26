@@ -1,3 +1,4 @@
+import pytest
 from rest_framework.test import APIClient
 
 BIBLE_LIST_URL = "/api/bible/"
@@ -43,6 +44,16 @@ class TestBibleDetailView:
         assert "abbrev" in book
         assert "name" in book
         assert "chapters" in book
+        assert "headings" in book
+
+    @pytest.mark.parametrize(
+        ("version", "title"),
+        [("ARA", "A formação do homem"), ("NAA", "A formação do homem")],
+    )
+    def test_genesis_2_heading_is_served(self, version: str, title: str) -> None:
+        resp = APIClient().get(BIBLE_DETAIL_URL.format(name=version))
+        genesis_2 = resp.data[0]["headings"][1]
+        assert genesis_2[0] == {"verse": 4, "level": 1, "title": title}
 
     def test_unknown_version_returns_404(self) -> None:
         resp = APIClient().get(BIBLE_DETAIL_URL.format(name="NONEXISTENT"))

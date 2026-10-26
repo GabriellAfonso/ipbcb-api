@@ -22,6 +22,13 @@ Each file is named `{VERSION}.json` (e.g., `ARA.json`) and contains a list of bo
     "chapters": [
       ["Verso 1", "Verso 2", "..."],
       ["Verso 1 do cap 2", "..."]
+    ],
+    "headings": [
+      [{"verse": 1, "level": 1, "title": "A criação do Universo"}],
+      [
+        {"verse": 4, "level": 1, "title": "A formação do homem"},
+        {"verse": 18, "level": 1, "title": "A formação da mulher"}
+      ]
     ]
   }
 ]
@@ -32,6 +39,19 @@ Each file is named `{VERSION}.json` (e.g., `ARA.json`) and contains a list of bo
 | `abbrev`   | `str`             | Standard abbreviation of the book                |
 | `name`     | `str`             | Full name of the book (pt-BR)                    |
 | `chapters` | `list[list[Verse]]` | List of chapters, each chapter is a list of verses. `Verse = str \| list[str]` — most verses are plain strings, but some entries (e.g., NAA) contain nested lists for multi-paragraph verses. |
+| `headings` | `list[list[Heading]]` | Section headings (pericope titles) of the translation, one list per chapter, parallel to `chapters`. Optional in the file — a version without headings loads with `[]`. |
+
+#### Heading
+
+| Field   | Type  | Description                                                        |
+|---------|-------|--------------------------------------------------------------------|
+| `verse` | `int` | 1-based verse number the heading is shown **before**               |
+| `level` | `int` | Nesting level, `1` (major section) to `3` (sub-subsection). E.g., Mt 5 in ARA: "O sermão do monte" (1) > "Jesus completa o que foi dito aos antigos" (2) > "Do homicídio" (3) |
+| `title` | `str` | Heading text exactly as published in the translation               |
+
+Within a chapter, headings are ordered by `verse`, then by `level` — several headings may precede the same verse (e.g., Mt 5:1 has a level 1 and a level 2 heading).
+
+Headings belong to the translation: ARA and NAA have different titles for the same passage. ARA and NAA headings were taken from bibliaonline.com.br.
 
 ### Adding a new version
 
@@ -75,6 +95,7 @@ Returns full Bible data for a specific version.
 2. All versions are loaded **once** (lazily via DI Singleton) from JSON files. No runtime reloading.
 3. Version lookup is **case-sensitive** — `ARA` and `ara` are different keys.
 4. Endpoints are **public** — no authentication required.
+5. When `headings` is present, it must have one entry per chapter, and every heading's `verse` must exist in its chapter. A file that breaks this fails to load at startup.
 
 ## Errors
 
