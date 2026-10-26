@@ -82,9 +82,9 @@ Public resource plus `created_by` and `updated_by` (each `{id, name}` or `null`)
 7. **Edit**: `PATCH` with any subset; `""` clears `end_date`, `start_time`, `location`,
    `description`; `title` and `start_date` cannot be cleared. The date rule is checked on the
    resulting event. Only the sent fields change.
-8. **Image**: validated by decoded content — JPEG/PNG/WEBP, ≤ 10 MB, ≤ 50 MP, ≥ 640×360, ratio
-   16:9 within ±2% measured after EXIF orientation — then stored as a JPEG (quality 85) fitted
-   within 1920×1080, never upscaled, alpha flattened on white. The original is not kept.
+8. **Image**: validated by decoded content — JPEG/PNG/WEBP, ≤ 10 MB, ≤ 50 MP, ≥ 600×400, ratio
+   3:2 within ±2% measured after EXIF orientation — then stored as a JPEG (quality 85) fitted
+   within 1800×1200, never upscaled, alpha flattened on white. The original is not kept.
    Limits are constants in `features/events/domain/event_image_rules.py`.
 9. **Files follow the row**: a create or edit that fails after the new file was written removes
    it; a replaced image's old file is removed after the edit is saved; a delete removes the

@@ -24,9 +24,9 @@ class EventImagePreparer:
         self._processor = image_processor
 
     def prepare(self, upload: IO[bytes]) -> bytes:
-        """Validated, upright JPEG fitted within 1920 x 1080.
+        """Validated, upright JPEG fitted within 1800 x 1200.
 
-        >>> preparer.prepare(open("poster-16x9.png", "rb"))[:2]
+        >>> preparer.prepare(open("poster-3x2.png", "rb"))[:2]
         b'\\xff\\xd8'
         """
         try:

@@ -16,18 +16,18 @@ def _upload(content: bytes) -> BytesIO:
 
 
 class TestWithFakeProcessor:
-    def test_valid_image_is_fitted_to_1920_by_1080(self) -> None:
-        processor = FakeImageProcessor(size=(1280, 720))
+    def test_valid_image_is_fitted_to_1800_by_1200(self) -> None:
+        processor = FakeImageProcessor(size=(1200, 800))
 
         result = EventImagePreparer(processor).prepare(_upload(image_bytes()))
 
         assert result == FakeImageProcessor.FITTED
-        assert processor.fitted_calls == [(1920, 1080, 85)]
+        assert processor.fitted_calls == [(1800, 1200, 85)]
 
     def test_wrong_ratio_is_refused_before_processing(self) -> None:
-        processor = FakeImageProcessor(size=(1600, 1000))
+        processor = FakeImageProcessor(size=(1920, 1080))
 
-        with pytest.raises(EventImageInvalidError, match="16:9"):
+        with pytest.raises(EventImageInvalidError, match="3:2"):
             EventImagePreparer(processor).prepare(_upload(image_bytes()))
         assert processor.fitted_calls == []
 
@@ -56,8 +56,8 @@ class TestWithFakeProcessor:
 
 class TestWithPillow:
     def test_ratio_is_measured_as_displayed(self) -> None:
-        # Stored 720x1280 (9:16) but tagged to display rotated: shown as 16:9, accepted.
-        upload = _upload(image_bytes(size=(720, 1280), orientation=6))
+        # Stored 800x1200 (2:3) but tagged to display rotated: shown as 3:2, accepted.
+        upload = _upload(image_bytes(size=(800, 1200), orientation=6))
 
         result = EventImagePreparer(PillowImageProcessor()).prepare(upload)
 

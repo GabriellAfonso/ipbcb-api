@@ -149,7 +149,7 @@ class FakeImageProcessor:
 
     FITTED = b"fitted-jpeg"
 
-    def __init__(self, size: tuple[int, int] = (1920, 1080), fails: bool = False) -> None:
+    def __init__(self, size: tuple[int, int] = (1800, 1200), fails: bool = False) -> None:
         self.size = size
         self.fails = fails
         self.fitted_calls: list[tuple[int, int, int]] = []

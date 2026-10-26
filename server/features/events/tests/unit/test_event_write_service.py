@@ -24,7 +24,7 @@ NOV_14 = date(2026, 11, 14)
 
 
 class _Setup:
-    def __init__(self, size: tuple[int, int] = (1920, 1080)) -> None:
+    def __init__(self, size: tuple[int, int] = (1800, 1200)) -> None:
         self.repo = FakeEventRepository()
         self.storage = FakeEventImageStorage()
         preparer = EventImagePreparer(FakeImageProcessor(size=size))

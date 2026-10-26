@@ -9,7 +9,7 @@ _ORIENTATION = 0x0112
 
 
 def image_bytes(
-    size: tuple[int, int] = (1280, 720),
+    size: tuple[int, int] = (1200, 800),
     image_format: str = "JPEG",
     orientation: int | None = None,
 ) -> bytes:
@@ -26,7 +26,7 @@ def image_bytes(
 
 
 def image_upload(
-    size: tuple[int, int] = (1280, 720),
+    size: tuple[int, int] = (1200, 800),
     image_format: str = "JPEG",
     filename: str = "poster.jpg",
     orientation: int | None = None,

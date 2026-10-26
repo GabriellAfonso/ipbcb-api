@@ -35,7 +35,7 @@ class _FieldValidationError(ValidationError):
 class EventImageInvalidError(_FieldValidationError):
     """The uploaded image breaks a rule (format, size, pixels, minimum size, ratio).
 
-    >>> raise EventImageInvalidError("Proporção 1.60; esperado 16:9 (1.78) com tolerância de 2%.")
+    >>> raise EventImageInvalidError("Proporção 1.60; esperado 3:2 (1.50) com tolerância de 2%.")
     """
 
     field_name = "image"
@@ -53,7 +53,7 @@ class EventImageMissingError(_FieldValidationError):
     field_name = "image"
 
     def __init__(self) -> None:
-        super().__init__("Envie a imagem do evento no campo 'image' (16:9, JPEG, PNG ou WEBP).")
+        super().__init__("Envie a imagem do evento no campo 'image' (3:2, JPEG, PNG ou WEBP).")
 
 
 class EventDatesInvalidError(_FieldValidationError):

@@ -32,7 +32,7 @@ def test_not_found_is_404_naming_the_id() -> None:
 @pytest.mark.parametrize(
     ("exc", "field"),
     [
-        (EventImageInvalidError("Proporção 1.60; esperado 16:9."), "image"),
+        (EventImageInvalidError("Proporção 1.60; esperado 3:2."), "image"),
         (EventImageMissingError(), "image"),
         (EventDatesInvalidError(date(2026, 11, 10), date(2026, 11, 8)), "end_date"),
         (EventStatusFilterError("old", ["active", "past", "all"]), "status"),

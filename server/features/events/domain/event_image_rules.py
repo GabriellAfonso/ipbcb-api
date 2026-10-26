@@ -1,7 +1,7 @@
 """What an event image must be (specs/020-church-events, Definitions → Image).
 
-The app crops to 16:9 before uploading; the server re-checks with a small tolerance and stores a
-JPEG fitted within 1920 x 1080. Each limit is one constant so it can change later.
+The app crops to 3:2 before uploading; the server re-checks with a small tolerance and stores a
+JPEG fitted within 1800 x 1200. Each limit is one constant so it can change later.
 """
 
 from typing import Final
@@ -11,12 +11,13 @@ from core.domain.exceptions import EventImageInvalidError
 MAX_EVENT_IMAGE_BYTES: Final = 10 * 1024 * 1024
 # GIF is accepted by core validation for the gallery, not here: a poster is never animated.
 EVENT_IMAGE_EXTENSIONS: Final = frozenset({"jpg", "png", "webp"})
-MIN_WIDTH: Final = 640
-MIN_HEIGHT: Final = 360
-TARGET_RATIO: Final = 16 / 9
+MIN_WIDTH: Final = 600
+MIN_HEIGHT: Final = 400
+TARGET_RATIO: Final = 3 / 2
+TARGET_RATIO_LABEL: Final = "3:2"
 RATIO_TOLERANCE: Final = 0.02
-MAX_WIDTH: Final = 1920
-MAX_HEIGHT: Final = 1080
+MAX_WIDTH: Final = 1800
+MAX_HEIGHT: Final = 1200
 # A 10 MB file can still decode to hundreds of MB of pixels; phone cameras (12-48 MP) pass.
 MAX_PIXELS: Final = 50_000_000
 JPEG_QUALITY: Final = 85
@@ -37,10 +38,10 @@ def ensure_event_image_extension(extension: str) -> None:
 
 
 def ensure_event_image_shape(width: int, height: int) -> None:
-    """Refuse an image too large to decode, too small, or not 16:9 within the tolerance.
+    """Refuse an image too large to decode, too small, or not 3:2 within the tolerance.
     ``width`` and ``height`` are as displayed (EXIF orientation applied).
 
-    >>> ensure_event_image_shape(1920, 1080)
+    >>> ensure_event_image_shape(1800, 1200)
     """
     _ensure_pixel_count(width, height)
     _ensure_minimum_size(width, height)
@@ -67,6 +68,6 @@ def _ensure_ratio(width: int, height: int) -> None:
     if abs(ratio - TARGET_RATIO) <= TARGET_RATIO * RATIO_TOLERANCE:
         return
     raise EventImageInvalidError(
-        f"Proporção da imagem {width}x{height} é {ratio:.2f}; esperado 16:9 "
+        f"Proporção da imagem {width}x{height} é {ratio:.2f}; esperado {TARGET_RATIO_LABEL} "
         f"({TARGET_RATIO:.2f}) com tolerância de {RATIO_TOLERANCE:.0%}."
     )

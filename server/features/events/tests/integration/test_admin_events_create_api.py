@@ -53,9 +53,9 @@ def test_minimal_create_is_public_with_nulls_and_creator(media_root: Path) -> No
 
 @pytest.mark.parametrize(
     ("size", "image_format", "stored"),
-    [((4000, 2250), "PNG", (1920, 1080)), ((1280, 720), "JPEG", (1280, 720))],
+    [((6000, 4000), "PNG", (1800, 1200)), ((1200, 800), "JPEG", (1200, 800))],
 )
-def test_image_is_stored_as_jpeg_within_1920_by_1080(
+def test_image_is_stored_as_jpeg_within_1800_by_1200(
     media_root: Path, size: tuple[int, int], image_format: str, stored: tuple[int, int]
 ) -> None:
     response = _post(_media_client(), image=image_upload(size, image_format, "p.png"))
@@ -65,14 +65,14 @@ def test_image_is_stored_as_jpeg_within_1920_by_1080(
 
 
 def test_ratio_within_tolerance_is_accepted(media_root: Path) -> None:
-    assert _post(_media_client(), image=image_upload((1000, 563))).status_code == 201
+    assert _post(_media_client(), image=image_upload((1000, 667))).status_code == 201
 
 
 @pytest.mark.parametrize(
     ("upload_args", "message_part"),
     [
-        (((1600, 1000),), "1600x1000"),
-        (((620, 349),), "640x360"),
+        (((1920, 1080),), "1920x1080"),
+        (((590, 393),), "600x400"),
         (((1280, 720), "GIF", "p.gif"), "GIF"),
     ],
 )

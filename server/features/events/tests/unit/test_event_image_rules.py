@@ -19,23 +19,23 @@ class TestExtension:
 
 class TestShape:
     @pytest.mark.parametrize(
-        "size", [(1920, 1080), (640, 360), (1000, 563), (4000, 2250), (1280, 720)]
+        "size", [(1800, 1200), (600, 400), (1000, 667), (6000, 4000), (1200, 800)]
     )
-    def test_accepts_16_9_within_tolerance(self, size: tuple[int, int]) -> None:
+    def test_accepts_3_2_within_tolerance(self, size: tuple[int, int]) -> None:
         ensure_event_image_shape(*size)
 
-    @pytest.mark.parametrize("size", [(1600, 1000), (1080, 1920), (1200, 900), (1920, 1150)])
+    @pytest.mark.parametrize("size", [(1920, 1080), (1200, 1800), (1200, 900), (1600, 1000)])
     def test_refuses_other_ratios_naming_the_received_one(self, size: tuple[int, int]) -> None:
         with pytest.raises(EventImageInvalidError, match=f"{size[0]}x{size[1]}") as caught:
             ensure_event_image_shape(*size)
 
-        assert "16:9" in str(caught.value)
+        assert "3:2" in str(caught.value)
 
-    @pytest.mark.parametrize("size", [(639, 360), (640, 359), (320, 180)])
+    @pytest.mark.parametrize("size", [(599, 400), (600, 399), (300, 200)])
     def test_refuses_below_the_minimum(self, size: tuple[int, int]) -> None:
-        with pytest.raises(EventImageInvalidError, match="640x360"):
+        with pytest.raises(EventImageInvalidError, match="600x400"):
             ensure_event_image_shape(*size)
 
     def test_refuses_above_the_pixel_limit(self) -> None:
         with pytest.raises(EventImageInvalidError, match="megapixels"):
-            ensure_event_image_shape(16000, 9000)
+            ensure_event_image_shape(9000, 6000)
