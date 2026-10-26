@@ -11,7 +11,7 @@ inicial e numa tela de detalhe. Criados e geridos pelo próprio app, na área de
 - Na gestão: listar todos (inclusive passados, filtro `status=active|past|all`), criar, editar,
   excluir
 - Cada evento tem título, data de início, data de término opcional (evento de vários dias),
-  horário, local e descrição opcionais, imagem 16:9 obrigatória e visibilidade (`public` ou
+  horário, local e descrição opcionais, imagem 3:2 obrigatória e visibilidade (`public` ou
   `members`)
 - Evento fica ativo até o fim do último dia, no horário de São Paulo. Depois some da lista
   pública sozinho, sem tarefa agendada. Continua guardado e visível na gestão
@@ -38,8 +38,8 @@ DELETE api/admin/events/{id}/
 
 ## Atenção
 
-- A imagem precisa ser 16:9 (margem de 2%), pelo menos 640×360, até 10 MB, JPEG/PNG/WEBP. O
-  servidor converte para JPEG de no máximo 1920×1080 e não guarda o original.
+- A imagem precisa ser 3:2 (margem de 2%), pelo menos 600×400, até 10 MB, JPEG/PNG/WEBP. O
+  servidor converte para JPEG de no máximo 1800×1200 e não guarda o original.
 - Imagem de evento público abre **sem login** — é a única pasta de mídia assim. Imagem de evento
   de membros responde `404` para quem não é membro.
 - Evento de membros nunca aparece para quem não é membro, nem como aviso: o detalhe responde
