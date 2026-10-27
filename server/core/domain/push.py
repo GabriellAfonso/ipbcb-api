@@ -1,5 +1,6 @@
 """Push message kinds the server sends to the app (specs/017-sunday-setlist-push,
-contracts/push-messages.md; specs/022-access-requests). No Django import here."""
+contracts/push-messages.md; specs/022-access-requests; specs/024-schedule-reminders). No Django
+import here."""
 
 from enum import StrEnum
 
@@ -13,3 +14,7 @@ class PushMessageType(StrEnum):
     ACCESS_REQUEST_CREATED = "access_request_created"
     ACCESS_REQUEST_APPROVED = "access_request_approved"
     ACCESS_REQUEST_DENIED = "access_request_denied"
+    # Rota reminders (specs/024-schedule-reminders contracts/push-messages.md).
+    SCHEDULE_WEEK = "schedule_week"
+    SCHEDULE_EVE = "schedule_eve"
+    SCHEDULE_PUBLISHED = "schedule_published"

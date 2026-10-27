@@ -192,12 +192,65 @@ Persist a rota, replacing the whole month.
 
 ---
 
+## Reminders
+
+Each rota member is told by push that they serve (`specs/024-schedule-reminders/`). The server
+decides who, when and what; the app only shows the notification and owns the opt-out (no
+preference is stored here). Times are `America/Sao_Paulo`.
+
+### Kinds
+
+| `type` | Window | Occasion (sent once per member) | Slots |
+|--------|--------|--------------------------------|-------|
+| `schedule_week` | Monday 08:00–24:00 | that Monday | the member's entries Monday–Sunday |
+| `schedule_eve` | 19:00–24:00 the day before an entry | the entry (`date/service id`) | exactly that entry |
+| `schedule_published` | the day the month's first save + 30 min falls, once that moment has passed | the month | the member's entries in the month dated today or later |
+
+- A window ends at midnight: an occasion missed while the job was down is sent later the same
+  day, never on a later day. The eve reminder is never sent once its service day has started.
+- **Only months past their overwrite window** feed any reminder. A month inside the window can be
+  replaced wholesale, so nothing is sent from it — nobody is told they serve and then silently
+  removed. `OVERWRITE_WINDOW` (30 min) in `services/reminder_rules.py` is shared with the 409 rule.
+- A Monday eve reminder (for a Tuesday) and the week summary are both sent.
+
+### Recipients
+
+The user whose profile is linked to the entry's member (`Profile.member`), if the account is
+active and has member access (flag or Admin/Liderança, `core.domain.access.has_member_access`).
+Resolved at send time by `core.repositories.member_account_repository`. A member without such a
+user is skipped and not claimed, so a link made later the same day still gets the reminder.
+
+### Payload
+
+Data-only, every value a string: `type`, `slots` (JSON-encoded array of `{date, service, time}`,
+by date then time), for the publication `month` (`YYYY-MM`), and `gender` (`M`/`F`, the
+recipient member's own, absent when not recorded) for the app's wording. Service names are
+catalogue data; no member name or person id. Contract: `specs/024-schedule-reminders/contracts/push-messages.md`.
+
+### Sending once
+
+`ScheduleReminderClaim(kind, member, occasion, run_id, claimed_at)`, unique per
+`(kind, member, occasion)`. A run bulk-inserts every wanted claim with `ignore_conflicts` and a
+fresh `run_id`, then sends only the rows carrying its `run_id` — so overlapping runs and restarts
+never send twice. The claim is made before the push; a provider failure does not undo it. Claims
+are kept.
+
+### Running
+
+`python manage.py send_schedule_reminders`, in the `ipbcb_setlist_reminder` loop of
+`compose.prod.yml` (every 60 s). Exits 0; prints one line per kind that had an open window (all
+lines with `-v 2`). Pushes are counted by type in `PUSH_MESSAGES_COUNTER`.
+
+---
+
 ## Architecture
 
 Views → Services → Repositories → Models.
 
 - **Repository**: `ScheduleRepositoryImpl` — the only ORM access. Uses `select_related` on member
-  and service when listing.
+  and service when listing. `RotaReminderRepositoryImpl` — reminder reads and claims.
+- **Reminders**: `ScheduleReminderService`, pure windows in `services/reminder_rules.py`, command
+  `send_schedule_reminders`.
 - **Service**: `ScheduleService` — generation, grouping and the overwrite rule. Holds all business
   logic and imports no HTTP object.
 - **DTOs**: `ScheduleTypeDTO`, `MemberConfigDTO`, `MonthlyScheduleDTO` (Pydantic).

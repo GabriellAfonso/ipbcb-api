@@ -16,7 +16,20 @@ def test_wire_types() -> None:
         "access_request_created",
         "access_request_approved",
         "access_request_denied",
+        "schedule_week",
+        "schedule_eve",
+        "schedule_published",
     }
+
+
+def test_schedule_message_carries_slots_and_month() -> None:
+    message = PushMessage(type=PushMessageType.SCHEDULE_PUBLISHED, month="2026-11", slots="[]")
+    assert message.as_data() == {"type": "schedule_published", "slots": "[]", "month": "2026-11"}
+
+
+def test_schedule_message_carries_gender_when_known() -> None:
+    message = PushMessage(type=PushMessageType.SCHEDULE_EVE, slots="[]", gender="F")
+    assert message.as_data() == {"type": "schedule_eve", "slots": "[]", "gender": "F"}
 
 
 def test_request_message_carries_only_the_fields_set() -> None:

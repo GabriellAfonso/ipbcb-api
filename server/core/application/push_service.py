@@ -50,6 +50,9 @@ class PushService:
             fields["push_date"] = message.date.isoformat()
         if message.request_id is not None:
             fields["push_request_id"] = message.request_id
+        # The month only: slots name services and dates, nothing worth a log line.
+        if message.month is not None:
+            fields["push_month"] = message.month
         if outcome.disabled:
             logger.warning("push_disabled", extra={**fields, "devices": outcome.devices})
             return outcome

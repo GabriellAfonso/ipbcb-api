@@ -107,3 +107,17 @@ class FakePushSender:
             return self.report
         invalid = [token for token in tokens if token in self.invalid]
         return PushSendReport(sent=len(tokens) - len(invalid), invalid_tokens=invalid)
+
+
+class FakeMemberAccountRepository:
+    """In-memory ``MemberAccountRepository``: roll member id -> account with member access.
+
+    >>> FakeMemberAccountRepository({7: ana_id}).user_ids_by_member({7, 9})
+    {7: UUID('...')}
+    """
+
+    def __init__(self, accounts: dict[int, UUID] | None = None) -> None:
+        self.accounts = dict(accounts or {})
+
+    def user_ids_by_member(self, member_ids: Collection[int]) -> dict[int, UUID]:
+        return {m: user for m, user in self.accounts.items() if m in set(member_ids)}

@@ -87,6 +87,9 @@ services:
   # on the setlist before pushing, so restarts and overlaps never send a window twice. A loop
   # plus a management command, like the token flush above, instead of a task queue. Reads
   # FCM_SERVICE_ACCOUNT_JSON_BASE64 from ./.env, the only extra secret it needs.
+  # Also runs the rota reminders (specs/024-schedule-reminders): publication, Monday 08:00 week
+  # summary and 19:00 eve reminder, each claimed per member before sending. Same cadence and
+  # secret, so one loop instead of another container.
   ipbcb_setlist_reminder:
     container_name: ipbcb-setlist-reminder-prod
     image: ipbcb-server:prod
@@ -96,6 +99,7 @@ services:
     - |
       while true; do
         python manage.py send_setlist_reminders
+        python manage.py send_schedule_reminders
         sleep 60
       done
     env_file:

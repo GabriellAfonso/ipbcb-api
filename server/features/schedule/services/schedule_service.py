@@ -1,7 +1,7 @@
 import random
 import calendar
 from collections import defaultdict
-from datetime import date, timedelta
+from datetime import date
 from typing import Any
 
 from django.utils import timezone
@@ -11,6 +11,7 @@ from core.domain.weekday import to_python_weekday
 from core.metrics import SCHEDULE_GENERATED_COUNTER, SCHEDULE_SAVED_COUNTER
 from features.schedule.dtos import MonthlyScheduleDTO
 from features.schedule.repositories.interfaces import ScheduleRepository
+from features.schedule.services.reminder_rules import OVERWRITE_WINDOW
 
 # There used to be a WEEKDAYS_MAP here covering only Sunday, Tuesday and Thursday, and
 # any service on another weekday was skipped with no error and no rows. It worked only
@@ -180,7 +181,7 @@ class ScheduleService:
         earliest = self._repository.get_earliest_created_at(year, month)
 
         if earliest:
-            if timezone.now() > earliest + timedelta(minutes=30):
+            if timezone.now() > earliest + OVERWRITE_WINDOW:
                 raise ScheduleOverwriteError(month, year)
 
         self._repository.replace_schedules(year, month, items)

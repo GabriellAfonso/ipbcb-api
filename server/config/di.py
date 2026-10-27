@@ -31,6 +31,7 @@ from core.application.worship_access_service import WorshipAccessService
 from core.push.factory import build_push_sender
 from core.repositories.access_repository import RoleGrantRepositoryImpl
 from core.repositories.device_token_repository import DeviceTokenRepositoryImpl
+from core.repositories.member_account_repository import MemberAccountRepositoryImpl
 from core.repositories.worship_repository import WorshipMembershipRepositoryImpl
 from core.time.clock import SystemClock
 from features.bible.repositories import BibleRepositoryImpl
@@ -83,7 +84,9 @@ from features.songs.services.register_plays_service import RegisterPlaysService
 from features.songs.services.setlist_purge_service import SetlistPurgeService
 from features.songs.services.setlist_reminder_service import SetlistReminderService
 from features.songs.services.setlist_service import SetlistService
+from features.schedule.repositories.reminder_repository import RotaReminderRepositoryImpl
 from features.schedule.repositories.schedule_repository import ScheduleRepositoryImpl
+from features.schedule.services.schedule_reminder_service import ScheduleReminderService
 from features.schedule.services.schedule_service import ScheduleService
 from features.songs.services.song_service import SongService
 
@@ -120,6 +123,7 @@ class Container(containers.DeclarativeContainer):
             "features.gallery.management.commands.purge_gallery_trash",
             "features.songs.management.commands.send_setlist_reminders",
             "features.songs.management.commands.purge_expired_setlists",
+            "features.schedule.management.commands.send_schedule_reminders",
             "features.gallery.views.albums",
             "features.gallery.views.album_cover",
             "features.gallery.views.changes",
@@ -369,6 +373,16 @@ class Container(containers.DeclarativeContainer):
 
     schedule_repository = providers.Factory(ScheduleRepositoryImpl)
     schedule_service = providers.Factory(ScheduleService, repository=schedule_repository)
+    # Rota reminders by push (specs/024-schedule-reminders).
+    rota_reminder_repository = providers.Factory(RotaReminderRepositoryImpl)
+    member_account_repository = providers.Factory(MemberAccountRepositoryImpl)
+    schedule_reminder_service = providers.Factory(
+        ScheduleReminderService,
+        reminder_repository=rota_reminder_repository,
+        member_account_repository=member_account_repository,
+        push_service=push_service,
+        clock=clock,
+    )
 
     media_file_repository = providers.Factory(
         FileSystemMediaRepository, root=providers.Callable(_media_root)

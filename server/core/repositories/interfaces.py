@@ -34,3 +34,10 @@ class DeviceTokenRepository(Protocol):
     def tokens_for(self, user_ids: Collection[UUID]) -> list[str]: ...
 
     def delete_tokens(self, tokens: Iterable[str]) -> int: ...
+
+
+class MemberAccountRepository(Protocol):
+    """Contract for "which app account reads member content for this roll member"
+    (specs/024-schedule-reminders R-03)."""
+
+    def user_ids_by_member(self, member_ids: Collection[int]) -> dict[int, UUID]: ...

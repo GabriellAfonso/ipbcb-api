@@ -76,3 +76,13 @@ def test_logs_never_carry_a_token(caplog: pytest.LogCaptureFixture) -> None:
     for record in caplog.records:
         assert "a1" not in str(record.__dict__.values())
         assert "a2" not in str(record.__dict__.values())
+
+
+def test_schedule_message_logs_month_not_slots(caplog: pytest.LogCaptureFixture) -> None:
+    slots = '[{"date":"2026-11-03","service":"Terça de Oração","time":"19:30"}]'
+    message = PushMessage(type=PushMessageType.SCHEDULE_PUBLISHED, month="2026-11", slots=slots)
+    with caplog.at_level("INFO"):
+        _service(FakePushSender())[0].notify({ANA}, message)
+    record = next(r for r in caplog.records if r.getMessage() == "push_sent")
+    assert getattr(record, "push_month") == "2026-11"
+    assert "Terça de Oração" not in str(record.__dict__.values())
