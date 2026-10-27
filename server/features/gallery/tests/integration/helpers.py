@@ -31,6 +31,14 @@ def image_file(
     return buffer
 
 
+def video_file(name: str = "VID_0042.mp4", brand: bytes = b"isom", body: int = 4096) -> io.BytesIO:
+    """Bytes that start like an ISO media file of ``brand`` (``qt  `` for MOV). Only the
+    signature matters: the server never reads further (specs/023-gallery-videos FR-014)."""
+    buffer = io.BytesIO(b"\x00\x00\x00\x18ftyp" + brand + b"\x00" * body)
+    buffer.name = name
+    return buffer
+
+
 def text_file(name: str = "notes.jpg") -> io.BytesIO:
     buffer = io.BytesIO(b"this is not an image")
     buffer.name = name

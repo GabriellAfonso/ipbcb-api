@@ -1,6 +1,6 @@
 # Gallery
 
-Photo gallery organized in a tree of albums. Members browse it through the API; the Mídia,
+Photo and video gallery organized in a tree of albums. Members browse it through the API; the Mídia,
 Liderança and Admin roles build it — albums, photos, covers and order — through the API from the
 app's management panel. Deleting sends items to a 30-day trash from which they can be restored;
 a daily purge then removes them with their files. A change feed lets the app sync only what
@@ -10,7 +10,8 @@ album editing, going through the same services, and cannot delete.
 
 Write API introduced by `specs/013-gallery-write-api/`; trash, purge and change feed by
 `specs/014-gallery-trash-sync/`; member tags by `specs/015-gallery-member-tags/`; idempotent upload by
-`specs/016-photo-upload-idempotency/` (design, research and contracts there).
+`specs/016-photo-upload-idempotency/`; videos by `specs/023-gallery-videos/` (design, research and
+contracts there).
 
 ---
 
@@ -62,15 +63,21 @@ Write API introduced by `specs/013-gallery-write-api/`; trash, purge and change 
 
 ### Photo
 
+A gallery item: a photo or a video (`media_type`). A video is a `Photo` row like any other, so
+tags, trash, purge, order, move and the change feed treat both alike.
+
 | Field       | Type                  | Constraints                                               |
 |-------------|-----------------------|-----------------------------------------------------------|
 | id          | int (PK, auto)        |                                                           |
 | album       | FK -> Album           | PROTECT, related_name="photos"                            |
 | name        | CharField(100)        | original filename, cut keeping the extension              |
 | description | TextField             | blank                                                     |
-| image       | ImageField            | `gallery/{album_id}/{uuid}.{ext}`                         |
-| thumbnail   | ImageField            | blank; `gallery/thumbs/{album_id}/{uuid}.jpg`             |
-| date_taken  | DateField             | null; EXIF capture date on upload                         |
+| image       | FileField             | `gallery/{album_id}/{uuid}.{ext}`; the video file for a video |
+| thumbnail   | ImageField            | blank; `gallery/thumbs/{album_id}/{uuid}.jpg`; the poster for a video |
+| media_type  | CharField(5)          | `photo` \| `video`, default `photo`                       |
+| duration_ms | PositiveIntegerField, null | set ⇔ video                                          |
+| file_size   | PositiveBigIntegerField, null | bytes of `image`; set by every upload            |
+| date_taken  | DateField             | null; EXIF capture date of a photo, value sent for a video |
 | uploaded_at | DateTimeField         | auto_now_add                                              |
 | uploaded_by | FK -> User, null      | SET_NULL; auditing only, never serialized                 |
 | position    | PositiveIntegerField  | order within the album                                    |
@@ -85,7 +92,13 @@ Write API introduced by `specs/013-gallery-write-api/`; trash, purge and change 
   deduplication lookup also reads it, since it must see a trashed original.
 - `client_upload_id` is written once, by the upload that carried it, and never changed or
   cleared; the purge frees it with the row (`specs/016-photo-upload-idempotency/`).
-- `ext` comes from the decoded image format, never from the filename.
+- `ext` comes from the decoded image format for a photo and from the file signature (`mp4`,
+  `mov`) for a video, never from the filename.
+- `image` is a `FileField`, so no form or validator ever decodes a video as an image.
+- Check constraint `photo_media_fields_match_type`: a photo has no `duration_ms`; a video has a
+  `duration_ms` and a thumbnail (its poster).
+- `media_type`, `duration_ms` and `file_size` are written by the upload and never edited.
+  Items stored before feature 023 have `file_size` `null` until `fill_gallery_file_sizes` runs.
 - Paths carry the album id only to spread files. Renaming or moving an album or a photo never
   moves a file; a moved photo keeps its files under the old album's folder.
 - Photos uploaded before feature 013 keep their old path, `gallery/{slugify(album.name)}/{filename}`.
@@ -257,7 +270,10 @@ value that is not an integer is `400` naming it. Without the parameter the lists
 
 ### POST /api/photos/
 
-Multipart: `album_id` and one or more files in field `image`. The app sends one file per request;
+Two request shapes: a **photo upload** (field `image`) or a **video upload** (field `video`,
+below). Sending both is `400`.
+
+Photo upload — multipart: `album_id` and one or more files in field `image`. The app sends one file per request;
 several are accepted for tooling.
 
 Each file is validated by `core.files.image_validation.detect_image_extension` (max 10 MB, must
@@ -272,7 +288,39 @@ any step rejects that file only, with its own reason, and nothing is kept for it
 | no `album_id` or no file   | `400`  | canonical error                                                |
 
 An accepted photo gets `name` = the filename, empty `description`, `date_taken` from the EXIF
-capture date (or `null`), the last position in the album, a thumbnail, and the uploader recorded.
+capture date (or `null`), the last position in the album, a thumbnail, `file_size`, and the
+uploader recorded.
+
+**Video upload** (`specs/023-gallery-videos/`). The server never transcodes or inspects the video
+content: the uploader's phone makes the poster, reads the duration and checks codecs. Multipart,
+one video per request:
+
+| Field              | Required | Shape                                                          |
+|--------------------|----------|----------------------------------------------------------------|
+| `album_id`         | yes      | integer                                                        |
+| `video`            | yes      | exactly one file, ≤ 104 857 600 bytes (100 MB), MP4 or MOV     |
+| `poster`           | yes      | exactly one image, validated as a photo                        |
+| `duration_ms`      | yes      | integer 1 … 2 147 483 647, sent once                           |
+| `client_upload_id` | yes      | the shape below, sent once                                     |
+| `date_taken`       | no       | `YYYY-MM-DD`, at most once; empty = `null`                     |
+
+- Shape checks first, then the client upload id lookup (repeat → `201` with the live item, `409`
+  for a trashed one), then the album, the video and the poster.
+- Size from the upload's size, before any byte is read; no duration limit.
+- Format from the first 12 bytes (`core.files.video_validation`): an `ftyp` box with brand
+  `qt  ` or a classic QuickTime first atom (`moov`, `mdat`, `wide`, `free`, `skip`) is MOV; any
+  other `ftyp` brand is MP4, except 3GPP, audio-only (`M4A ` …), HEIF/AVIF and JPEG 2000 brands.
+  Everything else (MKV, WEBM, AVI …) is refused. No codec check.
+- The poster passes the photo validation and becomes the thumbnail (same derivative); an invalid
+  poster refuses the upload.
+- The accepted video gets `name` = the video's filename, `date_taken` as sent, the last position,
+  the uploader, `duration_ms`, `file_size` and the client upload id; files are written before the
+  row and removed if the row fails; the automatic first cover is made from the poster.
+- `201` with `{"accepted": [<item>], "rejected": []}`. A refused video or poster is `400`
+  `VALIDATION_ERROR`, detail "O vídeo não foi aceito.", `rejected` with the video's filename and
+  the reason ("Vídeo muito grande: …", "Formato de vídeo não suportado. Use MP4 ou MOV.",
+  "Imagem de capa: …").
+- The admin upload page stays photos only.
 
 **Client upload id** (`specs/016-photo-upload-idempotency/`). Optional multipart field
 `client_upload_id`, generated by the app once per photo and resent unchanged on every retry, so a
@@ -333,19 +381,27 @@ Body `{"ids": [...]}`. `204`. Same exact-set rule and `400` body as album order.
   "date_taken": "2026-03-14",
   "uploaded_at": "2026-03-15T10:00:00Z",
   "position": 0,
-  "members": [{"id": 12, "name": "Maria Souza"}]
+  "members": [{"id": 12, "name": "Maria Souza"}],
+  "media_type": "photo",
+  "duration_ms": null,
+  "file_size": 2481152
 }
 ```
 
 `image_url`, `thumbnail_url` and `cover_url` are absolute URIs built from the request, `null`
 when there is no file or no request. Every field returned before feature 013 is still returned;
-`thumbnail_url` was added by 013, `position` by 014 and `members` (last field) by 015. `members`
+`thumbnail_url` was added by 013, `position` by 014, `members` by 015, and `media_type`,
+`duration_ms`, `file_size` (last) by 023. For a video, `image_url` is the video file and
+`thumbnail_url` its poster; `duration_ms` is `null` for a photo; `file_size` is `null` only for an
+older item whose file was missing at the backfill. `members`
 lists the photo's tags as `{id, name}` — the only member data the gallery returns — ordered by
 name then id, `[]` when untagged.
 
 The files behind these URLs are readable only by members: `/ipbcb/media/gallery/...` goes
 through the authenticated media access check (`specs/009-protected-media-access/`), which
-requires the same member access as the endpoints listing them. Holding the URL is not
+requires the same member access as the endpoints listing them. Videos are served as `video/mp4`
+(`.mp4`) and `video/quicktime` (`.mov`); in production nginx answers `Range` requests with `206`
+after the check, so the app can resume a download. Holding the URL is not
 enough — the request must carry the member's JWT. Covers and thumbnails live under `gallery/`
 too, so the same rule covers them.
 
@@ -453,6 +509,9 @@ lists), `deleted_album_ids`, `deleted_photo_ids`, a new opaque `cursor` and
 | `client_upload_id` with 0 or 2+ files  | 400    | `VALIDATION_ERROR` | `file_count`                      |
 | `client_upload_id` sent twice          | 400    | `VALIDATION_ERROR` |                                   |
 | `client_upload_id` of a trashed photo  | 409    | `CONFLICT`         | `client_upload_id`                |
+| video or poster refused                | 400    | `VALIDATION_ERROR` | `rejected`                        |
+| `image` and `video` in one request     | 400    | `VALIDATION_ERROR` |                                   |
+| video upload field missing, repeated or malformed | 400 | `VALIDATION_ERROR` |                    |
 
 User-facing messages (duplicate name, cycle, image rejections, no image accepted, restore
 refusals, tag refusals, trashed upload) are in
@@ -477,8 +536,8 @@ goes through it too, so a new or moved album is placed last among its siblings.
 ### Photo admin
 
 Registered read-mostly: photos cannot be added from it (they arrive only through the upload
-page, so every photo has a thumbnail); `image`, `thumbnail`, `uploaded_by` and `position` are
-read-only. The page lists the photo's tagged members read-only; tags are changed only through
+page, so every photo has a thumbnail); `image`, `thumbnail`, `uploaded_by`, `position`,
+`media_type`, `duration_ms` and `file_size` are read-only. The page lists the photo's tagged members read-only; tags are changed only through
 the API, so the feed and the log see every change.
 
 ### Upload page
@@ -508,5 +567,9 @@ Accessible at `/admin/gallery/album/upload/` (protected by Django admin login).
 
 `python manage.py generate_photo_thumbnails` — fills the thumbnail of every photo that has none.
 Idempotent: a second run changes nothing. A photo whose original is missing or unreadable is
-skipped and listed in the output; the others are still processed. Run once at the deploy of
-feature 013.
+skipped and listed in the output; the others are still processed. Videos are never read. Run
+once at the deploy of feature 013.
+
+`python manage.py fill_gallery_file_sizes` — fills `file_size` of every item that has none from
+its stored original, marking each as changed for the feed. Idempotent; a missing file is skipped
+and listed. Run once at the deploy of feature 023.

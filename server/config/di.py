@@ -115,6 +115,7 @@ class Container(containers.DeclarativeContainer):
             "features.events.views.admin_events",
             "features.events.views.public_events",
             "features.gallery.admin",
+            "features.gallery.management.commands.fill_gallery_file_sizes",
             "features.gallery.management.commands.generate_photo_thumbnails",
             "features.gallery.management.commands.purge_gallery_trash",
             "features.songs.management.commands.send_setlist_reminders",

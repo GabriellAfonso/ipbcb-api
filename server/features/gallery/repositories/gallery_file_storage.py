@@ -56,6 +56,14 @@ class DefaultStorageGalleryFileStorage:
         stored: IO[bytes] = default_storage.open(name, "rb")
         return stored
 
+    def size(self, name: str) -> int:
+        """Bytes of a stored file; ``FileNotFoundError`` when it is gone.
+
+        >>> storage.size("gallery/7/9b1e....mp4")
+        41943040
+        """
+        return int(default_storage.size(name))
+
     def delete(self, name: str) -> None:
         """Remove ``name``; a file already gone is not an error.
 

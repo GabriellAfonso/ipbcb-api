@@ -103,6 +103,11 @@ class FakeGalleryFileStorage:
         stream.name = name
         return stream
 
+    def size(self, name: str) -> int:
+        if name not in self.files:
+            raise FileNotFoundError(name)
+        return len(self.files[name])
+
     def delete(self, name: str) -> None:
         self.deleted.append(name)
         self.files.pop(name, None)
@@ -345,8 +350,17 @@ class FakeGalleryRepository:
 
     def photos_without_thumbnail(self) -> Iterator[tuple[int, int, str]]:
         for photo_id in sorted(self.photos):
-            if not self.thumbnails.get(photo_id):
-                yield photo_id, self.photos[photo_id].album_id, self.images[photo_id]
+            photo = self.photos[photo_id]
+            if not self.thumbnails.get(photo_id) and photo.media_type == "photo":
+                yield photo_id, photo.album_id, self.images[photo_id]
+
+    def items_without_file_size(self) -> Iterator[tuple[int, str]]:
+        for photo_id in sorted(self.photos):
+            if self.photos[photo_id].file_size is None:
+                yield photo_id, self.images[photo_id]
+
+    def set_file_size(self, photo_id: int, size: int) -> None:
+        self.update_photo(photo_id, {"file_size": size})
 
     def set_thumbnail(self, photo_id: int, name: str) -> None:
         self.thumbnails[photo_id] = name
@@ -376,6 +390,9 @@ class FakeGalleryRepository:
             uploaded_at=self.UPLOADED_AT,
             position=position,
             updated_at=self.albums.clock.now(),
+            media_type=photo.media_type,
+            duration_ms=photo.duration_ms,
+            file_size=photo.file_size,
         )
         self.albums.albums_with_photos.add(photo.album_id)
         if photo.client_upload_id is not None:

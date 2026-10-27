@@ -27,6 +27,10 @@ PHOTO_KEYS = {
     "uploaded_at",
     "position",
     "members",
+    # specs/023-gallery-videos
+    "media_type",
+    "duration_ms",
+    "file_size",
 }
 
 

@@ -49,7 +49,8 @@ FOLDER_RULES: Mapping[str, MediaAudience] = MappingProxyType(
 # Explicit on purpose: nginx keeps an upstream Content-Type, and without one it would guess
 # from the extension. Gallery photos uploaded before feature 013 keep their original filename,
 # so an image/HTML polyglot named "x.html" would otherwise be served as text/html on our origin.
-# Later uploads are stored as "{uuid}.{ext}" with the extension of the decoded format.
+# Later uploads are stored as "{uuid}.{ext}" with the extension of the decoded format, or, for
+# gallery videos, of the container signature (specs/023-gallery-videos FR-022).
 _CONTENT_TYPES: Mapping[str, str] = MappingProxyType(
     {
         "jpg": "image/jpeg",
@@ -57,6 +58,8 @@ _CONTENT_TYPES: Mapping[str, str] = MappingProxyType(
         "png": "image/png",
         "webp": "image/webp",
         "gif": "image/gif",
+        "mp4": "video/mp4",
+        "mov": "video/quicktime",
     }
 )
 _FALLBACK_CONTENT_TYPE = "application/octet-stream"
@@ -112,7 +115,7 @@ def first_segment(path: str) -> str:
 
 
 def content_type_for(path: str) -> str:
-    """Content type to serve ``path`` with, from a fixed image allow-list.
+    """Content type to serve ``path`` with, from a fixed image and video allow-list.
 
     >>> content_type_for("gallery/a/x.JPG")
     'image/jpeg'

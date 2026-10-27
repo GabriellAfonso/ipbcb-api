@@ -28,6 +28,7 @@ from features.gallery.serializers.serializers import (
 from features.gallery.services.gallery_service import GalleryService
 from features.gallery.services.gallery_trash_service import GalleryTrashService
 from features.gallery.views.permissions import member_read_gallery_write_permissions
+from features.gallery.views.video_upload_request import is_video_upload, read_video_upload
 
 GALLERY_WRITE: list[type[BasePermission]] = [IsAuthenticated, scope_permission(Scope.GALLERY)]
 
@@ -55,7 +56,8 @@ class PhotoListAPIView(APIView):
 
     Upload answers 201 when every file was accepted and 207 when some were refused; when none
     was, the service raises and the canonical 400 carries ``rejected``
-    (specs/013-gallery-write-api/contracts/gallery-api.md).
+    (specs/013-gallery-write-api/contracts/gallery-api.md). A request with a ``video`` file is a
+    video upload instead (specs/023-gallery-videos/contracts/video-upload-api.md).
     """
 
     serializer_class = PhotoSerializer
@@ -81,6 +83,11 @@ class PhotoListAPIView(APIView):
         gallery_service: GalleryService = Provide[Container.gallery_service],
     ) -> Response:
         album_id = require_int(request.data.get("album_id"), "album_id")
+        if is_video_upload(request):
+            # One video per request, so there is no partial outcome: 201 or an error.
+            video, poster, meta = read_video_upload(request)
+            result = gallery_service.upload_video(album_id, video, poster, meta, request.user.pk)
+            return Response(_upload_body(request, result), status=status.HTTP_201_CREATED)
         files = request.FILES.getlist("image")
         if not files:
             raise ValidationError("Envie ao menos uma imagem no campo 'image'.")

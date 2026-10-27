@@ -1,5 +1,6 @@
 from collections.abc import Iterator, Mapping, Sequence
 from datetime import datetime
+from typing import cast
 
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Max, Prefetch, Q, QuerySet
@@ -7,6 +8,7 @@ from django.db.models import Count, Max, Prefetch, Q, QuerySet
 from core.domain.exceptions import AlbumNotFoundError, ClientUploadIdTakenError
 from core.time.clock import Clock
 from features.gallery.dtos.gallery_dtos import ClientUploadMatch, NewPhoto, PhotoView
+from features.gallery.domain.media_types import PHOTO, MediaType
 from features.gallery.dtos.tag_dtos import MemberRef
 from features.gallery.models.gallery import Album, Photo
 from features.gallery.models.tags import PhotoTag
@@ -92,6 +94,9 @@ class GalleryRepositoryImpl:
             position=_next_photo_position(photo.album_id),
             updated_at=self._clock.now(),
             client_upload_id=photo.client_upload_id,
+            media_type=photo.media_type,
+            duration_ms=photo.duration_ms,
+            file_size=photo.file_size,
         )
 
     def update_photo(self, photo_id: int, fields: Mapping[str, object]) -> None:
@@ -120,11 +125,29 @@ class GalleryRepositoryImpl:
             Photo.objects.bulk_update(moved, ["position", "updated_at"])
 
     def photos_without_thumbnail(self) -> Iterator[tuple[int, int, str]]:
-        """(id, album id, original name) of each photo lacking a thumbnail, read in batches."""
+        """(id, album id, original name) of each photo lacking a thumbnail, read in batches.
+        Photos only: a video's original is never decoded as an image (specs/023 FR-025)."""
         rows = (
-            Photo.objects.filter(thumbnail="").order_by("id").values_list("id", "album_id", "image")
+            Photo.objects.filter(thumbnail="", media_type=PHOTO)
+            .order_by("id")
+            .values_list("id", "album_id", "image")
         )
         yield from rows.iterator(chunk_size=100)
+
+    def items_without_file_size(self) -> Iterator[tuple[int, str]]:
+        """(id, original name) of each live item whose size is unknown, read in batches.
+
+        >>> next(repository.items_without_file_size())
+        (7, 'gallery/retiro/IMG_0042.jpg')
+        """
+        rows = (
+            Photo.objects.filter(file_size__isnull=True).order_by("id").values_list("id", "image")
+        )
+        yield from rows.iterator(chunk_size=100)
+
+    def set_file_size(self, photo_id: int, size: int) -> None:
+        """A new size changes the resource, so the change feed reports the item."""
+        Photo.objects.filter(pk=photo_id).update(file_size=size, updated_at=self._clock.now())
 
     def set_thumbnail(self, photo_id: int, name: str) -> None:
         Photo.objects.filter(pk=photo_id).update(thumbnail=name, updated_at=self._clock.now())
@@ -180,4 +203,8 @@ def _to_view(photo: Photo) -> PhotoView:
         position=photo.position,
         updated_at=photo.updated_at,
         members=[MemberRef(id=tag.member_id, name=tag.member.name) for tag in photo.tags.all()],
+        # The check constraint admits only these two values, so the cast cannot lie.
+        media_type=cast(MediaType, photo.media_type),
+        duration_ms=photo.duration_ms,
+        file_size=photo.file_size,
     )

@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
+from features.gallery.domain.media_types import MEDIA_TYPES, PHOTO, VIDEO
 from features.gallery.models.trash import GalleryDeletionBatch
 
 if TYPE_CHECKING:
@@ -113,8 +114,18 @@ class Photo(models.Model):
     album = models.ForeignKey(Album, related_name="photos", on_delete=models.PROTECT)
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    image = models.ImageField(upload_to=photo_upload_path)
+    # A plain FileField: for a video it holds the MP4/MOV as sent, and an ImageField would decode
+    # it in any form that ever handles it (specs/023-gallery-videos research R-02).
+    image = models.FileField(upload_to=photo_upload_path)
+    # For a video, the poster the uploader's phone made.
     thumbnail = models.ImageField(upload_to=thumbnail_upload_path, blank=True)
+    media_type = models.CharField(
+        max_length=5, choices=[(kind, kind) for kind in MEDIA_TYPES], default=PHOTO
+    )
+    duration_ms = models.PositiveIntegerField(null=True, blank=True)
+    # Bytes of ``image``, so the app can show storage totals of files it has not downloaded.
+    # Null only for rows stored before feature 023 until the backfill command fills them.
+    file_size = models.PositiveBigIntegerField(null=True, blank=True)
     date_taken = models.DateField(blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     # Auditing only: never part of the photo resource members read.
@@ -157,6 +168,13 @@ class Photo(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=["client_upload_id"], name="unique_photo_client_upload_id"
+            ),
+            # No path — upload, admin, shell — may store a video without its duration or its
+            # poster (specs/023-gallery-videos SC-002, research R-07).
+            models.CheckConstraint(
+                condition=(Q(media_type=PHOTO) & Q(duration_ms__isnull=True))
+                | (Q(media_type=VIDEO) & Q(duration_ms__isnull=False) & ~Q(thumbnail="")),
+                name="photo_media_fields_match_type",
             ),
         ]
         indexes = [

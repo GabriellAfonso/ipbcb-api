@@ -28,7 +28,8 @@ class MemberRefSerializer(serializers.Serializer[object]):
 class PhotoSerializer(serializers.Serializer[object]):
     """The photo resource. Every field returned before feature 013 keeps its name and order;
     ``thumbnail_url`` was added by 013, ``position`` by 014, so a delta of the change feed
-    carries the order on its own, and ``members`` (last) by 015."""
+    carries the order on its own, ``members`` by 015, and the three media fields (last) by 023.
+    For a video, ``image_url`` is the video file and ``thumbnail_url`` its poster."""
 
     id = serializers.IntegerField()
     name = serializers.CharField()
@@ -41,6 +42,9 @@ class PhotoSerializer(serializers.Serializer[object]):
     uploaded_at = serializers.DateTimeField()
     position = serializers.IntegerField()
     members = MemberRefSerializer(many=True)
+    media_type = serializers.CharField()
+    duration_ms = serializers.IntegerField(allow_null=True)
+    file_size = serializers.IntegerField(allow_null=True)
 
     def get_image_url(self, photo: PhotoView) -> str | None:
         return absolute_media_url(self.context, photo.image_path)
@@ -70,6 +74,22 @@ class PhotoUpdateSerializer(serializers.Serializer[object]):
                 f"Fields not accepted: {unknown}. Editable: {sorted(self.fields)}."
             )
         return attrs
+
+
+# PositiveIntegerField's ceiling on PostgreSQL; about 24 days, so no real video reaches it.
+MAX_DURATION_MS = 2_147_483_647
+
+
+class VideoUploadSerializer(serializers.Serializer[object]):
+    """Types of a video upload's form fields (specs/023-gallery-videos FR-009). The view first
+    checks each field was sent once: a ``QueryDict`` hands a serializer only one of the values."""
+
+    video = serializers.FileField()
+    poster = serializers.FileField()
+    duration_ms = serializers.IntegerField(min_value=1, max_value=MAX_DURATION_MS)
+    # Untrimmed, so a stray space is refused by the spec 016 shape check instead of dropped.
+    client_upload_id = serializers.CharField(trim_whitespace=False)
+    date_taken = serializers.DateField(required=False, allow_null=True)
 
 
 class PhotoOrderSerializer(serializers.Serializer[object]):

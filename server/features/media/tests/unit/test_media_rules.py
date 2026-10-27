@@ -39,6 +39,9 @@ class TestContentTypeFor:
             ("profiles/u/abc.png", "image/png"),
             ("profiles/u/abc.webp", "image/webp"),
             ("gallery/a/x.gif", "image/gif"),
+            # specs/023-gallery-videos FR-022
+            ("gallery/a/x.mp4", "video/mp4"),
+            ("gallery/a/x.MOV", "video/quicktime"),
         ],
     )
     def test_allow_listed_image_formats(self, path: str, expected: str) -> None:

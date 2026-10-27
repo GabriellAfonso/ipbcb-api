@@ -1,6 +1,6 @@
 import logging
-from collections.abc import Sequence
-from datetime import date
+from collections.abc import Callable, Sequence
+from functools import partial
 from typing import IO
 from uuid import UUID
 
@@ -11,22 +11,28 @@ from core.domain.exceptions import (
     ClientUploadIdTakenError,
     ImageProcessingError,
     NoPhotoAcceptedError,
+    NoVideoAcceptedError,
     PhotoNotFoundError,
     UploadedPhotoTrashedError,
     ValidationError,
 )
 from core.files.image_validation import detect_image_extension
+from core.files.upload_size import upload_size
+from core.files.video_validation import detect_video_extension
 from features.gallery.domain.gallery_rules import fit_photo_name
 from features.gallery.domain.image_limits import DERIVATIVE_JPEG_QUALITY, ensure_within_pixel_limit
+from features.gallery.domain.media_types import VIDEO
 from features.gallery.domain.upload_rules import ensure_valid_client_upload
 from features.gallery.dtos.gallery_dtos import (
     ClientUploadMatch,
+    FileSizeBackfillReport,
     NewPhoto,
     PhotoChanges,
     PhotoView,
     RejectedFile,
     ThumbnailBackfillReport,
     UploadResult,
+    VideoUploadMeta,
 )
 from core.files.imaging.interfaces import ImageProcessor
 from features.gallery.repositories.interfaces import (
@@ -45,7 +51,7 @@ THUMBNAIL_LONGEST_SIDE_PX = 1000
 
 
 class GalleryService:
-    """Photos: reads, upload, metadata, order and the thumbnail backfill.
+    """Gallery items (photos and videos): reads, upload, metadata, order and the backfills.
 
     Files are written before the row and deleted if the row cannot be written, so no photo is
     ever committed without both its original and its thumbnail (research R-05).
@@ -113,7 +119,33 @@ class GalleryService:
         existing = self._existing_upload(client_upload_id, uploader_id)
         if existing is not None:
             return existing
-        return self._store_first(album_id, files[0], uploader_id, client_upload_id)
+        store = partial(self._upload_batch, album_id, [files[0]], uploader_id, client_upload_id)
+        return self._answer_race(client_upload_id, uploader_id, store)
+
+    def upload_video(
+        self,
+        album_id: int,
+        video: IO[bytes],
+        poster: IO[bytes],
+        upload: VideoUploadMeta,
+        uploader_id: UUID | None = None,
+    ) -> UploadResult:
+        """Store one video as sent, with the poster as its thumbnail (specs/023-gallery-videos).
+
+        The client upload id is required and answered as for a photo: a retry of a stored video
+        returns it, or raises ``UploadedPhotoTrashedError`` when it is in the trash. A refused
+        video or poster raises ``NoVideoAcceptedError``; nothing is stored then.
+
+        >>> meta = VideoUploadMeta(duration_ms=45000, client_upload_id=upload_id)
+        >>> service.upload_video(7, open("culto.mp4", "rb"), open("capa.jpg", "rb"), meta)
+        UploadResult(accepted=[PhotoView(id=52, ..., media_type='video', ...)], rejected=[])
+        """
+        ensure_valid_client_upload(upload.client_upload_id, 1)
+        existing = self._existing_upload(upload.client_upload_id, uploader_id)
+        if existing is not None:
+            return existing
+        store = partial(self._store_video, album_id, video, poster, upload, uploader_id)
+        return self._answer_race(upload.client_upload_id, uploader_id, store)
 
     def update_photo(self, photo_id: int, changes: PhotoChanges) -> PhotoView:
         """Edit ``name``, ``description``, ``date_taken``; ``album_id`` moves it to the end of
@@ -161,6 +193,23 @@ class GalleryService:
                 skipped.append(photo_id)
         return ThumbnailBackfillReport(filled=filled, skipped_ids=skipped)
 
+    def fill_missing_file_sizes(self) -> FileSizeBackfillReport:
+        """Record the size of every item stored without one (before feature 023); a missing
+        file is skipped and reported. Idempotent: only items without a size are read.
+
+        >>> service.fill_missing_file_sizes()
+        FileSizeBackfillReport(filled=412, skipped_ids=[7])
+        """
+        filled, skipped = 0, []
+        for photo_id, image_name in self._repository.items_without_file_size():
+            size = self._stored_size(image_name)
+            if size is None:
+                skipped.append(photo_id)
+                continue
+            self._repository.set_file_size(photo_id, size)
+            filled += 1
+        return FileSizeBackfillReport(filled=filled, skipped_ids=skipped)
+
     def _upload_batch(
         self,
         album_id: int,
@@ -179,7 +228,7 @@ class GalleryService:
             # per file instead of bubbling up.
             try:
                 extension = detect_image_extension(f)
-                new_photo = self._new_photo(album_id, name, uploader_id, client_upload_id)
+                new_photo = self._new_photo(album_id, f, uploader_id, client_upload_id)
                 result.accepted.append(self._store_one(f, extension, new_photo))
             except ValidationError as exc:
                 result.rejected.append(RejectedFile(filename=name, reason=str(exc)))
@@ -200,14 +249,14 @@ class GalleryService:
             raise UploadedPhotoTrashedError(client_upload_id)
         return UploadResult(accepted=[self._require_photo(match.photo_id)])
 
-    def _store_first(
-        self, album_id: int, upload: IO[bytes], uploader_id: UUID | None, client_upload_id: str
+    def _answer_race(
+        self, client_upload_id: str, uploader_id: UUID | None, store: Callable[[], UploadResult]
     ) -> UploadResult:
-        """First upload of an id. A concurrent request with the same id may store its photo
-        between our lookup and our insert; the unique constraint then refuses ours, ``_persist``
-        has already removed our files, and we answer as a retry (research R-04)."""
+        """First upload of an id, photo or video. A concurrent request with the same id may store
+        its item between our lookup and our insert; the unique constraint then refuses ours,
+        ``_persist`` has already removed our files, and we answer as a retry (spec 016 R-04)."""
         try:
-            return self._upload_batch(album_id, [upload], uploader_id, client_upload_id)
+            return store()
         except ClientUploadIdTakenError:
             existing = self._existing_upload(client_upload_id, uploader_id)
             if existing is None:
@@ -216,38 +265,83 @@ class GalleryService:
 
     @staticmethod
     def _new_photo(
-        album_id: int, name: str, uploader_id: UUID | None, client_upload_id: str | None
+        album_id: int, original: IO[bytes], uploader_id: UUID | None, client_upload_id: str | None
     ) -> NewPhoto:
         """The row to write, before its files exist: ``_persist`` fills in their names."""
         return NewPhoto(
             album_id=album_id,
             image_name="",
             thumbnail_name="",
-            name=fit_photo_name(name),
+            name=fit_photo_name(getattr(original, "name", "") or ""),
             date_taken=None,
             uploader_id=uploader_id,
             client_upload_id=client_upload_id,
+            file_size=upload_size(original),
         )
 
     def _store_one(self, upload: IO[bytes], extension: str, new_photo: NewPhoto) -> PhotoView:
-        """Derive, store and record one validated file; give the album its first cover."""
-        album_id = new_photo.album_id
-        thumbnail, taken_on = self._derive(upload)
-        first_in_album = self._covers.needs_first_cover(album_id)
-        photo = self._persist(
-            upload, extension, thumbnail, new_photo.model_copy(update={"date_taken": taken_on})
-        )
-        if first_in_album:
-            self._covers.cover_from_photo(album_id, upload)
-        return photo
+        """Derive, store and record one validated photo."""
+        thumbnail = self._thumbnail(upload)
+        dated = new_photo.model_copy(update={"date_taken": self._images.capture_date(upload)})
+        return self._write_item(upload, extension, thumbnail, dated, cover_source=upload)
 
-    def _derive(self, upload: IO[bytes]) -> tuple[bytes, date | None]:
-        """Pixel limit, thumbnail and EXIF date — all before anything is written."""
-        ensure_within_pixel_limit(*self._images.dimensions(upload))
-        thumbnail = self._images.bounded_jpeg(
-            upload, THUMBNAIL_LONGEST_SIDE_PX, DERIVATIVE_JPEG_QUALITY
+    def _store_video(
+        self,
+        album_id: int,
+        video: IO[bytes],
+        poster: IO[bytes],
+        upload: VideoUploadMeta,
+        uploader_id: UUID | None,
+    ) -> UploadResult:
+        """Check, store and record one video; its poster is the thumbnail and the first cover."""
+        self._require_album(album_id)
+        extension, thumbnail = self._checked_video(video, poster)
+        fields = {
+            "media_type": VIDEO,
+            "duration_ms": upload.duration_ms,
+            "date_taken": upload.date_taken,
+        }
+        new_video = self._new_photo(album_id, video, uploader_id, upload.client_upload_id)
+        stored = self._write_item(
+            video, extension, thumbnail, new_video.model_copy(update=fields), cover_source=poster
         )
-        return thumbnail, self._images.capture_date(upload)
+        return UploadResult(accepted=[stored])
+
+    def _checked_video(self, video: IO[bytes], poster: IO[bytes]) -> tuple[str, bytes]:
+        """The video's extension and the poster's thumbnail, or ``NoVideoAcceptedError`` with
+        the reason under the video's filename: a bad poster refuses the whole upload."""
+        try:
+            extension = detect_video_extension(video)
+        except ValidationError as exc:
+            raise _video_refused(video, str(exc)) from None
+        try:
+            detect_image_extension(poster)
+            thumbnail = self._thumbnail(poster)
+        except ValidationError as exc:
+            raise _video_refused(video, f"Imagem de capa: {exc}") from None
+        return extension, thumbnail
+
+    def _write_item(
+        self,
+        original: IO[bytes],
+        extension: str,
+        thumbnail: bytes,
+        new_photo: NewPhoto,
+        cover_source: IO[bytes],
+    ) -> PhotoView:
+        """Store and record one checked item; give the album its first cover from
+        ``cover_source`` (the photo itself, or a video's poster)."""
+        album_id = new_photo.album_id
+        first_in_album = self._covers.needs_first_cover(album_id)
+        stored = self._persist(original, extension, thumbnail, new_photo)
+        if first_in_album:
+            self._covers.cover_from_photo(album_id, cover_source)
+        return stored
+
+    def _thumbnail(self, image: IO[bytes]) -> bytes:
+        """Pixel limit, then the thumbnail: both before anything is written."""
+        ensure_within_pixel_limit(*self._images.dimensions(image))
+        return self._images.bounded_jpeg(image, THUMBNAIL_LONGEST_SIDE_PX, DERIVATIVE_JPEG_QUALITY)
 
     def _persist(
         self, upload: IO[bytes], extension: str, thumbnail: bytes, new_photo: NewPhoto
@@ -276,6 +370,12 @@ class GalleryService:
         self._repository.set_thumbnail(photo_id, self._storage.save_thumbnail(album_id, thumbnail))
         return True
 
+    def _stored_size(self, name: str) -> int | None:
+        try:
+            return self._storage.size(name)
+        except OSError:  # FileNotFoundError included
+            return None
+
     def _move(self, photo_id: int, album_id: int | None) -> None:
         if album_id is None:
             raise ValidationError(f"Field 'album_id' must be an album id, got {album_id!r}.")
@@ -291,6 +391,11 @@ class GalleryService:
         if photo is None:
             raise PhotoNotFoundError(photo_id)
         return photo
+
+
+def _video_refused(video: IO[bytes], reason: str) -> NoVideoAcceptedError:
+    filename = getattr(video, "name", "") or ""
+    return NoVideoAcceptedError([RejectedFile(filename=filename, reason=reason).model_dump()])
 
 
 def _log_existing_upload(match: ClientUploadMatch, uploader_id: UUID | None) -> None:

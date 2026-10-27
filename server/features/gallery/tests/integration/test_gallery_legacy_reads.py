@@ -28,10 +28,17 @@ class TestLegacyReads:
         client, _ = make_member_client()
         photo = client.get(url.format(album=album.pk)).data[0]
 
-        # thumbnail_url by 013, position by 014, members (last) by 015.
-        assert set(photo) == LEGACY_FIELDS | {"thumbnail_url", "position", "members"}
-        assert list(photo)[-2:] == ["position", "members"]
+        # thumbnail_url by 013, position by 014, members by 015, media fields (last) by 023.
+        media_fields = ["media_type", "duration_ms", "file_size"]
+        added = {"thumbnail_url", "position", "members", *media_fields}
+        assert set(photo) == LEGACY_FIELDS | added
+        assert list(photo)[-5:] == ["position", "members", *media_fields]
         assert photo["members"] == []
+        assert (photo["media_type"], photo["duration_ms"], photo["file_size"]) == (
+            "photo",
+            None,
+            None,
+        )
         assert list(photo)[:6] == [
             "id",
             "name",
@@ -48,7 +55,7 @@ class TestLegacyReads:
         client, _ = make_member_client()
         photo = client.get("/api/gallery/changes/").data["photos"][0]
 
-        assert list(photo)[-1] == "members"
+        assert list(photo)[-4:] == ["members", "media_type", "duration_ms", "file_size"]
 
     def test_a_photo_stored_under_the_old_path_keeps_its_url(self) -> None:
         album = Album.objects.create(name="Culto")

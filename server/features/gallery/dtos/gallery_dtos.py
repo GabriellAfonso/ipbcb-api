@@ -2,6 +2,7 @@ from datetime import date, datetime
 from uuid import UUID
 
 from core.application.dtos.strict_base import StrictBaseModel
+from features.gallery.domain.media_types import PHOTO, MediaType
 from features.gallery.dtos.tag_dtos import MemberRef
 
 
@@ -74,6 +75,11 @@ class PhotoView(StrictBaseModel):
     updated_at: datetime
     # The photo's tags, by name then id (specs/015-gallery-member-tags R-06).
     members: list[MemberRef] = []
+    # specs/023-gallery-videos: for a video, ``image_path`` is the video file and
+    # ``thumbnail_path`` its poster.
+    media_type: MediaType = PHOTO
+    duration_ms: int | None = None
+    file_size: int | None = None
 
 
 class NewPhoto(StrictBaseModel):
@@ -86,6 +92,18 @@ class NewPhoto(StrictBaseModel):
     date_taken: date | None
     uploader_id: UUID | None
     client_upload_id: str | None = None
+    media_type: MediaType = PHOTO
+    duration_ms: int | None = None
+    file_size: int | None = None
+
+
+class VideoUploadMeta(StrictBaseModel):
+    """What the uploader's phone sends with a video besides the two files: the server never
+    reads the video's content (specs/023-gallery-videos FR-009, FR-014)."""
+
+    duration_ms: int
+    date_taken: date | None = None
+    client_upload_id: str
 
 
 class ClientUploadMatch(StrictBaseModel):
@@ -122,5 +140,12 @@ class UploadResult(StrictBaseModel):
 
 
 class ThumbnailBackfillReport(StrictBaseModel):
+    filled: int
+    skipped_ids: list[int]
+
+
+class FileSizeBackfillReport(StrictBaseModel):
+    """Result of ``fill_gallery_file_sizes``: items filled, and those whose file is missing."""
+
     filled: int
     skipped_ids: list[int]

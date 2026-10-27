@@ -8,12 +8,12 @@ Messages are in Portuguese on purpose: they reach the app user through the canon
 error body built by ``core.http.exceptions``.
 """
 
-import os
 from typing import IO, Final
 
 from PIL import Image, UnidentifiedImageError
 
 from core.domain.exceptions import ValidationError
+from core.files.upload_size import upload_size
 
 MAX_IMAGE_BYTES: Final = 10 * 1024 * 1024
 
@@ -49,28 +49,13 @@ def detect_image_extension(upload: IO[bytes], max_bytes: int = MAX_IMAGE_BYTES) 
 
 def _reject_oversized(upload: IO[bytes], max_bytes: int) -> None:
     """Refuse before the decode that follows, so large uploads never reach Pillow."""
-    size = _upload_size(upload)
+    size = upload_size(upload)
     if size is None or size <= max_bytes:
         return
     raise ValidationError(
         f"Arquivo muito grande: {size} bytes. O máximo é {max_bytes} bytes "
         f"({max_bytes // (1024 * 1024)} MB)."
     )
-
-
-def _upload_size(upload: IO[bytes]) -> int | None:
-    """Size in bytes, from Django's ``size`` when present or by measuring the stream."""
-    size = getattr(upload, "size", None)
-    if size is not None:
-        return int(size)
-    try:
-        current = upload.tell()
-        upload.seek(0, os.SEEK_END)
-        measured = upload.tell()
-        upload.seek(current)
-        return measured
-    except (OSError, ValueError):
-        return None
 
 
 def _decode_format(upload: IO[bytes]) -> str:

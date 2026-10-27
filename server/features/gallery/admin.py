@@ -81,6 +81,10 @@ class PhotoAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     readonly_fields = (
         "image",
         "thumbnail",
+        # Written by the upload only (specs/023-gallery-videos FR-006).
+        "media_type",
+        "duration_ms",
+        "file_size",
         "uploaded_by",
         "position",
         "deleted_at",

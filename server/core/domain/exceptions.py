@@ -18,6 +18,7 @@ from core.domain.gallery_exceptions import (
     DuplicateAlbumNameError as DuplicateAlbumNameError,
     OrderMismatchError as OrderMismatchError,
     NoPhotoAcceptedError as NoPhotoAcceptedError,
+    NoVideoAcceptedError as NoVideoAcceptedError,
     ImageProcessingError as ImageProcessingError,
     ImageTooLargeError as ImageTooLargeError,
     TrashEntryNotFoundError as TrashEntryNotFoundError,

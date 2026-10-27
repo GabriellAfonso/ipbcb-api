@@ -1,4 +1,4 @@
-"""Gallery domain exceptions (features 013–016).
+"""Gallery domain exceptions (features 013–016, 023).
 
 Moved out of ``core/domain/exceptions.py`` to keep it under 500 lines; that module
 re-exports every name here, so ``from core.domain.exceptions import …`` keeps working
@@ -103,12 +103,25 @@ class NoPhotoAcceptedError(ValidationError):
     >>> raise NoPhotoAcceptedError([{"filename": "a.txt", "reason": "Formato inválido"}])
     """
 
+    summary = "Nenhuma imagem foi aceita."
+
     def __init__(self, rejected: list[dict[str, str]]) -> None:
-        super().__init__("Nenhuma imagem foi aceita.")
+        super().__init__(self.summary)
         self.rejected = rejected
 
     def extra_context(self) -> dict[str, object]:
         return {"rejected": self.rejected}
+
+
+class NoVideoAcceptedError(NoPhotoAcceptedError):
+    """The video of a video upload, or its poster, was refused. Same canonical 400 and
+    ``rejected`` body as a photo upload, so the app reads both alike
+    (specs/023-gallery-videos FR-019).
+
+    >>> raise NoVideoAcceptedError([{"filename": "culto.mkv", "reason": "Use MP4 ou MOV."}])
+    """
+
+    summary = "O vídeo não foi aceito."
 
 
 class ImageProcessingError(ValidationError):
