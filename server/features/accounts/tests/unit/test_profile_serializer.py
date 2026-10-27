@@ -89,6 +89,7 @@ def test_roles_and_permissions_for_media() -> None:
         "events": "manage",
         "notices": "manage",
         "profiles": None,
+        "bible_videos": None,
         "reports.hymnal_history": "view",
     }
 
@@ -97,7 +98,7 @@ def test_no_role_lists_every_scope_as_null() -> None:
     s = ProfileSerializer(context={"access_grants": _grants()})
     assert s.get_roles(Mock()) == []
     assert set(s.get_permissions(Mock()).values()) == {None}
-    assert len(s.get_permissions(Mock())) == 8
+    assert len(s.get_permissions(Mock())) == 9
 
 
 def test_admin_owns_every_scope() -> None:

@@ -1,6 +1,7 @@
 import pytest
 
 from core.domain.exceptions import BibleVersionNotFound
+from features.bible.domain.canon import BibleCanon
 from features.bible.dtos import BibleBook
 from features.bible.services import BibleService
 
@@ -24,6 +25,9 @@ class FakeBibleRepository:
 
     def get_version(self, name: str) -> list[BibleBook] | None:
         return self._bibles.get(name)
+
+    def canon(self) -> BibleCanon:
+        return BibleCanon({"Gn": 1})
 
 
 class TestBibleServiceListVersions:

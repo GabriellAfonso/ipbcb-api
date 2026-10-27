@@ -65,3 +65,13 @@ class RateLimitedError(DomainError):
     """
 
     error_code: str = "RATE_LIMITED"
+
+
+class UpstreamUnavailableError(DomainError):
+    """Raised when a service this server depends on (e.g. YouTube) times out or fails — a 503:
+    the request was fine and is worth retrying later, unlike a 4xx (specs/025-bible-videos R-05).
+
+    >>> raise UpstreamUnavailableError("YouTube did not answer in 5 s.")
+    """
+
+    error_code: str = "UPSTREAM_UNAVAILABLE"

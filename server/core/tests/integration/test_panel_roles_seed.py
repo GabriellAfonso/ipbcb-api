@@ -1,6 +1,7 @@
 """Migrations 0005 and 0006 seed the three roles with the spec 012 matrix (spec FR-025, US1
 scenario 5), with `gallery` raised to `owner` for Liderança and Mídia by feature 013 and
-`events` by feature 020 (migration 0008).
+`events` by feature 020 (migration 0008), `profiles` added for Liderança by feature 022
+(migration 0010) and `bible_videos` by feature 025 (migration 0012).
 
 The test database is built by running every migration, so what it holds is what a fresh
 deploy holds. The expected table is written here, not imported from application code, so a
@@ -21,6 +22,7 @@ EXPECTED_ROLE_CODENAMES = {
         "events__owner",
         "notices__manage",
         "profiles__manage",
+        "bible_videos__owner",
         "reports_hymnal_history__view",
     },
     "media": {
@@ -52,10 +54,10 @@ class TestPanelRolesSeed:
 
     def test_permission_rows_exist_once_each(self) -> None:
         codenames = [p.codename for p in _panel_permissions()]
-        assert len(codenames) == 24
-        assert len(set(codenames)) == 24
+        assert len(codenames) == 27
+        assert len(set(codenames)) == 27
 
     def test_migrating_again_changes_nothing(self) -> None:
         call_command("migrate", verbosity=0)
         assert _role_codenames() == EXPECTED_ROLE_CODENAMES
-        assert len(_panel_permissions()) == 24
+        assert len(_panel_permissions()) == 27

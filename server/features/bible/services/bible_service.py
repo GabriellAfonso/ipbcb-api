@@ -1,6 +1,6 @@
 from core.domain.exceptions import BibleVersionNotFound
 from features.bible.dtos import BibleBook
-from features.bible.repositories import BibleRepository
+from features.bible.repositories.bible_text import BibleRepository
 
 
 class BibleService:

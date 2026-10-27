@@ -20,6 +20,7 @@ from core.domain.exceptions import (
     NotFoundError,
     PermissionDeniedError,
     RateLimitedError,
+    UpstreamUnavailableError,
     ValidationError,
 )
 
@@ -32,6 +33,7 @@ _DOMAIN_STATUS_MAP: dict[type[DomainError], int] = {
     AuthenticationError: status.HTTP_401_UNAUTHORIZED,
     PermissionDeniedError: status.HTTP_403_FORBIDDEN,
     RateLimitedError: status.HTTP_429_TOO_MANY_REQUESTS,
+    UpstreamUnavailableError: status.HTTP_503_SERVICE_UNAVAILABLE,
 }
 
 

@@ -197,6 +197,7 @@ ALL_SCOPES = [
     "events",
     "notices",
     "profiles",
+    "bible_videos",
     "reports.hymnal_history",
 ]
 LEADER_PERMISSIONS = {
@@ -207,6 +208,7 @@ LEADER_PERMISSIONS = {
     "events": "owner",
     "notices": "manage",
     "profiles": "manage",
+    "bible_videos": "owner",
     "reports.hymnal_history": "view",
 }
 

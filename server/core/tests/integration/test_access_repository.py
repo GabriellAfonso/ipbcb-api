@@ -21,6 +21,8 @@ LEADER_CODENAMES = {
     "notices__manage",
     # Added by core/0010 (specs/022-access-requests FR-011).
     "profiles__manage",
+    # Added by core/0012 (specs/025-bible-videos FR-001).
+    "bible_videos__owner",
     "reports_hymnal_history__view",
 }
 

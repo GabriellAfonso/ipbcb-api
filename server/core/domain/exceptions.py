@@ -10,6 +10,7 @@ from core.domain.base_exceptions import (
     AuthenticationError as AuthenticationError,
     PermissionDeniedError as PermissionDeniedError,
     RateLimitedError as RateLimitedError,
+    UpstreamUnavailableError as UpstreamUnavailableError,
 )
 from core.domain.gallery_exceptions import (
     AlbumNotFoundError as AlbumNotFoundError,
@@ -60,6 +61,16 @@ from core.domain.access_request_exceptions import (
     RollMemberAlreadyLinkedError as RollMemberAlreadyLinkedError,
     MemberNotLinkedError as MemberNotLinkedError,
     ProfileStatusFilterError as ProfileStatusFilterError,
+)
+from core.domain.bible_exceptions import (
+    BibleVideoInvalidUrlError as BibleVideoInvalidUrlError,
+    BibleVideoUnavailableError as BibleVideoUnavailableError,
+    BibleVideoLookupFailedError as BibleVideoLookupFailedError,
+    BibleVideoExistsError as BibleVideoExistsError,
+    BiblePlaceInvalidError as BiblePlaceInvalidError,
+    BibleVideoOrderMismatchError as BibleVideoOrderMismatchError,
+    BibleVideoNotFoundError as BibleVideoNotFoundError,
+    BiblePlaceNotFoundError as BiblePlaceNotFoundError,
 )
 from core.domain.setlist_exceptions import (
     NotWorshipMemberError as NotWorshipMemberError,

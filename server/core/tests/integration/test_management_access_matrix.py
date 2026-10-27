@@ -90,6 +90,12 @@ ENDPOINTS: list[tuple[str, str, str, Level]] = [
     ("GET", f"/api/admin/events/{MISSING_ID}/", "events", Level.VIEW),
     ("PATCH", f"/api/admin/events/{MISSING_ID}/", "events", Level.MANAGE),
     ("DELETE", f"/api/admin/events/{MISSING_ID}/", "events", Level.OWNER),
+    # bible_videos (specs/025-bible-videos)
+    ("POST", "/api/bible/videos/", "bible_videos", Level.MANAGE),
+    ("PUT", f"/api/bible/videos/{MISSING_ID}/places/", "bible_videos", Level.MANAGE),
+    ("DELETE", f"/api/bible/videos/{MISSING_ID}/places/", "bible_videos", Level.OWNER),
+    ("DELETE", f"/api/bible/videos/{MISSING_ID}/", "bible_videos", Level.OWNER),
+    ("PUT", "/api/bible/videos/order/", "bible_videos", Level.MANAGE),
 ]
 
 _ALL_SCOPES = [
@@ -100,6 +106,7 @@ _ALL_SCOPES = [
     "events",
     "notices",
     "profiles",
+    "bible_videos",
     "reports.hymnal_history",
 ]
 ROLE_LEVELS: dict[Role, dict[str, Level]] = {
@@ -112,6 +119,7 @@ ROLE_LEVELS: dict[Role, dict[str, Level]] = {
         "events": Level.OWNER,
         "notices": Level.MANAGE,
         "profiles": Level.MANAGE,
+        "bible_videos": Level.OWNER,
         "reports.hymnal_history": Level.VIEW,
     },
     Role.MEDIA: {
@@ -181,11 +189,10 @@ def test_anonymous_is_401(row: tuple[str, str, str, Level]) -> None:
 
 @pytest.mark.django_db
 def test_leader_gets_403_on_every_delete() -> None:
-    # Outside `gallery` and `events`, where Liderança holds owner since features 013 and 020
-    # (spec 012 SC-002).
-    deletes = [
-        row for row in ENDPOINTS if row[0] == "DELETE" and row[2] not in ("gallery", "events")
-    ]
+    # Outside `gallery`, `events` and `bible_videos`, where Liderança holds owner since
+    # features 013, 020 and 025 (spec 012 SC-002).
+    owned = ("gallery", "events", "bible_videos")
+    deletes = [row for row in ENDPOINTS if row[0] == "DELETE" and row[2] not in owned]
     assert deletes, "the classification lists DELETE endpoints"
     client, _ = make_role_client(Role.LEADER)
     for method, url, _, _ in deletes:

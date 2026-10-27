@@ -55,6 +55,9 @@ class Scope(StrEnum):
     # App accounts and their access requests ("Perfis", specs/022-access-requests) — distinct
     # from ``members``, the church roll.
     PROFILES = "profiles"
+    # YouTube videos linked to Bible chapters and books (specs/025-bible-videos). Listing them is
+    # public; only the writes use the scope.
+    BIBLE_VIDEOS = "bible_videos"
     REPORTS_HYMNAL_HISTORY = "reports.hymnal_history"
 
 

@@ -35,7 +35,12 @@ from core.repositories.member_account_repository import MemberAccountRepositoryI
 from core.repositories.worship_repository import WorshipMembershipRepositoryImpl
 from core.time.clock import SystemClock
 from features.bible.repositories import BibleRepositoryImpl
+from features.bible.repositories.progress_repository import BibleProgressRepositoryImpl
+from features.bible.repositories.video_repository import BibleVideoRepositoryImpl
+from features.bible.repositories.youtube_oembed import HttpYouTubeOEmbedClient
 from features.bible.services import BibleService
+from features.bible.services.progress_service import BibleProgressService
+from features.bible.services.video_service import BibleVideoService
 from features.doctrine.repositories import DoctrineRepositoryImpl
 from features.doctrine.services import DoctrineService
 from core.files.imaging.pillow_image_processor import PillowImageProcessor
@@ -114,6 +119,8 @@ class Container(containers.DeclarativeContainer):
             "features.accounts.views.devices",
             "features.accounts.views.profile",
             "features.bible.views",
+            "features.bible.views.progress",
+            "features.bible.views.videos",
             "features.doctrine.views",
             "features.events.views.admin_events",
             "features.events.views.public_events",
@@ -206,6 +213,22 @@ class Container(containers.DeclarativeContainer):
     doctrine_service = providers.Factory(DoctrineService, doctrine_repository=doctrine_repository)
 
     clock = providers.Singleton(SystemClock)
+
+    # Bible videos and reading progress (specs/025-bible-videos). The canon is read once from
+    # the translations the Bible repository already loaded.
+    bible_canon = bible_repository.provided.canon.call()
+    bible_video_repository = providers.Factory(BibleVideoRepositoryImpl)
+    youtube_metadata_client = providers.Factory(HttpYouTubeOEmbedClient)
+    bible_video_service = providers.Factory(
+        BibleVideoService,
+        repository=bible_video_repository,
+        youtube=youtube_metadata_client,
+        canon=bible_canon,
+    )
+    bible_progress_repository = providers.Factory(BibleProgressRepositoryImpl)
+    bible_progress_service = providers.Factory(
+        BibleProgressService, repository=bible_progress_repository, canon=bible_canon, clock=clock
+    )
 
     # Member access and access requests (specs/022-access-requests).
     access_request_repository = providers.Factory(AccessRequestRepositoryImpl)
