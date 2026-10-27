@@ -198,6 +198,7 @@ ALL_SCOPES = [
     "notices",
     "profiles",
     "bible_videos",
+    "sunday_school",
     "reports.hymnal_history",
 ]
 LEADER_PERMISSIONS = {
@@ -209,6 +210,7 @@ LEADER_PERMISSIONS = {
     "notices": "manage",
     "profiles": "manage",
     "bible_videos": "owner",
+    "sunday_school": "owner",
     "reports.hymnal_history": "view",
 }
 

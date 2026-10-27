@@ -1,0 +1,294 @@
+{
+  "title": "O Período Intertestamentário",
+  "date": null,
+  "content": {
+    "sections": [
+      {
+        "title": "O Contexto no Drama das Escrituras",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "*A ponte entre as promessas e a chegada do Rei (Preparação para o Ato 4 do Drama das Escrituras)*",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "Este não é um livro bíblico, mas um \"Interlúdio\" histórico de 400 anos.",
+                "proof_texts": []
+              },
+              {
+                "text": "Situa-se entre Malaquias (Ato 3) e os Evangelhos (Ato 4).",
+                "proof_texts": []
+              },
+              {
+                "text": "Israel vive uma \"espera por um desfecho\": estão de volta à terra, mas sob domínio pagão e sem a glória prometida.",
+                "proof_texts": []
+              },
+              {
+                "text": "É o período que forja a identidade dos judeus que Jesus encontrará no século I.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Objetivos Teológicos da Aula",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "Entender a grande tensão da época: a **Promessa** gloriosa de Deus versus a **Realidade** de opressão.",
+                "proof_texts": []
+              },
+              {
+                "text": "A mentalidade judaica se dividiu em duas eras: a \"Era Presente\" (pecado/sofrimento) e a \"Era Vindoura\" (intervenção e redenção divina).",
+                "proof_texts": []
+              },
+              {
+                "text": "Compreender este barril de pólvora é essencial para entender o impacto do anúncio de Jesus: \"O Reino de Deus chegou!\".",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "A Fornalha Histórica (Os Impérios)",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "steps",
+            "items": [
+              {
+                "label": null,
+                "title": "Império Persa",
+                "text": "Retorno frustrante; surge o zelo pela Torá (Lei) e a criação das sinagogas."
+              },
+              {
+                "label": null,
+                "title": "Império Grego",
+                "text": "Ameaça cultural (helenização); o rei Antíoco IV profana o templo sacrificando um porco."
+              },
+              {
+                "label": null,
+                "title": "Revolta dos Macabeus",
+                "text": "Rebelião armada que gerou uma breve independência, mas cujos líderes se corromperam."
+              },
+              {
+                "label": null,
+                "title": "Império Romano",
+                "text": "A \"quarta besta\" brutal; opressão máxima através de impostos cruéis e crucificações."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "As Respostas do Povo (Grupos Judaicos)",
+        "icon": "church",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "Fariseus",
+                "text": "Buscavam a redenção pela obediência radical à Lei e pela separação estrita da cultura pagã.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Essênios",
+                "text": "Buscavam a redenção fugindo da sociedade corrupta para o deserto, aguardando uma guerra santa.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Saduceus e Sacerdotes",
+                "text": "Buscavam manter seu poder e status quo colaborando politicamente com Roma.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Zelotes",
+                "text": "Buscavam a redenção pela violência armada contra os romanos e judeus traidores.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "O Povo Comum",
+                "text": "A maioria que orava e aguardava pacientemente a vinda do Messias libertador.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "O Embate de Jesus com as Expectativas",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Os Fariseus:** Jesus quebra a \"separação\" deles e age fora das estruturas oficiais do templo ao perdoar pecados (Marcos 2.1-12). Ele declara que o Seu poder é o Reino chegando (Lucas 11.20).",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 2.1-12",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 2,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 12
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "Lucas 11.20",
+                    "reference": {
+                      "book": "Lc",
+                      "chapter": 11,
+                      "verses": [
+                        {
+                          "start": 20,
+                          "end": 20
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Os Zelotes:** Jesus recusa a revolução violenta, preferindo o caminho do sofrimento. Mesmo assim, acolhe um zelote (Simão) em Seu círculo íntimo (Lucas 6.15).",
+                "proof_texts": [
+                  {
+                    "printed": "Lucas 6.15",
+                    "reference": {
+                      "book": "Lc",
+                      "chapter": 6,
+                      "verses": [
+                        {
+                          "start": 15,
+                          "end": 15
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Os Saduceus:** Rejeitam Jesus pois viam Seus milagres como uma ameaça que atrairia a ira dos romanos e lhes tiraria o poder (João 11.48).",
+                "proof_texts": [
+                  {
+                    "printed": "João 11.48",
+                    "reference": {
+                      "book": "Jo",
+                      "chapter": 11,
+                      "verses": [
+                        {
+                          "start": 48,
+                          "end": 48
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Os Essênios:** Ao contrário do isolamento deles, Jesus vai ativamente ao encontro dos impuros e marginalizados para curá-los (Lucas 17.11-19).",
+                "proof_texts": [
+                  {
+                    "printed": "Lucas 17.11-19",
+                    "reference": {
+                      "book": "Lc",
+                      "chapter": 17,
+                      "verses": [
+                        {
+                          "start": 11,
+                          "end": 19
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**O Povo Comum:** Jesus inaugura o Reino pregando aos pobres, e não com guerra (Lucas 7.22). Ele anuncia: \"O tempo chegou\" (Marcos 1.15).",
+                "proof_texts": [
+                  {
+                    "printed": "Lucas 7.22",
+                    "reference": {
+                      "book": "Lc",
+                      "chapter": 7,
+                      "verses": [
+                        {
+                          "start": 22,
+                          "end": 22
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "Marcos 1.15",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 1,
+                      "verses": [
+                        {
+                          "start": 15,
+                          "end": 15
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Exortação Devocional",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**O Ato 4 vai começar!** O Rei está prestes a entrar no palco da História.",
+                "proof_texts": []
+              },
+              {
+                "text": "Ao ler os Evangelhos nesta semana, perceba a \"panela de pressão\" política e religiosa de Israel.",
+                "proof_texts": []
+              },
+              {
+                "text": "Jesus subverte todas as expectativas: Ele não traz legalismo ou espadas, mas instaura o Reino através do amor e do sacrifício na cruz.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

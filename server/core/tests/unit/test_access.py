@@ -101,7 +101,7 @@ class TestCodenames:
         )
 
     def test_table_round_trips_every_pair(self) -> None:
-        assert len(PERMISSION_BY_CODENAME) == 27
+        assert len(PERMISSION_BY_CODENAME) == 30
         for scope in Scope:
             for level in Level:
                 assert PERMISSION_BY_CODENAME[codename(scope, level)] == (scope, level)

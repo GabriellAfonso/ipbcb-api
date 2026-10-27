@@ -6,6 +6,8 @@ from datetime import UTC, datetime
 import pytest
 
 from features.bible.domain.canon import BibleCanon, BiblePlace
+from features.bible.dtos import BibleBook
+from features.bible.repositories.bible_text import BibleRepositoryImpl, shared_verse_counts
 from features.bible.domain.last_write_wins import winning_changes
 from features.bible.domain.youtube_links import (
     YouTubeKind,
@@ -143,3 +145,31 @@ class TestWinningChanges:
     def test_targets_are_independent(self) -> None:
         a, b = _Change(_at(1), "a"), _Change(_at(1), "b")
         assert winning_changes({"Gn 1": _at(2)}, [("Gn 1", a), ("Gn 2", b)]) == [b]
+
+
+class TestSharedVerseCounts:
+    def test_keeps_the_fewest_verses_of_each_chapter(self) -> None:
+        naa = [_book("Gn", [3, 5]), _book("Ap", [4])]
+        ara = [_book("Gn", [3, 4]), _book("Ap", [6])]
+
+        assert shared_verse_counts({"NAA": naa, "ARA": ara}) == {"Gn": [3, 4], "Ap": [4]}
+
+    def test_no_translation_gives_no_books(self) -> None:
+        assert shared_verse_counts({}) == {}
+
+
+class TestBibleRepositoryOutline:
+    def test_real_data_counts_and_names(self) -> None:
+        repository = BibleRepositoryImpl()
+
+        counts = repository.verse_counts_by_book()
+        names = repository.book_names()
+
+        assert len(counts) == 66
+        assert list(counts)[40] == "Mc"
+        assert len(counts["Mc"]) == 16
+        assert names["Mc"] == "Marcos"
+
+
+def _book(abbrev: str, verse_counts: list[int]) -> BibleBook:
+    return BibleBook(abbrev=abbrev, name=abbrev, chapters=[["v"] * count for count in verse_counts])

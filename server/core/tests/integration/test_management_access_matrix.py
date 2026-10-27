@@ -96,6 +96,15 @@ ENDPOINTS: list[tuple[str, str, str, Level]] = [
     ("DELETE", f"/api/bible/videos/{MISSING_ID}/places/", "bible_videos", Level.OWNER),
     ("DELETE", f"/api/bible/videos/{MISSING_ID}/", "bible_videos", Level.OWNER),
     ("PUT", "/api/bible/videos/order/", "bible_videos", Level.MANAGE),
+    # sunday_school (specs/026-sunday-school)
+    ("GET", "/api/sunday-school/manage/lessons/?year=2026", "sunday_school", Level.VIEW),
+    ("POST", "/api/sunday-school/manage/lessons/", "sunday_school", Level.MANAGE),
+    ("GET", f"/api/sunday-school/manage/lessons/{MISSING_ID}/", "sunday_school", Level.VIEW),
+    ("PATCH", f"/api/sunday-school/manage/lessons/{MISSING_ID}/", "sunday_school", Level.MANAGE),
+    ("DELETE", f"/api/sunday-school/manage/lessons/{MISSING_ID}/", "sunday_school", Level.OWNER),
+    ("PUT", "/api/sunday-school/manage/lessons/order/", "sunday_school", Level.MANAGE),
+    ("GET", "/api/sunday-school/manage/years/", "sunday_school", Level.VIEW),
+    ("PATCH", "/api/sunday-school/manage/years/2026/", "sunday_school", Level.MANAGE),
 ]
 
 _ALL_SCOPES = [
@@ -107,6 +116,7 @@ _ALL_SCOPES = [
     "notices",
     "profiles",
     "bible_videos",
+    "sunday_school",
     "reports.hymnal_history",
 ]
 ROLE_LEVELS: dict[Role, dict[str, Level]] = {
@@ -120,6 +130,7 @@ ROLE_LEVELS: dict[Role, dict[str, Level]] = {
         "notices": Level.MANAGE,
         "profiles": Level.MANAGE,
         "bible_videos": Level.OWNER,
+        "sunday_school": Level.OWNER,
         "reports.hymnal_history": Level.VIEW,
     },
     Role.MEDIA: {
@@ -189,9 +200,9 @@ def test_anonymous_is_401(row: tuple[str, str, str, Level]) -> None:
 
 @pytest.mark.django_db
 def test_leader_gets_403_on_every_delete() -> None:
-    # Outside `gallery`, `events` and `bible_videos`, where Liderança holds owner since
-    # features 013, 020 and 025 (spec 012 SC-002).
-    owned = ("gallery", "events", "bible_videos")
+    # Outside `gallery`, `events`, `bible_videos` and `sunday_school`, where Liderança holds owner
+    # since features 013, 020, 025 and 026 (spec 012 SC-002).
+    owned = ("gallery", "events", "bible_videos", "sunday_school")
     deletes = [row for row in ENDPOINTS if row[0] == "DELETE" and row[2] not in owned]
     assert deletes, "the classification lists DELETE endpoints"
     client, _ = make_role_client(Role.LEADER)

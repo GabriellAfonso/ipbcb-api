@@ -1,0 +1,300 @@
+{
+  "title": "Panorama do Livro de Daniel",
+  "date": "2026-08-16",
+  "content": {
+    "sections": [
+      {
+        "title": "Contexto do Livro Bíblico no Drama das Escrituras",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "O livro de Daniel está situado no período do **Exílio Babilônico**, um momento de profunda crise na história de Israel, após a nação ter sido retirada da sua terra por causa de sua desobediência à aliança.",
+                "proof_texts": []
+              },
+              {
+                "text": "Historicamente, os eventos descritos no livro se iniciam por volta de **605 a.C.**, quando Daniel foi levado cativo para a Babilônia.",
+                "proof_texts": []
+              },
+              {
+                "text": "O autor tradicionalmente aceito é o próprio profeta Daniel, cujo nome significa \"Deus é meu juiz\".",
+                "proof_texts": []
+              },
+              {
+                "text": "Embora estudiosos da \"alta crítica\" tentem datar o livro por volta de 170 a.C. por não acreditarem na possibilidade de profecias preditivas tão detalhadas, o próprio Jesus confirmou a autoria ao citar o \"profeta Daniel\" em Mateus 24.15.",
+                "proof_texts": [
+                  {
+                    "printed": "Mateus 24.15",
+                    "reference": {
+                      "book": "Mt",
+                      "chapter": 24,
+                      "verses": [
+                        {
+                          "start": 15,
+                          "end": 15
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Uma característica literária fascinante é a mudança de idioma: um grande segmento do livro (2.4 a 7.28) foi escrito em **aramaico**, e não em hebraico.",
+                "proof_texts": [
+                  {
+                    "printed": "2.4",
+                    "reference": {
+                      "book": "Dn",
+                      "chapter": 2,
+                      "verses": [
+                        {
+                          "start": 4,
+                          "end": 49
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "7.28",
+                    "reference": {
+                      "book": "Dn",
+                      "chapter": 7,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 28
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "O livro é dividido em duas metades literárias distintas: a primeira (capítulos 1-6) é composta por **narrativas históricas**, e a segunda (capítulos 7-12) é essencialmente **literatura apocalíptica**, repleta de visões celestiais e símbolos.",
+                "proof_texts": []
+              },
+              {
+                "text": "As circunstâncias da escrita visavam assegurar aos leitores originais que, apesar das dificuldades e do sofrimento no Exílio, Deus continuava no controle do presente e do futuro.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Objetivo Teológico Central",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "O foco primário e o objetivo teológico do livro de Daniel é revelar a **absoluta soberania de Deus sobre a história e sobre as nações**. O livro foi escrito para confortar o povo de Deus em tempos de perseguição, encorajando-os a confiar que, mesmo quando os governantes ímpios parecem triunfar ou o templo está em ruínas, o Senhor dirige a história. A mensagem central pode ser resumida da seguinte forma: Deus é maior do que todas as circunstâncias, Seu domínio é sempiterno, e Ele libertará Seu povo para estabelecer um reino eterno de justiça e paz.",
+            "proof_texts": []
+          }
+        ]
+      },
+      {
+        "title": "Estrutura do Esboço do Livro",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "A organização dos capítulos ilustra perfeitamente a divisão literária do livro, transitando das experiências históricas de Daniel para as suas visões escatológicas.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**I. As Narrativas**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Capítulo 1** - Deus vindica Daniel e seus amigos por sua fidelidade.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Capítulo 2** - Daniel interpreta o sonho de Nabucodonosor.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Capítulo 3** - Deus livra os amigos de Daniel da fornalha ardente.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Capítulo 4** - Deus julga e restaura Nabucodonosor.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Capítulo 5** - O julgamento de Deus sobre Belsazar.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Capítulo 6** - Deus livra Daniel da cova dos leões.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**II. As Visões**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Capítulo 7** - A visão dos quatro animais e do estabelecimento do reino de Deus.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Capítulo 8** - A visão do carneiro e do bode.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Capítulo 9** - A visão das setenta semanas e a oração de Daniel.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Capítulos 10-12** - A visão do anjo, a história futura e a mensagem final para Daniel.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Verdades Teológicas e a Relação com Jesus Cristo",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": "crown",
+                "label": null,
+                "title": "A Soberania Divina sobre os Impérios",
+                "text": "O livro nos ensina que a história não está à deriva; Deus julga os impérios mundiais e concede o direito de exercer juízo sobre as nações apenas àqueles que Ele escolhe.",
+                "proof_texts": []
+              },
+              {
+                "icon": "flame",
+                "label": null,
+                "title": "A Fidelidade em Meio à Hostilidade",
+                "text": "O modelo de Daniel e seus amigos estabelece a verdade de que o povo de Deus pode (e deve) manter sua pureza e lealdade mesmo quando submetido a uma cultura pagã e à pressão de governos anticristãos.",
+                "proof_texts": []
+              },
+              {
+                "icon": "cross",
+                "label": null,
+                "title": "Cristo como o \"Filho do Homem\"",
+                "text": "A relação de Daniel com Jesus é profunda e direta. Jesus utilizava a expressão \"Filho do Homem\" como Sua autodesignação favorita, uma referência clara a Daniel 7.13.",
+                "proof_texts": [
+                  {
+                    "printed": "Daniel 7.13",
+                    "reference": {
+                      "book": "Dn",
+                      "chapter": 7,
+                      "verses": [
+                        {
+                          "start": 13,
+                          "end": 13
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "As Duas Naturezas de Cristo",
+                "text": "Essa expressão \"Filho do Homem\" combina a ideia de \"mera humanidade\" com as nuances divinas de uma figura exaltada que vem sobre as nuvens.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "O Reino Inaugurado por Cristo",
+                "text": "Jesus também é identificado como a \"pedra\" que esmaga os reinos deste mundo, inaugurando o reino de Deus que jamais será destruído.",
+                "proof_texts": [
+                  {
+                    "printed": "Daniel 2.44-45",
+                    "reference": {
+                      "book": "Dn",
+                      "chapter": 2,
+                      "verses": [
+                        {
+                          "start": 44,
+                          "end": 45
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Versículos-chave para Fixação",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "key_verse",
+            "label": "Soberania e Sabedoria de Deus (Reforço do objetivo central)",
+            "text": "\"Ele muda as épocas e as estações; destitui reis e os estabelece. Dá sabedoria aos sábios e conhecimento aos que sabem discernir.\"",
+            "proof": {
+              "printed": "Daniel 2.21",
+              "reference": {
+                "book": "Dn",
+                "chapter": 2,
+                "verses": [
+                  {
+                    "start": 21,
+                    "end": 21
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Cristo e o Seu Reino Eterno (Relação cristológica)",
+            "text": "\"Na minha visão à noite, vi alguém semelhante a um filho de homem, vindo com as nuvens dos céus. Ele se aproximou do Ancião de Dias e foi conduzido à sua presença. Ele recebeu autoridade, glória e o reino; todos os povos, nações e homens de todas as línguas o adoraram. Seu domínio é um domínio eterno que não acabará, e seu reino jamais será destruído.\"",
+            "proof": {
+              "printed": "Daniel 7.13-14",
+              "reference": {
+                "book": "Dn",
+                "chapter": 7,
+                "verses": [
+                  {
+                    "start": 13,
+                    "end": 14
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "title": "Exortação para a Leitura Devocional",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Irmãos, a leitura devocional do livro de Daniel não é apenas um mergulho em histórias impressionantes do passado, mas um treinamento para a nossa fé no presente. Em um mundo que frequentemente tenta nos moldar com seus valores pagãos e nos intimidar com suas pressões, Daniel nos ensina a orar com fervor, a manter nossa identidade inegociável e a descansar na certeza de que Deus é soberano. Ler Daniel diariamente nutre a nossa esperança escatológica. Quando as notícias nos trazem angústia, as visões de Daniel nos lembram de que o \"Filho do Homem\" já recebeu todo o domínio e que o Reino de Deus será plenamente estabelecido. Que o exemplo de fidelidade inabalável desses jovens exilados inspire a sua jornada com Cristo esta semana. **Leia o livro de Daniel!**",
+            "proof_texts": []
+          }
+        ]
+      }
+    ]
+  }
+}

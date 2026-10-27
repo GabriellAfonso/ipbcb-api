@@ -1,0 +1,628 @@
+{
+  "title": "Profetas Menores IV — Ageu, Zacarias e Malaquias",
+  "date": null,
+  "content": {
+    "sections": [
+      {
+        "title": "Contexto no Drama das Escrituras, Características Literárias, Autoria e Circunstâncias",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**O Drama das Escrituras:** Estes livros encerram o **Ato 3** (A Redenção Iniciada) e preparam o palco para o período intertestamentário. Os judeus haviam retornado do Exílio na Babilônia após o decreto do rei persa Ciro em 539 a.C. Contudo, a experiência do retorno não atendeu às expectativas de uma glória imediata; o povo permanecia sob domínio pagão e o novo templo parecia insignificante.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**Ageu:** A autoria deste livro é atribuída a Ageu (Ageu 1:1) (significa \"festivo\"), datas precisas entre agosto e dezembro de 520 a.C. O cenário era de paralisação: o povo havia retornado, mas a reconstrução do templo estava parada há quase 17 anos devido à oposição externa e ao desânimo.",
+            "proof_texts": [
+              {
+                "printed": "Ageu 1:1",
+                "reference": {
+                  "book": "Ag",
+                  "chapter": 1,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "book_facts",
+            "book": "Ag",
+            "author": "Ageu",
+            "date": "520 a.C",
+            "style": "Profetas Menores",
+            "reading_time": "10m"
+          },
+          {
+            "type": "timeline",
+            "events": [
+              {
+                "when": "538 a.C",
+                "text": "Ciro autoriza o retorno"
+              },
+              {
+                "when": "—",
+                "text": "Fundamentos do Templo"
+              },
+              {
+                "when": "—",
+                "text": "Pausa no trabalho do Templo"
+              },
+              {
+                "when": "520 a.C · mês 6",
+                "text": "Negligência do Templo"
+              },
+              {
+                "when": "520 a.C · mês 9",
+                "text": "Obediência, não sacrifício"
+              },
+              {
+                "when": "515 a.C",
+                "text": "Finalização do Templo"
+              },
+              {
+                "when": "458 a.C",
+                "text": "Segundo retorno — Ministério de Esdras"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Zacarias (Autor e Circunstâncias):** Escrito por Zacarias, contemporâneo de Ageu em 520 a.C. Ele atuou no mesmo cenário de reconstrução do templo, mas sua profecia visava encorajar o povo a olhar além do momento presente, focando no futuro glorioso de Jerusalém.",
+            "proof_texts": []
+          },
+          {
+            "type": "book_facts",
+            "book": "Zc",
+            "author": "Zacarias",
+            "date": "Aprox. 520 a 475 a.C",
+            "style": "Profetas Menores",
+            "reading_time": "50m"
+          },
+          {
+            "type": "timeline",
+            "events": [
+              {
+                "when": "538 a.C",
+                "text": "Os primeiros que retornam da Babilônia — Ciro autoriza o retorno"
+              },
+              {
+                "when": "520 a.C · mês 8",
+                "text": "Chamado ao arrependimento"
+              },
+              {
+                "when": "520 a.C · mês 9",
+                "text": "Acontecimentos futuros"
+              },
+              {
+                "when": "518 a.C · mês 11",
+                "text": "Oito visões noturnas — Adoração restaurada"
+              },
+              {
+                "when": "480 a.C",
+                "text": "Nações do mundo destruídas; o verdadeiro pastor rejeitado; Israel restaurado; vitórias do Messias"
+              },
+              {
+                "when": "458 a.C",
+                "text": "Segundo retorno — Ministério de Esdras"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Malaquias:** Autor: Malaquias (1:1), que significa \"meu mensageiro\". Escrito na época de Esdras e Neemias (430 a.C.). O templo já estava reconstruído, mas a nação enfrentava uma profunda letargia espiritual, com casamentos mistos, negligência de dízimos e sacerdotes corrompidos.",
+            "proof_texts": [
+              {
+                "printed": "1:1",
+                "reference": {
+                  "book": "Ml",
+                  "chapter": 1,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "book_facts",
+            "book": "Ml",
+            "author": "Malaquias",
+            "date": "430 a.C",
+            "style": "Profetas Menores",
+            "reading_time": "15m"
+          },
+          {
+            "type": "timeline",
+            "events": [
+              {
+                "when": "444 a.C",
+                "text": "Os primeiros que retornam da Babilônia — Artaxerxes autoriza o retorno"
+              },
+              {
+                "when": "445 a.C",
+                "text": "Dedicação dos muros por Neemias"
+              },
+              {
+                "when": "431 a.C",
+                "text": "Neemias retorna à Pérsia"
+              },
+              {
+                "when": "423 a.C",
+                "text": "Israel, o amado do Senhor; o Senhor reprova os sacerdotes; o Senhor reprova o povo — Malaquias reforça a mensagem de Neemias"
+              },
+              {
+                "when": "420 a.C",
+                "text": "Exortação para a vinda do Messias; Neemias retorna a Jerusalém"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Características Literárias (Comparativo):**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Ageu** utiliza o formato de crônica oficial, sendo um livro curto e direto.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Zacarias** emprega literatura apocalíptica inicial, combinando visões noturnas altamente simbólicas e profecias escatológicas.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Malaquias** usa o formato de fala argumentativa ou litígio, onde o Senhor declara uma verdade, o povo contesta e Deus refuta a objeção.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Objetivo Teológico (A Mensagem Central)",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "Ageu",
+                "text": "A mensagem central é chamar o remanescente infiel ao arrependimento e à retomada da construção do templo. O objetivo é demonstrar que a falta de interesse em construir a Casa de Deus revelava uma profunda falta de desejo pela presença do próprio Deus.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Zacarias",
+                "text": "A mensagem central é o encorajamento. O objetivo é chamar a comunidade pós-exílica a voltar-se totalmente ao Senhor em santidade, garantindo-lhes que Deus vê as \"pequenas coisas\" do presente e trará a salvação e a vindicação plenas no futuro.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Malaquias",
+                "text": "A mensagem central é corrigir o cinismo e o pensamento errado do povo desanimado. O objetivo é confrontar a religião mecânica, lembrando os israelitas do amor eletivo de Deus e exigindo submissão genuína diante da vinda iminente do Senhor.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Estrutura do Esboço do Livro",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Ageu:** Organizado em quatro mensagens precisas:",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "numbered",
+            "items": [
+              {
+                "text": "O chamado para a reedificação do templo (Cap. 1).",
+                "proof_texts": [
+                  {
+                    "printed": "Cap. 1",
+                    "reference": {
+                      "book": "Ag",
+                      "chapter": 1,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "O encorajamento sobre as bênçãos e o templo maior de Deus (2.1-9).",
+                "proof_texts": [
+                  {
+                    "printed": "2.1-9",
+                    "reference": {
+                      "book": "Ag",
+                      "chapter": 2,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 9
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "A explicação sobre a contaminação do povo e a promessa de bênção (2.10-19).",
+                "proof_texts": [
+                  {
+                    "printed": "2.10-19",
+                    "reference": {
+                      "book": "Ag",
+                      "chapter": 2,
+                      "verses": [
+                        {
+                          "start": 10,
+                          "end": 19
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "A promessa da vitória final e a entronização de Zorobabel (2.20-23).",
+                "proof_texts": [
+                  {
+                    "printed": "2.20-23",
+                    "reference": {
+                      "book": "Ag",
+                      "chapter": 2,
+                      "verses": [
+                        {
+                          "start": 20,
+                          "end": 23
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Zacarias:** Dividido em dois grandes blocos. O primeiro bloco (Caps. 1-8) traz encorajamento para o presente através de oito visões noturnas e um chamado à verdadeira justiça. O segundo bloco (Caps. 9-14) foca no futuro do Reino de Deus, trazendo dois oráculos proféticos sobre a chegada do Rei e o julgamento das nações.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**Malaquias:** Estruturado em disputas argumentativas. Inicia abordando a dúvida de Israel sobre o amor de Deus (1.1-5), segue denunciando a verdadeira adoração corrompida e os fracassos no casamento (1.6 - 2.16), refuta as desculpas do povo ao pecado apontando o mensageiro vindouro (2.17 - 3.5), trata do roubo a Deus (3.6-12) e encerra distinguindo os justos dos ímpios no Dia do Senhor (3.13 - 4.6).",
+            "proof_texts": [
+              {
+                "printed": "1.1-5",
+                "reference": {
+                  "book": "Ml",
+                  "chapter": 1,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 5
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "1.6",
+                "reference": {
+                  "book": "Ml",
+                  "chapter": 1,
+                  "verses": [
+                    {
+                      "start": 6,
+                      "end": 14
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "2.16",
+                "reference": {
+                  "book": "Ml",
+                  "chapter": 2,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 16
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "2.17",
+                "reference": {
+                  "book": "Ml",
+                  "chapter": 2,
+                  "verses": [
+                    {
+                      "start": 17,
+                      "end": 17
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "3.5",
+                "reference": {
+                  "book": "Ml",
+                  "chapter": 3,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 5
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "3.6-12",
+                "reference": {
+                  "book": "Ml",
+                  "chapter": 3,
+                  "verses": [
+                    {
+                      "start": 6,
+                      "end": 12
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "3.13",
+                "reference": {
+                  "book": "Ml",
+                  "chapter": 3,
+                  "verses": [
+                    {
+                      "start": 13,
+                      "end": 18
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "4.6",
+                "reference": {
+                  "book": "Ml",
+                  "chapter": 4,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 6
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Verdades Teológicas e Cristologia",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Verdades Teológicas (Comparativo):**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Ageu** ensina que o trabalho humano sem a prioridade da glória de Deus resulta em futilidade e maldição (improdutividade).",
+                "proof_texts": []
+              },
+              {
+                "text": "**Zacarias** ensina que a nova aliança trará o Espírito de Deus (\"não por força\") e exigirá santidade absoluta da nação.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Malaquias** ensina que Deus é imutável em Seu amor, mas abomina a hipocrisia, exigindo integridade na família, nas finanças e na adoração.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "Cristo em Ageu",
+                "text": "A promessa de que a glória do segundo templo seria maior cumpriu-se na encarnação de Jesus Cristo, que assumiu carne humana para habitar (tabernacular) entre nós (João 2.19). A entronização de Zorobabel prefigura o governo real de Cristo.",
+                "proof_texts": [
+                  {
+                    "printed": "João 2.19",
+                    "reference": {
+                      "book": "Jo",
+                      "chapter": 2,
+                      "verses": [
+                        {
+                          "start": 19,
+                          "end": 19
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Cristo em Zacarias",
+                "text": "É o profeta que apresenta as imagens mais explícitas da Paixão de Cristo. Prefigura o Rei montado em um jumentinho (Zc 9.9), o Messias traspassado (Zc 12.10) e o Bom Pastor ferido cujas ovelhas são dispersas (Zc 13.7).",
+                "proof_texts": [
+                  {
+                    "printed": "Zc 9.9",
+                    "reference": {
+                      "book": "Zc",
+                      "chapter": 9,
+                      "verses": [
+                        {
+                          "start": 9,
+                          "end": 9
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "Zc 12.10",
+                    "reference": {
+                      "book": "Zc",
+                      "chapter": 12,
+                      "verses": [
+                        {
+                          "start": 10,
+                          "end": 10
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "Zc 13.7",
+                    "reference": {
+                      "book": "Zc",
+                      "chapter": 13,
+                      "verses": [
+                        {
+                          "start": 7,
+                          "end": 7
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Cristo em Malaquias",
+                "text": "Profetiza a vinda do precursor (João Batista, atuando no espírito de Elias) e a chegada de Jesus Cristo, o Anjo da Aliança e Filho de Deus, que entra subitamente em Seu templo para purificar e redimir os perdidos.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Versículos-Chave",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "key_verse",
+            "label": "Ageu",
+            "text": "\"Subam o monte para trazer madeira. Construam o templo, para que eu me alegre e nele seja glorificado, diz o Senhor.\"",
+            "proof": {
+              "printed": "Ageu 1.8",
+              "reference": {
+                "book": "Ag",
+                "chapter": 1,
+                "verses": [
+                  {
+                    "start": 8,
+                    "end": 8
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Zacarias",
+            "text": "\"Alegre-se muito, cidade de Sião! Exulte, Jerusalém! Eis que o seu rei vem a você, justo e vitorioso, humilde e montado num jumento, um jumentinho, cria de jumenta.\"",
+            "proof": {
+              "printed": "Zacarias 9.9",
+              "reference": {
+                "book": "Zc",
+                "chapter": 9,
+                "verses": [
+                  {
+                    "start": 9,
+                    "end": 9
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Malaquias",
+            "text": "\"Vejam, eu enviarei o meu mensageiro, que preparará o caminho diante de mim. E então, de repente, o Senhor que vocês buscam virá para o seu templo...\"",
+            "proof": {
+              "printed": "Malaquias 3.1",
+              "reference": {
+                "book": "Ml",
+                "chapter": 3,
+                "verses": [
+                  {
+                    "start": 1,
+                    "end": 1
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "title": "Exortação para a Leitura Devocional",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": "church",
+                "label": null,
+                "title": "Leia Ageu",
+                "text": "A leitura de Ageu é um despertamento pessoal poderoso. Ela desafia os alunos a reorganizarem suas prioridades diárias, ensinando que buscar o próprio conforto enquanto a obra de Deus é negligenciada gera vazio e insatisfação.",
+                "proof_texts": []
+              },
+              {
+                "icon": "crown",
+                "label": null,
+                "title": "Leia Zacarias",
+                "text": "A leitura de Zacarias é uma injeção de esperança em tempos de crise. Ela nos encoraja a não desprezarmos o dia das \"pequenas coisas\", focando nossa fé no controle invisível de Deus e na vitória garantida do Rei humilde.",
+                "proof_texts": []
+              },
+              {
+                "icon": "flame",
+                "label": null,
+                "title": "Leia Malaquias",
+                "text": "A leitura de Malaquias é o antídoto contra o esfriamento espiritual. Ela nos constrange a sair do modo \"automático\" na igreja, desafiando-nos a oferecer ao Senhor o nosso melhor tempo, recursos e coração, aguardando o glorioso Dia do Senhor.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

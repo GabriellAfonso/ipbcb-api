@@ -72,6 +72,12 @@ from core.domain.bible_exceptions import (
     BibleVideoNotFoundError as BibleVideoNotFoundError,
     BiblePlaceNotFoundError as BiblePlaceNotFoundError,
 )
+from core.domain.sunday_school_exceptions import (
+    SundaySchoolYearNotFoundError as SundaySchoolYearNotFoundError,
+    SundaySchoolLessonNotFoundError as SundaySchoolLessonNotFoundError,
+    SundaySchoolContentInvalidError as SundaySchoolContentInvalidError,
+    SundaySchoolOrderMismatchError as SundaySchoolOrderMismatchError,
+)
 from core.domain.setlist_exceptions import (
     NotWorshipMemberError as NotWorshipMemberError,
     SetlistDateNotSundayError as SetlistDateNotSundayError,

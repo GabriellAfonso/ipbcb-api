@@ -1,0 +1,296 @@
+{
+  "title": "Salmos",
+  "date": "2026-07-05",
+  "content": {
+    "sections": [
+      {
+        "title": "Contexto do Livro na Grande História",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "O livro de Salmos se localiza firmemente no **Ato 3** da Grande História (A Redenção Iniciada: O Rei escolhe Israel). Após a queda e o estabelecimento da Aliança, o povo de Deus experimenta a realidade de viver em um mundo fraturado. Os Salmos apresentam as expressões reais, viscerais e poéticas do povo de Israel diante de seus sofrimentos, perseguições, dúvidas e alegrias extasiantes. É a resposta humana, litúrgica e de adoração diante das experiências diárias com o Deus que os resgatou, mantendo viva a memória da salvação e das promessas da Aliança no meio do deserto da vida.",
+            "proof_texts": []
+          }
+        ]
+      },
+      {
+        "title": "Objetivo Teológico dentro da Grande História",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "O objetivo do livro de Salmos é fornecer um \"hinário\" e um manual de oração para a comunidade da Aliança, moldando o seu coração e a sua teologia. Dentro do grande drama bíblico, o livro demonstra que não há emoção humana que precise ser escondida do Criador; todas as lágrimas, iras e esperanças devem ser levadas a Ele. Teologicamente, os Salmos reorientam o povo para a soberania do Rei divino e apontam para a esperança do Ungido (o Messias e \"Filho de Davi\"), ensinando o povo a adorar e a lamentar enquanto aguardam a consumação do Reino que não falhará.",
+            "proof_texts": []
+          }
+        ]
+      },
+      {
+        "title": "Estrutura do Livro de Salmos",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Embora os Salmos não possuam uma narrativa linear como os livros históricos, o livro foi intencionalmente compilado e organizado em **cinco grandes blocos**, refletindo a estrutura dos cinco livros de Moisés (o Pentateuco). Essa organização indica que, assim como Deus falou ao povo em cinco livros (Torá), o povo responde a Deus em oração e louvor através de cinco livros poéticos:",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "Livro I · Salmos 1 a 41",
+                "title": "Os Cânticos de Davi – O Conflito Pessoal e o Rei Ungido",
+                "text": "Quase todos os salmos deste bloco são de autoria de Davi. O tema central é o relacionamento pessoal com Yahweh em meio à oposição, perseguição e sofrimento. Estabelece logo no início (Salmos 1 e 2) os pilares de todo o Saltério: a escolha entre o caminho do justo e do ímpio, e a promessa inabalável de Deus de instalar o Seu Rei Ungido (o Messias). É o livro da confiança individual de que o Senhor vindicará o justo sofredor.",
+                "proof_texts": [
+                  {
+                    "printed": "Salmos 1",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 1,
+                      "verses": []
+                    }
+                  },
+                  {
+                    "printed": "Salmos 2",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 2,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "Livro II · Salmos 42 a 72",
+                "title": "Os Cânticos do Templo e do Reino – A Esperança da Comunidade",
+                "text": "Aqui a autoria se expande para incluir os filhos de Corá e Asafe. A ênfase sai um pouco do sofrimento apenas individual e abraça os lamentos e os desejos da comunidade. O grande anseio deste livro é a comunhão na presença de Deus (como a corça que anseia por águas, no Salmo 42). O livro culmina no Salmo 72 com uma visão majestosa do reinado de Salomão, que aponta tipologicamente para o governo perfeito e universal do Messias. Curiosamente, este bloco encerra com a nota: \"Findam as orações de Davi, filho de Jessé\".",
+                "proof_texts": [
+                  {
+                    "printed": "Salmo 42",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 42,
+                      "verses": []
+                    }
+                  },
+                  {
+                    "printed": "Salmo 72",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 72,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "Livro III · Salmos 73 a 89",
+                "title": "Os Cânticos da Crise e do Exílio – A Escuridão e o Lamento Corporativo",
+                "text": "Este é o bloco mais sombrio e doloroso de todo o Saltério, escrito majoritariamente por Asafe e pelos coraítas. A ênfase recai sobre a crise nacional de Israel: a destruição de Jerusalém, o templo em ruínas e o exílio babilônico. O povo luta com dúvidas profundas: a promessa de Deus a Davi falhou? (O Salmo 89 retrata esta agonia). É a expressão teológica da desorientação, ensinando a igreja a clamar a Deus mesmo quando tudo ao redor parece desmoronar.",
+                "proof_texts": [
+                  {
+                    "printed": "Salmo 89",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 89,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "Livro IV · Salmos 90 a 106",
+                "title": "Os Cânticos do Nosso Refúgio – A Resposta à Crise: O Senhor Reina!",
+                "text": "Como Israel sobreviverá à perda da monarquia e da terra? O Livro IV responde a essa crise de forma magistral. Inicia-se com a \"Oração de Moisés\" (Salmo 90), lembrando o povo de que, muito antes de existir um rei humano ou um templo de pedra, o próprio Deus já era a \"morada\" de Israel de geração em geração. A grande ênfase teológica deste bloco é que Yahweh é o verdadeiro e eterno Rei do universo. A confiança é restaurada olhando para a fidelidade de Deus no passado (desde a saída do Egito) para garantir o futuro.",
+                "proof_texts": [
+                  {
+                    "printed": "Salmo 90",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 90,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "Livro V · Salmos 107 a 150",
+                "title": "Os Cânticos de Restauração e Louvor – O Triunfo e a Consumação",
+                "text": "O tom muda dramaticamente do lamento para a ação de graças. Este bloco celebra o retorno do exílio, o valor inestimável da Palavra de Deus (o grandioso Salmo 119) e a alegria da jornada para adorar a Deus (os Cânticos de Degraus ou de Romagem, 120–134). O livro — e todo o Saltério — caminha para um clímax impressionante, um grande e ininterrupto coral de Aleluias (Salmos 146 a 150), enfatizando que o fim supremo de todas as lutas, sofrimentos e exílios da vida redimida é o louvor eterno e estrondoso ao Deus Criador e Redentor.",
+                "proof_texts": [
+                  {
+                    "printed": "Salmo 119",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 119,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Aplicações e Temas Teológicos — Os Salmos na Vida de Jesus",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Os Salmos encontram seu clímax e cumprimento no **Ato 4** (A Redenção Realizada). Jesus Cristo não apenas lia os Salmos; Ele orou, cantou e cumpriu estas palavras. O próprio Senhor se tornou a personificação perfeita do justo sofredor e do Rei triunfante cantado em Israel.",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**O Sofrimento e a Cruz:** Na hora de Sua maior agonia, Cristo recorreu ao lamento do salmista, clamando as palavras exatas do Salmo 22: \"Deus meu, Deus meu, por que me desamparaste?\".",
+                "proof_texts": [
+                  {
+                    "printed": "Salmo 22",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 22,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 1
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Entrega Confiante:** Suas últimas palavras antes de entregar o espírito ao Pai foram um eco direto do Salmo 31: \"Nas tuas mãos entrego o meu espírito\".",
+                "proof_texts": [
+                  {
+                    "printed": "Salmo 31",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 31,
+                      "verses": [
+                        {
+                          "start": 5,
+                          "end": 5
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**A Autoridade do Rei:** Durante o Seu ministério e na proclamação apostólica, Jesus é constantemente associado ao Salmo 2 e ao Salmo 110 (o salmo mais citado no Novo Testamento), confirmando que Ele é o Messias soberano entronizado à direita de Deus. Lemos os Salmos hoje compreendendo que ouvimos neles a própria voz do nosso Redentor.",
+                "proof_texts": [
+                  {
+                    "printed": "Salmo 2",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 2,
+                      "verses": []
+                    }
+                  },
+                  {
+                    "printed": "Salmo 110",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 110,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Leitura de Salmos-chave para a Compreensão da Grande História",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Para ajudar os alunos a conectarem a poesia ao grande drama bíblico de Criação, Queda e Redenção, a leitura e explicação destes salmos é estratégica:",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Salmo 8:** Mostra a maravilha do Ato 1 (Criação), refletindo o papel de sub-reis da humanidade como portadores da *Imago Dei*.",
+                "proof_texts": [
+                  {
+                    "printed": "Salmo 8",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 8,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Salmo 51:** O lamento mais profundo sobre o Ato 2 (A Queda), demonstrando a realidade inescapável do pecado e a necessidade desesperada do perdão e purificação divinos.",
+                "proof_texts": [
+                  {
+                    "printed": "Salmo 51",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 51,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Salmo 110:** A promessa do Rei e Sacerdote eterno, apontando diretamente para o Ato 4 (A vinda do Rei Jesus).",
+                "proof_texts": [
+                  {
+                    "printed": "Salmo 110",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 110,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Salmo 136:** A liturgia da memória do êxodo, ensinando a Igreja a olhar para a história e repetir: \"O seu amor dura para sempre\".",
+                "proof_texts": [
+                  {
+                    "printed": "Salmo 136",
+                    "reference": {
+                      "book": "Sl",
+                      "chapter": 136,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Exortação: A Leitura Diária dos Salmos",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "A leitura dos Salmos deve ser um hábito prático e diário na vida do cristão, não apenas um estudo acadêmico. Este livro nos empresta palavras para os dias em que a angústia nos silencia e nos dá vocabulário para quando a alegria transborda. Cultivar a leitura orante dos Salmos pela manhã ou ao final do dia é permitir que o coração seja constantemente confrontado, consolado e ajustado à realidade do Reino de Deus. Através desta prática, desenvolvemos raízes profundas no evangelho e uma espiritualidade honesta, aprendendo a caminhar pelas incertezas do presente com a confiança de que o Deus da Aliança nos guiará em segurança até a Nova Cidade.",
+            "proof_texts": []
+          }
+        ]
+      }
+    ]
+  }
+}

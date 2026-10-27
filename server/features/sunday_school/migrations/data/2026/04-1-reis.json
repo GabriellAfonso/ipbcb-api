@@ -1,0 +1,261 @@
+{
+  "title": "1 Reis",
+  "date": "2026-05-24",
+  "content": {
+    "sections": [
+      {
+        "title": "O Contexto na Grande História e a Unidade dos Livros dos Reis",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Para iniciar a aula, é crucial situar os alunos no \"mapa\" do Drama das Escrituras.",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Um Único Livro:** Originalmente, na Bíblia Hebraica, 1 e 2 Reis formavam um único rolo chamado *Melakhim* (Reis). A divisão ocorreu apenas quando a Bíblia foi traduzida para o grego (Septuaginta), por questões de espaço nos pergaminhos. Portanto, ler 1 Reis é ler a primeira metade de uma grande narrativa contínua.",
+                "proof_texts": []
+              },
+              {
+                "text": "**O Ponto na Grande História:** Em 2 Samuel, vimos a promessa de Deus a Davi (a Aliança Davídica). 1 Reis começa exatamente onde 2 Samuel termina: a transição de poder de Davi para Salomão. Este livro cobre o **Ato 3** do Drama (A eleição de Israel e a sua Queda em declínio contínuo). Começamos no auge absoluto de Israel (o Templo, a riqueza, a paz) e terminamos na beira do abismo (a divisão do reino, apostasia e a introdução oficial ao culto a Baal).",
+                "proof_texts": []
+              },
+              {
+                "text": "**O Gênero Literário:** Não é apenas história; é \"História Profética\" (ou História Deuteronomista). O autor não quer apenas relatar fatos, mas interpretar a história pelas lentes da Aliança de Deuteronômio: a obediência traz bênção, a idolatria traz maldição.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "O Objetivo Teológico do Livro de Reis",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Qual é a mensagem principal que o Espírito Santo quer transmitir através do autor de Reis?",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**A Teologia da Aliança:** O livro foi concluído durante o exílio na Babilônia. Seu objetivo primário era responder à pergunta do povo exilado: \"Por que estamos aqui? Deus falhou?\". O autor de Reis prova que não; Deus foi fiel à Sua palavra. Foi o povo e seus reis que quebraram a aliança.",
+                "proof_texts": []
+              },
+              {
+                "text": "**O Critério de Avaliação dos Reis:** O autor não avalia o sucesso de um rei por sua economia, vitórias militares, casamentos ou projetos de engenharia. O critério é estritamente teológico: fidelidade à aliança de Yahweh e à pureza da adoração no Templo em Jerusalém. É por isso que reis poderosos politicamente (como Onri) ganham apenas poucos versículos de condenação, enquanto as reformas de reis menores ganham destaque.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Estrutura Narrativa de 1 Reis",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Você pode dividir 1 Reis no quadro em três atos principais para facilitar a visualização da classe:",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**Ato 1: O Reino Unido sob Salomão (Capítulos 1 ao 11)**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Caps. 1-4:** A ascensão de Salomão ao trono e o dom da sabedoria.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Caps. 5-8:** O auge da história de Israel: a construção e dedicação do Templo (a glória de Deus habita com os homens).",
+                "proof_texts": []
+              },
+              {
+                "text": "**Caps. 9-11:** A trágica queda de Salomão. Seu coração se divide por causa de suas alianças políticas (casamentos) e a idolatria entra em Israel.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Ato 2: O Reino Dividido (Capítulos 12 ao 16)**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Caps. 12-14:** A insensatez de Roboão (sul/Judá) e o pragmatismo pecaminoso de Jeroboão (norte/Israel), que cria falsos centros de adoração em Dã e Betel (os bezerros de ouro).",
+                "proof_texts": []
+              },
+              {
+                "text": "**Caps. 15-16:** A sucessão caótica de reis e dinastias instáveis, levando Israel a um declínio espiritual rápido.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Ato 3: O Ministério Profético de Elias (Capítulos 17 ao 22)**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "O surgimento da dinastia de Acabe e Jezabel (o culto a Baal torna-se a religião de estado no Norte).",
+                "proof_texts": []
+              },
+              {
+                "text": "Deus levanta os profetas. O confronto épico entre Elias e os profetas de Baal no Monte Carmelo (Cap. 18).",
+                "proof_texts": [
+                  {
+                    "printed": "Cap. 18",
+                    "reference": {
+                      "book": "1Rs",
+                      "chapter": 18,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Aplicações e Temas Teológicos para a Classe",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**A Palavra de Deus é Infalível:** Em 1 Reis, a tensão entre a Palavra de Deus e a rebeldia humana é constante. As profecias anunciadas (como a divisão do reino profetizada a Jeroboão) se cumprem perfeitamente. Deus julga o pecado.",
+                "proof_texts": []
+              },
+              {
+                "text": "**O Perigo do Coração Dividido:** Salomão é o trágico exemplo de que conhecimento e inteligência não são sinônimos de fidelidade espiritual. Ele tinha a sabedoria de Deus, mas permitiu que seu coração se apegasse aos ídolos. É um alerta para o orgulho intelectual ou teológico sem santidade prática.",
+                "proof_texts": []
+              },
+              {
+                "text": "**A Função do Profeta vs. O Rei:** Quando os reis (que deveriam pastorear a nação) falham, Deus levanta profetas (Elias, Micaías) para confrontar o poder com a Verdade. A Igreja hoje também exerce esse papel profético em uma cultura idólatra.",
+                "proof_texts": []
+              },
+              {
+                "text": "**O Anseio pelo Verdadeiro Rei:** A falha de Davi, a apostasia de Salomão e a maldade de Acabe nos mostram que nenhum ser humano pode nos salvar. O livro clama nas entrelinhas pelo \"Filho de Davi\" perfeito: Jesus Cristo, que será fiel até a morte.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Versículos-Chave para Apresentar",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Use estes versículos para ancorar as etapas da narrativa:",
+            "proof_texts": []
+          },
+          {
+            "type": "key_verse",
+            "label": "O ápice do Templo e o chamado à fidelidade",
+            "text": "\"E seja o coração de vocês totalmente dedicado ao Senhor, o nosso Deus, para viverem por seus decretos e obedecerem aos seus mandamentos, como acontece hoje.\"",
+            "proof": {
+              "printed": "1 Reis 8:61",
+              "reference": {
+                "book": "1Rs",
+                "chapter": 8,
+                "verses": [
+                  {
+                    "start": 61,
+                    "end": 61
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "A queda e a advertência central",
+            "text": "\"À medida que Salomão foi envelhecendo, suas mulheres desviaram o seu coração para seguir outros deuses, e o seu coração não era totalmente dedicado ao Senhor, o seu Deus, como fora o coração do seu pai Davi.\"",
+            "proof": {
+              "printed": "1 Reis 11:4",
+              "reference": {
+                "book": "1Rs",
+                "chapter": 11,
+                "verses": [
+                  {
+                    "start": 4,
+                    "end": 4
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "O ultimato profético contra a idolatria (O Carmelo)",
+            "text": "\"Elias dirigiu-se ao povo e disse: 'Até quando vocês vão oscilar para um lado e para o outro? Se o Senhor é Deus, sigam-no; mas, se Baal é Deus, sigam-no'.\"",
+            "proof": {
+              "printed": "1 Reis 18:21a",
+              "reference": {
+                "book": "1Rs",
+                "chapter": 18,
+                "verses": [
+                  {
+                    "start": 21,
+                    "end": 21
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "title": "Exortação para a Leitura Devocional de 1 Reis",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Para concluir a aula, encoraje seus alunos a lerem 1 Reis não como um mero livro de história antiga, mas como um espelho da alma humana.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**Mensagem de exortação para a classe:** \"Ler 1 Reis nas nossas devocionais nos alerta de que nenhum de nós é imune à queda. Se Salomão, o homem mais sábio da terra que conversou com Deus, caiu contra toda a Lei dos Reis (Dt 17), nós também precisamos vigiar os 'altares' que construímos em nossos corações (carreira, dinheiro, conforto, prazer). Ao mesmo tempo, 1 Reis nos dá esperança: mesmo quando o cenário é sombrio como nos dias de Acabe, Deus sempre preserva o Seu remanescente fiel (os 7 mil que não dobraram os joelhos a Baal). Leia 1 Reis orando para que Cristo, nosso verdadeiro e perfeito Rei, governe seu coração.\"",
+            "proof_texts": [
+              {
+                "printed": "Dt 17",
+                "reference": {
+                  "book": "Dt",
+                  "chapter": 17,
+                  "verses": []
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

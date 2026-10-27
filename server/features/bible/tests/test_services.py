@@ -29,6 +29,12 @@ class FakeBibleRepository:
     def canon(self) -> BibleCanon:
         return BibleCanon({"Gn": 1})
 
+    def verse_counts_by_book(self) -> dict[str, list[int]]:
+        return {"Gn": [31]}
+
+    def book_names(self) -> dict[str, str]:
+        return {"Gn": "Gênesis"}
+
 
 class TestBibleServiceListVersions:
     def test_returns_sorted_versions(self) -> None:

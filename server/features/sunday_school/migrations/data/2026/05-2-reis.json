@@ -1,0 +1,257 @@
+{
+  "title": "2 Reis",
+  "date": "2026-05-31",
+  "content": {
+    "sections": [
+      {
+        "title": "O Contexto na Grande História e a Unidade dos Livros dos Reis",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Para conectar a aula de hoje com a da semana passada, lembre os alunos de que estamos lendo a \"segunda metade do rolo\".",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Continuidade Direta:** 2 Reis não é uma nova história, mas o desenrolar trágico da semente de idolatria plantada em 1 Reis. A narrativa retoma a história exatamente de onde parou: o ministério profético no Reino do Norte e a sucessão de reis no Norte e no Sul.",
+                "proof_texts": []
+              },
+              {
+                "text": "**O Ponto na Grande História:** Continuamos no **Ato 3** do Drama das Escrituras. No entanto, se 1 Reis foi a \"queda em declínio\", 2 Reis é o \"colapso total\". Veremos o fim trágico das duas nações: Israel (Norte) sendo varrido do mapa pela Assíria (722 a.C.) e Judá (Sul) sendo levado cativo para a Babilônia (586 a.C.).",
+                "proof_texts": []
+              },
+              {
+                "text": "**A Lente Deuteronomista:** O autor continua avaliando a história pelas bênçãos e maldições da Aliança (Deuteronômio 27-28). O exílio, que marca o fim do livro, não é retratado como um acidente histórico ou uma fraqueza de Deus perante os deuses babilônicos, mas como o cumprimento exato da Palavra de Yahweh contra a quebra da aliança.",
+                "proof_texts": [
+                  {
+                    "printed": "Deuteronômio 27",
+                    "reference": {
+                      "book": "Dt",
+                      "chapter": 27,
+                      "verses": []
+                    }
+                  },
+                  {
+                    "printed": "28",
+                    "reference": {
+                      "book": "Dt",
+                      "chapter": 28,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "O Objetivo Teológico de 2 Reis",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Qual é a mensagem principal do Espírito Santo neste trecho da narrativa?",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**A Justificativa do Exílio:** O livro responde à dor dos exilados provando que Deus foi extremamente paciente. Ele enviou profetas repetidas vezes, advertiu, puniu levemente e esperou o arrependimento. O exílio foi a última e inevitável consequência da obstinação do povo. A teologia central aqui é a **Justiça de Deus e a malignidade do pecado**.",
+                "proof_texts": []
+              },
+              {
+                "text": "**A Preservação da Promessa:** Apesar do fracasso humano, o autor teológico quer mostrar que a Palavra de Deus não falha. O livro termina com uma nota surpreendente de esperança: o rei Joaquim (descendente de Davi) é liberto da prisão na Babilônia e recebe lugar de honra à mesa do rei inimigo. A lâmpada de Davi não se apagou; a Aliança Davídica (2 Samuel 7) ainda está de pé.",
+                "proof_texts": [
+                  {
+                    "printed": "2 Samuel 7",
+                    "reference": {
+                      "book": "2Sm",
+                      "chapter": 7,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Estrutura Narrativa de 2 Reis",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Você pode dividir a lousa em duas grandes seções para ilustrar a decadência cronológica:",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**Parte 1: O Caminho para a Destruição de Israel (Capítulos 1 ao 17)**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Caps. 1-2:** A transição do ministério profético: Elias é levado aos céus e Eliseu recebe a porção dobrada do Espírito.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Caps. 3-8:** Os milagres de Eliseu. Uma demonstração poderosa de que Javé é o Senhor da vida, da provisão e da cura (em contraste com as mentiras de Baal).",
+                "proof_texts": []
+              },
+              {
+                "text": "**Caps. 9-16:** Ciclos de conspirações, assassinatos e reis ímpios (como Jeú e Acaz).",
+                "proof_texts": []
+              },
+              {
+                "text": "**Cap. 17:** O clímax trágico do Norte: A queda de Samaria para a Assíria. O autor pausa a narrativa para dar uma explicação teológica detalhada do porquê Israel foi destruído.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Parte 2: A Sobrevivência e Queda de Judá (Capítulos 18 ao 25)**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Caps. 18-20:** O reinado de Ezequias. Um momento de luz, fé e livramento miraculoso de Jerusalém contra os assírios.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Caps. 21:** A extrema maldade de Manassés (o ponto sem volta para Judá).",
+                "proof_texts": []
+              },
+              {
+                "text": "**Caps. 22-23:** A reforma de Josias. A descoberta do Livro da Lei e um retorno apaixonado, porém tardio, a Deus.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Caps. 24-25:** O clímax trágico do Sul: A Babilônia invade, o Templo (construído em 1 Reis) é destruído e o povo é levado ao exílio.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Aplicações e Temas Teológicos para a Classe",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**A Longanimidade e o Limite de Deus:** Deus não pune imediatamente. O ministério de Eliseu (repleto de milagres de compaixão) e as reformas de reis como Ezequias e Josias mostram que Deus sempre dá oportunidades de arrependimento. Contudo, Sua paciência não anula Sua justiça. O pecado crônico e não tratado traz ruína inevitável.",
+                "proof_texts": []
+              },
+              {
+                "text": "**O Poder Transformador (e Confrontador) das Escrituras:** Quando Josias encontra o Livro da Lei perdido no Templo, a leitura da Palavra rasga o seu coração e gera uma reforma nacional. A Bíblia esquecida gera apostasia; a Bíblia redescoberta gera avivamento e arrependimento.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Os Sinais do Verdadeiro Profeta (Tipologia de Cristo):** Os milagres de Eliseu (multiplicar pães, curar leprosos, ressuscitar mortos) apontam diretamente para o ministério de Jesus no Novo Testamento. Cristo é o profeta maior que não apenas anuncia a Palavra, mas encarna a salvação.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Versículos-Chave para Apresentar",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "key_verse",
+            "label": "A acusação de Deus contra o pecado contínuo",
+            "text": "\"O Senhor advertiu Israel e Judá por meio de todos os seus profetas e videntes: 'Desviem-se de seus maus caminhos. Obedeçam às minhas ordenanças e aos meus decretos...' Mas eles não deram ouvidos e foram obstinados como os seus antepassados, que não confiaram no Senhor, o seu Deus.\"",
+            "proof": {
+              "printed": "2 Reis 17:13-14",
+              "reference": {
+                "book": "2Rs",
+                "chapter": 17,
+                "verses": [
+                  {
+                    "start": 13,
+                    "end": 14
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "O poder da Palavra na vida de Josias",
+            "text": "\"Nem antes nem depois de Josias houve um rei como ele, que se voltasse para o Senhor de todo o coração, de toda a alma e de todas as forças, de acordo com toda a Lei de Moisés.\"",
+            "proof": {
+              "printed": "2 Reis 23:25",
+              "reference": {
+                "book": "2Rs",
+                "chapter": 23,
+                "verses": [
+                  {
+                    "start": 25,
+                    "end": 25
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "O fim do cativeiro e a semente da esperança",
+            "text": "\"No trigésimo sétimo ano do exílio de Joaquim, rei de Judá... Evil-Merodaque, rei da Babilônia, no ano em que começou a reinar, libertou Joaquim, rei de Judá, da prisão... E Joaquim tirou as roupas da prisão e pelo resto da vida comeu à mesa do rei.\"",
+            "proof": {
+              "printed": "2 Reis 25:27, 29",
+              "reference": {
+                "book": "2Rs",
+                "chapter": 25,
+                "verses": [
+                  {
+                    "start": 27,
+                    "end": 27
+                  },
+                  {
+                    "start": 29,
+                    "end": 29
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "title": "Exortação para a Leitura Devocional de 2 Reis",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Mensagem pastoral para o encerramento:**",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "\"Ler 2 Reis pode parecer pesado, pois é um livro cheio de falhas humanas, juízo e destruição. Mas é uma leitura essencial para os nossos devocionais porque nos vacina contra o pecado de achar que podemos brincar com a graça de Deus. 2 Reis nos lembra que o pecado destrói famílias, lares e nações inteiras. No entanto, o livro não termina em desespero absoluto. A mesa posta para o rei exilado no final do livro nos lembra de que Deus guarda a Sua promessa. A linhagem de Davi sobreviveu ao exílio para que, séculos depois, Jesus pudesse nascer. Ao ler 2 Reis, que nossos corações sejam tomados por um santo temor a Deus, e por uma imensa gratidão, pois através de Cristo, fomos resgatados do nosso próprio 'exílio' espiritual e convidados a comer à mesa do Rei dos reis para sempre.\"",
+            "proof_texts": []
+          }
+        ]
+      }
+    ]
+  }
+}

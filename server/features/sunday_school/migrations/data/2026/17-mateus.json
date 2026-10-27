@@ -1,0 +1,523 @@
+{
+  "title": "Panorama de Mateus",
+  "date": null,
+  "content": {
+    "sections": [
+      {
+        "title": "Mateus no Drama das Escrituras",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "*O início do Ato 4: o Rei chegou*",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "Ato 4",
+                "title": "A Vinda do Rei: Redenção Realizada",
+                "text": null,
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Ponte",
+                "title": "Entre a Antiga e a Nova Aliança",
+                "text": null,
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Raízes",
+                "title": "Abraão e Davi: o ministério de Jesus enraizado em Israel",
+                "text": null,
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Jesus entra na História para concluir a história de Israel e cumprir suas promessas.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**Autor e circunstâncias**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "Autor",
+                "title": "Mateus (Levi), ex-cobrador de impostos e discípulo de Jesus",
+                "text": null,
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Preparo",
+                "title": "Lidava com romanos e judeus: domínio de língua e cultura",
+                "text": null,
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Destinatários",
+                "title": "Igreja de Antioquia da Síria, mista de judeus e gentios",
+                "text": null,
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Data",
+                "title": "Antes de 70 d.C.",
+                "text": null,
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Tensão",
+                "title": "Legalismo × graça do Messias",
+                "text": null,
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Cinco discursos, como Moisés**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "1º · caps. 5–7",
+                "title": "Sermão do Monte",
+                "text": null,
+                "proof_texts": [
+                  {
+                    "printed": "caps. 5",
+                    "reference": {
+                      "book": "Mt",
+                      "chapter": 5,
+                      "verses": []
+                    }
+                  },
+                  {
+                    "printed": "6",
+                    "reference": {
+                      "book": "Mt",
+                      "chapter": 6,
+                      "verses": []
+                    }
+                  },
+                  {
+                    "printed": "7",
+                    "reference": {
+                      "book": "Mt",
+                      "chapter": 7,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "2º · cap. 10",
+                "title": "Missão",
+                "text": null,
+                "proof_texts": [
+                  {
+                    "printed": "cap. 10",
+                    "reference": {
+                      "book": "Mt",
+                      "chapter": 10,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "3º · cap. 13",
+                "title": "Parábolas do Reino",
+                "text": null,
+                "proof_texts": [
+                  {
+                    "printed": "cap. 13",
+                    "reference": {
+                      "book": "Mt",
+                      "chapter": 13,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "4º · cap. 18",
+                "title": "Vida na Igreja",
+                "text": null,
+                "proof_texts": [
+                  {
+                    "printed": "cap. 18",
+                    "reference": {
+                      "book": "Mt",
+                      "chapter": 18,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "5º · caps. 24–25",
+                "title": "Juízo vindouro",
+                "text": null,
+                "proof_texts": [
+                  {
+                    "printed": "caps. 24",
+                    "reference": {
+                      "book": "Mt",
+                      "chapter": 24,
+                      "verses": []
+                    }
+                  },
+                  {
+                    "printed": "25",
+                    "reference": {
+                      "book": "Mt",
+                      "chapter": 25,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Ecoam os cinco livros de Moisés: Jesus é o novo e definitivo profeta, com autoridade superior.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "*Biblos geneseos* (1.1) alude a Gênesis: uma nova criação em Cristo.",
+            "proof_texts": [
+              {
+                "printed": "1.1",
+                "reference": {
+                  "book": "Mt",
+                  "chapter": 1,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Objetivo Teológico",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Jesus é o Rei davídico prometido**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "Redimir",
+                "title": "O seu povo",
+                "text": null,
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Estabelecer",
+                "title": "O Reino de justiça",
+                "text": null,
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Cumprir",
+                "title": "Todas as profecias do Antigo Testamento",
+                "text": null,
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Em Jesus, a aliança com Israel alcança seu ápice e suas bênçãos chegam a todas as nações, formando a Igreja: a comunidade que vive sob a ética do Rei celestial.",
+            "proof_texts": []
+          }
+        ]
+      },
+      {
+        "title": "Esboço do Livro",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "steps",
+            "items": [
+              {
+                "label": "I · 1.1–4.11",
+                "title": "A Gênese de Jesus Cristo",
+                "text": "Genealogia, nascimento, batismo, tentação"
+              },
+              {
+                "label": "II · 4.12–16.20",
+                "title": "A Proclamação do Reino",
+                "text": "Sermão do Monte, missão e parábolas"
+              },
+              {
+                "label": "III · 16.21–25.46",
+                "title": "O Sofrimento Revelado",
+                "text": "Predição da cruz, Igreja e juízo vindouro"
+              },
+              {
+                "label": "IV · caps. 26–28",
+                "title": "Morte e Ressurreição",
+                "text": "Última ceia, cruz e ressurreição"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Verdades Teológicas",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "Verdade 1 de 5",
+                "title": "O cumprimento das Escrituras",
+                "text": "“para que se cumprisse” — fórmula repetida ao longo de todo o livro. Não isola versículos: a história inteira de Israel se realiza em Jesus.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Verdade 2 de 5",
+                "title": "Emanuel: a presença de Deus",
+                "text": "Início (Mt 1.23): “Deus conosco”. Fim (Mt 28.20): “Estarei convosco todos os dias”. Jesus é o local definitivo de encontro com Deus, substituindo os símbolos do Antigo Testamento.",
+                "proof_texts": [
+                  {
+                    "printed": "Mt 1.23",
+                    "reference": {
+                      "book": "Mt",
+                      "chapter": 1,
+                      "verses": [
+                        {
+                          "start": 23,
+                          "end": 23
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "Mt 28.20",
+                    "reference": {
+                      "book": "Mt",
+                      "chapter": 28,
+                      "verses": [
+                        {
+                          "start": 20,
+                          "end": 20
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "Verdade 3 de 5",
+                "title": "O novo doador da Lei",
+                "text": "“Eu, porém, vos digo”. Jesus transcende a Lei de Moisés: não a abole, mas a cumpre. Exige justiça e integridade profundas, não mero ritualismo. Seus seguidores vivem como sal e luz do mundo.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Verdade 4 de 5",
+                "title": "O Servo obediente",
+                "text": "Ao se identificar com Seu povo, prova Sua humanidade perfeita e Sua divindade.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Verdade 5 de 5",
+                "title": "A inclusão dos gentios",
+                "text": "Desde o capítulo 1, a aliança com Davi se abre para a promessa feita a Abraão.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "comparison",
+            "items": [
+              {
+                "label": "O primeiro Adão e Israel",
+                "title": "Falharam",
+                "text": "No jardim e no deserto.",
+                "highlight": false
+              },
+              {
+                "label": "Jesus",
+                "title": "Foi fiel",
+                "text": "Batismo de arrependimento, jejum e vitória sobre as tentações.",
+                "highlight": true
+              }
+            ]
+          },
+          {
+            "type": "steps",
+            "items": [
+              {
+                "label": "Promessa",
+                "title": "Abraão",
+                "text": "Abençoar “todas as nações”."
+              },
+              {
+                "label": "Prefiguração",
+                "title": "Magos do Oriente",
+                "text": "Adoram o “rei dos judeus”."
+              },
+              {
+                "label": "Cumprimento",
+                "title": "Grande Comissão",
+                "text": "Discípulos de todos os povos."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Versículos-Chave",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "key_verse",
+            "label": "O novo Gênesis e a raiz histórica",
+            "text": "“Livro da genealogia de Jesus Cristo, filho de Davi, filho de Abraão”",
+            "proof": {
+              "printed": "Mt 1.1",
+              "reference": {
+                "book": "Mt",
+                "chapter": 1,
+                "verses": [
+                  {
+                    "start": 1,
+                    "end": 1
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "A presença de Deus",
+            "text": "“A virgem conceberá e dará à luz um filho, e ele será chamado Emanuel” (que significa “Deus conosco”)",
+            "proof": {
+              "printed": "Mt 1.23",
+              "reference": {
+                "book": "Mt",
+                "chapter": 1,
+                "verses": [
+                  {
+                    "start": 23,
+                    "end": 23
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Início do Reino",
+            "text": "“O tempo chegou. O reino de Deus está próximo. Arrependam-se e creiam nas boas-novas!”",
+            "proof": {
+              "printed": "Marcos 1.15",
+              "reference": {
+                "book": "Mc",
+                "chapter": 1,
+                "verses": [
+                  {
+                    "start": 15,
+                    "end": 15
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Presença contínua",
+            "text": "“Portanto, ide e fazei discípulos de todas as nações [...] E eis que estou convosco todos os dias até à consumação do século”",
+            "proof": {
+              "printed": "Mt 28.19,20",
+              "reference": {
+                "book": "Mt",
+                "chapter": 28,
+                "verses": [
+                  {
+                    "start": 19,
+                    "end": 20
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "title": "Exortação Devocional: Ouça a voz do Rei",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "list",
+            "style": "numbered",
+            "items": [
+              {
+                "text": "Leia Mateus como o manual de conduta dos cidadãos do Reino.",
+                "proof_texts": []
+              },
+              {
+                "text": "Deixe o “Eu, porém, vos digo” sondar suas motivações mais íntimas.",
+                "proof_texts": []
+              },
+              {
+                "text": "Organize a leitura diária para ouvir o verdadeiro Emanuel.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Sal da terra e luz do mundo, enquanto aguardamos a plenitude do Seu Reino.",
+            "proof_texts": []
+          }
+        ]
+      }
+    ]
+  }
+}

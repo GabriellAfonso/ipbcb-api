@@ -1,0 +1,1226 @@
+{
+  "title": "Isaías",
+  "date": "2026-07-26",
+  "content": {
+    "sections": [
+      {
+        "title": "Contexto na Grande História e Eventos Históricos",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "O ministério público de Isaías ocorreu durante os reinados de Uzias, Jotão, Acaz e Ezequias, reis de Judá, cobrindo o período de 792 a 686 a.C.",
+                "proof_texts": []
+              },
+              {
+                "text": "Historicamente, o livro se insere em um período de grande turbulência, no qual a Assíria se tornou o poder dominante no antigo Oriente Próximo.",
+                "proof_texts": []
+              },
+              {
+                "text": "O ministério de Isaías abrange cinco grandes segmentos históricos: o primeiro julgamento da Assíria, a coalizão entre Síria e Israel (734-732 a.C.), a destruição de Samaria pelo império assírio (722 a.C.), a invasão de Judá e o cerco de Jerusalém (705-701 a.C.), e, profeticamente, o julgamento e a restauração na Babilônia (586-539 a.C.).",
+                "proof_texts": []
+              },
+              {
+                "text": "A confiabilidade do profeta se estende na história bíblica, pois suas previsões maravilhosas sobre o fim do exílio na Babilônia e a restauração certamente aconteceriam.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "timeline",
+            "events": [
+              {
+                "when": "734-732 a.C.",
+                "text": "Coalizão entre Síria e Israel"
+              },
+              {
+                "when": "722 a.C.",
+                "text": "Destruição de Samaria pelo império assírio"
+              },
+              {
+                "when": "705-701 a.C.",
+                "text": "Invasão de Judá e cerco de Jerusalém"
+              },
+              {
+                "when": "586-539 a.C.",
+                "text": "Julgamento e restauração na Babilônia (profeticamente)"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Objetivo Teológico na Grande História",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Objetivo geral de Isaías:** Como profeta de Deus, Isaías tratou tanto das bênçãos quanto do julgamento da aliança de Deus com Israel. Por um lado, o ministério de Isaías consistiu em grande parte em fazer acusações, condenações e críticas à medida que ele pronunciava sobre Israel e Judá as maldições da aliança pela flagrante desobediência às obrigações inerentes a ela (1.2-31; 13.1—23.18; 56.9—57.13; 65.1-16). O profeta falou de muitas maldições diferentes que viriam, sendo as mais sérias a destruição e o exílio. De fato, tanto Israel quanto Judá ficaram tão aquém dos ideais da aliança que Deus ordenou a Isaías que profetizasse para que o coração do povo fosse endurecido e a sua decisão quanto ao exílio não fosse evitada (6.1-13).",
+            "proof_texts": [
+              {
+                "printed": "1.2-31",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 1,
+                  "verses": [
+                    {
+                      "start": 2,
+                      "end": 31
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "13.1—23.18",
+                "reference": null
+              },
+              {
+                "printed": "56.9",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 56,
+                  "verses": [
+                    {
+                      "start": 9,
+                      "end": 12
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "57.13",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 57,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 13
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "65.1-16",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 65,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 16
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "6.1-13",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 6,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 13
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Por outro lado, Isaías equilibrou a sua mensagem de julgamento com palavras de esperança. Ele falou de muitos tipos diferentes de bênçãos, mas, na maior parte do tempo, suas palavras positivas se concentraram na bênção principal da restauração após o exílio (caps. 40—66). Como resultado disso, Isaías conclamou os piedosos a perseverarem em buscar ao Senhor, a cultivarem a esperança pelo reino de Deus, a desfrutarem da paz de Deus dentro de si mesmos durante os momentos de dificuldade e a responderem com fé aos novos atos divinos de redenção (2.3; 8.13-17; 26.20-21; 33.14-16; 40.28-31; 48.20-21; 55.1-12; 60.1-3; 61.10-11; 63.7—64.12; 66.5-14). Isaías prometeu que um remanescente sobreviveria ao exílio, voltaria à Terra Prometida e desfrutaria de bênçãos divinas sem precedentes.",
+            "proof_texts": [
+              {
+                "printed": "2.3",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 2,
+                  "verses": [
+                    {
+                      "start": 3,
+                      "end": 3
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "8.13-17",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 8,
+                  "verses": [
+                    {
+                      "start": 13,
+                      "end": 17
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "26.20-21",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 26,
+                  "verses": [
+                    {
+                      "start": 20,
+                      "end": 21
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "33.14-16",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 33,
+                  "verses": [
+                    {
+                      "start": 14,
+                      "end": 16
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "40.28-31",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 40,
+                  "verses": [
+                    {
+                      "start": 28,
+                      "end": 31
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "48.20-21",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 48,
+                  "verses": [
+                    {
+                      "start": 20,
+                      "end": 21
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "55.1-12",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 55,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 12
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "60.1-3",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 60,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 3
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "61.10-11",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 61,
+                  "verses": [
+                    {
+                      "start": 10,
+                      "end": 11
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "63.7",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 63,
+                  "verses": [
+                    {
+                      "start": 7,
+                      "end": 19
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "64.12",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 64,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 12
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "66.5-14",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 66,
+                  "verses": [
+                    {
+                      "start": 5,
+                      "end": 14
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Resumo do objetivo de Isaías:** o texto profético relembra a história do povo de Deus, demonstrando sua desobediência e a sua reprovação diante de Deus, indicando as consequências que virão sobre o povo no exílio e afirmando que, apesar disso, o Senhor libertará o seu povo posteriormente.",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "O propósito de Isaías era incentivar os seus contemporâneos a serem leais ao Senhor.",
+                "proof_texts": []
+              },
+              {
+                "text": "O livro também tinha o objetivo de exortar os futuros leitores exilados a se arrependerem de seus pecados e a confiarem que Deus abençoaria o remanescente fiel após o exílio.",
+                "proof_texts": []
+              },
+              {
+                "text": "Teologicamente, o ministério de Isaías consistiu em tratar tanto das bênçãos quanto do julgamento das alianças de Deus com Israel.",
+                "proof_texts": []
+              },
+              {
+                "text": "Ele equilibrou a mensagem de julgamento (devido à desobediência e quebra da aliança) com palavras de esperança, prometendo que um remanescente sobreviveria ao exílio e desfrutaria de bênçãos divinas sem precedentes.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Estrutura e Organização dos Capítulos",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "A organização do livro de Isaías pode ser dividida em quatro grandes blocos narrativos e proféticos:",
+            "proof_texts": []
+          },
+          {
+            "type": "steps",
+            "items": [
+              {
+                "label": "I · 1.1",
+                "title": "Apresentação",
+                "text": "Isaías identificou a si mesmo e a época do seu ministério."
+              },
+              {
+                "label": "II · 1.2–6.13",
+                "title": "A Mensagem de Julgamento e Restauração Pregada por Isaías",
+                "text": "O profeta proferiu palavras de julgamento contra Israel e Judá, mas forneceu esperança de restauração após o exílio. A resposta de Isaías ao julgamento assírio incluiu ameaças de julgamento e esperança de restauração que as gerações futuras precisavam aplicar a si mesmas. Nesses capítulos, fica demonstrada a confiabilidade de Isaías como profeta."
+              },
+              {
+                "label": "III · 7.1–39.8",
+                "title": "A Resposta de Isaías ao Julgamento Assírio",
+                "text": "Inclui a coalizão sírio-israelita, o levante internacional durante o julgamento assírio e o relato da invasão de Senaqueribe."
+              },
+              {
+                "label": "IV · 40.1–66.24",
+                "title": "Isaías e o Julgamento Babilônio",
+                "text": "A resposta de Isaías ao julgamento babilônio foi trazer conforto aos futuros exilados confirmando-lhes a capacidade de Deus de restaurá-los, especificando os instrumentos que Deus estava prestes a usar e explicando de que maneira eles poderiam participar da salvação por vir."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Aplicações Teológicas e Apontamento para Jesus Cristo",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Cristo em Isaías:** As profecias de Isaías prenunciam Cristo em pelo menos três aspectos. Primeiramente, Isaías advertiu sobre os julgamentos que viriam contra o povo rebelde de Deus e sobre as nações que resistissem a ele (1.20; 3.13-15; 11.4; 34.2; 51.5). Por fim, as decisões divinas com as quais Isaías ameaçou foram cumpridas no ministério de Cristo (53.4-6,12; 2Co 1.15; Hb 9.26).",
+            "proof_texts": [
+              {
+                "printed": "1.20",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 1,
+                  "verses": [
+                    {
+                      "start": 20,
+                      "end": 20
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "3.13-15",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 3,
+                  "verses": [
+                    {
+                      "start": 13,
+                      "end": 15
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "11.4",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 11,
+                  "verses": [
+                    {
+                      "start": 4,
+                      "end": 4
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "34.2",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 34,
+                  "verses": [
+                    {
+                      "start": 2,
+                      "end": 2
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "51.5",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 51,
+                  "verses": [
+                    {
+                      "start": 5,
+                      "end": 5
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "53.4-6,12",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 53,
+                  "verses": [
+                    {
+                      "start": 4,
+                      "end": 6
+                    },
+                    {
+                      "start": 12,
+                      "end": 12
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "2Co 1.15",
+                "reference": {
+                  "book": "2Co",
+                  "chapter": 1,
+                  "verses": [
+                    {
+                      "start": 15,
+                      "end": 15
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Hb 9.26",
+                "reference": {
+                  "book": "Hb",
+                  "chapter": 9,
+                  "verses": [
+                    {
+                      "start": 26,
+                      "end": 26
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Segundo, Isaías garantiu que o povo de Deus que se mantivesse fiel iria desfrutar de uma gloriosa restauração após o exílio — uma restauração que ele chamou de \"os novos céus e a nova terra\" (66.22; veja também 65.17). Jesus inaugurou essa nova criação por meio de um ministério terreno que separou novamente a luz das trevas (Jo 1.1-9). Ele dá prosseguimento a essa nova criação por toda a história da igreja (2Co 4.6; 5.17; Gl 6.15; Tg 1.18) e a levará à sua plenitude quando voltar (Ap 21.1-3).",
+            "proof_texts": [
+              {
+                "printed": "66.22",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 66,
+                  "verses": [
+                    {
+                      "start": 22,
+                      "end": 22
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "65.17",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 65,
+                  "verses": [
+                    {
+                      "start": 17,
+                      "end": 17
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Jo 1.1-9",
+                "reference": {
+                  "book": "Jo",
+                  "chapter": 1,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 9
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "2Co 4.6",
+                "reference": {
+                  "book": "2Co",
+                  "chapter": 4,
+                  "verses": [
+                    {
+                      "start": 6,
+                      "end": 6
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "5.17",
+                "reference": {
+                  "book": "2Co",
+                  "chapter": 5,
+                  "verses": [
+                    {
+                      "start": 17,
+                      "end": 17
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Gl 6.15",
+                "reference": {
+                  "book": "Gl",
+                  "chapter": 6,
+                  "verses": [
+                    {
+                      "start": 15,
+                      "end": 15
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Tg 1.18",
+                "reference": {
+                  "book": "Tg",
+                  "chapter": 1,
+                  "verses": [
+                    {
+                      "start": 18,
+                      "end": 18
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Ap 21.1-3",
+                "reference": {
+                  "book": "Ap",
+                  "chapter": 21,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 3
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Terceiro, o Novo Testamento refere-se mais a Isaías do que a qualquer outro livro do Antigo Testamento quando a questão é indicar de que maneira Jesus cumpriu as expectativas do Antigo Testamento em relação ao Messias. O mais importante aspecto no qual Jesus cumpriu as profecias de Isaías diz respeito ao tema dominante o do servo (veja a nota sobre 42.1). Isaías predisse que o \"servo\" traria justiça às nações (42.1-4), restabeleceria a aliança de Israel com o Senhor (42.5-7), se tornaria a luz para os gentios (49.1-7), tiraria os pecados dos eleitos e ressuscitaria dos mortos (52.13—53.12).",
+            "proof_texts": [
+              {
+                "printed": "42.1",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 42,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "42.1-4",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 42,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 4
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "42.5-7",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 42,
+                  "verses": [
+                    {
+                      "start": 5,
+                      "end": 7
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "49.1-7",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 49,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 7
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "52.13",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 52,
+                  "verses": [
+                    {
+                      "start": 13,
+                      "end": 15
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "53.12",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 53,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 12
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "O Novo Testamento identifica esse Servo-Salvador como Jesus, o Senhor encarnado (Mt 8.17; 16.21; 27.26,29,31,38,57-60; Mc 14.49,61; 15.27,43-46; Lc 2.14; 18.31-33; 23.32; Jo 1.10-11, 29; 3.17; 12.38; 19.1,7,18,38-41; At 2.23; 3.13; 7.32-33; 8.32-33; 10.43; Rm 4.25; 8.34; 10.15-16; 15.21; 1Co 15.3; Ef 3.4-5; Fp 2.9; Hb 5.8; 9.28; 1Pe 2.22-25; 1Jo 3.5; Ap 14.5).",
+            "proof_texts": [
+              {
+                "printed": "Mt 8.17",
+                "reference": {
+                  "book": "Mt",
+                  "chapter": 8,
+                  "verses": [
+                    {
+                      "start": 17,
+                      "end": 17
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "16.21",
+                "reference": {
+                  "book": "Mt",
+                  "chapter": 16,
+                  "verses": [
+                    {
+                      "start": 21,
+                      "end": 21
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "27.26,29,31,38,57-60",
+                "reference": {
+                  "book": "Mt",
+                  "chapter": 27,
+                  "verses": [
+                    {
+                      "start": 26,
+                      "end": 26
+                    },
+                    {
+                      "start": 29,
+                      "end": 29
+                    },
+                    {
+                      "start": 31,
+                      "end": 31
+                    },
+                    {
+                      "start": 38,
+                      "end": 38
+                    },
+                    {
+                      "start": 57,
+                      "end": 60
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Mc 14.49,61",
+                "reference": {
+                  "book": "Mc",
+                  "chapter": 14,
+                  "verses": [
+                    {
+                      "start": 49,
+                      "end": 49
+                    },
+                    {
+                      "start": 61,
+                      "end": 61
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "15.27,43-46",
+                "reference": {
+                  "book": "Mc",
+                  "chapter": 15,
+                  "verses": [
+                    {
+                      "start": 27,
+                      "end": 27
+                    },
+                    {
+                      "start": 43,
+                      "end": 46
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Lc 2.14",
+                "reference": {
+                  "book": "Lc",
+                  "chapter": 2,
+                  "verses": [
+                    {
+                      "start": 14,
+                      "end": 14
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "18.31-33",
+                "reference": {
+                  "book": "Lc",
+                  "chapter": 18,
+                  "verses": [
+                    {
+                      "start": 31,
+                      "end": 33
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "23.32",
+                "reference": {
+                  "book": "Lc",
+                  "chapter": 23,
+                  "verses": [
+                    {
+                      "start": 32,
+                      "end": 32
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Jo 1.10-11, 29",
+                "reference": {
+                  "book": "Jo",
+                  "chapter": 1,
+                  "verses": [
+                    {
+                      "start": 10,
+                      "end": 11
+                    },
+                    {
+                      "start": 29,
+                      "end": 29
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "3.17",
+                "reference": {
+                  "book": "Jo",
+                  "chapter": 3,
+                  "verses": [
+                    {
+                      "start": 17,
+                      "end": 17
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "12.38",
+                "reference": {
+                  "book": "Jo",
+                  "chapter": 12,
+                  "verses": [
+                    {
+                      "start": 38,
+                      "end": 38
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "19.1,7,18,38-41",
+                "reference": {
+                  "book": "Jo",
+                  "chapter": 19,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 1
+                    },
+                    {
+                      "start": 7,
+                      "end": 7
+                    },
+                    {
+                      "start": 18,
+                      "end": 18
+                    },
+                    {
+                      "start": 38,
+                      "end": 41
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "At 2.23",
+                "reference": {
+                  "book": "At",
+                  "chapter": 2,
+                  "verses": [
+                    {
+                      "start": 23,
+                      "end": 23
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "3.13",
+                "reference": {
+                  "book": "At",
+                  "chapter": 3,
+                  "verses": [
+                    {
+                      "start": 13,
+                      "end": 13
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "7.32-33",
+                "reference": {
+                  "book": "At",
+                  "chapter": 7,
+                  "verses": [
+                    {
+                      "start": 32,
+                      "end": 33
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "8.32-33",
+                "reference": {
+                  "book": "At",
+                  "chapter": 8,
+                  "verses": [
+                    {
+                      "start": 32,
+                      "end": 33
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "10.43",
+                "reference": {
+                  "book": "At",
+                  "chapter": 10,
+                  "verses": [
+                    {
+                      "start": 43,
+                      "end": 43
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Rm 4.25",
+                "reference": {
+                  "book": "Rm",
+                  "chapter": 4,
+                  "verses": [
+                    {
+                      "start": 25,
+                      "end": 25
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "8.34",
+                "reference": {
+                  "book": "Rm",
+                  "chapter": 8,
+                  "verses": [
+                    {
+                      "start": 34,
+                      "end": 34
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "10.15-16",
+                "reference": {
+                  "book": "Rm",
+                  "chapter": 10,
+                  "verses": [
+                    {
+                      "start": 15,
+                      "end": 16
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "15.21",
+                "reference": {
+                  "book": "Rm",
+                  "chapter": 15,
+                  "verses": [
+                    {
+                      "start": 21,
+                      "end": 21
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "1Co 15.3",
+                "reference": {
+                  "book": "1Co",
+                  "chapter": 15,
+                  "verses": [
+                    {
+                      "start": 3,
+                      "end": 3
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Ef 3.4-5",
+                "reference": {
+                  "book": "Ef",
+                  "chapter": 3,
+                  "verses": [
+                    {
+                      "start": 4,
+                      "end": 5
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Fp 2.9",
+                "reference": {
+                  "book": "Fp",
+                  "chapter": 2,
+                  "verses": [
+                    {
+                      "start": 9,
+                      "end": 9
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Hb 5.8",
+                "reference": {
+                  "book": "Hb",
+                  "chapter": 5,
+                  "verses": [
+                    {
+                      "start": 8,
+                      "end": 8
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "9.28",
+                "reference": {
+                  "book": "Hb",
+                  "chapter": 9,
+                  "verses": [
+                    {
+                      "start": 28,
+                      "end": 28
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "1Pe 2.22-25",
+                "reference": {
+                  "book": "1Pe",
+                  "chapter": 2,
+                  "verses": [
+                    {
+                      "start": 22,
+                      "end": 25
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "1Jo 3.5",
+                "reference": {
+                  "book": "1Jo",
+                  "chapter": 3,
+                  "verses": [
+                    {
+                      "start": 5,
+                      "end": 5
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Ap 14.5",
+                "reference": {
+                  "book": "Ap",
+                  "chapter": 14,
+                  "verses": [
+                    {
+                      "start": 5,
+                      "end": 5
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "O Novo Testamento refere-se mais a Isaías do que a qualquer outro livro do Antigo Testamento quando o assunto é indicar de que maneira Jesus cumpriu as expectativas em relação ao Messias.",
+                "proof_texts": []
+              },
+              {
+                "text": "As decisões divinas e julgamentos com os quais Isaías ameaçou o povo rebelde foram cumpridas no ministério de Cristo.",
+                "proof_texts": []
+              },
+              {
+                "text": "Isaías garantiu uma restauração gloriosa chamada de \"os novos céus e a nova terra\", uma nova criação que Jesus inaugurou por meio de seu ministério terreno e que levará à plenitude quando voltar.",
+                "proof_texts": []
+              },
+              {
+                "text": "A figura do \"servo\" que traria justiça, seria a luz para os gentios, tiraria os pecados dos eleitos e ressuscitaria (o Servo-Salvador) é diretamente identificada no Novo Testamento como Jesus, o Senhor encarnado.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Leitura de Versículos-Chave em Aula",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Para ilustrar os pontos acima diretamente no texto, leia com a classe:",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Isaías 1.1-2:** Para mostrar a apresentação do profeta, o contexto dos reis de Judá e a acusação judicial imediata de Deus contra a rebelião de seus filhos.",
+                "proof_texts": [
+                  {
+                    "printed": "Isaías 1.1-2",
+                    "reference": {
+                      "book": "Is",
+                      "chapter": 1,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 2
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Isaías 52.13 a 53.12:** Para demonstrar a profecia mais importante sobre o Servo-Salvador que tira os pecados dos eleitos e ressuscita dentre os mortos, apontando diretamente para o sacrifício de Cristo.",
+                "proof_texts": [
+                  {
+                    "printed": "Isaías 52.13",
+                    "reference": {
+                      "book": "Is",
+                      "chapter": 52,
+                      "verses": [
+                        {
+                          "start": 13,
+                          "end": 15
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "53.12",
+                    "reference": {
+                      "book": "Is",
+                      "chapter": 53,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 12
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Isaías 66.22:** Para mostrar a promessa escatológica dos \"novos céus e a nova terra\", que conecta a promessa de restauração pós-exílio à consumação da obra de Cristo.",
+                "proof_texts": [
+                  {
+                    "printed": "Isaías 66.22",
+                    "reference": {
+                      "book": "Is",
+                      "chapter": 66,
+                      "verses": [
+                        {
+                          "start": 22,
+                          "end": 22
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Exortação para a Leitura Diária",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "Incentive os alunos a lerem Isaías diariamente para contemplarem a fidelidade e a especificidade meticulosa da palavra profética de Deus.",
+                "proof_texts": []
+              },
+              {
+                "text": "Lembrá-los de que a leitura constante de Isaías nos ensina a perseverar em buscar ao Senhor e a cultivar a esperança pelo reino de Deus durante os momentos de dificuldade, confiando nas promessas de redenção.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

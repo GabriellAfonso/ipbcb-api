@@ -58,6 +58,9 @@ class Scope(StrEnum):
     # YouTube videos linked to Bible chapters and books (specs/025-bible-videos). Listing them is
     # public; only the writes use the scope.
     BIBLE_VIDEOS = "bible_videos"
+    # Sunday school lessons (specs/026-sunday-school). Reading published lessons is public; the
+    # panel endpoints use the scope.
+    SUNDAY_SCHOOL = "sunday_school"
     REPORTS_HYMNAL_HISTORY = "reports.hymnal_history"
 
 

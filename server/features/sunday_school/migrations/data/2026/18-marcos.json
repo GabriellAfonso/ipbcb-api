@@ -1,0 +1,716 @@
+{
+  "title": "Panorama de Marcos",
+  "date": null,
+  "content": {
+    "sections": [
+      {
+        "title": "Contexto do Livro no Drama das Escrituras",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "*Mc 8 – Quem nós entendemos que Jesus é?*",
+            "proof_texts": [
+              {
+                "printed": "Mc 8",
+                "reference": {
+                  "book": "Mc",
+                  "chapter": 8,
+                  "verses": []
+                }
+              }
+            ]
+          },
+          {
+            "type": "book_facts",
+            "book": "Mc",
+            "author": "Marcos",
+            "date": "55 d.C",
+            "style": "Evangelhos",
+            "reading_time": "1h e 25m"
+          },
+          {
+            "type": "timeline",
+            "events": [
+              {
+                "when": "5 a.C",
+                "text": "João Batista no deserto"
+              },
+              {
+                "when": "27 d.C",
+                "text": "Batismo de Jesus e tentação (Mc 1-12) — início do ministério de Jesus com aprox. 30 anos de idade"
+              },
+              {
+                "when": "27 d.C",
+                "text": "Chamado de Mateus (Mc 2:14); doze discípulos escolhidos (Mc 3:14)"
+              },
+              {
+                "when": "28 d.C",
+                "text": "João Batista é decapitado (Mc 6) — segundo ano do ministério de Jesus"
+              },
+              {
+                "when": "29 d.C",
+                "text": "5 mil pessoas alimentadas (Mc 6:35) — terceiro ano do ministério de Jesus"
+              },
+              {
+                "when": "29 d.C",
+                "text": "Semana da paixão (Mc 11-15)"
+              },
+              {
+                "when": "29 d.C",
+                "text": "Ressurreição de Jesus (Mc 16)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Onde o livro está e seu papel na Grande História:**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "O livro de Marcos é o registro que inaugura a documentação escrita do **Ato 4** do Drama das Escrituras (\"A Vinda do Rei: Redenção Realizada\").",
+                "proof_texts": []
+              },
+              {
+                "text": "Ele marca a transição da longa era de expectativa judaica para a invasão concreta do poder de Deus na história humana, revelando como Jesus Cristo derrotou os poderes do mal e da morte para iniciar a restauração de toda a criação.",
+                "proof_texts": []
+              },
+              {
+                "text": "O livro também aborda temas como a autoridade de Jesus, Sua identidade como o Filho de Deus e a necessidade de seguir o exemplo de serviço e fé.",
+                "proof_texts": []
+              },
+              {
+                "text": "Marcos culmina com a narrativa da crucificação e ressurreição, evidenciando o papel central de Jesus na redenção da humanidade.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Autor:** tradicionalmente é atribuída a João Marcos, missionário em companhia de Paulo e Barnabé (Atos 12:25) e filho na fé do apóstolo Pedro (1Pedro 5:13).",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 12:25",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 12,
+                      "verses": [
+                        {
+                          "start": 25,
+                          "end": 25
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "1Pedro 5:13",
+                    "reference": {
+                      "book": "1Pe",
+                      "chapter": 5,
+                      "verses": [
+                        {
+                          "start": 13,
+                          "end": 13
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Resumo:** O Livro de Marcos é o segundo livro do Novo Testamento e apresenta um relato conciso e dinâmico da vida, ministério, morte e ressurreição de Jesus Cristo. Marcos destaca a natureza imediata e poderosa do ministério de Jesus, enfatizando Seus milagres e ações.",
+                "proof_texts": []
+              },
+              {
+                "text": "Marcos serviu de documento-fonte para as composições de Mateus e Lucas. Seu público original era de gentios, o que explica a exclusão ou explicação de costumes judaicos, o uso de latinismos e a linguagem direta.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Período histórico:** Provavelmente antes da destruição de Jerusalém que ocorreu no ano 70 d.C.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Os **latinismos** ocorrem, translitera ou adapta do latim para o texto em grego. Como o grego era o idioma universal da época, a forte presença do latim em Marcos reforça a tese histórica de que ele escreveu o livro a partir de Roma para cristãos de origem pagã/romana.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**Vocabulário Militar, Político e Econômico:**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Centurião** (latim *Centurio*): Em Marcos 15:39.",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 15:39",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 15,
+                      "verses": [
+                        {
+                          "start": 39,
+                          "end": 39
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Pretório** (*Praetorium*): Refere-se à residência oficial ou quartel-general do governador romano. É usado em Marcos 15:16.",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 15:16",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 15,
+                      "verses": [
+                        {
+                          "start": 16,
+                          "end": 16
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Censo/Imposto** (*Census*): Em Marcos 12:14.",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 12:14",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 12,
+                      "verses": [
+                        {
+                          "start": 14,
+                          "end": 14
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Moedas** (*Denarius* e *Quadrans*): Marcos cita o denário (moeda romana) e, em Marcos 12:42, ele explica para seu público o valor de duas pequenas moedas judaicas (léptons) dizendo que elas valiam um quadrante (*kodrantēs*), que era a menor moeda de cobre romana.",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 12:42",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 12,
+                      "verses": [
+                        {
+                          "start": 42,
+                          "end": 42
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Características Literárias:** Marcos inaugura o uso literário da palavra grega *euangelion* (\"boas-novas\") para designar um documento escrito. Há uma preferência marcante por relatar os atos poderosos e milagres de Jesus em vez de registrar longos discursos.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**A Linguagem Direta e Imediata:**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**O Uso Obsessivo de \"Imediatamente\" (*Euthys*):** (\"logo\", \"depressa\" ou \"num instante\") aparece mais de 40 vezes. Isso cria um senso de urgência cósmica. Jesus não perde tempo: Ele é batizado e imediatamente vai ao deserto; chama os discípulos e eles imediatamente deixam as redes; cura alguém e a notícia se espalha imediatamente.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Estilo Paratático (Uso Repetitivo do \"E\"):** Exemplo clássico: \"E saíram... E pregaram... E curaram muitos enfermos...\"",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Objetivo Teológico do Livro",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "A mensagem central do Evangelho de Marcos é apresentar o grande paradoxo do plano redentor: o Rei prometido inaugura poderosamente o Reino de Deus não por meio da conquista política ou militarista, mas através do **sofrimento, do serviço humilde e da aparente derrota em uma cruz**.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "O objetivo de Marcos é fornecer o registro autêntico dos atos de Cristo para atestar inequivocamente Sua dupla identidade como \"O Cristo\" e \"O Filho de Deus\", desafiando os leitores a compreenderem que a verdadeira salvação divina só é operada pelo caminho do Servo Sofredor que dá a Sua vida em resgate por muitos.",
+            "proof_texts": []
+          }
+        ]
+      },
+      {
+        "title": "Estrutura do Esboço do Livro",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "steps",
+            "items": [
+              {
+                "label": "1.1-13",
+                "title": "Prólogo: Preparação para o Cristo, o Filho de Deus",
+                "text": "O princípio do evangelho estabelecido com o testemunho de João Batista, o batismo e a unção de Jesus com o Espírito, e Sua tentação no deserto."
+              },
+              {
+                "label": "1.14—8.26",
+                "title": "A Revelação do Cristo, o Filho de Deus",
+                "text": "O ministério inicial e dinâmico na Galileia e além de suas fronteiras. Esta seção concentra-se no poder de Cristo operando milagres (curas, domínio sobre tempestades e exorcismos), no ensino por parábolas, bem como nas crescentes controvérsias com as autoridades e na incompreensão de Seus próprios discípulos."
+              },
+              {
+                "label": "8.27—15.47",
+                "title": "A Revelação do Sofrimento do Cristo",
+                "text": "A transição narrativa a partir da confissão de Pedro, onde a ênfase recai pesadamente na cruz. Inclui as predições explícitas de Jesus sobre Seu sofrimento vindouro, os atritos em Jerusalém (discursos de juízo, última ceia, Getsêmani) e todo o ciclo da Paixão, desde os julgamentos até a crucificação e sepultamento."
+              },
+              {
+                "label": "Capítulo 16",
+                "title": "Epílogo: A Ressurreição do Cristo",
+                "text": "A conclusão que comprova a derrota do pecado e da morte pela ressurreição."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Principais acontecimentos**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "Ministério de João Batista e Batismo de Jesus (Marcos 1:1-11)",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 1:1-11",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 1,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 11
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Início do ministério público de Jesus (Marcos 1:14-15)",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 1:14-15",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 1,
+                      "verses": [
+                        {
+                          "start": 14,
+                          "end": 15
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Chamado dos primeiros discípulos (Marcos 1:16-20)",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 1:16-20",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 1,
+                      "verses": [
+                        {
+                          "start": 16,
+                          "end": 20
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Cura de enfermos e possessos (vários capítulos)",
+                "proof_texts": []
+              },
+              {
+                "text": "Cura da mulher hemorrágica e ressurreição da filha de Jairo (Marcos 5:21-43)",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 5:21-43",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 5,
+                      "verses": [
+                        {
+                          "start": 21,
+                          "end": 43
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Rejeição em Nazaré (Marcos 6:1-6)",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 6:1-6",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 6,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 6
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Alimentação dos cinco mil (Marcos 6:30-44)",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 6:30-44",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 6,
+                      "verses": [
+                        {
+                          "start": 30,
+                          "end": 44
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Confissão de Pedro (Marcos 8:27-30)",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 8:27-30",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 8,
+                      "verses": [
+                        {
+                          "start": 27,
+                          "end": 30
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Transfiguração (Marcos 9:2-13)",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 9:2-13",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 9,
+                      "verses": [
+                        {
+                          "start": 2,
+                          "end": 13
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Ensinamentos sobre humildade e serviço (Marcos 9:33-37; 10:35-45)",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 9:33-37",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 9,
+                      "verses": [
+                        {
+                          "start": 33,
+                          "end": 37
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "10:35-45",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 10,
+                      "verses": [
+                        {
+                          "start": 35,
+                          "end": 45
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Entrada triunfal em Jerusalém (Marcos 11:1-11)",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 11:1-11",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 11,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 11
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Última Ceia (Marcos 14:12-26)",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 14:12-26",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 14,
+                      "verses": [
+                        {
+                          "start": 12,
+                          "end": 26
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Prisão, julgamento e crucificação (Marcos 14:43-15:47)",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 14:43",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 14,
+                      "verses": [
+                        {
+                          "start": 43,
+                          "end": 72
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "15:47",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 15,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 47
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "Ressurreição (Marcos 16:1-8)",
+                "proof_texts": [
+                  {
+                    "printed": "Marcos 16:1-8",
+                    "reference": {
+                      "book": "Mc",
+                      "chapter": 16,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 8
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Verdades Teológicas Conhecidas a Partir do Livro",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**A Chegada do Reino de Deus em Poder:** Marcos enfatiza que o poder cósmico de cura de Deus invadiu a história presente. Os milagres de Jesus (controlando os mares, curando leprosos, expulsando demônios) são as evidências irrefutáveis de que a criação corrompida começou a ser restaurada ao seu estado original e de que a obra do diabo está sendo destruída.",
+                "proof_texts": []
+              },
+              {
+                "text": "**O \"Segredo Messiânico\":** Jesus é claramente revelado como Deus encarnado, detentor de poder para perdoar pecados e subjugar as forças incontroláveis da natureza. Contudo, Ele repetidamente obriga demônios, curados e discípulos ao silêncio. Teologicamente, Ele o faz para desconstruir o nacionalismo populista de Israel que ansiava por um líder militar, assegurando que Sua identidade só pudesse ser compreendida à luz de Seu sacrifício na cruz.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Oposição Radical ao Separatismo (Status Quo):** O ministério terreno de Jesus no Evangelho de Marcos abala estruturalmente o legalismo judaico da época. Em contraste com a exclusão promovida pelos fariseus através de leis alimentares rígidas e regras do sábado, o Rei se aproxima de gentios e pecadores \"indevidos\", demonstrando que o Reino age mediante a graça, a compaixão e o perdão incondicional, e não pelo ódio racial ou isolamento religioso.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Vida de Oração e Dependência do Espírito:** Diferente de rebeliões autônomas do ser humano no Antigo Testamento, a encarnação demonstra obediência perfeita. Marcos evidencia que todo o poder miraculoso e a submissão ao sofrimento provêm da total dependência do Espírito Santo e da profunda comunhão em oração de Jesus com Deus, a quem intimamente chama de \"Abba, Pai\".",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Versículos-Chave",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "key_verse",
+            "label": "Inauguração e Identidade Absoluta",
+            "text": "\"Princípio do evangelho de Jesus Cristo, Filho de Deus.\"",
+            "proof": {
+              "printed": "Marcos 1.1",
+              "reference": {
+                "book": "Mc",
+                "chapter": 1,
+                "verses": [
+                  {
+                    "start": 1,
+                    "end": 1
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "A Proclamação Essencial do Reino (O Chamado ao Ato 4)",
+            "text": "\"O tempo chegou. O reino de Deus está próximo. Arrependam-se e creiam nas boas-novas!\"",
+            "proof": {
+              "printed": "Marcos 1.15",
+              "reference": {
+                "book": "Mc",
+                "chapter": 1,
+                "verses": [
+                  {
+                    "start": 15,
+                    "end": 15
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "A Natureza Paradoxal da Redenção",
+            "text": "\"Pois nem mesmo o Filho do homem veio para ser servido, mas para servir e dar a sua vida em resgate por muitos.\"",
+            "proof": {
+              "printed": "Marcos 10.45",
+              "reference": {
+                "book": "Mc",
+                "chapter": 10,
+                "verses": [
+                  {
+                    "start": 45,
+                    "end": 45
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "title": "Exortação para a Leitura Devocional",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Querido irmão, ao olhar para a caminhada de fé e para o ritmo acelerado dos nossos dias, convido você a fazer uma pausa e olhar com atenção para o Evangelho de Marcos. Ele nos ensina algo precioso para a vida prática: esse texto não foi escrito para nos deixar na posição de meros observadores passivos de um grande mestre. Ele é uma convocação direta para um **discipulado de alto custo**.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "Em suas leituras e momentos de oração diários, quando você se assentar para meditar nessa narrativa tão densa e dinâmica, permita-se ser desafiado. Use esse tempo com a Palavra para abandonar qualquer visão triunfalista da fé — aquela ilusão de achar que Deus serve apenas para satisfazer nossos desejos terrenos por facilidade, conforto ou busca por poder e status.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "Em vez disso, use a leitura de Marcos como um espelho e um guia para alinhar o seu coração ao modelo do Rei-Servo. Lembre-se de que a verdadeira vida cristã, aquela que agrada ao Pai, se constrói sobre três pilares diários:",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "numbered",
+            "items": [
+              {
+                "text": "A entrega total dos seus planos nas mãos dEle.",
+                "proof_texts": []
+              },
+              {
+                "text": "A compaixão ativa por aqueles que a sociedade frequentemente rejeita e esquece.",
+                "proof_texts": []
+              },
+              {
+                "text": "A coragem de tomar a sua cruz a cada amanhecer, escolhendo o caminho da obediência, mesmo quando ele for difícil.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Faça de cada capítulo lido uma oportunidade real de renovar a sua dependência do Espírito Santo e da oração.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "Não tente caminhar com as suas próprias forças. Busque na intimidade com Deus o poder necessário para viver publicamente os valores do Reino, testemunhando com as suas atitudes que o governo de Deus já invadiu a história e começou, primeiro, transformando a sua própria vida.",
+            "proof_texts": []
+          }
+        ]
+      }
+    ]
+  }
+}

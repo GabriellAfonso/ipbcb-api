@@ -95,6 +95,7 @@ Each entry is a deliberate exception to the method default, with its reason.
 | `notices`                | owner | manage | manage |
 | `profiles`               | owner | manage | —      |
 | `bible_videos`           | owner | owner  | —      |
+| `sunday_school`          | owner | owner  | —      |
 | `reports.hymnal_history` | owner | view   | view   |
 
 "—" = no access at all to that scope's management endpoints, not even read.
@@ -109,6 +110,8 @@ Each entry is a deliberate exception to the method default, with its reason.
   every role that reaches the panel. Writing its configuration requires `owner`.
 - **`bible_videos`** (feature 025) — Bible videos are managed by Admin and Liderança only;
   Liderança is `owner` so it can delete videos and remove places. Listing them is public.
+- **`sunday_school`** (feature 026) — Sunday school lessons are written by Admin and Liderança
+  only; Liderança is `owner` so it can delete lessons. Reading published lessons is public.
 - **`notices`** is a future feature. This feature only reserves its scope and who will hold
   it; it creates no data or endpoints for it.
 - **`events`**: endpoints in `specs/020-church-events/`. Feature 020 raised LEADER and MEDIA from
@@ -254,6 +257,24 @@ Mídia nothing. `GET api/bible/videos/` is public, outside this classification.
 | DELETE | `api/bible/videos/{id}/places/`           | `bible_videos` | owner  | default |
 | DELETE | `api/bible/videos/{id}/`                  | `bible_videos` | owner  | default |
 | PUT    | `api/bible/videos/order/`                 | `bible_videos` | manage | default |
+
+### sunday_school
+
+Added by feature 026 (`specs/026-sunday-school/`): Sunday school (EBD) lessons. Liderança gets
+`owner` by data migration `core/0014_sunday_school_scope_for_leader.py`; Mídia nothing.
+`GET api/sunday-school/` and `GET api/sunday-school/lessons/{id}/` are public, outside this
+classification.
+
+| Method | Endpoint                                        | Scope           | Level  | Why     |
+|--------|-------------------------------------------------|-----------------|--------|---------|
+| GET    | `api/sunday-school/manage/lessons/`             | `sunday_school` | view   | default |
+| POST   | `api/sunday-school/manage/lessons/`             | `sunday_school` | manage | default |
+| GET    | `api/sunday-school/manage/lessons/{id}/`        | `sunday_school` | view   | default |
+| PATCH  | `api/sunday-school/manage/lessons/{id}/`        | `sunday_school` | manage | default |
+| DELETE | `api/sunday-school/manage/lessons/{id}/`        | `sunday_school` | owner  | default |
+| PUT    | `api/sunday-school/manage/lessons/order/`       | `sunday_school` | manage | default |
+| GET    | `api/sunday-school/manage/years/`               | `sunday_school` | view   | default |
+| PATCH  | `api/sunday-school/manage/years/{year}/`        | `sunday_school` | manage | default |
 
 ### gallery reads
 
@@ -417,7 +438,8 @@ reflects it.
 - **FR-001**: The system MUST define the levels `view` < `manage` < `owner`, each including the
   lower ones.
 - **FR-002**: The system MUST define the scopes `members`, `schedule`, `songs`, `gallery`,
-  `events`, `notices`, `profiles`, `bible_videos` and `reports.hymnal_history`.
+  `events`, `notices`, `profiles`, `bible_videos`, `sunday_school` and
+  `reports.hymnal_history`.
 - **FR-003**: Each management endpoint MUST declare exactly one scope.
 - **FR-004**: The required level MUST default from the request method (`GET` → `view`;
   `POST`/`PUT`/`PATCH` → `manage`; `DELETE` → `owner`).

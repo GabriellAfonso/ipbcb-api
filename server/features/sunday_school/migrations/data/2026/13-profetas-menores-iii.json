@@ -1,0 +1,531 @@
+{
+  "title": "Profetas Menores III — Naum, Habacuque e Sofonias",
+  "date": null,
+  "content": {
+    "sections": [
+      {
+        "title": "O Contexto no \"Drama das Escrituras\"",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "O Palco",
+                "text": "Ato 3 (A Redenção Iniciada).",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "A Crise",
+                "text": "A monarquia de Israel e Judá falha gravemente em sua vocação devido à idolatria e à injustiça.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "A Resposta Divina",
+                "text": "Os profetas surgem como um \"contrapeso\" ao poder dos reis, atuando como fiscais da aliança.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "A Missão Profética",
+                "text": "Eles denunciam a corrupção, anunciam o juízo (através de impérios como Assíria e Babilônia) e garantem a esperança da restauração divina.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Autoria e Cenário (Visão Comparativa)**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "Naum",
+                "title": "O Foco no Tirano",
+                "text": "Profetizou entre 663 e 612 a.C. Foco: A queda iminente de Nínive, a cruel capital do Império Assírio.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Habacuque",
+                "title": "O Foco na Crise Interna",
+                "text": "Atuou em Judá (609–598 a.C.). Foco: A aparente inércia de Deus diante da corrupção e a assustadora ascensão da Babilônia.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Sofonias",
+                "title": "O Foco na Reforma",
+                "text": "Sangue real (descendente de Ezequias). Atuou em Judá (640–609 a.C.). Foco: Denunciar o sincretismo antes da grande reforma do rei Josias.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Características Literárias**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "Naum",
+                "text": "Ritmo vívido de um \"repórter de guerra\". Usa oráculos de sentença, hinos e canções irônicas para zombar da outrora invencível Nínive.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Habacuque",
+                "text": "Profecia em formato de \"diálogo íntimo\". O livro é estruturado em queixas do profeta e respostas de Deus, culminando em um salmo litúrgico.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Sofonias",
+                "text": "Um \"Profeta Maior\" condensado. Marcado pelo forte contraste poético entre as trevas do juízo iminente e o esplendor da glória futura.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Objetivo Teológico (A Mensagem Central)",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "Naum",
+                "title": "A Justiça Retributiva",
+                "text": "A paciência de Deus não é fraqueza. O Senhor é o refúgio dos justos, e nenhum império ou crueldade humana ficará sem punição.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Habacuque",
+                "title": "A Teodiceia e a Fé",
+                "text": "Deus governa a história, mesmo usando nações ímpias para disciplinar Seu povo. Diante do incompreensível, a resposta é: \"o justo viverá pela fé\".",
+                "proof_texts": [
+                  {
+                    "printed": "Hc 2.4",
+                    "reference": {
+                      "book": "Hc",
+                      "chapter": 2,
+                      "verses": [
+                        {
+                          "start": 4,
+                          "end": 4
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "Sofonias",
+                "title": "O Fogo Purificador",
+                "text": "O \"Dia do Senhor\" não é apenas destruição, mas uma intervenção restauradora para erradicar a soberba e salvar um remanescente humilde.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "A Estrutura dos Livros",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Naum (A Queda de Nínive)**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Cap. 1:** O zelo e o poder do Senhor como Juiz.",
+                "proof_texts": [
+                  {
+                    "printed": "Cap. 1",
+                    "reference": {
+                      "book": "Na",
+                      "chapter": 1,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Cap. 2:** A cidade invasora é sitiada e saqueada.",
+                "proof_texts": [
+                  {
+                    "printed": "Cap. 2",
+                    "reference": {
+                      "book": "Na",
+                      "chapter": 2,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Cap. 3:** A destruição total da \"cidade sanguinária\".",
+                "proof_texts": [
+                  {
+                    "printed": "Cap. 3",
+                    "reference": {
+                      "book": "Na",
+                      "chapter": 3,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Habacuque (Da Dúvida à Adoração)**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Caps. 1-2:** O Diálogo (As queixas do profeta vs. A resposta de Deus sobre a fé e o juízo).",
+                "proof_texts": []
+              },
+              {
+                "text": "**Cap. 3:** A Oração (Um hino de submissão e júbilo inabalável).",
+                "proof_texts": [
+                  {
+                    "printed": "Cap. 3",
+                    "reference": {
+                      "book": "Hc",
+                      "chapter": 3,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Sofonias (Do Juízo à Alegria)**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**1.2 a 2.3:** O terror do Dia do Senhor global e local.",
+                "proof_texts": [
+                  {
+                    "printed": "1.2",
+                    "reference": {
+                      "book": "Sf",
+                      "chapter": 1,
+                      "verses": [
+                        {
+                          "start": 2,
+                          "end": 18
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "2.3",
+                    "reference": {
+                      "book": "Sf",
+                      "chapter": 2,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 3
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**2.4 a 3.8:** Julgamento das nações vizinhas e de Jerusalém.",
+                "proof_texts": [
+                  {
+                    "printed": "2.4",
+                    "reference": {
+                      "book": "Sf",
+                      "chapter": 2,
+                      "verses": [
+                        {
+                          "start": 4,
+                          "end": 15
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "3.8",
+                    "reference": {
+                      "book": "Sf",
+                      "chapter": 3,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 8
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**3.9 a 3.20:** A purificação e a festa de restauração do remanescente.",
+                "proof_texts": [
+                  {
+                    "printed": "3.9 a 3.20",
+                    "reference": {
+                      "book": "Sf",
+                      "chapter": 3,
+                      "verses": [
+                        {
+                          "start": 9,
+                          "end": 20
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Verdades Teológicas Fundamentais",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "Naum (Providência Geopolítica)",
+                "text": "Deus é o Senhor absoluto da história. Regimes de terror têm prazo de validade determinado por Ele.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Habacuque (Fé Inabalável)",
+                "text": "A verdadeira fé não depende de circunstâncias favoráveis. A queixa sincera a Deus é um caminho legítimo para a submissão e a confiança.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Sofonias (O Deus Envolvido)",
+                "text": "Deus abomina a injustiça e não é indiferente ao mundo. Seu julgamento é a ferramenta usada para extirpar a arrogância e salvar os humildes.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Cristo em cada livro**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "Em Naum",
+                "text": "Prefigura a vitória final de Cristo, o Rei glorificado a quem foi dada autoridade para destruir definitivamente as forças do mal.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Em Habacuque",
+                "text": "\"O justo viverá pela fé\" aponta diretamente para a cruz de Cristo, onde a tensão entre o pecado humano e a santidade de Deus é resolvida pelo sacrifício justificador.",
+                "proof_texts": [
+                  {
+                    "printed": "Hc 2.4",
+                    "reference": {
+                      "book": "Hc",
+                      "chapter": 2,
+                      "verses": [
+                        {
+                          "start": 4,
+                          "end": 4
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Em Sofonias",
+                "text": "Revela a face do Salvador amoroso que, após afastar os inimigos e as punições, \"canta e se deleita\" sobre o Seu povo resgatado (3.17).",
+                "proof_texts": [
+                  {
+                    "printed": "3.17",
+                    "reference": {
+                      "book": "Sf",
+                      "chapter": 3,
+                      "verses": [
+                        {
+                          "start": 17,
+                          "end": 17
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Versículos",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "key_verse",
+            "label": "Naum",
+            "text": "\"O Senhor é bom, um refúgio em tempos de angústia... mas com enchente devastadora dará fim a Nínive.\"",
+            "proof": {
+              "printed": "Naum 1.7-8",
+              "reference": {
+                "book": "Na",
+                "chapter": 1,
+                "verses": [
+                  {
+                    "start": 7,
+                    "end": 8
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Habacuque",
+            "text": "\"O justo viverá pela sua fé...\"",
+            "proof": {
+              "printed": "Habacuque 2.4",
+              "reference": {
+                "book": "Hc",
+                "chapter": 2,
+                "verses": [
+                  {
+                    "start": 4,
+                    "end": 4
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Habacuque",
+            "text": "\"...Ainda que a figueira não floresça... mesmo assim, eu me alegrarei no Senhor.\"",
+            "proof": {
+              "printed": "3.17-18",
+              "reference": {
+                "book": "Hc",
+                "chapter": 3,
+                "verses": [
+                  {
+                    "start": 17,
+                    "end": 18
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Sofonias",
+            "text": "\"O Senhor, o seu Deus, está no meio de vocês, poderoso para salvar. Ele se regozijará em vocês; com o seu amor os renovará...\"",
+            "proof": {
+              "printed": "Sofonias 3.17",
+              "reference": {
+                "book": "Sf",
+                "chapter": 3,
+                "verses": [
+                  {
+                    "start": 17,
+                    "end": 17
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "title": "Desafio Devocional (Aplicação Prática)",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": "shield",
+                "label": null,
+                "title": "Leia Naum",
+                "text": "Quando a maldade do mundo parecer invencível; o livro lhe garantirá que Deus é o escudo dos justos e o ponto final de todo opressor.",
+                "proof_texts": []
+              },
+              {
+                "icon": "plant",
+                "label": null,
+                "title": "Leia Habacuque",
+                "text": "Quando suas orações parecerem não ter resposta. Ele nos ensina a transformar o desespero das \"figueiras sem flores\" em uma adoração profunda e inabalável.",
+                "proof_texts": []
+              },
+              {
+                "icon": "heart",
+                "label": null,
+                "title": "Leia Sofonias",
+                "text": "Para ser despertado do comodismo espiritual e maravilhar-se com um Deus que não apenas perdoa, mas que canta de alegria por você!",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

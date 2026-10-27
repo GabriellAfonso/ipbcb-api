@@ -1,0 +1,270 @@
+{
+  "title": "Josué e a conquista da terra",
+  "date": null,
+  "content": {
+    "sections": [
+      {
+        "title": "O Contexto: A Porta de Entrada dos Livros Históricos",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Josué marca uma transição literária e teológica fundamental. Ele é o primeiro dos Livros Históricos (ou \"Profetas Anteriores\" na tradição judaica).",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**A Ponte:** O Pentateuco termina com a morte de Moisés e a promessa de uma terra. Josué começa com a execução dessa promessa.",
+                "proof_texts": []
+              },
+              {
+                "text": "**De Nômades a Sedentários:** O contexto é a mudança de um povo peregrino no deserto para uma nação estabelecida.",
+                "proof_texts": []
+              },
+              {
+                "text": "**O Gênero Histórico:** Diferente da Lei, aqui vemos a teologia em movimento, através de fatos, guerras e demarcações geográficas que provam a soberania de Deus no tempo e no espaço. Gênero narrativo sempre ensina através da história inteira contada e dos arcos de seus personagens.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Objetivo Principal: A Fidelidade de Deus e a Terra",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "O livro não é sobre a habilidade militar de Israel, mas sobre a fidelidade da Aliança de Deus guardar e sustentar o seu povo eleito, inclusive batalhando por ele para garantir-lhe o acesso ao cumprimento da promessa da terra. Em Gênesis Deus elegeu o seu povo. Em Êxodo Deus libertou esse povo. Em Levítico, Deus purifica o povo eleito. Em Números, Deus prepara o povo de Deus para a nova terra. Em Deuteronômio Deus reorganiza a nova geração para entrada na terra prometida. Em Josué, Deus realiza a entrada do povo na terra prometida, que viria a ser a terra de Israel, nação que será preservada para que venha o nosso Senhor e Redentor Jesus Cristo.",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**O Cumprimento:** Narrar como Deus entregou a terra prometida a Abraão séculos antes.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Graça sobre Esforço:** Demonstrar que a vitória é uma intervenção divina. As muralhas caem pelo toque das trombetas, não por armas (Josué 6), provando que Deus luta por Seu povo apesar de sua recorrente falta de fé e pecado (como o caso de Acã).",
+                "proof_texts": [
+                  {
+                    "printed": "Josué 6",
+                    "reference": {
+                      "book": "Js",
+                      "chapter": 6,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Estrutura do Livro (Esboço de Genebra)",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Para facilitar a memorização didática, dividimos o livro em três grandes atos, conforme o esboço da pág. 276:",
+            "proof_texts": []
+          },
+          {
+            "type": "table",
+            "header": [
+              "Seção",
+              "Capítulos",
+              "Foco Temático"
+            ],
+            "rows": [
+              [
+                "I. A Conquista",
+                "1–12",
+                "**Guerra Teocêntrica:** A entrada na terra e a derrota dos reinos cananeus sob a liderança direta de Deus."
+              ],
+              [
+                "II. A Distribuição",
+                "13–21",
+                "**Herança e Descanso:** A terra é repartida entre as tribos. Deus provê um lugar de repouso para cada família."
+              ],
+              [
+                "III. A Lealdade",
+                "22–24",
+                "**Manutenção da Aliança:** Os discursos finais de Josué e o chamado à decisão: servir ao Senhor ou aos ídolos."
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Temas Teológicos e o \"Drama das Escrituras\"",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Aqui conectamos Josué ao grande enredo bíblico (Atos do Drama).",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**O Drama da Terra (Ato 3):** No \"Drama das Escrituras\", a terra é o palco onde Israel deveria ser uma \"luz para as nações\". A conquista não é um fim em si mesma, mas a preparação do cenário para o Reino de Deus.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Cristo em Josué (Tipologia):**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "O Nome",
+                "text": "Josué (Yeshua) significa \"O Senhor Salva\", exatamente o mesmo nome de Jesus. Josué é o \"salvador\" temporal; Jesus é o Salvador eterno.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "O Capitão do Exército",
+                "text": "Em Josué 5, ele encontra o \"Comandante do exército do Senhor\". Cristo é o verdadeiro Comandante que vence nossos maiores inimigos (o pecado e a morte).",
+                "proof_texts": [
+                  {
+                    "printed": "Josué 5",
+                    "reference": {
+                      "book": "Js",
+                      "chapter": 5,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "O Descanso",
+                "text": "Josué deu um descanso temporário na terra; o autor de Hebreus (Cap. 4) argumenta que Jesus é quem nos introduz no verdadeiro e definitivo Descanso de Deus.",
+                "proof_texts": [
+                  {
+                    "printed": "Hebreus 4",
+                    "reference": {
+                      "book": "Hb",
+                      "chapter": 4,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**O Rei Esperado:** Josué prepara o caminho para a monarquia. Ele mostra que o povo precisa de um líder fiel, apontando para a necessidade de um Rei perfeito que governará com justiça e paz.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Versículos Exemplos dos Temas Teológicos",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Para fundamentar a aula, destaque estas passagens:",
+            "proof_texts": []
+          },
+          {
+            "type": "key_verse",
+            "label": "Soberania e Palavra",
+            "text": "\"Não deixe de falar as palavras deste Livro da Lei e de meditar nelas dia e noite...\" — O sucesso da conquista depende da submissão à Palavra.",
+            "proof": {
+              "printed": "Josué 1:8",
+              "reference": {
+                "book": "Js",
+                "chapter": 1,
+                "verses": [
+                  {
+                    "start": 8,
+                    "end": 8
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "A Graça Inclusiva",
+            "text": "\"...pois o Senhor, o seu Deus, é Deus em cima nos céus e embaixo na terra.\" — O testemunho da estrangeira Raabe mostra que a graça de Deus é para todos que creem.",
+            "proof": {
+              "printed": "Josué 2:11b",
+              "reference": {
+                "book": "Js",
+                "chapter": 2,
+                "verses": [
+                  {
+                    "start": 11,
+                    "end": 11
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "O Cumprimento Total",
+            "text": "\"De todas as boas promessas que o Senhor fizera à nação de Israel, nenhuma falhou; todas se cumpriram.\" — Este é o resumo teológico do livro.",
+            "proof": {
+              "printed": "Josué 21:45",
+              "reference": {
+                "book": "Js",
+                "chapter": 21,
+                "verses": [
+                  {
+                    "start": 45,
+                    "end": 45
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "A Escolha da Aliança",
+            "text": "\"Mas, se lhes parece mal servir ao Senhor, escolham hoje a quem irão servir... Eu e a minha casa serviremos ao Senhor.\"",
+            "proof": {
+              "printed": "Josué 24:15",
+              "reference": {
+                "book": "Js",
+                "chapter": 24,
+                "verses": [
+                  {
+                    "start": 15,
+                    "end": 15
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

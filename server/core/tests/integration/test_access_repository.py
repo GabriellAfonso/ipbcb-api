@@ -23,6 +23,8 @@ LEADER_CODENAMES = {
     "profiles__manage",
     # Added by core/0012 (specs/025-bible-videos FR-001).
     "bible_videos__owner",
+    # Added by core/0014 (specs/026-sunday-school FR-001).
+    "sunday_school__owner",
     "reports_hymnal_history__view",
 }
 

@@ -25,6 +25,7 @@ urlpatterns = [
     path("", include("features.bible.urls")),
     path("", include("features.doctrine.urls")),
     path("", include("features.events.urls")),
+    path("", include("features.sunday_school.urls")),
     path("", include("features.media.urls")),
 ]
 

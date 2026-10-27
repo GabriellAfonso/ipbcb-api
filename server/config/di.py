@@ -94,6 +94,13 @@ from features.schedule.repositories.schedule_repository import ScheduleRepositor
 from features.schedule.services.schedule_reminder_service import ScheduleReminderService
 from features.schedule.services.schedule_service import ScheduleService
 from features.songs.services.song_service import SongService
+from features.sunday_school.domain.scripture_index import ScriptureIndex
+from features.sunday_school.repositories.lesson_repository import (
+    SundaySchoolLessonRepositoryImpl,
+)
+from features.sunday_school.repositories.year_repository import SundaySchoolYearRepositoryImpl
+from features.sunday_school.services.management_service import SundaySchoolManagementService
+from features.sunday_school.services.reading_service import SundaySchoolReadingService
 
 
 def _media_root() -> Path:
@@ -152,6 +159,8 @@ class Container(containers.DeclarativeContainer):
             "features.members.views.admin_member_photo",
             "features.members.views.admin_member_history",
             "features.schedule.views.schedule",
+            "features.sunday_school.views.public",
+            "features.sunday_school.views.manage",
         ]
     )
 
@@ -228,6 +237,28 @@ class Container(containers.DeclarativeContainer):
     bible_progress_repository = providers.Factory(BibleProgressRepositoryImpl)
     bible_progress_service = providers.Factory(
         BibleProgressService, repository=bible_progress_repository, canon=bible_canon, clock=clock
+    )
+
+    # Sunday school lessons (specs/026-sunday-school). The scripture index is built from plain
+    # mappings the Bible repository exposes, so the feature never imports the Bible (R-02).
+    scripture_index = providers.Singleton(
+        ScriptureIndex,
+        verse_counts=bible_repository.provided.verse_counts_by_book.call(),
+        names=bible_repository.provided.book_names.call(),
+    )
+    sunday_school_year_repository = providers.Factory(SundaySchoolYearRepositoryImpl)
+    sunday_school_lesson_repository = providers.Factory(SundaySchoolLessonRepositoryImpl)
+    sunday_school_reading_service = providers.Factory(
+        SundaySchoolReadingService,
+        year_repository=sunday_school_year_repository,
+        lesson_repository=sunday_school_lesson_repository,
+        scripture=scripture_index,
+    )
+    sunday_school_management_service = providers.Factory(
+        SundaySchoolManagementService,
+        year_repository=sunday_school_year_repository,
+        lesson_repository=sunday_school_lesson_repository,
+        scripture=scripture_index,
     )
 
     # Member access and access requests (specs/022-access-requests).

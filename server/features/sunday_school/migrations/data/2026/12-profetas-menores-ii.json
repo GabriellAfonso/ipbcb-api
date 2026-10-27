@@ -1,0 +1,421 @@
+{
+  "title": "Profetas Menores II — Obadias, Jonas e Miqueias",
+  "date": null,
+  "content": {
+    "sections": [
+      {
+        "title": "O Contexto dos Profetas Menores no \"Drama das Escrituras\"",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "O Palco",
+                "text": "Ato 3 (A Redenção iniciada através da Eleição de Israel, de onde o Senhor trouxe o Salvador).",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "O Fracasso",
+                "text": "Israel falha em sua vocação de ser \"luz para as nações\" devido à idolatria e injustiça.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "A Resposta Divina",
+                "text": "Os profetas são levantados como \"promotores da aliança\". Eles agem como um contrapeso ao poder monárquico corrompido.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "A Missão",
+                "text": "Denunciar o pecado, anunciar o juízo (o Exílio) e garantir a esperança da vinda do Messias.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Autoria e Cenário (Uma Visão Comparativa)**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "Obadias",
+                "title": "O Inimigo Irmão",
+                "text": "Profetiza logo após a queda de Jerusalém (586 a.C.). Foco: Edom (descendentes de Esaú), que celebrou a ruína de Judá.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Jonas",
+                "title": "O Inimigo Distante",
+                "text": "Atua no séc. VIII a.C. Foco: Nínive (Assíria). O profeta de Israel é enviado para pregar no coração do império mais cruel da época.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Miqueias",
+                "title": "O Inimigo Interno",
+                "text": "Atua no séc. VIII a.C. em Judá. Foco: A própria elite de Israel e Judá, denunciando líderes e falsos profetas que oprimiam os pobres.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Características Literárias**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "Obadias",
+                "text": "É uma \"visão\" e o menor livro do Antigo Testamento (21 versículos). Linguagem poética forte, cheia de ironia e focada na \"retribuição\".",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Jonas",
+                "text": "Narrativa histórica e biográfica. É o único livro focado nas ações e fugas do profeta, e não apenas em seus sermões. Usa ironia contínua e termina com uma pergunta.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Miqueias",
+                "text": "Coletânea de oráculos poéticos. Utiliza o formato de um \"litígio\" (um tribunal onde Deus processa Seu povo), com lamentos, trocadilhos e hinos.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Objetivo Teológico: A Mensagem Central",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "1 · Obadias",
+                "title": "A Justiça contra o Orgulho",
+                "text": "A ordem moral do mundo pertence a Deus. A soberba e a crueldade contra o próximo jamais ficarão impunes.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "2 · Jonas",
+                "title": "A Graça Universal e Inclusiva",
+                "text": "O amor redentor de Deus não tem fronteiras e ofende o nosso nacionalismo. A graça alcança até o pior dos inimigos, se houver arrependimento.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "3 · Miqueias",
+                "title": "A Ética Pactual",
+                "text": "Deus rejeita a falsa religiosidade. Rituais e cultos são inaceitáveis se não forem acompanhados de justiça social e compaixão.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "A Estrutura dos Livros (Do Juízo à Restauração)",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Obadias**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Vv. 1-18:** O Julgamento e saque de Edom.",
+                "proof_texts": [
+                  {
+                    "printed": "Vv. 1-18",
+                    "reference": {
+                      "book": "Ob",
+                      "chapter": 1,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 18
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Vv. 19-21:** A Nova Ordem e a promessa do Reino de Deus.",
+                "proof_texts": [
+                  {
+                    "printed": "Vv. 19-21",
+                    "reference": {
+                      "book": "Ob",
+                      "chapter": 1,
+                      "verses": [
+                        {
+                          "start": 19,
+                          "end": 21
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Jonas**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Caps. 1-2:** Desobediência, tempestade e resgate de Jonas.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Caps. 3-4:** Obediência relutante, perdão de Nínive e a repreensão pedagógica de Deus ao profeta.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Miqueias** — Três ciclos que vão da queda à exaltação.",
+            "proof_texts": []
+          },
+          {
+            "type": "steps",
+            "items": [
+              {
+                "label": "Ciclo 1 · Caps. 1-2",
+                "title": "Julgamento de Samaria e Judá → Promessa de um remanescente.",
+                "text": null
+              },
+              {
+                "label": "Ciclo 2 · Caps. 3-5",
+                "title": "Ruína devido aos líderes corruptos → Promessa do Rei Messiânico de Belém.",
+                "text": null
+              },
+              {
+                "label": "Ciclo 3 · Caps. 6-7",
+                "title": "Litígio (tribunal) de Deus contra o povo → Lamento e Hino final celebrando o perdão.",
+                "text": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Verdades Teológicas",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "Obadias (Providência)",
+                "text": "A Lei da Retribuição (\"o que você fez, lhe será feito\"). Deus é soberano e responsabiliza todas as nações da terra.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Jonas (Soberania e Teodiceia)",
+                "text": "Deus tem soberania criacional absoluta (controla o mar, o peixe, a planta e o verme). O livro contrasta a justiça que desejamos aos outros com a misericórdia que queremos para nós.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Miqueias (Inviolabilidade da Aliança)",
+                "text": "Pecados econômicos e corrupção estrutural atraem o juízo de Deus tanto quanto a idolatria. A fé exige coerência moral.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Cristologia: Jesus no Centro**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "Em Obadias",
+                "text": "Prefigura Cristo como o Juiz Escatológico definitivo, Aquele que estabelecerá eternamente o Reino de Deus.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Em Jonas",
+                "text": "O \"Sinal de Jonas\" aponta para a Morte e Ressurreição de Cristo ao terceiro dia. Ambos ofereceram suas vidas como sacrifício vicário para salvar outros.",
+                "proof_texts": [
+                  {
+                    "printed": "Mt 12.39-41",
+                    "reference": {
+                      "book": "Mt",
+                      "chapter": 12,
+                      "verses": [
+                        {
+                          "start": 39,
+                          "end": 41
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Em Miqueias",
+                "text": "A profecia direta de Miqueias 5:2. Revela a humanidade obscura de Cristo (nascido em Belém) e Sua eterna Divindade (\"origens desde a eternidade\").",
+                "proof_texts": [
+                  {
+                    "printed": "Miqueias 5:2",
+                    "reference": {
+                      "book": "Mq",
+                      "chapter": 5,
+                      "verses": [
+                        {
+                          "start": 2,
+                          "end": 2
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Versículos-Chave",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "key_verse",
+            "label": "Obadias",
+            "text": "\"Porque o Dia do Senhor está prestes a vir sobre todas as nações. Como você fez, assim lhe será feito; o seu feito tornará sobre a sua cabeça.\"",
+            "proof": {
+              "printed": "Obadias 15",
+              "reference": {
+                "book": "Ob",
+                "chapter": 1,
+                "verses": [
+                  {
+                    "start": 15,
+                    "end": 15
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Jonas",
+            "text": "\"...pois sabia que és Deus clemente, e misericordioso, e tardio em irar-se, e grande em benignidade, e que te arrependes do mal.\"",
+            "proof": {
+              "printed": "Jonas 4:2",
+              "reference": {
+                "book": "Jn",
+                "chapter": 4,
+                "verses": [
+                  {
+                    "start": 2,
+                    "end": 2
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Miqueias",
+            "text": "\"Ele já mostrou a você, ó homem, o que é bom; e o que o Senhor pede de você? Que pratique a justiça, ame a misericórdia e ande humildemente com o seu Deus.\"",
+            "proof": {
+              "printed": "Miqueias 6:8",
+              "reference": {
+                "book": "Mq",
+                "chapter": 6,
+                "verses": [
+                  {
+                    "start": 8,
+                    "end": 8
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "title": "Desafio Devocional para a Igreja",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": "heart",
+                "label": null,
+                "title": "Leia Obadias",
+                "text": "Para curar seu coração do orgulho. Ele nos lembra que a justiça pertence a Deus e que não devemos nos alegrar com a ruína alheia.",
+                "proof_texts": []
+              },
+              {
+                "icon": "bird",
+                "label": null,
+                "title": "Leia Jonas",
+                "text": "Para quebrar seus preconceitos. O livro nos constrange a sair do nosso partidarismo e amar pessoas que consideramos \"indignas\" da graça.",
+                "proof_texts": []
+              },
+              {
+                "icon": "scales",
+                "label": null,
+                "title": "Leia Miqueias",
+                "text": "Para alinhar sua adoração com suas ações. O culto de domingo é vazio se, de segunda a sábado, oprimimos nosso próximo e vivemos sem ética.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

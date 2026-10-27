@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     "features.bible",
     "features.doctrine",
     "features.events",
+    "features.sunday_school",
 ]
 
 MIDDLEWARE = [
