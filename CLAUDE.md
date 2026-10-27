@@ -131,6 +131,26 @@ specs/                          # project root, outside server/
 - spec.md describes what exists today — complete and accurate
 - tasks.md lists only what's missing or broken compared to spec
 - plan.md reflects decisions already made in the code, not hypothetical ones
+
+### 6.6 Saving a specify prompt from a design conversation
+
+When the user and Claude design a feature in conversation and the user asks to save the specify ("guarda o
+specify"), Claude writes the prompt to a file and does **not** run `/speckit-specify`:
+
+- **Where:** `../TODO/` (the `TODO/` folder next to `app/` and `backend/`, shared by both repos). One file per
+  side: `specify_<topic>_backend.md` / `specify_<topic>_app.md`.
+- **Header (Portuguese):** title, how to use it (`/speckit-specify` with the text after the `---` line), the
+  matching file for the other side, and the **decision conversation**: its session ID and transcript path
+  `~/.claude/projects/<project-folder>/<session-id>.jsonl`. The current session ID is the last folder of the
+  scratchpad directory path.
+- **Body (English, after `---`):** very descriptive. Read the current code first and describe the current state,
+  what to build, **every decision taken with its reason**, what is out of scope, and open decisions (ideally
+  none). Nothing decided in the conversation may be left implicit.
+
+**Claude executing a saved specify:** before asking the user anything, open the linked transcript (search it
+for the topic) and check whether the question was already decided there. Only ask what the conversation did not
+settle.
+
 ---
 
 ## 7. Project-Specific Notes
@@ -185,5 +205,5 @@ specs/                          # project root, outside server/
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at `specs/022-access-requests/plan.md`
+at `specs/023-gallery-videos/plan.md`
 <!-- SPECKIT END -->
