@@ -39,7 +39,7 @@ def read_lessons(directory: Path) -> list[LessonFileDTO]:
     """Every lesson file of ``directory``, in file-name order.
 
     >>> [lesson.title for lesson in read_lessons(LESSON_DATA_DIR / "2026")][:2]
-    ['Josué e a conquista da terra', 'O Resgate na História da Redenção — O Livro de Rute']
+    ['Josué', 'Rute']
     """
     paths = sorted(path for path in directory.glob("*.json") if path.name != "year.json")
     return [LessonFileDTO.model_validate(_json(path)) for path in paths]

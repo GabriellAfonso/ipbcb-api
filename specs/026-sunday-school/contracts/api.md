@@ -27,7 +27,7 @@ No published lesson at all: `{"years": [], "default_year": null, "year": null, "
 
 ```json
 {
-  "id": 11, "title": "Panorama de Daniel", "date": "2026-08-16", "teacher": "", "position": 10,
+  "id": 11, "title": "Daniel", "date": "2026-08-16", "teacher": "", "position": 10,
   "status": "published",
   "year": {"year": 2026, "theme": "O Drama das Escrituras"},
   "content": {"sections": [{"title": "Contexto no Drama das Escrituras", "icon": "hourglass",

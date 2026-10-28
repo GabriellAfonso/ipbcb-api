@@ -71,7 +71,7 @@ whole chapter) or `null` when the passage cannot be pinned.
 ### User Story 1 - Anyone reads this year's lessons (Priority: P1)
 
 A member opens Estudos → Escola Bíblica Dominical without signing in. The app shows "2026 — O Drama
-das Escrituras" with its 18 lessons in Bible order; tapping "Panorama de Daniel" shows its sections
+das Escrituras" with its 18 lessons in Bible order; tapping "Daniel" shows its sections
 with icons, key verses as cards with tappable references, and the Daniel timeline.
 
 **Why this priority**: this is what replaces the PDFs on WhatsApp; it is the whole value for the
@@ -198,10 +198,12 @@ and expect the rows gone.
 **Acceptance Scenarios**:
 
 1. **Given** an empty database, **When** migrations run, **Then** year 2026 exists with theme "O
-   Drama das Escrituras" and 18 published lessons in this order: Josué, Rute, 2 Samuel, 1 Reis,
-   2 Reis, 2 Crônicas, Salmos, Provérbios, Isaías, Ezequiel, Daniel, Profetas Menores II, Profetas
-   Menores III, Profetas Menores IV, Período Intertestamentário, Ato 4 — O Rei Chegou, Mateus,
-   Marcos.
+   Drama das Escrituras" and 18 published lessons in this order, titled exactly: Josué, Rute,
+   2 Samuel, 1 Reis, 2 Reis, 2 Crônicas, Salmos, Provérbios, Isaías, Ezequiel, Daniel, "Obadias,
+   Jonas e Miqueias", "Naum, Habacuque e Sofonias", "Ageu, Zacarias e Malaquias", O Período
+   Intertestamentário, Ato 4 — O Rei Chegou, Mateus, Marcos. A lesson's title is the name of the
+   Bible book (or books, joined with commas and "e") it covers; only the two lessons that cover no
+   single book keep a descriptive title.
 2. **Then** dates are set only for 2 Samuel (2026-05-17), 1 Reis (05-24), 2 Reis (05-31),
    2 Crônicas (06-14), Salmos (07-05), Provérbios (07-12), Isaías (07-26), Ezequiel (08-09) and
    Daniel (08-16); every other lesson has no date. No lesson has a teacher or an author.
@@ -324,7 +326,7 @@ GET api/sunday-school/lessons/<id>/    one published lesson
   "years": [{"year": 2026, "theme": "O Drama das Escrituras"}],
   "default_year": 2026,
   "year": {"year": 2026, "theme": "O Drama das Escrituras"},
-  "lessons": [{"id": 11, "title": "Panorama de Daniel", "date": "2026-08-16", "teacher": "", "position": 10}]
+  "lessons": [{"id": 11, "title": "Daniel", "date": "2026-08-16", "teacher": "", "position": 10}]
 }
 ```
 

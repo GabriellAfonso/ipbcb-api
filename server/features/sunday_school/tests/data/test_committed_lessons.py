@@ -18,6 +18,8 @@ from features.sunday_school.lesson_files import LESSON_DATA_DIR, read_lessons, r
 BIBLE_DATA_FILES = sorted((Path(__file__).resolve().parents[3] / "bible" / "data").glob("*.json"))
 LESSONS = read_lessons(LESSON_DATA_DIR / "2026")
 
+# Exact titles: the name of the Bible book (or books) each lesson covers; only the two lessons that
+# cover no single book keep a descriptive title.
 EXPECTED_ORDER = [
     "Josué",
     "Rute",
@@ -30,11 +32,11 @@ EXPECTED_ORDER = [
     "Isaías",
     "Ezequiel",
     "Daniel",
-    "Profetas Menores II",
-    "Profetas Menores III",
-    "Profetas Menores IV",
-    "Período Intertestamentário",
-    "Ato 4",
+    "Obadias, Jonas e Miqueias",
+    "Naum, Habacuque e Sofonias",
+    "Ageu, Zacarias e Malaquias",
+    "O Período Intertestamentário",
+    "Ato 4 — O Rei Chegou",
     "Mateus",
     "Marcos",
 ]
@@ -76,9 +78,7 @@ def test_year_and_theme() -> None:
 
 
 def test_eighteen_lessons_in_bible_order() -> None:
-    assert len(LESSONS) == 18
-    for lesson, expected in zip(LESSONS, EXPECTED_ORDER):
-        assert expected in lesson.title
+    assert [lesson.title for lesson in LESSONS] == EXPECTED_ORDER
 
 
 def test_only_official_dates() -> None:
