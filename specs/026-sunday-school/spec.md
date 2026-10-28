@@ -201,7 +201,7 @@ and expect the rows gone.
    Drama das Escrituras" and 18 published lessons in this order, titled exactly: Josué, Rute,
    2 Samuel, 1 Reis, 2 Reis, 2 Crônicas, Salmos, Provérbios, Isaías, Ezequiel, Daniel, "Obadias,
    Jonas e Miqueias", "Naum, Habacuque e Sofonias", "Ageu, Zacarias e Malaquias", O Período
-   Intertestamentário, Ato 4 — O Rei Chegou, Mateus, Marcos. A lesson's title is the name of the
+   Intertestamentário, O Rei Chegou, Mateus, Marcos. A lesson's title is the name of the
    Bible book (or books, joined with commas and "e") it covers; only the two lessons that cover no
    single book keep a descriptive title.
 2. **Then** dates are set only for 2 Samuel (2026-05-17), 1 Reis (05-24), 2 Reis (05-31),

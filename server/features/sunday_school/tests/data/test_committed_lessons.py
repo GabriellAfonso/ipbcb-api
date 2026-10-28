@@ -36,7 +36,7 @@ EXPECTED_ORDER = [
     "Naum, Habacuque e Sofonias",
     "Ageu, Zacarias e Malaquias",
     "O Período Intertestamentário",
-    "Ato 4 — O Rei Chegou",
+    "O Rei Chegou",
     "Mateus",
     "Marcos",
 ]
