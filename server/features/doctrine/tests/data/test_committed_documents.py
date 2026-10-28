@@ -1,7 +1,8 @@
-"""Checks on the committed doctrine files that startup deliberately doesn't do (spec FR-013,
-research R-03): per-document counts, the Confession 1.2 shape and the Bible references.
+"""Checks on the frozen files the load migration stores (specs/027-doctrine-database FR-014) that
+the loader deliberately doesn't do: per-document counts, the Confession 1.2 shape and the Bible
+references (specs/019-doctrine-documents FR-013, research R-03).
 
-The files are produced outside the repository and reviewed by a person. A failure here is
+The files were produced outside the repository and reviewed by a person. A failure here is
 reported to that person; it is never fixed by loosening a test."""
 
 from collections.abc import Iterator
@@ -22,11 +23,9 @@ SHORTER = "westminster-shorter-catechism"
 LARGER = "westminster-larger-catechism"
 CONFESSION = "westminster-confession-of-faith"
 EXPECTED_ITEM_COUNTS = {SHORTER: 107, LARGER: 196, CONFESSION: 33}
-
-pytestmark = pytest.mark.skipif(
-    not any(DOCTRINE_DATA_DIR.glob("*.json")),
-    reason="features/doctrine/data has no .json yet; the reviewed files are added separately",
-)
+# Cross-references to another question, not Bible passages (spec rule 4); every other proof text
+# was resolved when the proof texts were fixed (commits 342ff86, f3b7027).
+EXPECTED_UNRESOLVED = {f"{LARGER} Q153", f"{LARGER} Q163"}
 
 
 @pytest.fixture(scope="module")
@@ -118,3 +117,9 @@ class TestBibleReferences:
             if proof.reference and (reason := verse_index.missing_verses(proof.reference))
         ]
         assert offenders == [], "References that don't exist:\n" + "\n".join(offenders)
+
+    def test_only_the_known_cross_references_are_unresolved(
+        self, documents: dict[str, DoctrineDocument]
+    ) -> None:
+        unresolved = [label for label, proof in _proof_texts(documents) if proof.reference is None]
+        assert sorted(unresolved) == sorted(EXPECTED_UNRESOLVED)

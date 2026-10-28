@@ -36,5 +36,10 @@ def _summarize(document: DoctrineDocument) -> DoctrineDocumentSummary:
     else:
         item_count = len(document.chapters)
     return DoctrineDocumentSummary(
-        slug=document.slug, title=document.title, kind=document.kind, item_count=item_count
+        slug=document.slug,
+        title=document.title,
+        kind=document.kind,
+        edition=document.edition,
+        year=document.year,
+        item_count=item_count,
     )

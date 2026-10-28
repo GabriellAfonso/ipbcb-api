@@ -1,9 +1,11 @@
 import json
 
 import pytest
+from django.contrib import admin
 from rest_framework.response import Response
 from rest_framework.test import APIClient
 
+from features.doctrine.models import DoctrineStandard
 from features.doctrine.tests.fixture_dirs import read_document, write_document
 from features.doctrine.tests.integration.conftest import ServedFixtureDocuments
 
@@ -11,6 +13,8 @@ LIST_URL = "/api/doctrine/"
 DETAIL_URL = "/api/doctrine/{slug}/"
 CATECHISM = "tiny-catechism"
 CONFESSION = "tiny-confession"
+# Imported documents have no edition or year yet (specs/027-doctrine-database FR-012).
+UNKNOWN_SOURCE = {"edition": None, "year": None}
 
 
 def _get(url: str, etag: str | None = None) -> Response:
@@ -40,7 +44,7 @@ class TestCatechismDetail:
 
     def test_body_is_the_document_as_stored(self, fixture_doctrine: ServedFixtureDocuments) -> None:
         stored = read_document(fixture_doctrine.data_dir, f"{CATECHISM}.json")
-        assert _body(_get(DETAIL_URL.format(slug=CATECHISM))) == stored
+        assert _body(_get(DETAIL_URL.format(slug=CATECHISM))) == {**stored, **UNKNOWN_SOURCE}
 
     def test_uninterpreted_reference_stays_null(self) -> None:
         questions = _body(_get(DETAIL_URL.format(slug=CATECHISM)))["questions"]
@@ -101,12 +105,14 @@ class TestDocumentList:
                     "slug": CATECHISM,
                     "title": "Catecismo de Teste",
                     "kind": "catechism",
+                    **UNKNOWN_SOURCE,
                     "item_count": 2,
                 },
                 {
                     "slug": CONFESSION,
                     "title": "Confissão de Teste",
                     "kind": "confession",
+                    **UNKNOWN_SOURCE,
                     "item_count": 2,
                 },
             ]
@@ -170,3 +176,29 @@ class TestConditionalGet:
         questions[0]["answer"] = questions[0]["answer"].replace("sempre", "sempre!")
         write_document(fixture_doctrine.data_dir, f"{CATECHISM}.json", body)
         fixture_doctrine.reload()
+
+
+@pytest.mark.usefixtures("fixture_doctrine")
+class TestReadOnly:
+    @pytest.mark.parametrize("method", ["put", "patch", "delete"])
+    def test_detail_rejects_writes(self, method: str) -> None:
+        response = getattr(APIClient(), method)(DETAIL_URL.format(slug=CATECHISM))
+        assert response.status_code == 405
+
+    def test_list_rejects_post(self) -> None:
+        assert APIClient().post(LIST_URL).status_code == 405
+
+    def test_admin_offers_no_doctrine_model(self) -> None:
+        assert not admin.site.is_registered(DoctrineStandard)
+
+
+@pytest.mark.usefixtures("fixture_doctrine")
+class TestEditionAndYear:
+    def test_known_source_is_served_in_list_and_detail(self) -> None:
+        DoctrineStandard.objects.filter(slug=CATECHISM).update(edition="Edição IPB", year=1647)
+        source = {"edition": "Edição IPB", "year": 1647}
+        documents = _body(_get(LIST_URL))["documents"]
+        assert isinstance(documents, list)
+        assert {key: documents[0][key] for key in source} == source
+        detail = _body(_get(DETAIL_URL.format(slug=CATECHISM)))
+        assert {key: detail[key] for key in source} == source

@@ -1,8 +1,10 @@
-"""Reads and validates the doctrine data files.
+"""Reads and validates doctrine document files.
 
-The committed JSON files are the source of truth (specs/019-doctrine-documents, FR-011) and are
-edited by hand, so every rule a hand edit can break is checked here, at startup, with a message
-that names the file, the field and the offending value (FR-012).
+The documents live in the database (specs/027-doctrine-database). These files are the frozen input
+of the data migrations that load them: every rule a hand edit can break is checked here, before
+anything is written, with a message that names the file, the field and the offending value
+(specs/019-doctrine-documents FR-012). A correction is a new file set and a new migration; the
+files of an applied migration never change.
 """
 
 import re
@@ -12,15 +14,15 @@ from pydantic import TypeAdapter, ValidationError
 
 from features.doctrine.dtos import CatechismDocument, DoctrineDocument
 
-DOCTRINE_DATA_DIR = Path(__file__).parent / "data"
+DOCTRINE_DATA_DIR = Path(__file__).parent / "migrations" / "data"
 
 _SLUG_PATTERN = re.compile(r"[a-z0-9]+(-[a-z0-9]+)*")
 _DOCUMENT_ADAPTER: TypeAdapter[DoctrineDocument] = TypeAdapter(DoctrineDocument)
 
 
 class DoctrineDataError(ValueError):
-    """A data file breaks a doctrine data rule. Raised only while loading at startup; it never
-    reaches an HTTP response."""
+    """A data file breaks a doctrine data rule. Raised only while a data migration loads the
+    files, so it stops ``migrate``; it never reaches an HTTP response."""
 
 
 def load_doctrine_documents(data_dir: Path) -> list[DoctrineDocument]:
@@ -32,6 +34,20 @@ def load_doctrine_documents(data_dir: Path) -> list[DoctrineDocument]:
     documents = [_load_document(path) for path in sorted(data_dir.glob("*.json"))]
     _require_unique_positions(documents)
     return sorted(documents, key=lambda document: document.position)
+
+
+def stored_content(document: DoctrineDocument) -> list[object]:
+    """The ``questions`` or ``chapters`` list as stored in ``DoctrineStandard.content``.
+
+    ``exclude_unset`` keeps a paragraph without a list free of ``lists``/``text_after`` while an
+    explicit ``"reference": null`` stays (specs/027-doctrine-database R-02).
+
+    >>> stored_content(shorter_catechism)[0]["number"]
+    1
+    """
+    dumped = document.model_dump(mode="json", exclude_unset=True)
+    items: list[object] = dumped["questions" if document.kind == "catechism" else "chapters"]
+    return items
 
 
 def _load_document(path: Path) -> DoctrineDocument:

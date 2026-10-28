@@ -23,15 +23,25 @@ class TestListDocuments:
                 "slug": "tiny-catechism",
                 "title": "Catecismo de Teste",
                 "kind": "catechism",
+                "edition": None,
+                "year": None,
                 "item_count": 2,
             },
             {
                 "slug": "tiny-confession",
                 "title": "Confissão de Teste",
                 "kind": "confession",
+                "edition": None,
+                "year": None,
                 "item_count": 2,
             },
         ]
+
+    def test_summary_carries_edition_and_year(self) -> None:
+        documents = load_doctrine_documents(Path(FIXTURES_DIR / "valid"))
+        known = documents[0].model_copy(update={"edition": "Edição IPB", "year": 1647})
+        summary = DoctrineService(FakeDoctrineRepository([known])).list_documents()[0]
+        assert (summary.edition, summary.year) == ("Edição IPB", 1647)
 
     def test_empty_repository_lists_nothing(self) -> None:
         assert DoctrineService(FakeDoctrineRepository([])).list_documents() == []

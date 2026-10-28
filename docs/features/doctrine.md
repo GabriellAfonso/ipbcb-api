@@ -27,13 +27,16 @@ GET    api/doctrine/{slug}/
 
 ## Atenção
 
-- Não tem banco de dados: cada documento é um arquivo
-  `server/features/doctrine/data/{slug}.json`, e esse arquivo é a fonte de verdade. Ele é gerado a
-  partir dos PDFs da IPB fora do repositório e revisado por uma pessoa antes do commit. Corrigir um
-  texto é editar o JSON e fazer deploy.
-- O servidor não sobe se um arquivo estiver inválido (numeração com buraco, texto vazio, slug
-  diferente do nome do arquivo). Os testes conferem também as contagens 107 / 196 / 33 e se cada
-  referência existe em todas as versões da Bíblia.
+- Cada documento é uma linha da tabela `DoctrineStandard`; as perguntas ou capítulos ficam num
+  único JSON. Ninguém edita: não há endpoint de escrita e o modelo não aparece no admin.
+- A carga vem de uma data migration (`0002_load_westminster_standards`) que lê os arquivos
+  congelados em `server/features/doctrine/migrations/data/`. Corrigir um texto ou acrescentar um
+  documento é uma **nova** data migration; os arquivos de uma migration aplicada nunca mudam.
+- O `migrate` falha (e nada é carregado) se um arquivo estiver inválido (numeração com buraco,
+  texto vazio, slug diferente do nome do arquivo). Os testes conferem também as contagens
+  107 / 196 / 33 e se cada referência existe em todas as versões da Bíblia.
+- `edition` e `year` existem mas estão vazios (`null`): só serão preenchidos com dados do site da
+  IPB.
 - O livro da referência estruturada usa a abreviação do domínio Bíblia: 1 Timóteo é `1Tn`, mesmo
   quando o texto impresso diz `1Tm`.
 - O app revalida com `ETag`: uma correção chega ao celular sem nova versão do app.

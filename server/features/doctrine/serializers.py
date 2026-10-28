@@ -50,7 +50,16 @@ class ConfessionChapterSerializer(serializers.Serializer[object]):
     paragraphs = ConfessionParagraphSerializer(many=True)
 
 
-class CatechismDocumentSerializer(serializers.Serializer[object]):
+class DocumentSourceSerializer(serializers.Serializer[object]):
+    """``edition`` and ``year``, shared by the list entry and both document shapes."""
+
+    edition = serializers.CharField(
+        allow_null=True, help_text="Source of the text; null if unknown."
+    )
+    year = serializers.IntegerField(allow_null=True, help_text="e.g. 1647; null if unknown.")
+
+
+class CatechismDocumentSerializer(DocumentSourceSerializer):
     slug = serializers.CharField()
     title = serializers.CharField()
     kind = serializers.ChoiceField(choices=["catechism"])
@@ -58,7 +67,7 @@ class CatechismDocumentSerializer(serializers.Serializer[object]):
     questions = CatechismQuestionSerializer(many=True)
 
 
-class ConfessionDocumentSerializer(serializers.Serializer[object]):
+class ConfessionDocumentSerializer(DocumentSourceSerializer):
     slug = serializers.CharField()
     title = serializers.CharField()
     kind = serializers.ChoiceField(choices=["confession"])
@@ -66,7 +75,7 @@ class ConfessionDocumentSerializer(serializers.Serializer[object]):
     chapters = ConfessionChapterSerializer(many=True)
 
 
-class DoctrineDocumentSummarySerializer(serializers.Serializer[object]):
+class DoctrineDocumentSummarySerializer(DocumentSourceSerializer):
     slug = serializers.CharField()
     title = serializers.CharField()
     kind = serializers.ChoiceField(choices=["catechism", "confession"])

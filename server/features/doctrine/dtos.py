@@ -96,6 +96,9 @@ class CatechismDocument(StrictBaseModel):
     title: _NonBlankText
     kind: Literal["catechism"]
     position: int
+    # Optional and unknown today (specs/027-doctrine-database FR-012); the frozen files omit them.
+    edition: str | None = None
+    year: int | None = None
     questions: list[CatechismQuestion]
 
     def item_numbers(self) -> list[int]:
@@ -114,6 +117,8 @@ class ConfessionDocument(StrictBaseModel):
     title: _NonBlankText
     kind: Literal["confession"]
     position: int
+    edition: str | None = None
+    year: int | None = None
     chapters: list[ConfessionChapter]
 
     def item_numbers(self) -> list[int]:
@@ -134,4 +139,6 @@ class DoctrineDocumentSummary(StrictBaseModel):
     slug: str
     title: str
     kind: Literal["catechism", "confession"]
+    edition: str | None
+    year: int | None
     item_count: int
