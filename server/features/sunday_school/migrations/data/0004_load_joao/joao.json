@@ -1,0 +1,458 @@
+{
+  "title": "João",
+  "date": "2026-11-01",
+  "teacher": "Jean Monjardim",
+  "content": {
+    "sections": [
+      {
+        "title": "Contexto do Livro na História da Bíblia",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Posição na Grande História da Bíblia**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "Ato 4",
+                "title": "Redenção",
+                "text": "O livro mostra a chegada de Jesus para salvar o seu povo.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Conexão com o Ato 1",
+                "title": "Criação",
+                "text": "Começa com \"No princípio\", mostrando que Jesus (a Palavra) é o mesmo Deus que criou o universo e agora traz a salvação.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Preparação para o Ato 5",
+                "title": "Missão da Igreja",
+                "text": "Prepara os discípulos para a vinda do Espírito Santo e para o anúncio do Evangelho pelo mundo.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Autoria**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "Escrito pelo apóstolo João, filho de Zebedeu (identificado no texto como \"o discípulo a quem Jesus amava\").",
+                "proof_texts": []
+              },
+              {
+                "text": "Ele foi testemunha ocular dos fatos e conhecia profundamente a geografia e os costumes judaicos da época.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Data e Contexto Histórico**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "Data",
+                "text": "Escrito por volta de 90 d.C., no final da vida de João.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Comprovação histórica",
+                "text": "Descobertas arqueológicas (como o Papiro Rylands, de 125 d.C.).",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Problemas enfrentados na época",
+                "text": "Oposição de judeus que consideravam blasfêmia afirmar que Jesus é Deus. Início de falsos ensinos (dualismo/gnosticismo) que diziam que o mundo material e o corpo físico eram maus.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Estilo do Livro:** não é apenas um relato histórico, mas uma explicação teológica sobre quem é Jesus.",
+            "proof_texts": []
+          },
+          {
+            "type": "comparison",
+            "items": [
+              {
+                "label": "O que não enfatiza",
+                "title": "Parábolas e relatos de expulsão de demônios.",
+                "text": null,
+                "highlight": false
+              },
+              {
+                "label": "O que destaca",
+                "title": "Ênfase nos sinais milagrosos realizados por Jesus.",
+                "text": "Discursos longos, conversas individuais (como com Nicodemos), contrastes diretos (luz e trevas, vida e morte, verdade e mentira) e foco na última semana de Jesus (cerca de 40% do livro).",
+                "highlight": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Objetivo Teológico Principal do Livro",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "A mensagem central que guia todo o evangelho de João é a revelação incontestável da identidade de Jesus como o Verbo encarnado e a necessidade absoluta da fé Nele para a salvação. O objetivo central, definido explicitamente pelo autor, é fornecer um testemunho que produza e sustente a fé de que Jesus é o Cristo, o Filho de Deus, provando que Ele é simultaneamente igual ao Pai na deidade e o Servo humano perfeito que cumpre toda a vontade redentora divina.",
+            "proof_texts": []
+          }
+        ]
+      },
+      {
+        "title": "Estrutura do Livro (Divisão em 4 Partes)",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "I · 1.1–18",
+                "title": "Introdução / Prólogo",
+                "text": "Apresenta Jesus como a Palavra eterna de Deus, o Criador de tudo, que se tornou um ser humano e viveu entre nós.",
+                "proof_texts": [
+                  {
+                    "printed": "1.1–18",
+                    "reference": {
+                      "book": "Jo",
+                      "chapter": 1,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 18
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "II · 1.19–12.50",
+                "title": "O Livro dos Sinais — Ministério Público",
+                "text": "Relata sete milagres (sinais) de Jesus (como transformar água em vinho, curar um cego de nascença e ressuscitar Lázaro). Inclui grandes discursos e as declarações \"Eu Sou\" durante as festas judaicas. Mostra a divisão do povo: alguns creem, mas os líderes religiosos o rejeitam cada vez mais.",
+                "proof_texts": [
+                  {
+                    "printed": "1.19–12.50",
+                    "reference": {
+                      "book": "Jo",
+                      "chapter": 1,
+                      "verses": [
+                        {
+                          "start": 19,
+                          "end": 51
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "III · Caps. 13–20",
+                "title": "O Livro da Glória — Ministério Privado, Cruz e Ressurreição",
+                "text": "**Ensino aos discípulos (Caps. 13–17):** Jesus prepara os discípulos para sua partida, promete o Espírito Santo e ora por eles. **Morte e Ressurreição (Caps. 18–20):** relata a prisão, crucificação e ressurreição de Jesus, encerrando com a declaração de fé de Tomé.",
+                "proof_texts": [
+                  {
+                    "printed": "Caps. 13–17",
+                    "reference": {
+                      "book": "Jo",
+                      "chapter": 13,
+                      "verses": []
+                    }
+                  },
+                  {
+                    "printed": "Caps. 18–20",
+                    "reference": {
+                      "book": "Jo",
+                      "chapter": 18,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "IV · 21.1–25",
+                "title": "Conclusão / Epílogo",
+                "text": "Jesus ressuscitado aparece na Galileia, restaura Pedro após sua negação e ordena que os discípulos cuidem da Igreja.",
+                "proof_texts": [
+                  {
+                    "printed": "21.1–25",
+                    "reference": {
+                      "book": "Jo",
+                      "chapter": 21,
+                      "verses": [
+                        {
+                          "start": 1,
+                          "end": 25
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Principais Ensinamentos Teológicos",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Quem é Jesus (Cristologia e os \"Eu Sou\")**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "Jesus cumpre tudo o que o Antigo Testamento apontava (o templo, o maná, o cordeiro do sacrifício).",
+                "proof_texts": []
+              },
+              {
+                "text": "Ele afirma ser o próprio Deus de Israel ao usar sete vezes a expressão \"Eu Sou\":",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "list",
+            "style": "numbered",
+            "items": [
+              {
+                "text": "O Pão da Vida",
+                "proof_texts": []
+              },
+              {
+                "text": "A Luz do Mundo",
+                "proof_texts": []
+              },
+              {
+                "text": "A Porta das Ovelhas",
+                "proof_texts": []
+              },
+              {
+                "text": "O Bom Pastor",
+                "proof_texts": []
+              },
+              {
+                "text": "A Ressurreição e a Vida",
+                "proof_texts": []
+              },
+              {
+                "text": "O Caminho, a Verdade e a Vida",
+                "proof_texts": []
+              },
+              {
+                "text": "A Videira Verdadeira",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "A Soberania de Deus na Salvação",
+                "text": "O ser humano depende totalmente da graça de Deus para ser salvo. O novo nascimento é obra exclusiva do Espírito Santo, não do esforço humano. Deus Pai atrai o pecador e o entrega a Jesus; Jesus dá a vida eterna e garante que ninguém perderá essa salvação.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "O Que é a Fé Verdadeira",
+                "text": "A fé verdadeira não se baseia apenas em ver milagres. Crer de verdade é confiar e obedecer à pessoa e à Palavra de Jesus, mesmo sem ver sinais físicos, mas acreditando que Ele os realizou para anunciar a chegada do Reino de Deus.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "A Encarnação Real de Jesus",
+                "text": "Contra a ideia de que o corpo físico é mau, João afirma que Jesus teve um corpo humano real (\"se fez carne\") e ressuscitou fisicamente. Isso mostra que Deus valoriza a criação.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Versículos-Chave para Memorização e Leitura",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "key_verse",
+            "label": "Propósito do livro",
+            "text": "\"Para que creiais que Jesus é o Cristo, o Filho de Deus, e para que, crendo, tenhais vida em seu nome.\"",
+            "proof": {
+              "printed": "João 20.31",
+              "reference": {
+                "book": "Jo",
+                "chapter": 20,
+                "verses": [
+                  {
+                    "start": 31,
+                    "end": 31
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Criação e Encarnação (resumo)",
+            "text": "A Palavra estava com Deus, era Deus, criou tudo e \"se fez carne e habitou entre nós\".",
+            "proof": {
+              "printed": "João 1.1, 14",
+              "reference": {
+                "book": "Jo",
+                "chapter": 1,
+                "verses": [
+                  {
+                    "start": 1,
+                    "end": 1
+                  },
+                  {
+                    "start": 14,
+                    "end": 14
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Segurança da Salvação",
+            "text": "\"Ninguém pode arrebatá-las da sua mão e da mão de seu Pai.\"",
+            "proof": {
+              "printed": "João 10.28–29",
+              "reference": {
+                "book": "Jo",
+                "chapter": 10,
+                "verses": [
+                  {
+                    "start": 28,
+                    "end": 29
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Segurança da Salvação",
+            "text": "Os que creem \"não entram em juízo, mas passaram da morte para a vida\".",
+            "proof": {
+              "printed": "João 5.24",
+              "reference": {
+                "book": "Jo",
+                "chapter": 5,
+                "verses": [
+                  {
+                    "start": 24,
+                    "end": 24
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "A Fé na Palavra",
+            "text": "\"Bem-aventurados os que não viram e, no entanto, creram.\"",
+            "proof": {
+              "printed": "João 20.29",
+              "reference": {
+                "book": "Jo",
+                "chapter": 20,
+                "verses": [
+                  {
+                    "start": 29,
+                    "end": 29
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "title": "Aplicação Prática: Incentivo à Leitura Diária",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Por que ler o Evangelho de João na sua devocional?**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": "heart",
+                "label": null,
+                "title": "Conhecer a Deus",
+                "text": "O livro revela de forma direta o amor de Deus pela Igreja e registra a própria oração de Jesus por nós (capítulo 17).",
+                "proof_texts": [
+                  {
+                    "printed": "capítulo 17",
+                    "reference": {
+                      "book": "Jo",
+                      "chapter": 17,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": "plant",
+                "label": null,
+                "title": "Fortalecer a fé no dia a dia",
+                "text": "Ele nos ensina que a vida cristã firme não depende de ver milagres todos os dias, mas de confiar nas palavras e promessas de Jesus, o filho de Deus, que realizou muitos sinais para que crêssemos nele.",
+                "proof_texts": []
+              },
+              {
+                "icon": "shield",
+                "label": null,
+                "title": "Segurança espiritual",
+                "text": "Ler João nos ajuda a abandonar o pecado, confiar no cuidado de Cristo e ter a certeza de que, por meio Dele, já temos a vida eterna.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
