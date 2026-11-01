@@ -17,6 +17,9 @@ from features.sunday_school.lesson_files import LESSON_DATA_DIR, read_lessons, r
 
 BIBLE_DATA_FILES = sorted((Path(__file__).resolve().parents[3] / "bible" / "data").glob("*.json"))
 LESSONS = read_lessons(LESSON_DATA_DIR / "2026")
+# Lessons that arrived after the 2026 load ran in production, each in its own migration's folder.
+LATER_LESSONS = read_lessons(LESSON_DATA_DIR / "0003_load_oseias_joel_amos")
+ALL_LESSONS = LESSONS + LATER_LESSONS
 
 # Exact titles: the name of the Bible book (or books) each lesson covers; only the two lessons that
 # cover no single book keep a descriptive title.
@@ -81,6 +84,12 @@ def test_eighteen_lessons_in_bible_order() -> None:
     assert [lesson.title for lesson in LESSONS] == EXPECTED_ORDER
 
 
+def test_later_lessons_dates_and_teachers() -> None:
+    assert [(lesson.title, lesson.date, lesson.teacher) for lesson in LATER_LESSONS] == [
+        ("Oseias, Joel e Amós", None, ""),
+    ]
+
+
 def test_only_official_dates() -> None:
     dates = {
         name: lesson.date
@@ -94,7 +103,7 @@ def test_only_official_dates() -> None:
 def test_every_section_has_an_icon() -> None:
     missing = [
         (lesson.title, section.title)
-        for lesson in LESSONS
+        for lesson in ALL_LESSONS
         for section in lesson.content.sections
         if section.icon is None
     ]
@@ -102,7 +111,7 @@ def test_every_section_has_an_icon() -> None:
     assert missing == []
 
 
-@pytest.mark.parametrize("lesson", LESSONS, ids=[lesson.title for lesson in LESSONS])
+@pytest.mark.parametrize("lesson", ALL_LESSONS, ids=[lesson.title for lesson in ALL_LESSONS])
 def test_every_reference_exists_in_every_translation(lesson: object) -> None:
     assert len(BIBLE_DATA_FILES) >= 2
     assert scripture_problems(lesson.content, SCRIPTURE) == []  # type: ignore[attr-defined]

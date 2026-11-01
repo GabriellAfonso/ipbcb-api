@@ -1,7 +1,7 @@
 """Reads the frozen lesson files the initial-load migration stores (specs/026-sunday-school R-08).
 
 One directory per year: ``year.json`` (``year``, ``theme``) and one ``NN-<slug>.json`` per lesson
-(``title``, ``date``, ``content``), ``NN`` giving the order. The content goes through the same
+(``title``, ``date``, optional ``teacher``, ``content``), ``NN`` giving the order. The content goes through the same
 schema as API writes; Bible references are checked by the committed-files test, not here.
 """
 
@@ -28,6 +28,8 @@ class LessonFileDTO(StrictBaseModel):
 
     title: str
     date: datetime.date | None
+    # Only when the source names who gave the lesson; the 2026 load files have none.
+    teacher: str = ""
     content: LessonContent
 
 

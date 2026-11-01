@@ -130,6 +130,16 @@ Importing the schema into a migration couples it to future schema changes; accep
 schema only grows (new block types, new icons), and the committed-files test fails if it ever
 stops accepting the frozen files.
 
+**Later lessons**: "Oseias, Joel e Amós" was missing from the converted PDFs and arrived after
+`0002` ran in production (2026-10-29). `0002` reads every file in `data/2026/`, so that folder
+stays frozen at 18; the lesson lives in `data/0003_load_oseias_joel_amos/` and
+`0003_load_oseias_joel_amos.py` inserts it right after "Daniel" (by title, author-less), shifting
+later positions by one, or appends it when "Daniel" is gone. Reverse deletes it and closes the
+gap. The shared steps live in
+`late_lesson_load.py` (`insert_lessons_after`, `remove_lessons`), so each later migration names only
+its folder and the preceding title. A lesson file may carry an optional `teacher` (default ""),
+set only when the source names one. The committed-files test checks these folders too.
+
 ## R-09 Routes
 
 **Decision**: public `api/sunday-school/` and `api/sunday-school/lessons/<int:id>/`; panel under

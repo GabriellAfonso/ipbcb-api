@@ -1,0 +1,379 @@
+{
+  "title": "Oseias, Joel e Amós",
+  "date": null,
+  "content": {
+    "sections": [
+      {
+        "title": "Contexto no Drama das Escrituras e Características Literárias",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "O Drama das Escrituras",
+                "text": "Estes três profetas atuam no Ato 3 da Grande História (\"O Rei escolhe Israel: redenção iniciada\"). O ofício profético surge em Israel como um contrapeso vital ao ofício do reinado, garantindo que, em uma teocracia, a palavra de Deus tenha sempre a autoridade final sobre os reis e a sociedade. Eles atuam no delicado período da monarquia dividida, advertindo sobre os perigos da quebra da aliança, mas também oferecendo vislumbres da redenção que culminaria no advento de Cristo.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Autoria e Circunstâncias",
+                "text": "Oseias e Amós profetizaram primariamente ao Reino do Norte (Israel) no século VIII a.C. Amós, embora fosse do sul, foi chamado por Deus para pregar no norte durante o reinado de Jeroboão II, um período de expansão, riqueza e prosperidade, mas marcado pela severa opressão dos pobres e desvalidos. Oseias prega no declínio dessa mesma era. Joel, por outro lado, fala ao Reino do Sul (Judá) em um momento não datado especificamente, mas provocado por uma crise aguda: uma devastadora praga de gafanhotos.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Características Literárias",
+                "text": "Os três são mestres da poesia hebraica, mas utilizam metáforas distintas para alcançar seus ouvintes. Oseias usa a ilustração íntima e dolorosa do casamento e do adultério para mostrar a traição da aliança. Joel utiliza o mundo natural (gafanhotos e secas) como figura do juízo iminente e escatológico. Amós apresenta visões vívidas e impressionantes (como prumo, fogo e frutos maduros) que demonstram graficamente a retribuição divina.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Objetivo Teológico (A Mensagem Central Comparada)",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "Oseias",
+                "title": "A Fidelidade do Coração",
+                "text": "O objetivo central é revelar a profundidade do amor leal (pactual) de Deus. A mensagem foca na agonia que Deus experimenta ao ter que julgar Seu povo, expondo a idolatria de Israel como verdadeira prostituição espiritual.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Joel",
+                "title": "A Urgência do Arrependimento",
+                "text": "O objetivo central é anunciar a chegada do \"Dia do Senhor\", um tempo de intervenção divina. A mensagem convoca toda a comunidade, sem isenções, a um arrependimento não apenas exterior (rituais), mas uma conversão sincera de todo o coração.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Amós",
+                "title": "A Prática da Justiça",
+                "text": "O objetivo central é confrontar a sociedade com as exigências éticas da aliança. Amós denuncia a falsa religião de Israel — cultos repletos de formalidades rituais que negavam o poder de Deus, misturados à profunda injustiça social e violência contra o próximo.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Síntese Comparativa para a Aula:** Oseias trata da pureza relacional e espiritual para com Deus; Amós trata da pureza ética e social para com o próximo; Joel trata da urgência escatológica, chamando todos ao arrependimento profundo diante do soberano Juiz.",
+            "proof_texts": []
+          }
+        ]
+      },
+      {
+        "title": "Estrutura e Esboço (A Organização dos Capítulos)",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "A organização interna destes livros revela uma transição comparativa do problema imediato para a gloriosa esperança de restauração final:",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**O Problema (O Diagnóstico de Deus)**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Oseias** começa com a lição viva e dolorosa de sua própria família (Caps. 1-3) para fundamentar as fortes acusações proféticas contra a nação inteira nos capítulos seguintes (Caps. 4-14).",
+                "proof_texts": [
+                  {
+                    "printed": "Caps. 1-3",
+                    "reference": {
+                      "book": "Os",
+                      "chapter": 1,
+                      "verses": []
+                    }
+                  },
+                  {
+                    "printed": "Caps. 4-14",
+                    "reference": {
+                      "book": "Os",
+                      "chapter": 4,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Joel** parte de uma catástrofe histórica imediata (a praga de gafanhotos, Caps. 1-2.17) para ilustrar o terrível e futuro ataque do exército do Senhor.",
+                "proof_texts": [
+                  {
+                    "printed": "Caps. 1-2.17",
+                    "reference": {
+                      "book": "Jl",
+                      "chapter": 1,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Amós** começa de forma global, proclamando julgamento sobre todas as nações vizinhas (Caps. 1-2.16), para então estreitar o foco nos pecados específicos e impenitentes da própria Israel (Caps. 3-6) e apresentar suas cinco visões de retribuição (Caps. 7-9.10).",
+                "proof_texts": [
+                  {
+                    "printed": "Caps. 1-2.16",
+                    "reference": {
+                      "book": "Am",
+                      "chapter": 1,
+                      "verses": []
+                    }
+                  },
+                  {
+                    "printed": "Caps. 3-6",
+                    "reference": {
+                      "book": "Am",
+                      "chapter": 3,
+                      "verses": []
+                    }
+                  },
+                  {
+                    "printed": "Caps. 7-9.10",
+                    "reference": {
+                      "book": "Am",
+                      "chapter": 7,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**A Promessa (A Resposta do Deus da Aliança)** — Apesar dos fortes juízos, os três livros terminam em um grande \"crescendo\" de esperança.",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Oseias** encerra com a promessa de cura e o fim da ira divina (Cap. 14).",
+                "proof_texts": [
+                  {
+                    "printed": "Cap. 14",
+                    "reference": {
+                      "book": "Os",
+                      "chapter": 14,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Joel** termina com o julgamento das nações inimigas e as bênçãos sobre o povo de Deus, com o Senhor habitando em Sião (Cap. 3).",
+                "proof_texts": [
+                  {
+                    "printed": "Cap. 3",
+                    "reference": {
+                      "book": "Jl",
+                      "chapter": 3,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Amós** culmina com a bela promessa da restauração do tabernáculo caído de Davi e uma fertilidade edênica sem precedentes (Cap. 9.11-15).",
+                "proof_texts": [
+                  {
+                    "printed": "Cap. 9.11-15",
+                    "reference": {
+                      "book": "Am",
+                      "chapter": 9,
+                      "verses": [
+                        {
+                          "start": 11,
+                          "end": 15
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Verdades Teológicas e Cristologia (Fundamentos de Fé)",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**As Verdades Teológicas Fundamentais:** esses livros consolidam a nossa compreensão do caráter de Deus. Com Oseias, aprendemos a doutrina da Graça e do Amor Pactual, onde Deus suporta a dor da traição, mas busca ativamente o pecador. Com Amós, aprendemos sobre a Soberania e a Justiça de Deus, que governa e julga todas as nações e rejeita a hipocrisia religiosa. Com Joel, formamos a base de nossa Escatologia e Pneumatologia, aprendendo sobre a intervenção final de Deus na história e o derramamento universal do Seu Espírito.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**Cristologia (Jesus no Centro)**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": null,
+                "title": "Cristo em Oseias",
+                "text": "Jesus é o verdadeiro Filho de Israel que, diferentemente da nação infiel, obedeceu a Deus perfeitamente. Ele pagou a penalidade pela constante \"prostituição espiritual\" da humanidade para trazer a restauração final.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Cristo em Joel",
+                "text": "O derramamento do Espírito descrito em Joel 2 alcança sua plenitude por meio de Cristo no Pentecostes. Através de Jesus, a salvação é estendida a todos, judeus e gentios, que invocarem o Seu nome.",
+                "proof_texts": [
+                  {
+                    "printed": "Joel 2",
+                    "reference": {
+                      "book": "Jl",
+                      "chapter": 2,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": null,
+                "title": "Cristo em Amós",
+                "text": "A promessa da restauração do \"tabernáculo de Davi\" encontra cumprimento na obra de Jesus Cristo, o Filho supremo de Davi, cujo reinado soberano inclui a salvação dos gentios (conforme Tiago atesta em Atos 15).",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 15",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 15,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Versículos-Chave para a Aula",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "Ao ler esses três livros, os seguintes versos em sequência comprovam a ênfase de cada profeta:",
+            "proof_texts": []
+          },
+          {
+            "type": "key_verse",
+            "label": "Amor e Relacionamento",
+            "text": "\"Pois desejo misericórdia, não sacrifícios; e conhecimento de Deus em vez de holocaustos.\"",
+            "proof": {
+              "printed": "Oseias 6.6",
+              "reference": {
+                "book": "Os",
+                "chapter": 6,
+                "verses": [
+                  {
+                    "start": 6,
+                    "end": 6
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Esperança e Derramamento Espiritual",
+            "text": "\"E, depois disso, derramarei do meu Espírito sobre todos os povos. Os seus filhos e as suas filhas profetizarão, os velhos terão sonhos, os jovens terão visões.\"",
+            "proof": {
+              "printed": "Joel 2.28",
+              "reference": {
+                "book": "Jl",
+                "chapter": 2,
+                "verses": [
+                  {
+                    "start": 28,
+                    "end": 28
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "Justiça e Retidão Social",
+            "text": "\"Corra, porém, a justiça como as águas, e a retidão como o ribeiro perene.\"",
+            "proof": {
+              "printed": "Amós 5.24",
+              "reference": {
+                "book": "Am",
+                "chapter": 5,
+                "verses": [
+                  {
+                    "start": 24,
+                    "end": 24
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "title": "Exortação para a Leitura Devocional",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "É muito proveitoso realizar a leitura devocional conjunta de Oseias, Joel e Amós, pois eles oferecem o equilíbrio perfeito para a caminhada cristã. Oseias nos conforta e aquece o coração ao expor o amor incansável de Deus pelos pecadores. Amós nos sacode da zona de conforto, lembrando-nos de que cultos dominicais sem justiça social e ética na segunda-feira são inaceitáveis para Deus. Joel, por fim, nos enche de esperança viva ao recordar que o Espírito Santo não está distante, mas foi derramado sobre nós para enfrentarmos as pragas e os desafios dos nossos dias. Ler esses três livros resulta na correção dos caminhos de nossas afeições (Oseias), nossas ações (Amós) e nossa esperança (Joel).",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": "heart",
+                "label": null,
+                "title": "Oseias",
+                "text": "Correção das nossas **afeições**",
+                "proof_texts": []
+              },
+              {
+                "icon": "flame",
+                "label": null,
+                "title": "Joel",
+                "text": "Correção da nossa **esperança**",
+                "proof_texts": []
+              },
+              {
+                "icon": "scales",
+                "label": null,
+                "title": "Amós",
+                "text": "Correção das nossas **ações**",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
