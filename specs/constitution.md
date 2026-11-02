@@ -215,6 +215,16 @@ state impossible to reach quietly.
   Grafana, this container publishes no port and exposes no HTTP surface, so it is blast
   radius rather than an entry vector. Do not re-raise this.
 
+### Network exposure
+- `compose.prod.yml` publishes no port. Docker writes its own iptables rules, so a published
+  port skips a host firewall such as ufw; nginx reaches this stack over `proxy-network`.
+- `proxy-network` is external to this stack, so joining it means being reachable from every
+  other container attached to it. Only what nginx must reach joins it: `ipbcb_server` and
+  `grafana`.
+- Everything else talks over `ipbcb_backend` (`internal: true`, no route out). Postgres and
+  Prometheus live only there. The two loop containers also join `ipbcb_egress`, because they
+  call FCM and report to Sentry but accept no connections.
+
 ### Metrics endpoint
 - `/ipbcb/metrics` is blocked at nginx (`location = /ipbcb/metrics { return 404; }`).
   It is unauthenticated by nature and leaks the endpoint map, request volumes, latencies

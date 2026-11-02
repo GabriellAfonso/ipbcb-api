@@ -32,8 +32,10 @@ services:
       ipbcb_db:
         condition: service_healthy
     restart: unless-stopped
+    # proxy-network: nginx reaches it here, and it calls Google and FCM. ipbcb_backend: Postgres.
     networks:
       - proxy-network
+      - ipbcb_backend
 
   ipbcb_db:
     container_name: ipbcb-db-prod
@@ -48,8 +50,9 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    # No published port and off proxy-network: only this stack's containers can reach it.
     networks:
-      - proxy-network
+      - ipbcb_backend
 
   # Every refresh writes a blacklist row (BLACKLIST_AFTER_ROTATION), so the table grows
   # without bound. This drops the rows whose tokens have already expired — housekeeping,
@@ -79,8 +82,10 @@ services:
       ipbcb_server:
         condition: service_started
     restart: unless-stopped
+    # Accepts no connections. ipbcb_egress only lets it report failures to Sentry.
     networks:
-      - proxy-network
+      - ipbcb_backend
+      - ipbcb_egress
 
   # Reminder to register the played songs (specs/017-sunday-setlist-push). Each run does
   # nothing outside Sunday 21:00-24:00 and Monday 08:00-24:00; inside, it claims the current window
@@ -113,8 +118,10 @@ services:
       ipbcb_server:
         condition: service_started
     restart: unless-stopped
+    # ipbcb_egress: FCM has to be reachable, and nothing here accepts connections.
     networks:
-      - proxy-network
+      - ipbcb_backend
+      - ipbcb_egress
 
   prometheus:
     container_name: ipbcb-prometheus-prod
@@ -123,8 +130,9 @@ services:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ipbcb_prometheus_data:/prometheus
     restart: unless-stopped
+    # No auth of its own. Scrapes the server and answers Grafana, both on ipbcb_backend.
     networks:
-      - proxy-network
+      - ipbcb_backend
 
   grafana:
     container_name: ipbcb-grafana-prod
@@ -141,8 +149,10 @@ services:
     restart: unless-stopped
     depends_on:
       - prometheus
+    # proxy-network: nginx serves it at /ipbcb/gfd/. ipbcb_backend: queries Prometheus.
     networks:
       - proxy-network
+      - ipbcb_backend
 
 volumes:
   ipbcb_postgres_data:
@@ -152,3 +162,8 @@ volumes:
 networks:
   proxy-network:
     external: true
+  # internal: true gives no route out, and only this stack's containers join it.
+  ipbcb_backend:
+    internal: true
+  # Outbound only, for containers that call external APIs and publish nothing.
+  ipbcb_egress:
