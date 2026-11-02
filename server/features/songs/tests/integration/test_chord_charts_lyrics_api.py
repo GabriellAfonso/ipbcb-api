@@ -129,6 +129,64 @@ class TestChordChartDetailView:
         assert resp.data["instrument"] == "Violão"
         assert "updated_at" in resp.data
 
+    def test_patch_changes_only_the_tone_and_instrument_sent(self, song: Song) -> None:
+        chart = ChordChart.objects.create(song=song, content="Am", tone="G", instrument="Baixo")
+        admin_client, _ = make_admin_client()
+        resp = admin_client.patch(
+            f"/api/chord-charts/{chart.pk}/", {"tone": " A ", "instrument": "Violão"}, format="json"
+        )
+        assert resp.status_code == 200
+        assert (resp.data["content"], resp.data["tone"], resp.data["instrument"]) == (
+            "Am",
+            "A",
+            "Violão",
+        )
+        chart.refresh_from_db()
+        assert (chart.tone, chart.instrument) == ("A", "Violão")
+
+    def test_patch_onto_another_chart_of_the_song_conflicts(self, song: Song) -> None:
+        ChordChart.objects.create(song=song, content="Am", tone="A", instrument="Baixo")
+        chart = ChordChart.objects.create(song=song, content="Em", tone="G", instrument="Baixo")
+        admin_client, _ = make_admin_client()
+        resp = admin_client.patch(
+            f"/api/chord-charts/{chart.pk}/", {"content": "D", "tone": "A"}, format="json"
+        )
+        assert resp.status_code == 409
+        assert resp.data["error_code"] == "CONFLICT"
+        assert resp.data["detail"] == "Já existe uma cifra dessa música no tom A para Baixo."
+        chart.refresh_from_db()
+        assert (chart.content, chart.tone) == ("Em", "G")
+
+    def test_patch_sending_its_own_tone_and_instrument_is_no_conflict(self, song: Song) -> None:
+        chart = ChordChart.objects.create(song=song, content="Am", tone="G", instrument="Baixo")
+        admin_client, _ = make_admin_client()
+        resp = admin_client.patch(
+            f"/api/chord-charts/{chart.pk}/",
+            {"content": "D", "tone": "G", "instrument": "Baixo"},
+            format="json",
+        )
+        assert resp.status_code == 200
+        assert resp.data["content"] == "D"
+
+    def test_same_tone_on_another_song_is_no_conflict(self, song: Song) -> None:
+        other = Song.objects.create(title="Way Maker", artist="Sinach")
+        ChordChart.objects.create(song=other, content="Am", tone="A", instrument="Baixo")
+        chart = ChordChart.objects.create(song=song, content="Em", tone="G", instrument="Baixo")
+        admin_client, _ = make_admin_client()
+        resp = admin_client.patch(f"/api/chord-charts/{chart.pk}/", {"tone": "A"}, format="json")
+        assert resp.status_code == 200
+
+    @pytest.mark.parametrize(
+        "body", [{"content": "   "}, {"tone": ""}, {"tone": "ABCD"}, {"tone": None}]
+    )
+    def test_patch_returns_400_for_an_invalid_field(
+        self, song: Song, body: dict[str, object]
+    ) -> None:
+        chart = ChordChart.objects.create(song=song, content="Am", tone="G", instrument="Baixo")
+        admin_client, _ = make_admin_client()
+        resp = admin_client.patch(f"/api/chord-charts/{chart.pk}/", body, format="json")
+        assert resp.status_code == 400
+
     def test_patch_returns_404_for_nonexistent(self) -> None:
         admin_client, _ = make_admin_client()
         resp = admin_client.patch("/api/chord-charts/9999/", {"content": "X"}, format="json")
