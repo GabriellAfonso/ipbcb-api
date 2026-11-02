@@ -47,6 +47,10 @@ from core.domain.account_exceptions import (
     InvalidGoogleConfirmationError as InvalidGoogleConfirmationError,
     GoogleAccountMismatchError as GoogleAccountMismatchError,
     AccountDeletionBlockedError as AccountDeletionBlockedError,
+    InvalidEmailCodeError as InvalidEmailCodeError,
+    EmailCodeRateLimitedError as EmailCodeRateLimitedError,
+    RecoveryEmailNotSetError as RecoveryEmailNotSetError,
+    RecoveryEmailAlreadyConfirmedError as RecoveryEmailAlreadyConfirmedError,
 )
 from core.domain.access_request_exceptions import (
     AccessRequestsBlockedError as AccessRequestsBlockedError,

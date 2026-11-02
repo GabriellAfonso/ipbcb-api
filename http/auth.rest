@@ -8,7 +8,29 @@ Content-Type: {{json}}
   "first_name": "Teste",
   "last_name": "JWT",
   "password": "12345678",
-  "password_confirm": "12345678"
+  "password_confirm": "12345678",
+  "recovery_email": "teste@example.com"
+}
+
+###
+# @name passwordRecoveryRequest
+POST {{baseUrl}}/api/auth/password-recovery/request/
+Content-Type: {{json}}
+
+{
+  "email": "teste@example.com"
+}
+
+###
+# @name passwordRecoveryConfirm
+POST {{baseUrl}}/api/auth/password-recovery/confirm/
+Content-Type: {{json}}
+
+{
+  "email": "teste@example.com",
+  "code": "123456",
+  "new_password": "nova-senha",
+  "new_password_confirm": "nova-senha"
 }
 
 ### Login

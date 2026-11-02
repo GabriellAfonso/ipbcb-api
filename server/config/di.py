@@ -7,6 +7,9 @@ from features.accounts.repositories.access_request_repository import (
     AccessRequestRepositoryImpl,
 )
 from features.accounts.repositories.avatar_downloader import HttpAvatarDownloader
+from features.accounts.repositories.email_code_repository import EmailCodeRepositoryImpl
+from features.accounts.repositories.email_sender import BackgroundEmailSender, SmtpEmailSender
+from features.accounts.repositories.lockout_resetter import AxesLockoutResetter
 from features.accounts.repositories.managed_account_repository import (
     ManagedAccountRepositoryImpl,
 )
@@ -15,13 +18,16 @@ from features.accounts.repositories.refresh_token_repository import RefreshToken
 from features.accounts.repositories.user_repository import UserRepositoryImpl
 from features.accounts.services.access_request_service import AccessRequestService
 from features.accounts.services.account_deletion_service import AccountDeletionService
+from features.accounts.services.email_code_purge_service import EmailCodePurgeService
 from features.accounts.services.google_auth_service import GoogleAuthService
 from features.accounts.services.login_service import LoginService
 from features.accounts.services.password_change_service import PasswordChangeService
+from features.accounts.services.password_recovery_service import PasswordRecoveryService
 from features.accounts.services.profile_management_service import (
     ProfileManagementService,
 )
 from features.accounts.services.profile_service import ProfileService
+from features.accounts.services.recovery_email_service import RecoveryEmailService
 from features.accounts.services.refresh_service import RefreshService
 from features.accounts.services.register_service import RegisterService
 from core.application.access_service import AccessService
@@ -123,8 +129,11 @@ class Container(containers.DeclarativeContainer):
             "features.accounts.views.admin_profiles",
             "features.accounts.views.account_deletion_page",
             "features.accounts.views.auth",
+            "features.accounts.management.commands.purge_expired_email_codes",
             "features.accounts.views.devices",
+            "features.accounts.views.password_recovery",
             "features.accounts.views.profile",
+            "features.accounts.views.recovery_email",
             "features.bible.views",
             "features.bible.views.progress",
             "features.bible.views.videos",
@@ -222,6 +231,32 @@ class Container(containers.DeclarativeContainer):
     doctrine_service = providers.Factory(DoctrineService, doctrine_repository=doctrine_repository)
 
     clock = providers.Singleton(SystemClock)
+
+    # Recovery e-mail and password recovery (specs/028-password-recovery).
+    email_code_repository = providers.Factory(EmailCodeRepositoryImpl)
+    email_sender = providers.Factory(
+        BackgroundEmailSender, delivery=providers.Factory(SmtpEmailSender)
+    )
+    lockout_resetter = providers.Factory(AxesLockoutResetter)
+    password_recovery_service = providers.Factory(
+        PasswordRecoveryService,
+        user_repository=user_repository,
+        refresh_token_repository=refresh_token_repository,
+        email_code_repository=email_code_repository,
+        email_sender=email_sender,
+        lockout_resetter=lockout_resetter,
+        clock=clock,
+    )
+    recovery_email_service = providers.Factory(
+        RecoveryEmailService,
+        profile_repository=profile_repository,
+        email_code_repository=email_code_repository,
+        email_sender=email_sender,
+        clock=clock,
+    )
+    email_code_purge_service = providers.Factory(
+        EmailCodePurgeService, email_code_repository=email_code_repository, clock=clock
+    )
 
     # Bible videos and reading progress (specs/025-bible-videos). The canon is read once from
     # the translations the Bible repository already loaded.

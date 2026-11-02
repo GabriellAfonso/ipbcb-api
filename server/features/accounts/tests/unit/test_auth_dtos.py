@@ -9,6 +9,7 @@ def test_register_dto_normalizes_username() -> None:
         password="secret123",
         first_name="Test",
         last_name="User",
+        recovery_email="test@example.com",
     )
     assert dto.username == "testuser"
 
@@ -20,6 +21,7 @@ def test_register_dto_password_min_length() -> None:
             password="abc",
             first_name="Test",
             last_name="User",
+            recovery_email="test@example.com",
         )
 
 
@@ -30,7 +32,29 @@ def test_register_dto_extra_fields_forbidden() -> None:
             password="secret123",
             first_name="Test",
             last_name="User",
+            recovery_email="test@example.com",
             extra_field="not_allowed",
+        )
+
+
+def test_register_dto_normalizes_recovery_email() -> None:
+    dto = RegisterDTO(
+        username="testuser",
+        password="secret123",
+        first_name="Test",
+        last_name="User",
+        recovery_email="  Ana@Example.COM ",
+    )
+    assert dto.recovery_email == "ana@example.com"
+
+
+def test_register_dto_requires_recovery_email() -> None:
+    with pytest.raises(ValidationError):
+        RegisterDTO(  # type: ignore[call-arg]
+            username="testuser",
+            password="secret123",
+            first_name="Test",
+            last_name="User",
         )
 
 

@@ -8,6 +8,7 @@ VALID_DATA = {
     "last_name": "User",
     "password": "secret123",
     "password_confirm": "secret123",
+    "recovery_email": "test@example.com",
 }
 
 

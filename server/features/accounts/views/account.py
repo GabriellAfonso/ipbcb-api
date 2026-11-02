@@ -26,11 +26,11 @@ from features.accounts.services.password_change_service import PasswordChangeSer
 from features.accounts.services.password_check import PasswordCheck
 
 
-def _password_check(login_service: LoginService, user: User, request: Request) -> PasswordCheck:
+def password_check_for(login_service: LoginService, user: User, request: Request) -> PasswordCheck:
     """The lockout-guarded check the services call. The underlying ``HttpRequest``, not DRF's
     wrapper: ``AxesMiddleware`` only ever sees the Django one (same reason as ``LoginAPI``).
 
-    >>> _password_check(login_service, user, request)("secret1")
+    >>> password_check_for(login_service, user, request)("secret1")
     """
     django_request = request._request
     return lambda raw: login_service.verify_password(user, raw, django_request)
@@ -56,7 +56,7 @@ class PasswordChangeAPIView(APIView):
         serializer = PasswordChangeSerializer(data=require_object_body(request.data))
         serializer.is_valid(raise_exception=True)
         tokens = password_change_service.change_password(
-            user, serializer.create_dto(), _password_check(login_service, user, request)
+            user, serializer.create_dto(), password_check_for(login_service, user, request)
         )
         return Response(tokens.model_dump(), status=status.HTTP_200_OK)
 
@@ -82,6 +82,6 @@ class AccountDeletionAPIView(APIView):
         serializer = AccountDeletionSerializer(data=require_object_body(request.data))
         serializer.is_valid(raise_exception=True)
         account_deletion_service.delete_confirmed(
-            user, serializer.create_dto(), _password_check(login_service, user, request)
+            user, serializer.create_dto(), password_check_for(login_service, user, request)
         )
         return Response(status=status.HTTP_204_NO_CONTENT)

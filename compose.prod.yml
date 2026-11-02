@@ -32,7 +32,8 @@ services:
       ipbcb_db:
         condition: service_healthy
     restart: unless-stopped
-    # proxy-network: nginx reaches it here, and it calls Google and FCM. ipbcb_backend: Postgres.
+    # proxy-network: nginx reaches it here, and it calls Google, FCM and the SMTP provider.
+    # ipbcb_backend: Postgres.
     networks:
       - proxy-network
       - ipbcb_backend
@@ -57,8 +58,9 @@ services:
   # Every refresh writes a blacklist row (BLACKLIST_AFTER_ROTATION), so the table grows
   # without bound. This drops the rows whose tokens have already expired — housekeeping,
   # not security: an expired token is refused on its own expiry. The same daily loop deletes
-  # Sunday setlists past their use (specs/017-sunday-setlist-push FR-028); a failure in one
-  # command does not skip the other.
+  # Sunday setlists past their use (specs/017-sunday-setlist-push FR-028) and expired e-mail
+  # codes (specs/028-password-recovery FR-019); a failure in one command does not skip the
+  # others.
   ipbcb_token_flush:
     container_name: ipbcb-token-flush-prod
     image: ipbcb-server:prod
@@ -69,6 +71,7 @@ services:
       while true; do
         python manage.py flushexpiredtokens
         python manage.py purge_expired_setlists
+        python manage.py purge_expired_email_codes
         sleep 86400
       done
     env_file:

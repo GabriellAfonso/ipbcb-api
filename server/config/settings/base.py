@@ -54,6 +54,19 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", default="")
 # only by core.push.factory, which never echoes the value in an error.
 FCM_SERVICE_ACCOUNT_JSON_BASE64 = os.environ.get("FCM_SERVICE_ACCOUNT_JSON_BASE64", "")
 
+# Brevo over SMTP (specs/028-password-recovery). The credentials are empty by default like the
+# FCM key above: a missing key costs the recovery messages, each failure logged at error level,
+# and must not take the whole API down (research R-09). The timeout bounds the sending thread.
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp-relay.brevo.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_USE_TLS = True
+EMAIL_TIMEOUT = 10
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.environ.get(
+    "DEFAULT_FROM_EMAIL", "IPB Castelo Branco <nao-responda@gabrielafonso.com.br>"
+)
+
 DEBUG = env_bool("DJANGO_DEBUG", False)
 
 AUTH_USER_MODEL = "accounts.User"
@@ -184,6 +197,10 @@ REST_FRAMEWORK = {
         "anon": "500/hour",
         "user": "1000/hour",
         "login": "10/min",
+        # Per client address, on the public code request only. Roomy because the whole
+        # congregation can share one church-WiFi address; each mailbox has its own limit in
+        # the database. specs/028-password-recovery research R-05.
+        "recovery_request": "20/hour",
         # Sized for the whole congregation behind a single church-WiFi NAT address
         # (~200 devices syncing up to 3x/hour), not for one person. See
         # specs/006-hymnal-view-history/research.md R-02.

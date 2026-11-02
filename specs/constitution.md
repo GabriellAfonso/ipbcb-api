@@ -25,6 +25,12 @@ Rules that no domain can break. These apply globally across the entire system.
   the only thing standing between a public `/ipbcb/admin/` and an offline-speed guessing loop.
   The lockout key is the `(username, address)` pair; neither half alone is acceptable, and the
   reasoning is in `specs/008-login-brute-force-lockout/plan.md` D-3.
+- A user-typed e-mail never identifies an account or links a sign-in. `User.email` is written
+  by Google sign-in alone, and Google sign-in finds accounts by that field alone; what users
+  type lives in `Profile.recovery_email`, which only ever receives a recovery code
+  (`specs/028-password-recovery`). Without this, someone could create an account with a
+  victim's address and share it once the victim signs in with Google. If this e-mail ever
+  becomes a login, Google sign-in must first link by the token's `sub` instead of by e-mail.
 
 ## Data Integrity
 - All user input validated via DRF serializer before reaching the database

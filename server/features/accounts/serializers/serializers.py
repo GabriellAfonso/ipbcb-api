@@ -21,11 +21,27 @@ from features.accounts.dtos import MemberAccessStateDTO
 # (specs/021-user-account), whatever the server runs in.
 CHURCH_TIME_ZONE = ZoneInfo("America/Sao_Paulo")
 
-_REQUIRED_MESSAGES = {
+REQUIRED_MESSAGES = {
     "blank": _("Este campo não pode ficar em branco."),
     "required": _("Este campo é obrigatório."),
 }
 PASSWORDS_DIFFER_MESSAGE = _("As senhas não coincidem.")
+
+
+def email_address_field() -> serializers.EmailField:
+    """A required e-mail, with the Portuguese messages of the other fields. The DTOs normalise.
+
+    >>> email_address_field().max_length
+    254
+    """
+    return serializers.EmailField(
+        max_length=254,
+        error_messages={
+            "invalid": _("Informe um e-mail válido."),
+            "max_length": _("O e-mail pode ter no máximo 254 caracteres."),
+            **REQUIRED_MESSAGES,
+        },
+    )
 
 
 def password_field(*, allow_blank: bool = False) -> serializers.CharField:
@@ -41,7 +57,7 @@ def password_field(*, allow_blank: bool = False) -> serializers.CharField:
         allow_blank=allow_blank,
         error_messages={
             "min_length": _("A senha precisa ter ao menos 6 caracteres."),
-            **_REQUIRED_MESSAGES,
+            **REQUIRED_MESSAGES,
         },
     )
 
@@ -52,6 +68,7 @@ class RegisterData(TypedDict):
     last_name: str
     password: str
     password_confirm: str
+    recovery_email: str
 
 
 class RegisterSerializer(serializers.Serializer[RegisterData]):
@@ -88,6 +105,8 @@ class RegisterSerializer(serializers.Serializer[RegisterData]):
     )
     password = password_field()
     password_confirm = password_field(allow_blank=True)
+    # Required, typed once and not verified here (specs/028-password-recovery).
+    recovery_email = email_address_field()
 
     def validate(self, data: dict[str, Any]) -> dict[str, Any]:
         if data.get("password") != data.get("password_confirm"):
@@ -100,6 +119,7 @@ class RegisterSerializer(serializers.Serializer[RegisterData]):
             password=self.validated_data.get("password"),
             first_name=self.validated_data.get("first_name"),
             last_name=self.validated_data.get("last_name"),
+            recovery_email=self.validated_data.get("recovery_email"),
         )
 
 
@@ -121,14 +141,10 @@ class TokenSerializer(serializers.Serializer[Any]):
     refresh = serializers.CharField(read_only=True)
 
 
-class PasswordChangeSerializer(serializers.Serializer[Any]):
-    """``POST api/me/password/`` (specs/021-user-account/contracts/account-api.md)."""
+class NewPasswordSerializer(serializers.Serializer[Any]):
+    """A new password typed twice, under the registration rule: shared by password change and
+    password recovery so they cannot drift."""
 
-    # No length rule on the current password: it only has to match, and an old account may
-    # predate the 6-character minimum.
-    current_password = serializers.CharField(
-        write_only=True, trim_whitespace=False, error_messages={**_REQUIRED_MESSAGES}
-    )
     new_password = password_field()
     new_password_confirm = password_field(allow_blank=True)
 
@@ -136,6 +152,16 @@ class PasswordChangeSerializer(serializers.Serializer[Any]):
         if data.get("new_password") != data.get("new_password_confirm"):
             raise serializers.ValidationError({"new_password_confirm": [PASSWORDS_DIFFER_MESSAGE]})
         return data
+
+
+class PasswordChangeSerializer(NewPasswordSerializer):
+    """``POST api/me/password/`` (specs/021-user-account/contracts/account-api.md)."""
+
+    # No length rule on the current password: it only has to match, and an old account may
+    # predate the 6-character minimum.
+    current_password = serializers.CharField(
+        write_only=True, trim_whitespace=False, error_messages={**REQUIRED_MESSAGES}
+    )
 
     def create_dto(self) -> PasswordChangeDTO:
         return PasswordChangeDTO(
@@ -178,6 +204,12 @@ class ProfileSerializer(serializers.ModelSerializer[Profile]):
     username = serializers.CharField(source="user.username", read_only=True)
     has_password = serializers.SerializerMethodField()
     date_joined = serializers.SerializerMethodField()
+    # Read-only: changing it needs the current password (api/me/recovery-email/). Never shown in
+    # "Perfis" (specs/028-password-recovery).
+    recovery_email = serializers.CharField(
+        source="recovery_email_or_none", read_only=True, allow_null=True
+    )
+    recovery_email_confirmed = serializers.BooleanField(read_only=True)
     # Member access (specs/022-access-requests FR-004), from ``context["member_access_state"]``.
     # ``is_member`` is the old name of ``member_access``, kept with the same value for the app
     # versions that still read it.
@@ -204,6 +236,8 @@ class ProfileSerializer(serializers.ModelSerializer[Profile]):
             "username",
             "has_password",
             "date_joined",
+            "recovery_email",
+            "recovery_email_confirmed",
         ]
         read_only_fields = [
             "is_member",
@@ -220,6 +254,8 @@ class ProfileSerializer(serializers.ModelSerializer[Profile]):
             "username",
             "has_password",
             "date_joined",
+            "recovery_email",
+            "recovery_email_confirmed",
         ]
         # The model allows a blank name (a profile is created before anyone names it); an edit
         # does not. DRF trims first, so a whitespace-only name is blank too.
@@ -227,7 +263,7 @@ class ProfileSerializer(serializers.ModelSerializer[Profile]):
             "name": {
                 "allow_blank": False,
                 "error_messages": {
-                    **_REQUIRED_MESSAGES,
+                    **REQUIRED_MESSAGES,
                     "max_length": _("O nome pode ter no máximo 100 caracteres."),
                 },
             }

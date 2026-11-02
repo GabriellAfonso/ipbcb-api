@@ -21,6 +21,8 @@ DATABASES = {
     }
 }
 
+EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+
 # Disable secure cookies for tests
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
@@ -33,6 +35,7 @@ REST_FRAMEWORK = {
         "anon": "99999/min",
         "user": "99999/min",
         "login": "99999/min",
+        "recovery_request": "99999/min",
         # Views that declare throttle_classes explicitly (hymnal ingest) keep throttling
         # even when DEFAULT_THROTTLE_CLASSES is empty, so the scope must exist here.
         "hymnal_ingest": "99999/min",

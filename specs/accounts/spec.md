@@ -10,7 +10,8 @@ access and access requests ("Perfis"). Single entry point for who the user is an
 ### User
 - `id`: UUID (PK, auto-generated)
 - `username`: string, max 150, unique, stored lowercase/trimmed, restricted charset (see Business Rules 2)
-- `email`: string, unique (used by Google OAuth)
+- `email`: string, unique (used by Google OAuth). Written by Google sign-in alone, never by
+  anything a user types: Google sign-in finds accounts by this field (constitution)
 - `first_name`: string, max 30
 - `last_name`: string, max 150
 - `password`: hashed (unusable for Google-only users)
@@ -53,6 +54,20 @@ access and access requests ("Perfis"). Single entry point for who the user is an
   `specs/012-feature-role-permissions/`. The old `is_admin` flag was converted into the Admin
   role and removed there.
 
+- `recovery_email`: e-mail, blank allowed, indexed, **not** unique. Trimmed and lowercased. Where
+  recovery codes go, and nothing else: never a login, never read by Google sign-in
+  (`specs/028-password-recovery`). Read-only in the Django admin
+- `recovery_email_confirmed_at`: datetime, nullable. Cleared when the address changes. Optional:
+  it only catches typos, recovery works without it
+
+### EmailCode and EmailSendLedger (`specs/028-password-recovery`)
+- `EmailCode`: a code that can still be used; consuming or invalidating it deletes the row.
+  `user` (FK, `CASCADE`), `purpose` (`recovery` | `confirmation`), `address`, `code_digest`
+  (keyed hash, never the code), `failed_attempts`, `expires_at`, `created_at`. Unique
+  `(user, purpose)`. Not in the Django admin
+- `EmailSendLedger`: `address_key` (unique keyed hash of the address), `send_times` (JSON list of
+  ISO instants inside the last hour), `updated_at`
+
 ### AccessRequest (`specs/022-access-requests`)
 - `user`: FK -> User, `CASCADE`, `related_name="access_requests"`
 - `type`: `access` | `data_correction`
@@ -78,11 +93,14 @@ access and access requests ("Perfis"). Single entry point for who the user is an
 
 | DTO | Fields | Used by |
 |-----|--------|---------|
-| `RegisterDTO` | username, password, first_name, last_name | Register flow |
+| `RegisterDTO` | username, password, first_name, last_name, recovery_email | Register flow |
 | `LoginDTO` | username, password | Login flow |
 | `TokenDTO` | access, refresh (optional) | All auth responses |
 | `PasswordChangeDTO` | current_password, new_password | Password change |
 | `AccountDeletionDTO` | password (optional), id_token (optional) | Account deletion |
+| `RecoveryEmailChangeDTO` | recovery_email, current_password | Set or change the recovery e-mail |
+| `PasswordRecoveryRequestDTO` | email | Ask for recovery codes |
+| `PasswordRecoveryConfirmDTO` | email, code, new_password | Reset with a code |
 
 All inherit from `StrictBaseModel`. Username normalized (strip + lowercase) via field_validator.
 
@@ -94,8 +112,9 @@ All under the base path `/ipbcb/` (e.g. `/ipbcb/api/auth/login/`).
 
 ### POST `api/auth/register/`
 - **Public**, throttled (scope: `login`)
-- Input: username, first_name, last_name, password, password_confirm
-- Validation: username uniqueness, passwords match, min 6 chars
+- Input: username, first_name, last_name, password, password_confirm, recovery_email
+- Validation: username uniqueness, passwords match, min 6 chars, recovery_email required and a
+  valid e-mail. Typed once; nothing is sent or verified, and it is not unique
 - Returns: `TokenDTO` (201)
 - Flow: Serializer validates -> DTO -> UserRepository.create() -> JWT tokens
 
@@ -121,6 +140,22 @@ All under the base path `/ipbcb/` (e.g. `/ipbcb/api/auth/login/`).
 - Sets unusable password for Google-created users
 - Downloads Google profile photo (400px, square crop) on first login if profile has no photo
 - Returns: `TokenDTO` (200) or 400/401
+
+### POST `api/auth/password-recovery/request/`
+- **Public**, reads no token. Input: `email`. Client limit: scope `recovery_request` (20/hour);
+  address limit: 1 per minute and 5 per hour
+- Always the same 200 `{"detail": "Se houver conta com esse e-mail, enviamos um código."}`,
+  whether or not anything matched and past any limit. 400 only for a malformed `email`
+- Matches: active accounts with a usable password whose `recovery_email` equals the address,
+  confirmed or not. One message to the address, with each username and its own code
+- Contract: `specs/028-password-recovery/contracts/recovery-api.md`
+
+### POST `api/auth/password-recovery/confirm/`
+- **Public**, reads no token, throttled (scope: `login`)
+- Input: `email`, `code`, `new_password`, `new_password_confirm`. The code identifies the account
+- 204, no tokens. In one transaction: password set, `revoke_all`, code consumed. Then the axes
+  lockout of the username is cleared
+- A wrong, expired or used code: 400 `INVALID_EMAIL_CODE`, one generic message
 
 ### POST `api/auth/refresh/`
 - **Public** — the refresh token is the proof. `RefreshAPI` + `RefreshService`, not
@@ -164,11 +199,15 @@ All under the base path `/ipbcb/` (e.g. `/ipbcb/api/auth/login/`).
   writes this response to disk, so the account's roll record is served by
   `GET api/me/member/` (members domain)
 
+- Also returns (`specs/028-password-recovery/`): `recovery_email` (`null` when none) and
+  `recovery_email_confirmed`
+
 ### PATCH `api/me/profile/`
 - **Authenticated**
 - Updatable: `name` only (is_member, member_access, access_status, access_requests_blocked,
   data_correction_pending, photo_url, roles, permissions, member_id,
-  is_worship_member, can_save_setlist, username, has_password, date_joined are read-only; a
+  is_worship_member, can_save_setlist, username, has_password, date_joined, recovery_email,
+  recovery_email_confirmed are read-only; a
   value sent for them is ignored)
 - `name`: trimmed; blank or whitespace-only → 400 ("Este campo não pode ficar em branco.");
   more than 100 characters → 400 ("O nome pode ter no máximo 100 caracteres.")
@@ -203,6 +242,24 @@ All under the base path `/ipbcb/` (e.g. `/ipbcb/api/auth/login/`).
   before stops working (`CHECK_REVOKE_TOKEN`), **the caller's included**; the response is a new
   pair (`TokenDTO`, 200) built from the user after the change. The app must switch to it.
 - Contract: `specs/021-user-account/contracts/account-api.md`
+
+### POST `api/me/recovery-email/`
+- **Authenticated**, throttled (scope: `login`), under failed-attempt lockout
+- Input: `recovery_email`, `current_password`, also for the first address of an existing account:
+  a stolen session must not be able to add its own address and take the account
+- Returns 200 `{recovery_email, recovery_email_confirmed}`. Changing the address clears the
+  confirmation and invalidates pending codes; the same address is not a change. Sessions are kept
+- Wrong password: 400 `INVALID_PASSWORD`. No usable password: 409 `PASSWORD_NOT_SET`
+
+### POST `api/me/recovery-email/send-code/`
+- **Authenticated**, throttled (scope: `login`). Sends a code to the current address. 204
+- 409 `RECOVERY_EMAIL_NOT_SET`, 409 `RECOVERY_EMAIL_ALREADY_CONFIRMED`, 409 `PASSWORD_NOT_SET`,
+  429 `EMAIL_CODE_RATE_LIMITED` with `retry_after_seconds`
+
+### POST `api/me/recovery-email/confirm/`
+- **Authenticated**, throttled (scope: `login`). Input: `code`
+- Returns 200 `{recovery_email, recovery_email_confirmed}`. Wrong, expired or used: 400
+  `INVALID_EMAIL_CODE`. No usable password: 409 `PASSWORD_NOT_SET`
 
 ### POST `api/me/delete/`
 - **Authenticated**, throttled (scope: `login`); `POST` because the secret travels in the body
@@ -240,6 +297,7 @@ All under the base path `/ipbcb/` (e.g. `/ipbcb/api/auth/login/`).
 | gallery `Photo.uploaded_by`, `PhotoTag.tagged_by`, `TrashEntry.deleted_by`; events `Event.created_by`, `Event.updated_by`; members `MemberChangeLog.editor`; songs `Setlist.saved_by`, `HymnalViewEvent.user` | kept, author cleared (`SET_NULL`) |
 | `members.Member` linked by `Profile.member` | kept untouched; only the link goes |
 | `AccessRequest.user` | deleted (cascade) |
+| `EmailCode.user` | deleted (cascade) |
 | `AccessRequest.decided_by` | kept, decider cleared (`SET_NULL`) |
 
 A new FK to the user must choose explicitly between these behaviours and be added here.
@@ -375,6 +433,17 @@ Never logged, never shown in the Django admin. Contract in
      No e-mail is read, shown or accepted by any access-request or "Perfis" endpoint (Google
      sign-in links accounts by e-mail)
 
+15b. E-mail codes (`specs/028-password-recovery`): 6 digits from a cryptographic source, stored
+     only as a keyed hash, never logged; valid 15 minutes, single use, at most 5 wrong attempts.
+     A new request invalidates earlier codes of that purpose for the account. For recovery the
+     attempts count per address, so accounts sharing one do not multiply the guesses. Every
+     message to an address, of either purpose, counts against its limit of 1 per minute and 5 per
+     hour. `manage.py purge_expired_email_codes`, in the `ipbcb_token_flush` loop, removes
+     expired rows
+15c. Messages leave in a background thread after commit, through Django's SMTP backend to Brevo.
+     Never inside the request: the response time would reveal which addresses have accounts. A
+     failed delivery is logged by exception type alone, without the address
+
 ---
 
 ## Errors
@@ -398,6 +467,10 @@ Never logged, never shown in the Django admin. Contract in
 | Google confirmation token fails verification | 400 | `INVALID_GOOGLE_TOKEN` |
 | Google confirmation token of another account (or none) | 403 | `GOOGLE_ACCOUNT_MISMATCH` |
 | Superuser asks for deletion | 409 | `ACCOUNT_DELETION_BLOCKED` |
+| Wrong, expired or used e-mail code | 400 | `INVALID_EMAIL_CODE` "Código inválido ou expirado." |
+| Confirmation code asked with no address | 409 | `RECOVERY_EMAIL_NOT_SET` |
+| Confirmation code asked for a confirmed address | 409 | `RECOVERY_EMAIL_ALREADY_CONFIRMED` |
+| Confirmation code over the address limit | 429 | `EMAIL_CODE_RATE_LIMITED` (+ `retry_after_seconds`) |
 | Access request while blocked | 403 | `ACCESS_REQUESTS_BLOCKED` |
 | `access` request with access already | 409 | `MEMBER_ACCESS_ALREADY_GRANTED` |
 | Same type already pending | 409 | `ACCESS_REQUEST_PENDING` |
@@ -417,6 +490,10 @@ A missing profile is never an error: every profile read and write goes through
 
 ```
 RegisterAPI        -> RegisterService    -> UserRepository
+PasswordRecovery*API  -> PasswordRecoveryService -> UserRepository, RefreshTokenRepository,
+                         EmailCodeRepository, EmailSender, AccountLockoutResetter
+RecoveryEmail*APIView -> RecoveryEmailService    -> ProfileRepository, EmailCodeRepository,
+                         EmailSender
 LoginAPI           -> LoginService       -> django.contrib.auth.authenticate (+ django-axes)
 RefreshAPI         -> RefreshService     -> UserRepository
 GoogleLoginAPI     -> GoogleAuthService  -> UserRepository, ProfileRepository

@@ -44,6 +44,29 @@ class Profile(models.Model):
         on_delete=models.SET_NULL,
         related_name="profile",
     )
+    # Where recovery codes go (specs/028-password-recovery). SECURITY: never a login, and never
+    # read by Google sign-in, which finds accounts by User.email alone: this one is typed by the
+    # user and unverified. Not unique, so typing someone's address cannot block its owner and
+    # families can share one. Trimmed and lowercased by the DTOs.
+    recovery_email = models.EmailField(blank=True, default="", db_index=True)
+    # Optional, it only catches typos while signed in: recovery works unconfirmed, because the
+    # code itself proves access to the mailbox.
+    recovery_email_confirmed_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def recovery_email_or_none(self) -> str | None:
+        """The API's view of the address: ``null``, not ``""``, when there is none.
+
+        >>> Profile().recovery_email_or_none
+        """
+        return self.recovery_email or None
+
+    @property
+    def recovery_email_confirmed(self) -> bool:
+        """>>> Profile().recovery_email_confirmed
+        False
+        """
+        return self.recovery_email_confirmed_at is not None

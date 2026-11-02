@@ -25,6 +25,7 @@ def sample_dto() -> RegisterDTO:
         password="securepass123",
         first_name="New",
         last_name="User",
+        recovery_email="new@example.com",
     )
 
 

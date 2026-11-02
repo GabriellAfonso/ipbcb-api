@@ -1,4 +1,5 @@
 from datetime import datetime
+from collections.abc import Sequence
 from typing import IO, Optional, Protocol
 
 from features.accounts.models.profile import Profile
@@ -7,14 +8,18 @@ from core.application.dtos.auth_dtos import RegisterDTO
 from uuid import UUID
 
 from features.accounts.domain.access_requests import AccessRequestType
+from features.accounts.domain.email_codes import EmailCodePurpose
 from features.accounts.dtos import (
     AccessDecisionDTO,
     AccessGrantDTO,
     AccessRequestCreateDTO,
     AccessRequestRecordDTO,
     AccountAccessFlagsDTO,
+    EmailMessageDTO,
     ManagedAccountDTO,
     ManagedAccountPatchDTO,
+    NewEmailCodeDTO,
+    PendingEmailCodeDTO,
 )
 
 
@@ -60,12 +65,80 @@ class UserRepository(Protocol):
         (specs/021-user-account, references table)."""
         ...
 
+    def recovery_accounts(self, address: str) -> list[User]:
+        """Active accounts with a usable password whose recovery e-mail is ``address``."""
+        ...
+
+    def get_recovery_account(self, user_id: UUID, address: str) -> Optional[User]:
+        """The same account, only if it still matches those rules."""
+        ...
+
 
 class RefreshTokenRepository(Protocol):
     """The record of issued refresh tokens (SimpleJWT ``token_blacklist``)."""
 
     def revoke_all(self, user_id: UUID) -> int:
         """Blacklist every refresh token of the user not blacklisted yet; return how many."""
+        ...
+
+
+class EmailCodeRepository(Protocol):
+    """Pending e-mail codes and the per-address send ledger (specs/028-password-recovery)."""
+
+    def claim_send_slot(self, key: str, now: datetime) -> int:
+        """Record a send and return 0, or return the seconds to wait and record nothing."""
+        ...
+
+    def replace_codes(self, codes: Sequence[NewEmailCodeDTO]) -> None:
+        """Store codes, invalidating earlier ones of the same purpose for those accounts."""
+        ...
+
+    def lock_live_for_address(
+        self, purpose: EmailCodePurpose, address: str, now: datetime
+    ) -> list[PendingEmailCodeDTO]:
+        """Lock and return the unexpired codes of an address."""
+        ...
+
+    def lock_live_for_user(
+        self, purpose: EmailCodePurpose, user_id: UUID, now: datetime
+    ) -> list[PendingEmailCodeDTO]:
+        """Lock and return the unexpired codes of an account."""
+        ...
+
+    def count_failure_for_address(self, purpose: EmailCodePurpose, address: str) -> None:
+        """Count a wrong guess on every code of the address; the limit deletes them."""
+        ...
+
+    def count_failure_for_user(self, purpose: EmailCodePurpose, user_id: UUID) -> None:
+        """Count a wrong guess on the code of the account; the limit deletes it."""
+        ...
+
+    def consume(self, purpose: EmailCodePurpose, user_id: UUID) -> None:
+        """Delete the code of this purpose of the account."""
+        ...
+
+    def delete_for_user(self, user_id: UUID) -> None:
+        """Delete every code of the account."""
+        ...
+
+    def purge_expired(self, now: datetime) -> int:
+        """Delete expired codes and stale ledgers; return how many."""
+        ...
+
+
+class EmailSender(Protocol):
+    """Delivers a message, so services never touch the e-mail library (CLAUDE.md section 7)."""
+
+    def send(self, message: EmailMessageDTO) -> None:
+        """Deliver ``message``. The address and body must never reach a log."""
+        ...
+
+
+class AccountLockoutResetter(Protocol):
+    """Clears the failed-attempt lockout, so services never touch django-axes."""
+
+    def reset(self, username: str) -> None:
+        """Forget the failed attempts of ``username`` from every client address."""
         ...
 
 

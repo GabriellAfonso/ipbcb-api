@@ -85,10 +85,12 @@ class GoogleAuthService:
 
     def _get_or_create_user(self, dto: GoogleUserDTO) -> User:
         # SECURITY: linking by e-mail is safe only while no flow lets a user set or edit
-        # User.email (today none does). An unverified e-mail would let someone pre-create a
-        # password account with a victim's address and share it once the victim signs in with
-        # Google. Before adding any e-mail input, link by the id_token "sub" instead and fall
-        # back to e-mail only when it is verified.
+        # User.email (none does). What users type goes in the separate Profile.recovery_email,
+        # which must never be read here (constitution, specs/028-password-recovery). An
+        # unverified e-mail would let someone pre-create a password account with a victim's
+        # address and share it once the victim signs in with Google. Before letting users write
+        # User.email, or making the recovery e-mail a login, link by the id_token "sub" instead
+        # and fall back to e-mail only when it is verified.
         user = self._user_repo.get_by_email(dto.email)
         if user:
             return user

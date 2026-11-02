@@ -18,7 +18,14 @@ class ProfileAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     list_display = ("name", "user", "member_access", "access_requests_blocked", "member")
     # The grant record is written by "Perfis" only; turning member_access on here records no
     # grant (specs/022-access-requests FR-017b).
-    readonly_fields = ("access_granted_by", "access_granted_at")
+    # The recovery e-mail too: an edit here would skip normalisation, keep a stale confirmation
+    # and leave pending codes alive (specs/028-password-recovery research R-10).
+    readonly_fields = (
+        "access_granted_by",
+        "access_granted_at",
+        "recovery_email",
+        "recovery_email_confirmed_at",
+    )
 
     def save_model(self, request: HttpRequest, obj: Profile, form: Any, change: bool) -> None:
         # Turning the flag off here is a revoke: no grant record may outlive the flag.

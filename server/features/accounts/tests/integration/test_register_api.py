@@ -1,4 +1,5 @@
 import pytest
+from django.core import mail
 from rest_framework.test import APIClient
 from features.accounts.models.profile import Profile
 from features.accounts.models.user import User
@@ -11,6 +12,7 @@ VALID_PAYLOAD = {
     "last_name": "User",
     "password": "securepass",
     "password_confirm": "securepass",
+    "recovery_email": "newuser@example.com",
 }
 
 
@@ -80,3 +82,58 @@ def test_register_rejects_a_username_unsafe_as_a_directory_name(username: str) -
     assert response.status_code == 400
     assert "username" in response.data["field_errors"]
     assert not User.objects.filter(username=username).exists()
+
+
+@pytest.mark.django_db
+def test_register_stores_the_recovery_email_normalised_and_sends_nothing() -> None:
+    body = {**VALID_PAYLOAD, "recovery_email": "  NewUser@Example.COM "}
+
+    assert APIClient().post(REGISTER_URL, body, format="json").status_code == 201
+
+    user = User.objects.get(username="newuser")
+    assert user.profile.recovery_email == "newuser@example.com"
+    assert user.profile.recovery_email_confirmed_at is None
+    assert mail.outbox == []
+
+
+@pytest.mark.django_db
+def test_register_never_writes_user_email() -> None:
+    APIClient().post(REGISTER_URL, VALID_PAYLOAD, format="json")
+
+    assert User.objects.get(username="newuser").email == ""
+
+
+@pytest.mark.django_db
+def test_register_without_recovery_email_is_refused() -> None:
+    body = {k: v for k, v in VALID_PAYLOAD.items() if k != "recovery_email"}
+
+    response = APIClient().post(REGISTER_URL, body, format="json")
+
+    assert response.status_code == 400
+    assert response.data["field_errors"]["recovery_email"] == ["Este campo é obrigatório."]
+    assert not User.objects.filter(username="newuser").exists()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("value", "message"),
+    [
+        ("", "Este campo não pode ficar em branco."),
+        ("not-an-email", "Informe um e-mail válido."),
+    ],
+)
+def test_register_with_invalid_recovery_email_is_refused(value: str, message: str) -> None:
+    body = {**VALID_PAYLOAD, "recovery_email": value}
+
+    response = APIClient().post(REGISTER_URL, body, format="json")
+
+    assert response.status_code == 400
+    assert response.data["field_errors"]["recovery_email"] == [message]
+
+
+@pytest.mark.django_db
+def test_register_accepts_an_address_another_account_uses() -> None:
+    APIClient().post(REGISTER_URL, VALID_PAYLOAD, format="json")
+    body = {**VALID_PAYLOAD, "username": "otheruser"}
+
+    assert APIClient().post(REGISTER_URL, body, format="json").status_code == 201

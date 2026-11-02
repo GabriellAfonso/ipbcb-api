@@ -1,5 +1,5 @@
-"""Account self-service exceptions: password change and account deletion
-(specs/021-user-account).
+"""Account self-service exceptions: password change, account deletion
+(specs/021-user-account) and password recovery (specs/028-password-recovery).
 
 Their own module, like ``event_exceptions``, to keep ``core/domain/exceptions.py`` under 500
 lines; that module re-exports every name here. Messages are in Portuguese: the app shows
@@ -7,7 +7,12 @@ lines; that module re-exports every name here. Messages are in Portuguese: the a
 expired, and a wrong confirmation does not end the session (spec FR-015).
 """
 
-from core.domain.base_exceptions import ConflictError, PermissionDeniedError, ValidationError
+from core.domain.base_exceptions import (
+    ConflictError,
+    PermissionDeniedError,
+    RateLimitedError,
+    ValidationError,
+)
 
 
 class InvalidPasswordError(ValidationError):
@@ -86,3 +91,57 @@ class AccountDeletionBlockedError(ConflictError):
         super().__init__(
             "Esta conta não pode ser excluída pelo app. Fale com a liderança da igreja."
         )
+
+
+class InvalidEmailCodeError(ValidationError):
+    """A wrong, expired or used e-mail code: deliberately one error for all of them, with no
+    offending value, so a caller guessing codes learns nothing from the answer.
+
+    >>> raise InvalidEmailCodeError()
+    """
+
+    error_code: str = "INVALID_EMAIL_CODE"
+
+    def __init__(self) -> None:
+        super().__init__("Código inválido ou expirado.")
+
+
+class EmailCodeRateLimitedError(RateLimitedError):
+    """A signed-in person over the per-address send limit. The public request never raises
+    this: it answers the same whatever happened.
+
+    >>> raise EmailCodeRateLimitedError(retry_after_seconds=60)
+    """
+
+    error_code: str = "EMAIL_CODE_RATE_LIMITED"
+
+    def __init__(self, retry_after_seconds: int) -> None:
+        super().__init__("Aguarde um pouco antes de pedir outro código.")
+        self.retry_after_seconds = retry_after_seconds
+
+    def extra_context(self) -> dict[str, object]:
+        return {"retry_after_seconds": self.retry_after_seconds}
+
+
+class RecoveryEmailNotSetError(ConflictError):
+    """A confirmation code asked by an account with no recovery e-mail.
+
+    >>> raise RecoveryEmailNotSetError()
+    """
+
+    error_code: str = "RECOVERY_EMAIL_NOT_SET"
+
+    def __init__(self) -> None:
+        super().__init__("Esta conta não tem e-mail de recuperação.")
+
+
+class RecoveryEmailAlreadyConfirmedError(ConflictError):
+    """A confirmation code asked for an address already confirmed.
+
+    >>> raise RecoveryEmailAlreadyConfirmedError()
+    """
+
+    error_code: str = "RECOVERY_EMAIL_ALREADY_CONFIRMED"
+
+    def __init__(self) -> None:
+        super().__init__("Este e-mail já está confirmado.")

@@ -20,3 +20,6 @@ SIMPLE_JWT = {**SIMPLE_JWT, "SIGNING_KEY": SECRET_KEY}  # noqa: F405
 # Local dev: don't force secure cookies
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
+
+# Local dev: messages with codes are printed, never sent.
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

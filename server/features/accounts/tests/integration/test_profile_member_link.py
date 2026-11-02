@@ -59,6 +59,8 @@ class TestProfileResource:
             "username",
             "has_password",
             "date_joined",
+            "recovery_email",
+            "recovery_email_confirmed",
         }
 
     def test_linked_profile_carries_the_member_id(self) -> None:

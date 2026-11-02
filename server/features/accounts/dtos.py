@@ -1,5 +1,6 @@
 """Data carried between the layers of access requests and "Perfis"
-(specs/022-access-requests/data-model.md). Auth DTOs stay in ``core/application/dtos``."""
+(specs/022-access-requests/data-model.md) and of the e-mail codes
+(specs/028-password-recovery/data-model.md). Auth DTOs stay in ``core/application/dtos``."""
 
 from datetime import datetime
 from uuid import UUID
@@ -13,6 +14,7 @@ from features.accounts.domain.access_requests import (
     AccessStatus,
     clean_text,
 )
+from features.accounts.domain.email_codes import EmailCodePurpose
 
 
 class AccessRequestCreateDTO(StrictBaseModel):
@@ -135,3 +137,52 @@ class AccountAccessFlagsDTO(StrictBaseModel):
 
     member_access: bool
     access_requests_blocked: bool
+
+
+class EmailMessageDTO(StrictBaseModel):
+    """A message ready to send. Holds a code in its body: never log it.
+
+    >>> EmailMessageDTO(to="a@b.com", subject="s", body="b").to
+    'a@b.com'
+    """
+
+    to: str
+    subject: str
+    body: str
+
+
+class AccountCodeDTO(StrictBaseModel):
+    """One line of the recovery message.
+
+    >>> AccountCodeDTO(username="ana", code="123456").username
+    'ana'
+    """
+
+    username: str
+    code: str
+
+
+class NewEmailCodeDTO(StrictBaseModel):
+    """A code to store: its hash only.
+
+    >>> NewEmailCodeDTO(user_id=user_id, purpose=EmailCodePurpose.RECOVERY, address="a@b.com",
+    ...                 code_digest="9f2c", expires_at=now).purpose
+    <EmailCodePurpose.RECOVERY: 'recovery'>
+    """
+
+    user_id: UUID
+    purpose: EmailCodePurpose
+    address: str
+    code_digest: str
+    expires_at: datetime
+
+
+class PendingEmailCodeDTO(StrictBaseModel):
+    """A stored code that can still be used.
+
+    >>> PendingEmailCodeDTO(user_id=user_id, code_digest="9f2c").code_digest
+    '9f2c'
+    """
+
+    user_id: UUID
+    code_digest: str

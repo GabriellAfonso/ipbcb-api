@@ -17,7 +17,16 @@ from features.accounts.views.devices import (
     DeviceTokenRegisterAPIView,
     DeviceTokenUnregisterAPIView,
 )
+from features.accounts.views.password_recovery import (
+    PasswordRecoveryConfirmAPI,
+    PasswordRecoveryRequestAPI,
+)
 from features.accounts.views.profile import MeProfileAPIView, ProfilePhotoAPIView
+from features.accounts.views.recovery_email import (
+    RecoveryEmailAPIView,
+    RecoveryEmailConfirmAPIView,
+    RecoveryEmailSendCodeAPIView,
+)
 
 urlpatterns = [
     path("api/auth/google/", GoogleLoginAPI.as_view(), name="google_login"),
@@ -38,6 +47,28 @@ urlpatterns = [
     ),
     path("api/me/password/", PasswordChangeAPIView.as_view(), name="password_change"),
     path("api/me/delete/", AccountDeletionAPIView.as_view(), name="account_delete"),
+    # Recovery e-mail and password recovery (specs/028-password-recovery).
+    path(
+        "api/auth/password-recovery/request/",
+        PasswordRecoveryRequestAPI.as_view(),
+        name="password_recovery_request",
+    ),
+    path(
+        "api/auth/password-recovery/confirm/",
+        PasswordRecoveryConfirmAPI.as_view(),
+        name="password_recovery_confirm",
+    ),
+    path("api/me/recovery-email/", RecoveryEmailAPIView.as_view(), name="recovery_email"),
+    path(
+        "api/me/recovery-email/send-code/",
+        RecoveryEmailSendCodeAPIView.as_view(),
+        name="recovery_email_send_code",
+    ),
+    path(
+        "api/me/recovery-email/confirm/",
+        RecoveryEmailConfirmAPIView.as_view(),
+        name="recovery_email_confirm",
+    ),
     # Member access and access requests (specs/022-access-requests).
     path("api/me/access-requests/", MeAccessRequestAPIView.as_view(), name="me_access_requests"),
     path("api/admin/profiles/", AdminProfileListAPIView.as_view(), name="admin_profiles_list"),

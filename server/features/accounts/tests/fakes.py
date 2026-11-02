@@ -1,8 +1,10 @@
 """Named fakes for the accounts tests (CLAUDE.md §10: no inline stubs for external I/O)."""
 
+from datetime import datetime
 from uuid import UUID
 
 from core.domain.exceptions import InvalidPasswordError
+from features.accounts.dtos import EmailMessageDTO
 from features.accounts.models.profile import Profile
 from features.accounts.models.user import User
 from features.accounts.repositories.user_repository import UserRepositoryImpl
@@ -90,6 +92,46 @@ class RecordingProfileService(ProfileService):
     def update_profile(self, user: User, **fields: object) -> Profile:
         self.updates.append(fields)
         return super().update_profile(user, **fields)
+
+
+class FixedClock:
+    """A ``Clock`` that says ``current``; a test moves time by assigning it."""
+
+    def __init__(self, current: datetime) -> None:
+        self.current = current
+
+    def now(self) -> datetime:
+        return self.current
+
+
+class RecordingLockoutResetter:
+    """Stands in for ``AxesLockoutResetter``: records whose lockout was cleared."""
+
+    def __init__(self) -> None:
+        self.usernames: list[str] = []
+
+    def reset(self, username: str) -> None:
+        self.usernames.append(username)
+
+
+class RecordingEmailSender:
+    """Stands in for an ``EmailSender``: keeps the messages instead of delivering them."""
+
+    def __init__(self) -> None:
+        self.messages: list[EmailMessageDTO] = []
+
+    def send(self, message: EmailMessageDTO) -> None:
+        self.messages.append(message)
+
+
+class FailingEmailSender:
+    """An ``EmailSender`` whose provider refuses: raises ``error`` on every send."""
+
+    def __init__(self, error: Exception) -> None:
+        self.error = error
+
+    def send(self, message: EmailMessageDTO) -> None:
+        raise self.error
 
 
 class FakeHttpResponse:
