@@ -326,10 +326,21 @@ List all chord charts ordered alphabetically by song title.
 
 Create a new chord chart for a song.
 
-- **Auth**: `IsAuthenticated` + `scope_permission(Scope.SONGS)` — `manage`. `PATCH /api/chord-charts/{id}/` (edit `content`) requires the same
+- **Auth**: `IsAuthenticated` + `scope_permission(Scope.SONGS)` — `manage`. `PATCH /api/chord-charts/{id}/` requires the same
 - **Request body**: `{ song_id, content, tone, instrument }` — all required
 - **Response**: `201` with `{ id, song_id, content, tone, instrument, updated_at }`
 - **Errors**: `400` if song_id not found, or any required field missing/empty
+
+### PATCH /api/chord-charts/{id}/
+
+Edit a chord chart. Partial: only the fields sent change, so a client that only sends `content` keeps working.
+
+- **Request body**: any of `{ content, tone, instrument }`, at least one. `content` must not be blank and is
+  stored as typed; `tone` (max 3) and `instrument` (max 50) are trimmed and must not be blank. `null` is refused.
+- **Response**: `200` with `{ id, song_id, content, tone, instrument, updated_at }`
+- **Errors**: `400` for an invalid body, `404` if the chart does not exist, `409` (`CONFLICT`) if the song already
+  has another chart with this tone and instrument (the `unique_together` above, compared exactly). The `409`
+  `detail` is user-facing copy. The check only runs when the tone or the instrument changes.
 
 ### GET /api/lyrics/
 

@@ -190,6 +190,24 @@ class DuplicateSongError(ConflictError):
         return {"title": self.title, "artist": self.artist}
 
 
+class DuplicateChordChartError(ConflictError):
+    """The song already has another chord chart with this tone and instrument.
+
+    The message is user-facing: the app shows the ``detail`` of a structured error.
+
+    >>> raise DuplicateChordChartError(1, "G", "Baixo")
+    """
+
+    def __init__(self, song_id: int, tone: str, instrument: str) -> None:
+        super().__init__(f"Já existe uma cifra dessa música no tom {tone} para {instrument}.")
+        self.song_id = song_id
+        self.tone = tone
+        self.instrument = instrument
+
+    def extra_context(self) -> dict[str, object]:
+        return {"song_id": self.song_id, "tone": self.tone, "instrument": self.instrument}
+
+
 class SongsNotFoundError(NotFoundError):
     """Raised when one or more songs are not found."""
 

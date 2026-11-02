@@ -81,6 +81,45 @@ class SongChangesInput(StrictBaseModel):
         return self
 
 
+def _require_text(v: str) -> str:
+    if not v.strip():
+        raise ValueError(f"content must not be blank; got {v!r}")
+    return v
+
+
+# Lengths mirror the ``ChordChart`` columns. Content stays as typed: its line breaks are the chart.
+_ChartContent = Annotated[str, AfterValidator(_require_text)]
+_ChartTone = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=3)]
+_ChartInstrument = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=50)
+]
+
+
+class ChordChartChangesInput(StrictBaseModel):
+    """A partial edit of a chord chart: only the fields sent change.
+
+    >>> ChordChartChangesInput(tone=" G ").model_dump(exclude_unset=True)
+    {'tone': 'G'}
+    """
+
+    content: _ChartContent | None = None
+    tone: _ChartTone | None = None
+    instrument: _ChartInstrument | None = None
+
+    @field_validator("content", "tone", "instrument", mode="before")
+    @classmethod
+    def reject_null(cls, v: object, info: ValidationInfo) -> object:
+        if v is None:
+            raise ValueError(f"{info.field_name} must not be null; omit the field to keep it")
+        return v
+
+    @model_validator(mode="after")
+    def require_a_change(self) -> Self:
+        if not self.model_fields_set:
+            raise ValueError("send at least one of: content, tone, instrument; got {}")
+        return self
+
+
 class SongUsage(StrictBaseModel):
     """What in the Sunday record still points at a song, blocking its deletion.
 

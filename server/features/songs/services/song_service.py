@@ -9,6 +9,7 @@ from django.utils.timezone import now
 
 from core.domain.exceptions import (
     ChordChartNotFoundError,
+    DuplicateChordChartError,
     DuplicateSongError,
     LyricsNotFoundError,
     SongInUseError,
@@ -16,7 +17,13 @@ from core.domain.exceptions import (
     ValidationError,
 )
 from core.metrics import CHORD_CHART_VIEWS_COUNTER, LYRICS_VIEWS_COUNTER
-from features.songs.dtos import NewSongInput, SongChangesInput, SundaySetDTO, SundaySongDTO
+from features.songs.dtos import (
+    ChordChartChangesInput,
+    NewSongInput,
+    SongChangesInput,
+    SundaySetDTO,
+    SundaySongDTO,
+)
 from features.songs.models.chord_chart import ChordChart
 from features.songs.models.lyrics import Lyrics
 from features.songs.models.song import Played, Song
@@ -229,17 +236,30 @@ class SongService:
         CHORD_CHART_VIEWS_COUNTER.inc()
         return self._repository.list_all_chord_charts()
 
-    def update_chord_chart_content(self, pk: int, content: str) -> ChordChart:
-        """Update chord chart content by id.
+    def update_chord_chart(self, pk: int, changes: ChordChartChangesInput) -> ChordChart:
+        """Apply a partial edit, refusing one that repeats another chart of the song.
 
-        >>> service.update_chord_chart_content(1, "Am G C")
+        Checked only when the tone or the instrument changes. Same accepted race as
+        ``update_song``: the database constraint still holds, as a 500.
+
+        >>> service.update_chord_chart(1, ChordChartChangesInput(tone="G"))
         <ChordChart: ...>
         """
         chart = self._repository.get_chord_chart_by_id(pk)
         if not chart:
             raise ChordChartNotFoundError(pk)
-        chart.content = content
-        self._repository.save_chord_chart(chart, ["content", "updated_at"])
+        tone = changes.tone if changes.tone is not None else chart.tone
+        instrument = changes.instrument if changes.instrument is not None else chart.instrument
+        if (tone, instrument) != (chart.tone, chart.instrument) and (
+            self._repository.chord_chart_exists(
+                chart.song_id, tone, instrument, exclude_id=chart.pk
+            )
+        ):
+            raise DuplicateChordChartError(chart.song_id, tone, instrument)
+        sent = changes.model_dump(exclude_unset=True)
+        for field, value in sent.items():
+            setattr(chart, field, value)
+        self._repository.save_chord_chart(chart, [*sent, "updated_at"])
         return chart
 
     def list_lyrics(self) -> QuerySet[Lyrics]:

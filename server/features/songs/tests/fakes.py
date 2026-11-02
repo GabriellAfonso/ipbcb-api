@@ -345,6 +345,9 @@ class FakeSongRepository:
     def save_chord_chart(self, chart: ChordChart, fields: list[str]) -> None:
         raise _unused("save_chord_chart")
 
+    def chord_chart_exists(self, song_id: int, tone: str, instrument: str, exclude_id: int) -> bool:
+        raise _unused("chord_chart_exists")
+
     def save_lyrics(self, lyrics: Lyrics, fields: list[str]) -> None:
         raise _unused("save_lyrics")
 

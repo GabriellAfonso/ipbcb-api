@@ -97,6 +97,13 @@ class SongRepositoryImpl:
     def save_chord_chart(self, chart: ChordChart, fields: list[str]) -> None:
         chart.save(update_fields=fields)
 
+    def chord_chart_exists(self, song_id: int, tone: str, instrument: str, exclude_id: int) -> bool:
+        return (
+            ChordChart.objects.filter(song_id=song_id, tone=tone, instrument=instrument)
+            .exclude(pk=exclude_id)
+            .exists()
+        )
+
     def save_lyrics(self, lyrics: Lyrics, fields: list[str]) -> None:
         lyrics.save(update_fields=fields)
 

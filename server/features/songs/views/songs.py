@@ -13,7 +13,7 @@ from core.domain.exceptions import ValidationError
 from core.http.parsing import require_int
 from core.http.permissions import scope_permission
 from core.http.utils import _not_modified_or_response
-from features.songs.dtos import NewSongInput, SongChangesInput
+from features.songs.dtos import ChordChartChangesInput, NewSongInput, SongChangesInput
 from features.songs.serializers.serializers import (
     ChordChartSerializer,
     LyricsSerializer,
@@ -274,10 +274,11 @@ class ChordChartDetailAPI(APIView):
         pk: int,
         song_service: SongService = Provide[Container.song_service],
     ) -> Response:
-        content = request.data.get("content")
-        if content is None:
-            raise ValidationError("Field 'content' is required.")
-        chart = song_service.update_chord_chart_content(pk, content)
+        # A body that fails ChordChartChangesInput raises pydantic's ValidationError, which
+        # the exception handler turns into a 400 with field_errors.
+        chart = song_service.update_chord_chart(
+            pk, ChordChartChangesInput.model_validate(request.data)
+        )
         return Response(ChordChartSerializer(chart).data)
 
 
