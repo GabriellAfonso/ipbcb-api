@@ -20,7 +20,7 @@ LESSONS = read_lessons(LESSON_DATA_DIR / "2026")
 # Lessons that arrived after the 2026 load ran in production, each in its own migration's folder.
 LATER_LESSONS = [
     lesson
-    for folder in ("0003_load_oseias_joel_amos", "0004_load_joao")
+    for folder in ("0003_load_oseias_joel_amos", "0004_load_joao", "0005_load_atos")
     for lesson in read_lessons(LESSON_DATA_DIR / folder)
 ]
 ALL_LESSONS = LESSONS + LATER_LESSONS
@@ -92,6 +92,7 @@ def test_later_lessons_dates_and_teachers() -> None:
     assert [(lesson.title, lesson.date, lesson.teacher) for lesson in LATER_LESSONS] == [
         ("Oseias, Joel e Amós", None, ""),
         ("João", datetime.date(2026, 11, 1), "Jean Monjardim"),
+        ("Atos", datetime.date(2026, 11, 8), ""),
     ]
 
 

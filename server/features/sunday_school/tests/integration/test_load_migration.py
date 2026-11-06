@@ -16,8 +16,9 @@ from features.sunday_school.models import SundaySchoolLesson, SundaySchoolYear
 load = import_module("features.sunday_school.migrations.0002_load_2026_lessons")
 add_hosea = import_module("features.sunday_school.migrations.0003_load_oseias_joel_amos")
 add_john = import_module("features.sunday_school.migrations.0004_load_joao")
+add_acts = import_module("features.sunday_school.migrations.0005_load_atos")
 # Later lessons, in migration order; reversed newest first.
-LATE_LOADS = [add_hosea, add_john]
+LATE_LOADS = [add_hosea, add_john, add_acts]
 
 pytestmark = pytest.mark.django_db
 
@@ -26,18 +27,19 @@ def test_fresh_database_holds_the_2026_lessons() -> None:
     lessons = list(SundaySchoolLesson.objects.filter(year__year=2026).order_by("position"))
 
     assert SundaySchoolYear.objects.get(year=2026).theme == "O Drama das Escrituras"
-    assert [lesson.position for lesson in lessons] == list(range(20))
+    assert [lesson.position for lesson in lessons] == list(range(21))
     assert {lesson.status for lesson in lessons} == {"published"}
-    assert sum(lesson.date is not None for lesson in lessons) == 10
+    assert sum(lesson.date is not None for lesson in lessons) == 11
     assert lessons[10].date == datetime.date(2026, 8, 16)
     assert [lesson.title for lesson in lessons[10:13]] == [
         "Daniel",
         "Oseias, Joel e Amós",
         "Obadias, Jonas e Miqueias",
     ]
-    assert [lesson.title for lesson in lessons[-2:]] == ["Marcos", "João"]
-    assert (lessons[-1].date, lessons[-1].teacher) == (datetime.date(2026, 11, 1), "Jean Monjardim")
-    assert {lesson.teacher for lesson in lessons[:-1]} == {""}
+    assert [lesson.title for lesson in lessons[-3:]] == ["Marcos", "João", "Atos"]
+    assert (lessons[-2].date, lessons[-2].teacher) == (datetime.date(2026, 11, 1), "Jean Monjardim")
+    assert (lessons[-1].date, lessons[-1].teacher) == (datetime.date(2026, 11, 8), "")
+    assert {lesson.teacher for lesson in lessons if lesson.title != "João"} == {""}
     assert all(lesson.created_by_id is None for lesson in lessons)
 
 
@@ -46,7 +48,7 @@ def test_reverse_removes_only_what_it_created() -> None:
         year=SundaySchoolYear.objects.get(year=2026),
         title="Panorama de Gênesis",
         status="draft",
-        position=20,
+        position=21,
         content={"sections": []},
         created_by=make_user("lider"),
     )
@@ -67,7 +69,7 @@ def test_reverse_then_forward_restores_the_load() -> None:
     for late in LATE_LOADS:
         late.forward(apps, None)
 
-    assert SundaySchoolLesson.objects.count() == 20
+    assert SundaySchoolLesson.objects.count() == 21
 
 
 def _reverse_late_loads() -> None:
@@ -85,7 +87,7 @@ def test_hosea_reverse_closes_the_gap() -> None:
     positions = list(
         SundaySchoolLesson.objects.order_by("position").values_list("position", flat=True)
     )
-    assert positions == list(range(19))
+    assert positions == list(range(20))
     assert "Oseias, Joel e Amós" not in _titles_in_order()
 
 
@@ -101,5 +103,21 @@ def test_hosea_goes_last_when_daniel_is_gone() -> None:
 def test_john_reverse_removes_only_john() -> None:
     add_john.backward(apps, None)
 
-    assert _titles_in_order()[-1] == "Marcos"
-    assert SundaySchoolLesson.objects.count() == 19
+    assert _titles_in_order()[-2:] == ["Marcos", "Atos"]
+    assert SundaySchoolLesson.objects.count() == 20
+
+
+def test_acts_reverse_removes_only_acts() -> None:
+    add_acts.backward(apps, None)
+
+    assert _titles_in_order()[-1] == "João"
+    assert SundaySchoolLesson.objects.count() == 20
+
+
+def test_acts_goes_last_when_john_is_gone() -> None:
+    add_acts.backward(apps, None)
+    SundaySchoolLesson.objects.filter(title="João").delete()
+
+    add_acts.forward(apps, None)
+
+    assert _titles_in_order()[-1] == "Atos"

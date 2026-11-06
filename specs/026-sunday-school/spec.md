@@ -18,7 +18,7 @@ Today the EBD lessons exist only as PDFs and PowerPoint decks sent around on Wha
 Estudos tab shows "Escola Bíblica Dominical" as "Em breve". This feature adds a new domain,
 `sunday_school`, that stores each lesson as structured content (sections of typed blocks), serves
 the published lessons publicly, lets leadership write and order them from the panel, and loads this
-year's 20 lessons on deploy.
+year's 21 lessons on deploy.
 
 The name was chosen by the user: these are EBD lessons only, not generic "studies". There are no
 categories and no series inside a year.
@@ -71,14 +71,14 @@ whole chapter) or `null` when the passage cannot be pinned.
 ### User Story 1 - Anyone reads this year's lessons (Priority: P1)
 
 A member opens Estudos → Escola Bíblica Dominical without signing in. The app shows "2026 — O Drama
-das Escrituras" with its 20 lessons in Bible order; tapping "Daniel" shows its sections
+das Escrituras" with its 21 lessons in Bible order; tapping "Daniel" shows its sections
 with icons, key verses as cards with tappable references, and the Daniel timeline.
 
 **Why this priority**: this is what replaces the PDFs on WhatsApp; it is the whole value for the
 church.
 
 **Independent Test**: after migrating, request the index and one lesson without a token; expect the
-2026 year with its theme, 20 lessons ordered by position, and a lesson body that validates against
+2026 year with its theme, 21 lessons ordered by position, and a lesson body that validates against
 the content schema; repeat with the returned ETag and expect 304.
 
 **Acceptance Scenarios**:
@@ -185,12 +185,12 @@ check it is gone and the remaining positions are 0..n-1.
 
 ### User Story 5 - This year's lessons arrive with the deploy (Priority: P1)
 
-On the deploy's `migrate`, the server gets the 2026 year ("O Drama das Escrituras") and its 20
+On the deploy's `migrate`, the server gets the 2026 year ("O Drama das Escrituras") and its 21
 lessons, published, in Bible order, with only the official dates.
 
 **Why this priority**: without the import the public list is empty on day one.
 
-**Independent Test**: migrate an empty database; expect one year, 20 published lessons with
+**Independent Test**: migrate an empty database; expect one year, 21 published lessons with
 positions 0..19 in the expected title order, 10 dates set, one teacher, no author; every content
 document passes the schema and every reference resolves in every Bible translation; migrate back
 and expect the rows gone.
@@ -198,21 +198,21 @@ and expect the rows gone.
 **Acceptance Scenarios**:
 
 1. **Given** an empty database, **When** migrations run, **Then** year 2026 exists with theme "O
-   Drama das Escrituras" and 20 published lessons in this order, titled exactly: Josué, Rute,
+   Drama das Escrituras" and 21 published lessons in this order, titled exactly: Josué, Rute,
    2 Samuel, 1 Reis, 2 Reis, 2 Crônicas, Salmos, Provérbios, Isaías, Ezequiel, Daniel, "Oseias,
    Joel e Amós", "Obadias, Jonas e Miqueias", "Naum, Habacuque e Sofonias", "Ageu, Zacarias e Malaquias", O Período
-   Intertestamentário, O Rei Chegou, Mateus, Marcos, João. A lesson's title is the name of the
+   Intertestamentário, O Rei Chegou, Mateus, Marcos, João, Atos. A lesson's title is the name of the
    Bible book (or books, joined with commas and "e") it covers; only the two lessons that cover no
    single book keep a descriptive title.
 2. **Then** dates are set only for 2 Samuel (2026-05-17), 1 Reis (05-24), 2 Reis (05-31),
    2 Crônicas (06-14), Salmos (07-05), Provérbios (07-12), Isaías (07-26), Ezequiel (08-09) and
-   Daniel (08-16) and João (11-01); every other lesson has no date. Only João has a teacher (Jean
+   Daniel (08-16), João (11-01) and Atos (11-08); every other lesson has no date. Only João has a teacher (Jean
    Monjardim). No lesson has an author.
 3. **Then** every imported section has an icon.
 4. **Given** a database where the first 18 lessons were already loaded (production), **When** the
    later migration runs, **Then** "Oseias, Joel e Amós" is inserted right after "Daniel" and every
    later lesson moves one position down; if "Daniel" was deleted it goes last. Likewise "João" goes
-   right after "Marcos". Each reverse removes its lesson and closes the gap.
+   right after "Marcos", and "Atos" (Act 5, given 2026-11-08) right after "João". Each reverse removes its lesson and closes the gap.
 
 ---
 
@@ -308,7 +308,7 @@ and expect the rows gone.
 
 **Initial load**
 
-- **FR-022**: Data migrations MUST create year 2026 with theme "O Drama das Escrituras" and the 20
+- **FR-022**: Data migrations MUST create year 2026 with theme "O Drama das Escrituras" and the 21
   lessons of User Story 5, published, positions in Bible order, official dates only, a teacher only
   when the source names one, no author. They MUST read frozen JSON files stored beside them, validate them through the same
   content schema, and each reverse MUST remove what it created. A lesson that arrives after a load
@@ -388,9 +388,9 @@ Errors (`{"error_code", "detail"}`):
 
 ### Measurable Outcomes
 
-- **SC-001**: On the first deploy, a visitor without an account sees the 20 lessons of 2026 under
+- **SC-001**: On the first deploy, a visitor without an account sees the 21 lessons of 2026 under
   the theme "O Drama das Escrituras", in Bible order.
-- **SC-002**: Every one of the 20 imported lessons is readable in the app with no PDF, image or
+- **SC-002**: Every one of the 21 imported lessons is readable in the app with no PDF, image or
   external link — all content is structured text.
 - **SC-003**: A leader can add a missing lesson and place it before the first imported one in two
   actions (create, reorder).
@@ -404,7 +404,7 @@ Errors (`{"error_code", "detail"}`):
 - A year holds a few dozen lessons, so the index is unpaginated.
 - A lesson's content stays well under 100 KB; one response per lesson is fine.
 - The app renders inline emphasis and draws icons; the server only stores and validates names.
-- Converting the 20 lessons is manual work reviewed by the user, like the doctrine files; the
+- Converting the 21 lessons is manual work reviewed by the user, like the doctrine files; the
   migration is not committed until that review.
 
 ## Out of Scope
