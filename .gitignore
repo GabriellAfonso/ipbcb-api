@@ -108,3 +108,8 @@ pip-delete-this-directory.txt
 
 # ─── Temp ─────────────────────────────────────────────────────────────────────
 TESTS.md
+
+# Local agent tooling and Windows profile junk, never part of the repo
+.agents/
+AGENTS.md
+Microsoft/
