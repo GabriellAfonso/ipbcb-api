@@ -55,6 +55,25 @@ def remove_lessons(apps: StateApps, year: int, directory: Path) -> None:
         )
 
 
+def replace_lessons_content(apps: StateApps, year: int, directory: Path) -> None:
+    """Give each author-less lesson titled as a file in ``directory`` that file's content.
+
+    Touches nothing else on the row, and skips a lesson that no longer exists.
+
+    >>> replace_lessons_content(apps, 2026, LESSON_DATA_DIR / "0006_replace_atos_content")
+    """
+    lesson_model = apps.get_model("sunday_school", "SundaySchoolLesson")
+    for lesson in read_lessons(directory):
+        loaded = lesson_model.objects.filter(
+            year__year=year, created_by__isnull=True, title=lesson.title
+        ).first()
+        if loaded is None:
+            continue
+        loaded.content = lesson.content.model_dump(mode="json")
+        # save, not a queryset update: updated_at has to record the change.
+        loaded.save(update_fields=["content", "updated_at"])
+
+
 def _position_after(lessons: QuerySet[Model], preceding_title: str) -> int:
     """The position right after ``preceding_title`` in ``lessons`` (one year), or the end."""
     preceding = (

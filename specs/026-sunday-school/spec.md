@@ -213,6 +213,10 @@ and expect the rows gone.
    later migration runs, **Then** "Oseias, Joel e Amós" is inserted right after "Daniel" and every
    later lesson moves one position down; if "Daniel" was deleted it goes last. Likewise "João" goes
    right after "Marcos", and "Atos" (Act 5, given 2026-11-08) right after "João". Each reverse removes its lesson and closes the gap.
+5. **Given** the author-less "Atos" lesson loaded from the outline, **When** the replacing migration
+   runs, **Then** its content becomes the lesson actually given ("O Drama das Escrituras Ato 5"), and
+   its title, date, teacher, status and position stay as they are; if it was deleted, nothing
+   happens. The reverse puts the outline content back.
 
 ---
 
@@ -313,7 +317,8 @@ and expect the rows gone.
   when the source names one, no author. They MUST read frozen JSON files stored beside them, validate them through the same
   content schema, and each reverse MUST remove what it created. A lesson that arrives after a load
   already ran in production gets its own migration and its own data folder, never an edit to the
-  applied one.
+  applied one. The same holds for replacing the content of a lesson already loaded: its reverse
+  restores the previous content.
 - **FR-023**: The lesson content files MUST be converted by hand from the source PDFs/PPTX and
   reviewed by the user before commit. Every Bible reference in them becomes a `{printed, reference}`
   pair resolved with the doctrine rules.

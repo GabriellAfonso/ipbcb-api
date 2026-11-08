@@ -1,0 +1,524 @@
+{
+  "title": "Atos",
+  "date": "2026-11-08",
+  "teacher": "",
+  "content": {
+    "sections": [
+      {
+        "title": "O Contexto no Drama das Escrituras",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Texto base:** Lucas 24.33-48 e Atos 1.1-2.",
+            "proof_texts": [
+              {
+                "printed": "Lucas 24.33-48",
+                "reference": {
+                  "book": "Lc",
+                  "chapter": 24,
+                  "verses": [
+                    {
+                      "start": 33,
+                      "end": 48
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Atos 1.1-2",
+                "reference": {
+                  "book": "At",
+                  "chapter": 1,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 2
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Para entender onde estamos, precisamos lembrar de onde viemos e para onde estamos indo dentro do Grande Roteiro de Deus.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**O Retrospecto (Atos 1 a 4)**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "Ato 1",
+                "title": "A Criação",
+                "text": "Deus cria um mundo perfeito e estabelece o homem como Seu vice-regente para expandir o Seu Reino de amor e justiça.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Ato 2",
+                "title": "A Queda",
+                "text": "O homem se rebela. O pecado entra no mundo, quebrando as relações com Deus, com o próximo e com a própria criação.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Ato 3",
+                "title": "A Redenção Iniciada (Israel)",
+                "text": "Deus escolhe Abraão e a nação de Israel para ser uma luz para as nações, mas o povo falha repetidamente em sua missão.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Ato 4",
+                "title": "A Redenção Concretizada (Cristo)",
+                "text": "Jesus, o verdadeiro Israel, encarna, morre e ressuscita. Ele inaugura o Reino de Deus na Terra de forma definitiva, vencendo o pecado e a morte.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**O Momento Atual e o Vislumbre do Futuro**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "Ato 5",
+                "title": "O Cenário Atual",
+                "text": "Nós estamos vivendo exatamente aqui. É o intervalo histórico entre a Ascensão de Cristo e a Sua Segunda Vinda. Não somos plateia; somos os atores convocados para continuar a história bíblica hoje.",
+                "proof_texts": []
+              },
+              {
+                "icon": null,
+                "label": "Ato 6",
+                "title": "A Prévia do Fim: A Redenção Consumada",
+                "text": "O drama terminará com o retorno de Cristo, a renovação de todas as coisas, novos céus e nova terra. O mal será extirpado para sempre e o Reino de Deus operará em plenitude visível.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Objetivos Teológicos da Aula",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Identidade Narrativa:** compreender que a Igreja de hoje é a continuidade histórica do livro de Atos, chamada para viver a nova era inaugurada por Cristo e testemunhar ao mundo.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**Alinhamento de Cosmovisão:** aprender a responder às 5 Grandes Perguntas da Vida através da lente bíblica, rejeitando as narrativas seculares do nosso tempo:",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "numbered",
+            "items": [
+              {
+                "text": "**Onde estamos?** Em que tipo de mundo vivemos?",
+                "proof_texts": []
+              },
+              {
+                "text": "**Quem somos?** O que significa ser humano?",
+                "proof_texts": []
+              },
+              {
+                "text": "**O que está errado?** Qual é o problema fundamental do mundo?",
+                "proof_texts": []
+              },
+              {
+                "text": "**Qual é a solução?** O que consertará o problema?",
+                "proof_texts": []
+              },
+              {
+                "text": "**Que horas são?** Em que momento da história estamos?",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Verdades Teológicas e Cristológicas",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "O núcleo doutrinário da nossa fé prática.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**A) A Cristologia do Cristo Exaltado e Ativo**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": "crown",
+                "label": null,
+                "title": "O Cristo que Continua Agindo",
+                "text": "O Evangelho de Lucas narra o que Jesus começou a fazer e a ensinar. O livro de Atos narra o que Jesus continua fazendo do céu, através do Seu Espírito atuando na Sua Igreja. Ele mudou de posição (está exaltado à destra do Pai), mas não mudou de ocupação.",
+                "proof_texts": []
+              },
+              {
+                "icon": "mountains",
+                "label": null,
+                "title": "A Expansão do Escopo",
+                "text": "Em Seu ministério terreno, Jesus confinou estrategicamente Sua obra geográfica a Israel. Agora, como Rei Exaltado do Universo, Ele estende Seu ministério de forma global, quebrando fronteiras.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**B) O Espírito Santo e a Expansão do Testemunho**",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "O Espírito Santo cumpre as promessas proféticas (Is 42.1; Ez 37.14) e cria uma comunidade viva.",
+            "proof_texts": [
+              {
+                "printed": "Isaías 42.1",
+                "reference": {
+                  "book": "Is",
+                  "chapter": 42,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 1
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Ezequiel 37.14",
+                "reference": {
+                  "book": "Ez",
+                  "chapter": 37,
+                  "verses": [
+                    {
+                      "start": 14,
+                      "end": 14
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Quando o mundo confrontado pergunta *\"Que faremos?\"*, a resposta é o arrependimento.",
+            "proof_texts": [
+              {
+                "printed": "Atos 2.1-8, 14-21, 36-39",
+                "reference": {
+                  "book": "At",
+                  "chapter": 2,
+                  "verses": [
+                    {
+                      "start": 1,
+                      "end": 8
+                    },
+                    {
+                      "start": 14,
+                      "end": 21
+                    },
+                    {
+                      "start": 36,
+                      "end": 39
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**A Geografia Progressiva:** o Espírito empurra a Igreja para fora de sua zona de conforto em círculos concêntricos:",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "1",
+                "title": "Jerusalém",
+                "text": "O testemunho local, no centro religioso.",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 1—8",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 1,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "2",
+                "title": "Judeia e Samaria",
+                "text": "O Evangelho rompendo barreiras culturais, étnicas e preconceitos históricos através de Estêvão e Filipe.",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 6.5-7",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 6,
+                      "verses": [
+                        {
+                          "start": 5,
+                          "end": 7
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "3",
+                "title": "Confins da Terra / Roma",
+                "text": "A mensagem invadindo o coração do império pagão.",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 13—28",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 13,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**C) As Duas Eras de Paulo (Escatologia do \"Já e Ainda Não\")**",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**A Metáfora dos Dois Túmulos**",
+            "proof_texts": []
+          },
+          {
+            "type": "comparison",
+            "items": [
+              {
+                "label": "Túmulo de Adão",
+                "title": "A Era Antiga",
+                "text": "No túmulo de Adão, está a porta de entrada para a Era Antiga (marcada por pecado, morte, mal, egoísmo e governo satânico).",
+                "highlight": false
+              },
+              {
+                "label": "Túmulo vazio de Jesus",
+                "title": "A Era Vindoura",
+                "text": "No túmulo vazio de Jesus, está a porta aberta para a Era Vindoura (marcada por amor, alegria, justiça e novidade de vida).",
+                "highlight": true
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**A Tensão do Interregno:** nós fomos arrancados da Era Antiga e transportados para a Nova Era (2Co 5.17-21). No entanto, essas duas eras se sobrepõem no tempo presente. O Reino já chegou (na ressurreição), mas ainda não se consumou (aguarda o Retorno). Vivemos nessa tensão, lutando contra os resquícios do velho mundo enquanto manifestamos a realidade do novo.",
+            "proof_texts": [
+              {
+                "printed": "2 Coríntios 5.17-21",
+                "reference": {
+                  "book": "2Co",
+                  "chapter": 5,
+                  "verses": [
+                    {
+                      "start": 17,
+                      "end": 21
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Versículos-Chave",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "key_verse",
+            "label": "A continuidade da missão",
+            "text": "Fiz o primeiro tratado, ó Teófilo, acerca de tudo que Jesus começou, não só a fazer, mas a ensinar...",
+            "proof": {
+              "printed": "Atos 1.1-2",
+              "reference": {
+                "book": "At",
+                "chapter": 1,
+                "verses": [
+                  {
+                    "start": 1,
+                    "end": 2
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "A rota geográfica da expansão",
+            "text": "Mas recebereis a virtude do Espírito Santo, que há de vir sobre vós; e ser-me-eis testemunhas, tanto em Jerusalém como em toda a Judeia e Samaria, e até aos confins da terra.",
+            "proof": {
+              "printed": "Atos 1.8",
+              "reference": {
+                "book": "At",
+                "chapter": 1,
+                "verses": [
+                  {
+                    "start": 8,
+                    "end": 8
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "A realidade da Nova Era manifesta no crente",
+            "text": "Assim que, se alguém está em Cristo, nova criatura é; as coisas velhas já passaram; eis que tudo se fez novo.",
+            "proof": {
+              "printed": "2 Coríntios 5.17",
+              "reference": {
+                "book": "2Co",
+                "chapter": 5,
+                "verses": [
+                  {
+                    "start": 17,
+                    "end": 17
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "key_verse",
+            "label": "A obediência visível em favor do mundo",
+            "text": "Andai com sabedoria para com os que estão de fora, remindo o tempo. A vossa palavra seja sempre agradável, temperada com sal...",
+            "proof": {
+              "printed": "Colossenses 4.5-6",
+              "reference": {
+                "book": "Cl",
+                "chapter": 4,
+                "verses": [
+                  {
+                    "start": 5,
+                    "end": 6
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "title": "Exortação para a Leitura Devocional",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**O Que Devemos Fazer?** Continuar fielmente a história que começou em Atos.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**Vida Pública e Visível:** a nossa nova obediência precisa fazer sentido em favor do mundo (Rm 12.17; Cl 4.5-6). Nossa conduta deve atrair os que estão de fora para o banquete do Reino.",
+            "proof_texts": [
+              {
+                "printed": "Romanos 12.17",
+                "reference": {
+                  "book": "Rm",
+                  "chapter": 12,
+                  "verses": [
+                    {
+                      "start": 17,
+                      "end": 17
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Colossenses 4.5-6",
+                "reference": {
+                  "book": "Cl",
+                  "chapter": 4,
+                  "verses": [
+                    {
+                      "start": 5,
+                      "end": 6
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "A nossa teologia não pode ficar restrita às paredes deste templo. O conceito central do Ato 5 para as nossas vidas é a **Improvisação Fiel**.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "Pensem em uma peça de teatro onde os primeiros atos foram rigidamente escritos, o ato final (Ato 6) já está determinado, mas o miolo do roteiro (Ato 5) foi perdido. Os atores precisam entrar no palco e improvisar. Uma improvisação fiel ao caráter dos atos anteriores.",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**Desafio Prático da Semana**",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "Ao abrir sua Bíblia em seus momentos devocionais nos próximos dias, faça a si mesmo as seguintes perguntas ao ler o Novo Testamento:",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "Minhas reações diárias nesta semana refletem a mentalidade da Era Antiga (medo, ira, egoísmo) ou a realidade da Era Vindoura (paz, justiça, serviço)?",
+                "proof_texts": []
+              },
+              {
+                "text": "Como posso refletir a Nova Criação para o meu vizinho, colega de trabalho ou familiar que ainda não conhece a Cristo?",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Nossa vida pública deve ser tão impactante e santa que funcione como um convite irresistível para os que estão de fora virem participar do grande banquete do Rei Exaltado.",
+            "proof_texts": []
+          }
+        ]
+      }
+    ]
+  }
+}
