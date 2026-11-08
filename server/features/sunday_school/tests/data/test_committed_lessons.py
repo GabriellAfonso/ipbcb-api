@@ -17,10 +17,16 @@ from features.sunday_school.lesson_files import LESSON_DATA_DIR, read_lessons, r
 
 BIBLE_DATA_FILES = sorted((Path(__file__).resolve().parents[3] / "bible" / "data").glob("*.json"))
 LESSONS = read_lessons(LESSON_DATA_DIR / "2026")
-# Lessons that arrived after the 2026 load ran in production, each in its own migration's folder.
+# Lessons that arrived or were replaced after the 2026 load ran in production, each in its own
+# migration's folder.
 LATER_LESSONS = [
     lesson
-    for folder in ("0003_load_oseias_joel_amos", "0004_load_joao", "0005_load_atos")
+    for folder in (
+        "0003_load_oseias_joel_amos",
+        "0004_load_joao",
+        "0005_load_atos",
+        "0006_replace_atos_content",
+    )
     for lesson in read_lessons(LESSON_DATA_DIR / folder)
 ]
 ALL_LESSONS = LESSONS + LATER_LESSONS
@@ -92,6 +98,7 @@ def test_later_lessons_dates_and_teachers() -> None:
     assert [(lesson.title, lesson.date, lesson.teacher) for lesson in LATER_LESSONS] == [
         ("Oseias, Joel e Amós", None, ""),
         ("João", datetime.date(2026, 11, 1), "Jean Monjardim"),
+        ("Atos", datetime.date(2026, 11, 8), ""),
         ("Atos", datetime.date(2026, 11, 8), ""),
     ]
 

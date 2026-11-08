@@ -6,19 +6,22 @@ functions are called again here with the live app registry to check the reverse 
 
 import datetime
 from importlib import import_module
+from pathlib import Path
 
 import pytest
 from django.apps import apps
 
 from conftest import make_user
+from features.sunday_school.lesson_files import read_lessons
 from features.sunday_school.models import SundaySchoolLesson, SundaySchoolYear
 
 load = import_module("features.sunday_school.migrations.0002_load_2026_lessons")
 add_hosea = import_module("features.sunday_school.migrations.0003_load_oseias_joel_amos")
 add_john = import_module("features.sunday_school.migrations.0004_load_joao")
 add_acts = import_module("features.sunday_school.migrations.0005_load_atos")
+replace_acts = import_module("features.sunday_school.migrations.0006_replace_atos_content")
 # Later lessons, in migration order; reversed newest first.
-LATE_LOADS = [add_hosea, add_john, add_acts]
+LATE_LOADS = [add_hosea, add_john, add_acts, replace_acts]
 
 pytestmark = pytest.mark.django_db
 
@@ -121,3 +124,65 @@ def test_acts_goes_last_when_john_is_gone() -> None:
     add_acts.forward(apps, None)
 
     assert _titles_in_order()[-1] == "Atos"
+
+
+def _content_of_folder(directory: Path) -> dict[str, object]:
+    return read_lessons(directory)[0].content.model_dump(mode="json")
+
+
+def test_fresh_database_holds_the_acts_lesson_given() -> None:
+    acts = SundaySchoolLesson.objects.get(title="Atos")
+
+    assert acts.content == _content_of_folder(replace_acts.DATA_DIR)
+    assert acts.content != _content_of_folder(replace_acts.OUTLINE_DATA_DIR)
+
+
+def test_acts_replacement_reverse_restores_the_outline_and_keeps_the_row() -> None:
+    SundaySchoolLesson.objects.filter(title="Atos").update(teacher="Professor")
+    before = SundaySchoolLesson.objects.get(title="Atos")
+
+    replace_acts.backward(apps, None)
+
+    after = SundaySchoolLesson.objects.get(title="Atos")
+    assert after.content == _content_of_folder(replace_acts.OUTLINE_DATA_DIR)
+    assert (after.pk, after.date, after.teacher, after.status, after.position) == (
+        before.pk,
+        before.date,
+        "Professor",
+        before.status,
+        before.position,
+    )
+
+
+def test_acts_replacement_records_the_change_time() -> None:
+    long_ago = datetime.datetime(2020, 1, 1, tzinfo=datetime.timezone.utc)
+    SundaySchoolLesson.objects.filter(title="Atos").update(updated_at=long_ago)
+
+    replace_acts.forward(apps, None)
+
+    assert SundaySchoolLesson.objects.get(title="Atos").updated_at > long_ago
+
+
+def test_acts_replacement_skips_a_deleted_lesson() -> None:
+    add_acts.backward(apps, None)
+
+    replace_acts.forward(apps, None)
+
+    assert "Atos" not in _titles_in_order()
+
+
+def test_acts_replacement_leaves_a_lesson_written_in_the_panel_alone() -> None:
+    add_acts.backward(apps, None)
+    written = SundaySchoolLesson.objects.create(
+        year=SundaySchoolYear.objects.get(year=2026),
+        title="Atos",
+        status="draft",
+        position=20,
+        content={"sections": []},
+        created_by=make_user("lider"),
+    )
+
+    replace_acts.forward(apps, None)
+
+    written.refresh_from_db()
+    assert written.content == {"sections": []}
