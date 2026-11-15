@@ -1,0 +1,702 @@
+{
+  "title": "Atos",
+  "date": null,
+  "teacher": "",
+  "content": {
+    "sections": [
+      {
+        "title": "Contexto do Livro no Drama das Escrituras",
+        "icon": "hourglass",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "*A narrativa contínua do que Jesus exaltado realiza na missão da Igreja pelo Espírito Santo.*",
+            "proof_texts": []
+          },
+          {
+            "type": "book_facts",
+            "book": "At",
+            "author": "Lucas, \"o médico amado\"",
+            "date": "Início dos anos 60 d.C. (antes de 64 d.C.)",
+            "style": null,
+            "reading_time": null
+          },
+          {
+            "type": "paragraph",
+            "text": "**Onde o Livro Está e Seu Papel na Grande História**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Ato 5 do Drama das Escrituras:** focado na \"missão da igreja\" e na propagação da notícia do Rei.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Evangelho de Lucas (1º livro):** relatou \"todas as coisas que Jesus começou a fazer e a ensinar\".",
+                "proof_texts": []
+              },
+              {
+                "text": "**Narrativa contínua:** o que Jesus continua a fazer e a ensinar, exaltado no céu e agindo pelo Espírito Santo na Igreja.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Autor do Livro**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Lucas, \"o médico amado\" (Colossenses 4.14):** segundo a tradição da Igreja primitiva (Ireneu, Clemente de Alexandria, Cânone Muratoriano).",
+                "proof_texts": [
+                  {
+                    "printed": "Colossenses 4.14",
+                    "reference": {
+                      "book": "Cl",
+                      "chapter": 4,
+                      "verses": [
+                        {
+                          "start": 14,
+                          "end": 14
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Perfil histórico:** gentio altamente instruído e companheiro de viagens missionárias do apóstolo Paulo.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Evidência interna:** participação presencial atestada pelas seções escritas com o pronome \"nós\".",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Data e Circunstâncias**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Início dos anos 60 d.C.:** escrito antes de 64 d.C.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Cap. 28 em Roma:** Paulo em prisão domiciliar pregando livremente.",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 28",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 28,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Eventos ausentes:** sem a morte de Paulo (68 d.C.) ou a queda de Jerusalém (70 d.C.).",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Destinatário e Propósito**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**A Teófilo:** possível oficial romano ou patrono das cópias.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Nutrir certeza:** relato histórico acurado, bem ordenado e completo.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Defesa cívica:** fé cristã sem ameaça política contra Roma.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Características Literárias**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Ponte literária:** grego clássico unido à influência da Septuaginta.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Mapa geográfico:** expansão da Palavra conforme Atos 1.8.",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 1.8",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 1,
+                      "verses": [
+                        {
+                          "start": 8,
+                          "end": 8
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Discursos (30%):** sermões em sinagogas, templos e praças.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Objetivo Teológico do Livro",
+        "icon": "crown",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Soberania na Salvação e Governo pelo Espírito**",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "**Mensagem Central: Soberania de Deus**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Messias e Luz:** o evangelho de Jesus alcança Israel e os gentios.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Profecias cumpridas:** plena realização das promessas do Antigo Testamento.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Promessa a Abraão:** bênção redentora estendida a todas as nações da terra.",
+                "proof_texts": []
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**Objetivo Central: Nova Fase do Reino**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Dom escatológico:** o Espírito Santo inaugura nova fase no governo de Jesus.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Ruptura de fronteiras:** Igreja capacitada para vencer barreiras étnicas e geográficas.",
+                "proof_texts": []
+              },
+              {
+                "text": "**De Jerusalém a Roma:** reconciliação com Deus e vida eterna até a capital imperial.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Estrutura do Esboço do Livro",
+        "icon": "book_open",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Mapa de Expansão da \"Palavra do Senhor\"**",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": null,
+                "label": "Atos 1.1—8.3",
+                "title": "I. Em Jerusalém",
+                "text": "**Pentecostes:** sermões de Pedro e vida comum. **Sinais:** milagres e embates no Sinédrio. **Culminância:** martírio de Estêvão.",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 1.1—8.3",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 1,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "Atos 8.4—12.24",
+                "title": "II. Judeia e Samaria",
+                "text": "**Dispersão:** ministério de Filipe em Samaria. **Chamado:** conversão missionária de Saulo. **Fronteiras:** Cornélio e a igreja em Antioquia.",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 8.4—12.24",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 8,
+                      "verses": [
+                        {
+                          "start": 4,
+                          "end": 40
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "Capítulos 13—20",
+                "title": "III. Ásia e Grécia",
+                "text": "**Missões:** três viagens missionárias de Paulo. **Centros urbanos:** igrejas gentílicas e Atenas. **Concílio (cap. 15):** recepção das nações.",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 13—20",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 13,
+                      "verses": []
+                    }
+                  },
+                  {
+                    "printed": "Atos 15",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 15,
+                      "verses": []
+                    }
+                  }
+                ]
+              },
+              {
+                "icon": null,
+                "label": "Capítulos 21—28",
+                "title": "IV. Até Roma",
+                "text": "**Prisões:** sofrimento de Paulo em Jerusalém. **Tribunais:** defesa ante Félix, Festo e Agripa II. **Triunfo:** Palavra pregada livremente em Roma.",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 21—28",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 21,
+                      "verses": []
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Verdades Teológicas do Livro",
+        "icon": "shield",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**A Soberania e o Plano de Deus na História**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Propósitos soberanos:** nada escapa a Deus; a morte de Cristo e o sofrimento da Igreja foram eventos \"necessários\" revelados no Antigo Testamento.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Execução da redenção (Atos 2.23; 4.27-28):** utilizou até mesmo os atos pecaminosos da humanidade para cumprir Seu plano.",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 2.23",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 2,
+                      "verses": [
+                        {
+                          "start": 23,
+                          "end": 23
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "Atos 4.27-28",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 4,
+                      "verses": [
+                        {
+                          "start": 27,
+                          "end": 28
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**Graça soberana (Atos 16.14; 13.48):** Deus escolhe soberanamente as pessoas e lhes \"abre o coração\" para a vida eterna.",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 16.14",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 16,
+                      "verses": [
+                        {
+                          "start": 14,
+                          "end": 14
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "Atos 13.48",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 13,
+                      "verses": [
+                        {
+                          "start": 48,
+                          "end": 48
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**O Governo Presente do Cristo Exaltado**",
+            "proof_texts": []
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**Ressurreição e exaltação:** Messias da linhagem de Davi e Servo Sofredor de Isaías, entronizado à direita de Deus.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Governo pessoal do céu:** derrama Seu Espírito, envia mensageiros e opera curas por meio do Seu nome.",
+                "proof_texts": []
+              },
+              {
+                "text": "**Juiz e único Salvador:** Juiz diante do qual todas as nações comparecerão (Atos 10.42; 17.31); só em Seu nome há salvação (Atos 4.12).",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 10.42",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 10,
+                      "verses": [
+                        {
+                          "start": 42,
+                          "end": 42
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "Atos 17.31",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 17,
+                      "verses": [
+                        {
+                          "start": 31,
+                          "end": 31
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "Atos 4.12",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 4,
+                      "verses": [
+                        {
+                          "start": 12,
+                          "end": 12
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "**O Espírito Santo e a Identidade da Igreja (\"O Caminho\")**",
+            "proof_texts": []
+          },
+          {
+            "type": "table",
+            "header": [
+              "Eixo teológico",
+              "Doutrina central",
+              "Atuação e prática"
+            ],
+            "rows": [
+              [
+                "Espírito Santo: dom escatológico",
+                "Promessa do Pai derramada no Pentecostes",
+                "Concede consolo, sabedoria, alegria e poder"
+              ],
+              [
+                "Espírito Santo: direção ativa",
+                "Atuação dinâmica na missão (Atos 13.2; 16.6-7)",
+                "Pastoreia líderes e dá poder ante opositores"
+              ],
+              [
+                "Inclusão gentílica (\"Igreja de Deus\")",
+                "Nova aliança sem as antigas cercas judaicas",
+                "Salvação pela graça e fé, sem circuncisão"
+              ],
+              [
+                "Identidade (\"O Caminho\")",
+                "Submissão às Escrituras com apóstolos e presbíteros",
+                "Moldada no sofrimento, reproduzindo a vida de Cristo"
+              ]
+            ]
+          },
+          {
+            "type": "paragraph",
+            "text": "Textos da direção do Espírito na missão:",
+            "proof_texts": [
+              {
+                "printed": "Atos 13.2",
+                "reference": {
+                  "book": "At",
+                  "chapter": 13,
+                  "verses": [
+                    {
+                      "start": 2,
+                      "end": 2
+                    }
+                  ]
+                }
+              },
+              {
+                "printed": "Atos 16.6-7",
+                "reference": {
+                  "book": "At",
+                  "chapter": 16,
+                  "verses": [
+                    {
+                      "start": 6,
+                      "end": 7
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Versículos-Chave",
+        "icon": "scroll",
+        "blocks": [
+          {
+            "type": "key_verse",
+            "label": "A Estrutura e a Missão Impulsionada pelo Espírito",
+            "text": "\"...receberiam poder para ser suas testemunhas 'tanto em Jerusalém como em toda a Judeia e Samaria e até aos confins da terra'.\"",
+            "proof": {
+              "printed": "Atos 1.8",
+              "reference": {
+                "book": "At",
+                "chapter": 1,
+                "verses": [
+                  {
+                    "start": 8,
+                    "end": 8
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "list",
+            "style": "bullet",
+            "items": [
+              {
+                "text": "**A exclusividade da salvação no Messias:** \"[E não há salvação] em nenhum outro nome, senão no nome de Jesus\" (Atos 4.12).",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 4.12",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 4,
+                      "verses": [
+                        {
+                          "start": 12,
+                          "end": 12
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**A soberania no sofrimento de Cristo:** a crucificação cumpriu o que os líderes \"...conspiraram impiamente contra Jesus, o Cristo\" (Atos 2.23; 4.27-28).",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 2.23",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 2,
+                      "verses": [
+                        {
+                          "start": 23,
+                          "end": 23
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "Atos 4.27-28",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 4,
+                      "verses": [
+                        {
+                          "start": 27,
+                          "end": 28
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "text": "**A promessa da volta e do juízo:** Jesus ressurreto \"já foi constituído como o Juiz diante do qual todas as nações comparecerão no dia designado por Deus\" (Atos 10.42; 17.31).",
+                "proof_texts": [
+                  {
+                    "printed": "Atos 10.42",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 10,
+                      "verses": [
+                        {
+                          "start": 42,
+                          "end": 42
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "printed": "Atos 17.31",
+                    "reference": {
+                      "book": "At",
+                      "chapter": 17,
+                      "verses": [
+                        {
+                          "start": 31,
+                          "end": 31
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Exortação Devocional",
+        "icon": "hands_praying",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "**Nossa Vocação no Ato 5 da Redenção**",
+            "proof_texts": []
+          },
+          {
+            "type": "paragraph",
+            "text": "*Testemunhas chamadas sob a autoridade do Cristo exaltado para levar a Palavra irrefreável de Deus.*",
+            "proof_texts": []
+          },
+          {
+            "type": "cards",
+            "items": [
+              {
+                "icon": "cross",
+                "label": null,
+                "title": "Autêntico Discipulado",
+                "text": "Imitar a Cristo Jesus.",
+                "proof_texts": []
+              },
+              {
+                "icon": "hands_praying",
+                "label": null,
+                "title": "Comunhão Generosa",
+                "text": "Inspirar-se na generosidade diária dos primeiros cristãos.",
+                "proof_texts": []
+              },
+              {
+                "icon": "flame",
+                "label": null,
+                "title": "Poder para Servir",
+                "text": "Servir e se dedicar a uma vida de oração.",
+                "proof_texts": []
+              },
+              {
+                "icon": "book_open",
+                "label": null,
+                "title": "Palavra Transformadora",
+                "text": "Levar as Boas-Novas aos lares, trabalhos e cidades.",
+                "proof_texts": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

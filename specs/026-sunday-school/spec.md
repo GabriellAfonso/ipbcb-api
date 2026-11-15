@@ -198,15 +198,15 @@ and expect the rows gone.
 **Acceptance Scenarios**:
 
 1. **Given** an empty database, **When** migrations run, **Then** year 2026 exists with theme "O
-   Drama das Escrituras" and 21 published lessons in this order, titled exactly: Josué, Rute,
+   Drama das Escrituras" and 22 published lessons in this order, titled exactly: Josué, Rute,
    2 Samuel, 1 Reis, 2 Reis, 2 Crônicas, Salmos, Provérbios, Isaías, Ezequiel, Daniel, "Oseias,
    Joel e Amós", "Obadias, Jonas e Miqueias", "Naum, Habacuque e Sofonias", "Ageu, Zacarias e Malaquias", O Período
-   Intertestamentário, O Rei Chegou, Mateus, Marcos, João, Atos. A lesson's title is the name of the
-   Bible book (or books, joined with commas and "e") it covers; only the two lessons that cover no
-   single book keep a descriptive title.
+   Intertestamentário, O Rei Chegou, Mateus, Marcos, João, A Missão da Igreja, Atos. A lesson's title is the name of the
+   Bible book (or books, joined with commas and "e") it covers; only the three lessons that cover no
+   single book (the openings of Act 4 and Act 5 and the intertestamental period) keep a descriptive title.
 2. **Then** dates are set only for 2 Samuel (2026-05-17), 1 Reis (05-24), 2 Reis (05-31),
    2 Crônicas (06-14), Salmos (07-05), Provérbios (07-12), Isaías (07-26), Ezequiel (08-09) and
-   Daniel (08-16), João (11-01) and Atos (11-08); every other lesson has no date. Only João has a teacher (Jean
+   Daniel (08-16), João (11-01) and A Missão da Igreja (11-08); every other lesson has no date. Only João has a teacher (Jean
    Monjardim). No lesson has an author.
 3. **Then** every imported section has an icon.
 4. **Given** a database where the first 18 lessons were already loaded (production), **When** the
@@ -217,6 +217,11 @@ and expect the rows gone.
    runs, **Then** its content becomes the lesson actually given ("O Drama das Escrituras Ato 5"), and
    its title, date, teacher, status and position stay as they are; if it was deleted, nothing
    happens. The reverse puts the outline content back.
+6. **Given** that "Atos" lesson (the opening of Act 5), **When** the next migration runs, **Then** it
+   is retitled "A Missão da Igreja" with everything else on the row unchanged, and the book lesson
+   "Atos" ("Panorama de Atos dos Apóstolos", no date or teacher yet) is inserted right after it, or
+   last if it was deleted. A lesson written in the panel is never retitled. The reverse removes the
+   book lesson, closes the gap and gives the Act 5 lesson its old title back.
 
 ---
 
@@ -312,7 +317,7 @@ and expect the rows gone.
 
 **Initial load**
 
-- **FR-022**: Data migrations MUST create year 2026 with theme "O Drama das Escrituras" and the 21
+- **FR-022**: Data migrations MUST create year 2026 with theme "O Drama das Escrituras" and the 22
   lessons of User Story 5, published, positions in Bible order, official dates only, a teacher only
   when the source names one, no author. They MUST read frozen JSON files stored beside them, validate them through the same
   content schema, and each reverse MUST remove what it created. A lesson that arrives after a load

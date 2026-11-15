@@ -74,6 +74,24 @@ def replace_lessons_content(apps: StateApps, year: int, directory: Path) -> None
         loaded.save(update_fields=["content", "updated_at"])
 
 
+def rename_lesson(apps: StateApps, year: int, old_title: str, new_title: str) -> None:
+    """Retitle the author-less lesson called ``old_title``; nothing else on the row changes.
+
+    Skips a lesson that no longer exists.
+
+    >>> rename_lesson(apps, 2026, "Atos", "A Missão da Igreja")
+    """
+    lesson_model = apps.get_model("sunday_school", "SundaySchoolLesson")
+    loaded = lesson_model.objects.filter(
+        year__year=year, created_by__isnull=True, title=old_title
+    ).first()
+    if loaded is None:
+        return
+    loaded.title = new_title
+    # save, not a queryset update: updated_at has to record the change.
+    loaded.save(update_fields=["title", "updated_at"])
+
+
 def _position_after(lessons: QuerySet[Model], preceding_title: str) -> int:
     """The position right after ``preceding_title`` in ``lessons`` (one year), or the end."""
     preceding = (

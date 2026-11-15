@@ -138,7 +138,7 @@ later positions by one, or appends it when "Daniel" is gone. Reverse deletes it 
 gap. "João" (given 2026-11-01) followed as `0004_load_joao` after "Marcos", and "Atos" (opening of Act 5, given 2026-11-08, teacher not yet known) as `0005_load_atos` after "João". The shared steps live in
 `late_lesson_load.py` (`insert_lessons_after`, `remove_lessons`), so each later migration names only
 its folder and the preceding title. A lesson file may carry an optional `teacher` (default ""),
-set only when the source names one. The committed-files test checks these folders too. `0005` had loaded the outline of the Atos lesson, not the lesson given, so `0006_replace_atos_content` swaps only the content of that row (`replace_lessons_content`, same file), reading `data/0006_replace_atos_content/`; its reverse rereads the `0005` folder.
+set only when the source names one. The committed-files test checks these folders too. `0005` had loaded the outline of the Atos lesson, not the lesson given, so `0006_replace_atos_content` swaps only the content of that row (`replace_lessons_content`, same file), reading `data/0006_replace_atos_content/`; its reverse rereads the `0005` folder. That lesson turned out to be the opening of Act 5, not the book, so `0007_rename_ato_5_and_load_atos` retitles it "A Missão da Igreja" (`rename_lesson`, same file; author-less rows only) and inserts the book lesson "Atos" from `data/0007_rename_ato_5_and_load_atos/` right after it; its reverse removes the book lesson first, then restores the old title, so `0006`'s reverse still finds "Atos".
 
 ## R-09 Routes
 
