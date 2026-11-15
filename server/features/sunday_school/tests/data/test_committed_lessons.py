@@ -26,6 +26,7 @@ LATER_LESSONS = [
         "0004_load_joao",
         "0005_load_atos",
         "0006_replace_atos_content",
+        "0007_rename_ato_5_and_load_atos",
     )
     for lesson in read_lessons(LESSON_DATA_DIR / folder)
 ]
@@ -100,6 +101,8 @@ def test_later_lessons_dates_and_teachers() -> None:
         ("João", datetime.date(2026, 11, 1), "Jean Monjardim"),
         ("Atos", datetime.date(2026, 11, 8), ""),
         ("Atos", datetime.date(2026, 11, 8), ""),
+        # The book lesson; the two above are the Act 5 opening, retitled by 0007.
+        ("Atos", None, ""),
     ]
 
 
